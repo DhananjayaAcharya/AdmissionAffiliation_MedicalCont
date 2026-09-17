@@ -504,6 +504,32 @@
                 </div>
             </form>
 
+            @if (!string.IsNullOrWhiteSpace(Model.SelectedDepartmentCode))
+            {
+                <div class="section-label">
+                    <span class="section-label-text">Excel Equipment Template</span>
+                    <span class="section-label-line"></span>
+                </div>
+
+                <form method="post"
+                      asp-action="UploadEquipmentAvailability"
+                      enctype="multipart/form-data"
+                      class="selector-block">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="departmentCode" value="@Model.SelectedDepartmentCode" />
+                    <div class="field-group">
+                        <label class="form-label-text" for="equipmentFile">Completed XLSX file</label>
+                        <input class="form-select" type="file" id="equipmentFile" name="equipmentFile" accept=".xlsx" required />
+                    </div>
+                    <div class="footer-right">
+                        <a class="btn-save" asp-action="DownloadEquipmentTemplate" asp-route-departmentCode="@Model.SelectedDepartmentCode">
+                            Download Template
+                        </a>
+                        <button type="submit" class="btn-save">Upload and Save</button>
+                    </div>
+                </form>
+            }
+
             <!-- ── Equipment Table ── -->
             @if (Model.Equipments != null && Model.Equipments.Any())
             {

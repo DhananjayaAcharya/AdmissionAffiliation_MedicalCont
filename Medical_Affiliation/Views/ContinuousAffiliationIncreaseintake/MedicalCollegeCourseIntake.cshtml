@@ -54,64 +54,166 @@
         previousController = "ContinuesAffiliation_Facultybased";
         previousAction = "Details_Of_MBBS";
     }
+
+    var currentControllerName = ViewContext.RouteData.Values["controller"]?.ToString();
+    var levelLabel = currentCourseLevel switch
+    {
+        "UG" => "Undergraduate",
+        "PG" => "Postgraduate",
+        "SS" => "Super Speciality",
+        _ => currentCourseLevel
+    };
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
 <style>
     :root {
-        --navy: #0d1b3e;
+        --navy: #102b4c;
+        --navy-deep: #0a1c36;
         --blue: #1a4bbd;
-        --surf: #f2f5fb;
-        --card: #fff;
-        --bdr: #dae2f4;
-        --txt: #1c2b4a;
-        --muted: #6b7fa3;
-        --ok: #1ca87c;
-        --fh: 'Playfair Display', Georgia, serif;
-        --fb: 'DM Sans', 'Segoe UI', sans-serif;
+        --blue-soft: #eaf1ff;
+        --gold: #c9a24b;
+        --gold-soft: #f5e7b7;
+        --surface: #f2f6fb;
+        --card: #ffffff;
+        --bdr: #d7e1ee;
+        --txt: #1f2d3d;
+        --muted: #667b93;
+        --ok: #127c5f;
+        --ok-bg: #eaf8f3;
+        --err: #be3b32;
+        --err-bg: #fdeceb;
+        --fh: 'Georgia', 'Times New Roman', serif;
+        --fb: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        --radius: 10px;
     }
 
     .course-intake-page {
         min-height: 100%;
-        padding: 0 0 2rem;
-        background: var(--surf);
+        padding: 0 0 2.5rem;
+        background: linear-gradient(180deg, #edf3f8 0%, #f7f9fc 100%);
         color: var(--txt);
         font-family: var(--fb);
     }
 
-    .page-header {
-        padding: 1rem 2.4rem;
-        background: linear-gradient(135deg, var(--navy), #1c3b7e);
-        color: #fff;
+    .gov-strip {
+        height: 5px;
+        background: linear-gradient(90deg, var(--navy) 0%, var(--navy) 34%, var(--gold) 34%, var(--gold) 66%, var(--navy) 66%, var(--navy) 100%);
     }
 
-    .page-header h1 {
-        margin: 0 0 .55rem;
+    .page-header {
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        padding: 1.25rem 2.2rem;
+        background: linear-gradient(135deg, var(--navy) 0%, #173d69 55%, #1d4d84 100%);
+        color: #fff;
+        border-bottom: 4px solid var(--gold);
+        box-shadow: 0 10px 22px rgba(16, 43, 76, 0.08);
+    }
+
+    .gov-emblem {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 52px;
+        height: 52px;
+        background: rgba(255, 255, 255, .12);
+        border: 1.5px solid rgba(201, 150, 44, .65);
+        border-radius: 50%;
+        color: var(--gold);
         font-family: var(--fh);
-        font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+        font-weight: 900;
+        font-size: 1.05rem;
+    }
+
+    .page-header-text .eyebrow {
+        margin: 0 0 .2rem;
+        color: rgba(255, 255, 255, .68);
+        font-size: .72rem;
+        font-weight: 600;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .page-header-text h1 {
+        margin: 0 0 .6rem;
+        font-family: var(--fh);
+        font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+        font-weight: 900;
         line-height: 1.2;
     }
 
     .page-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: .7rem 1.5rem;
-        color: rgba(255, 255, 255, .72);
-        font-size: .84rem;
+        gap: .5rem 1.4rem;
+        color: rgba(255, 255, 255, .8);
+        font-size: .82rem;
     }
+
+        .page-meta strong {
+            color: #fff;
+            font-weight: 700;
+        }
+
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .65rem 2.4rem;
+        background: #fff;
+        border-bottom: 1px solid var(--bdr);
+        color: var(--muted);
+        font-size: .78rem;
+    }
+
+        .breadcrumb .current {
+            color: var(--maroon);
+            font-weight: 700;
+        }
 
     .content {
-        padding: 1.2rem .6rem;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 1.6rem 1.4rem 0;
     }
 
+    /* ---------- Alerts ---------- */
+    .alert {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        margin: 0 0 1.1rem;
+        padding: .85rem 1.2rem;
+        border-radius: 10px;
+        font-size: .87rem;
+        font-weight: 600;
+    }
+
+    .success-msg {
+        background: var(--ok-bg);
+        border: 1px solid var(--ok);
+        color: var(--ok);
+    }
+
+    .error-msg {
+        background: var(--err-bg);
+        border: 1px solid var(--err);
+        color: var(--err);
+    }
+
+    /* ---------- Card ---------- */
     .card {
         overflow: hidden;
         background: var(--card);
         border: 1px solid var(--bdr);
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(26, 75, 189, .09);
+        border-radius: var(--radius);
+        box-shadow: 0 4px 18px rgba(12, 31, 63, .08);
     }
 
     .card-header {
@@ -119,68 +221,93 @@
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
-        padding: 1.1rem 1.6rem;
+        padding: 1.15rem 1.6rem;
         border-bottom: 1px solid var(--bdr);
-        background: #f8faff;
+        background: #f8f9fd;
     }
 
-    .card-header h2 {
-        margin: 0;
-        color: var(--navy);
-        font-family: var(--fh);
-        font-size: 1.05rem;
+    .card-header-text {
+        display: flex;
+        flex-direction: column;
+        gap: .15rem;
     }
+
+        .card-header-text h2 {
+            margin: 0;
+            color: var(--navy);
+            font-family: var(--fh);
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .card-header-text span {
+            color: var(--muted);
+            font-size: .78rem;
+        }
 
     .level-badge {
-        padding: .25rem .7rem;
-        border-radius: 20px;
-        background: #e0ecff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 90px;
+        padding: 0.38rem 0.8rem;
+        border-radius: 999px;
+        background: var(--blue-soft);
+        border: 1px solid rgba(26, 75, 189, 0.18);
         color: var(--blue);
-        font-size: .72rem;
+        font-size: .7rem;
         font-weight: 700;
-        letter-spacing: .06em;
+        letter-spacing: .08em;
         text-transform: uppercase;
         white-space: nowrap;
     }
 
     .table-wrap {
         overflow-x: auto;
+        background: var(--card);
     }
 
     table {
         width: 100%;
         border-collapse: collapse;
-        font-size: .88rem;
+        font-size: .87rem;
     }
 
     th {
-        padding: .78rem 1rem;
-        background: var(--navy);
-        color: rgba(255, 255, 255, .9);
-        font-size: .73rem;
-        font-weight: 600;
-        letter-spacing: .05em;
+        position: sticky;
+        top: 0;
+        padding: .8rem 1rem;
+        background: linear-gradient(180deg, #143b67 0%, #0f2d51 100%);
+        color: rgba(255, 255, 255, .95);
+        font-size: .71rem;
+        font-weight: 700;
+        letter-spacing: .06em;
         text-align: left;
         text-transform: uppercase;
+        white-space: nowrap;
     }
 
-    th:last-child,
-    td:last-child {
-        width: 180px;
-        text-align: center;
-    }
+        th:last-child,
+        td:last-child {
+            text-align: center;
+        }
 
     td {
-        padding: .78rem 1rem;
+        padding: .82rem 1.1rem;
         border-bottom: 1px solid var(--bdr);
     }
 
+        td:first-child {
+            color: var(--muted);
+            font-variant-numeric: tabular-nums;
+        }
+
     tbody tr:nth-child(even) {
-        background: #f6f9ff;
+        background: #f7f9fd;
     }
 
     tbody tr:hover {
-        background: #eef4ff;
+        background: #eef2fb;
     }
 
     .course-name {
@@ -189,78 +316,131 @@
     }
 
     .intake-value {
+        display: inline-block;
+        min-width: 2.4rem;
+        padding: .15rem .55rem;
+        background: var(--ok-bg);
+        border-radius: 6px;
         color: var(--ok);
-        font-size: 1rem;
+        font-size: .92rem;
         font-weight: 700;
         font-variant-numeric: tabular-nums;
     }
 
     .empty {
-        padding: 2.5rem 1rem;
+        padding: 3rem 1rem;
         color: var(--muted);
         text-align: center;
+        font-size: .92rem;
     }
 
+    /* ---------- Fields ---------- */
+    .readonly-field {
+        width: 110px;
+        padding: .45rem .6rem;
+        background: #eef1f7;
+        border: 1px solid var(--bdr);
+        border-radius: 7px;
+        color: var(--muted);
+        font-family: var(--fb);
+        font-size: .85rem;
+        text-align: center;
+        cursor: not-allowed;
+    }
+
+    .editable-field {
+        width: 110px;
+        padding: .45rem .6rem;
+        background: #fff;
+        border: 1.5px solid var(--bdr);
+        border-radius: 7px;
+        color: var(--txt);
+        font-family: var(--fb);
+        font-size: .85rem;
+        font-weight: 600;
+        text-align: center;
+        transition: border-color .15s, box-shadow .15s;
+    }
+
+        .editable-field:focus {
+            outline: none;
+            border-color: var(--navy-2);
+            box-shadow: 0 0 0 3px rgba(20, 49, 94, .14);
+        }
+
+    /* ---------- Buttons ---------- */
     .actions {
         display: flex;
         justify-content: flex-end;
-        padding: 1rem 1.6rem;
+        padding: 1.1rem 1.6rem;
         border-top: 1px solid var(--bdr);
-        background: #f8faff;
+        background: #f8f9fd;
     }
 
-    .back-link {
+    .btn {
         display: inline-flex;
         align-items: center;
         gap: .45rem;
-        padding: .62rem 1.2rem;
-        border: 1.5px solid var(--blue);
+        padding: .72rem 1.3rem;
+        border: 1px solid transparent;
         border-radius: 8px;
-        color: var(--blue);
-        font-size: .87rem;
-        font-weight: 600;
+        font-family: var(--fb);
+        font-size: .8rem;
+        font-weight: 700;
+        letter-spacing: .04em;
         text-decoration: none;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all .15s ease;
     }
 
-    .back-link:hover {
-        background: #eef4ff;
+        .btn:active {
+            transform: scale(.98);
+        }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--navy) 0%, #1e4f8b 100%);
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(16, 43, 76, 0.15);
     }
+
+        .btn-primary:hover {
+            color: #fff;
+            opacity: .96;
+        }
+
+    .btn-outline {
+        border-color: var(--navy);
+        background: #fff;
+        color: var(--navy);
+    }
+
+        .btn-outline:hover {
+            background: #f3f8ff;
+            text-decoration: none;
+        }
 
     .page-navigation {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--bdr);
-    }
-
-    .next-link {
-        display: inline-flex;
-        align-items: center;
-        gap: .45rem;
-        padding: .62rem 1.35rem;
-        border-radius: 8px;
-        background: linear-gradient(135deg, var(--navy), #1c3b7e);
-        color: #fff;
-        font-size: .87rem;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-    .next-link:hover {
-        color: #fff;
-        opacity: .9;
+        margin-top: 1.3rem;
+        padding-top: 0;
     }
 
     @@media (max-width: 768px) {
         .page-header {
-            padding: 1.5rem 1.2rem;
+            flex-wrap: wrap;
+            padding: 1.3rem 1.2rem;
+        }
+
+        .breadcrumb {
+            padding: .6rem 1.2rem;
         }
 
         .content {
-            padding: 1rem;
+            padding: 1.2rem .8rem 0;
         }
 
         .card-header {
@@ -273,31 +453,66 @@
             flex-direction: column;
         }
 
-        .page-navigation a {
-            justify-content: center;
-        }
+            .page-navigation .actions,
+            .page-navigation .btn {
+                justify-content: center;
+            }
 
-        th:last-child,
-        td:last-child {
-            width: 130px;
+            .page-navigation .actions {
+                padding: 0;
+                border-top: none;
+                background: transparent;
+            }
+
+        .readonly-field,
+        .editable-field {
+            width: 90px;
         }
     }
 </style>
 
 <div class="course-intake-page">
+    <div class="gov-strip"></div>
+
     <header class="page-header">
-        <h1>College Course Intake</h1>
-        <div class="page-meta">
-            <span><strong>College:</strong> @Model.CollegeName</span>
-            <span><strong>Code:</strong> @Model.CollegeCode</span>
-            <span><strong>Faculty:</strong> @Model.FacultyCode</span>
+        <div class="gov-emblem">RGUHS</div>
+        <div class="page-header-text">
+            <p class="eyebrow">Rajiv Gandhi University of Health Sciences &middot; Admission &amp; Affiliation Cell</p>
+            <h1>College Course Intake</h1>
+            <div class="page-meta">
+                <span><strong>College:</strong> @Model.CollegeName</span>
+                <span><strong>Code:</strong> @Model.CollegeCode</span>
+                <span><strong>Faculty:</strong> @Model.FacultyCode</span>
+            </div>
         </div>
     </header>
 
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <span>Continuous Affiliation</span>
+        <span aria-hidden="true">›</span>
+        <span>@levelLabel Courses</span>
+        <span aria-hidden="true">›</span>
+        <span class="current">Course Intake</span>
+    </nav>
+
     <main class="content">
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert success-msg">@TempData["SuccessMessage"]</div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert error-msg">@TempData["ErrorMessage"]</div>
+        }
+
         <section class="card">
             <div class="card-header">
-                <h2>Courses and Intake for 2026-27</h2>
+                <div class="card-header-text">
+                    <h2>Courses and Intake for 2027-28</h2>
+                    <span>Sanctioned intake as recorded for the academic year 2026-27</span>
+                </div>
                 <span class="level-badge">@Model.CourseLevel</span>
             </div>
 
@@ -307,42 +522,83 @@
             }
             else
             {
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>SLNO</th>
-                                <th>Course Name</th>
-                                <th>Intake 2026-27</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{ var displaySlno = 1; }
-                            @foreach (var course in Model.Courses)
-                            {
-                                <tr>
-                                    <td>@displaySlno</td>
-                                    <td class="course-name">@course.CourseName</td>
-                                    <td class="intake-value">@course.Intake2627</td>
-                                </tr>
-                                displaySlno++;
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
+                <form asp-action="SaveIncreasedIntake" asp-controller="@currentControllerName" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="CollegeCode" />
+                    <input type="hidden" asp-for="CollegeName" />
+                    <input type="hidden" asp-for="FacultyCode" />
+                    <input type="hidden" asp-for="CourseLevel" />
+                    <input type="hidden" asp-for="ShowIncreasedIntakeFields" />
 
-            
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sl. No.</th>
+                                    <th>Course Name</th>
+                                    <th>Intake 2026-27</th>
+                                    @if (Model.ShowIncreasedIntakeFields)
+                                    {
+                                        <th>Increased Intake</th>
+                                        <th>Academic Year</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var displaySlno = 1;
+                                }
+                                @for (var i = 0; i < Model.Courses.Count; i++)
+                                {
+                                    var course = Model.Courses[i];
+                                    <tr>
+                                        <td>@displaySlno</td>
+                                        <td class="course-name">@course.CourseName</td>
+                                        <td><span class="intake-value">@course.Intake2627</span></td>
+
+                                        @if (Model.ShowIncreasedIntakeFields)
+                                        {
+                                            <td>
+                                                <input type="hidden" asp-for="Courses[i].Slno" />
+                                                <input type="hidden" asp-for="Courses[i].CourseCode" />
+                                                <input type="hidden" asp-for="Courses[i].CourseName" />
+                                                <input type="hidden" asp-for="Courses[i].Intake2627" />
+                                                <input type="number" min="0" step="1"
+                                                       class="editable-field"
+                                                       asp-for="Courses[i].IncreasedIntake" />
+                                            </td>
+                                            <td>
+                                                <input type="text" readonly
+                                                       class="readonly-field"
+                                                       asp-for="Courses[i].AcademicYear"
+                                                       value="2027-28" />
+                                            </td>
+                                        }
+                                    </tr>
+                                    displaySlno++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (Model.ShowIncreasedIntakeFields)
+                    {
+                        <div class="actions">
+                            <button type="submit" class="btn btn-primary">Save Increased Intake</button>
+                        </div>
+                    }
+                </form>
+            }
         </section>
 
         <nav class="page-navigation" aria-label="Course intake navigation">
             <div class="actions">
-                <a class="back-link" asp-action="@previousAction" asp-controller="@previousController">
-                    previous
+                <a class="btn btn-outline" asp-action="@previousAction" asp-controller="@previousController">
+                    <span aria-hidden="true">←</span> Previous
                 </a>
             </div>
 
-            <a class="next-link" asp-controller="@nextController" asp-action="@nextAction">
+            <a class="btn btn-primary" asp-controller="@nextController" asp-action="@nextAction">
                 Next <span aria-hidden="true">→</span>
             </a>
         </nav>

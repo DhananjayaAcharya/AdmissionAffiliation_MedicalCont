@@ -1950,7 +1950,7 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation");
             }
 
-            return RedirectToAction("IncreaseIntake", "ContinuousAffiliationIncreaseintake");
+            return RedirectToAction("AssociatedInstitutions", "AffiliationSS");
         }
 
         [HttpGet]
@@ -6114,13 +6114,16 @@ namespace Medical_Affiliation.Controllers
                 entity.PicuNicu = vm.PICU_NICU;
                 entity.Sicu = vm.SICU;
 
-                entity.TotalIcubeds = vm.TotalICUBeds;
+                entity.TotalIcubeds = (vm.ICCU ?? 0)
+                    + (vm.ICU ?? 0)
+                    + (vm.PICU_NICU ?? 0)
+                    + (vm.SICU ?? 0);
                 entity.CasualtyBeds = vm.CasualtyBeds;
             }
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Bed distribution saved successfully!";
-            return RedirectToAction("MedicalUGBedDistribution");
+            return RedirectToAction("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation");
         }
 
     }

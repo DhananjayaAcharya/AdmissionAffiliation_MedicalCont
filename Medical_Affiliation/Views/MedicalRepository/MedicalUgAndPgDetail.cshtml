@@ -1000,6 +1000,22 @@
             </div>
         </div>
 
+        <div class="form-card" style="margin-top:24px;">
+            <div class="section-head">
+                <div class="section-head-icon"><i class="ri-file-pdf-2-line"></i></div>
+                <div class="section-head-label">UG COA Reference Preview</div>
+                <div class="section-head-line"></div>
+                <a href="@Url.Action("UgCoaPreview", "MedicalRepository")"
+                   target="_blank" rel="noopener" class="doc-link">
+                    <i class="ri-external-link-line"></i> Open PDF
+                </a>
+            </div>
+            <iframe src="@Url.Action("UgCoaPreview", "MedicalRepository")"
+                    title="UG COA PDF preview"
+                    style="width:100%;height:720px;border:0;display:block;"
+                    loading="lazy"></iframe>
+        </div>
+
         <!-- ══ FORM CARD ══ -->
         <div class="form-card">
 

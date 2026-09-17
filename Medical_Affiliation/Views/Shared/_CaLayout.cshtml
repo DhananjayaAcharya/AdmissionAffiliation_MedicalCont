@@ -87,7 +87,7 @@
                 display: flex;
                 align-items: flex-start;
                 width: 100%;
-                max-width: 1500px;
+                max-width: none;
                 margin: 0 auto;
                 padding: 0 1.25rem 2rem;
                 box-sizing: border-box;
@@ -117,13 +117,41 @@
             .ca-body,
             .ca-body > .page-shell,
             .ca-body > .page-shell > .page-container {
-                width: 100%;
-                max-width: none;
+                width: 100% !important;
+                max-width: none !important;
             }
 
             .ca-main,
             .ca-body {
                 align-self: stretch;
+            }
+
+            .ca-body > .page-shell {
+                display: block !important;
+                grid-template-columns: none !important;
+                min-height: auto !important;
+                padding: 0 !important;
+                background: transparent !important;
+            }
+
+            .ca-body > .page-shell > .page-container {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .ca-body .form-card,
+            .ca-body .section-card,
+            .ca-body .main-box,
+            .ca-body .table-wrap {
+                width: 100% !important;
+                max-width: none !important;
+            }
+
+            .ca-body .section-block,
+            .ca-body .section-block-body,
+            .ca-body .table-responsive {
+                width: 100%;
+                max-width: 100%;
             }
 
             /* ===== Official / modernized topbar ===== */

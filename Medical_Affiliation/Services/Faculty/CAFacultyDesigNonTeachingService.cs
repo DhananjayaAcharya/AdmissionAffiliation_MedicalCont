@@ -9,11 +9,16 @@ namespace Medical_Affiliation.Services.Faculty
     {
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CAFacultyDesigNonTeachingService(ApplicationDbContext context, IUserContext userContext)
+        public CAFacultyDesigNonTeachingService(
+            ApplicationDbContext context,
+            IUserContext userContext,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userContext = userContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<FacultyDesigNonTeachDisplayVM> GetFacultyDesigNonTeachingAsync()
@@ -120,50 +125,34 @@ namespace Medical_Affiliation.Services.Faculty
 
         public async Task<List<NonTeachingStaffDisplayVM>> GetNonTeachingStaffDetailsAsync()
         {
-            var collegeCode = _userContext.CollegeCode;
-            var facultyCode = _userContext.FacultyId.ToString();
+            var collegeCode = _httpContextAccessor.HttpContext?.Session.GetString("CollegeCode")
+                              ?? _userContext.CollegeCode;
+            var courseLevel = (_httpContextAccessor.HttpContext?.Session.GetString("CourseLevel")
+                               ?? _httpContextAccessor.HttpContext?.Session.GetString("SelectedCourseLevel")
+                               ?? _userContext.CourseLevel)
+                .Trim()
+                .ToUpperInvariant();
 
-            var data = await (
-             from s in _context.AffNonTeachingStaffs
+            var rows = await _context.NonTeachingStaffDetails
+                .AsNoTracking()
+                .Where(s => s.CollegeCode == collegeCode &&
+                            s.CourseLevel != null &&
+                            s.CourseLevel.Trim().ToUpper() == courseLevel)
+                .OrderBy(s => s.Id)
+                .ToListAsync();
 
-             join d in _context.DesignationMasters
-                 on new
-                 {
-                     Code = s.Designation.Trim(),
-                     Faculty = s.FacultyCode.Trim()
-                 }
-                 equals new
-                 {
-                     Code = d.DesignationCode.Trim(),
-                     Faculty = d.FacultyCode.ToString()
-                 }
-                 into desig
-                from d in desig.DefaultIfEmpty()
-
-                where s.CollegeCode == collegeCode
-                    && s.FacultyCode == facultyCode
-
-                orderby d.DesignationOrder, s.StaffName
-
-                select new NonTeachingStaffDisplayVM
-                {
-                    StaffName = s.StaffName,
-
-                    Designation = d != null
-                        ? d.DesignationName
-                        : s.Designation, // fallback is IMPORTANT
-
-                    MobileNumber = s.MobileNumber,
-                    SalaryPaid = s.SalaryPaid,
-
-                    PfProvided = s.PfProvided,
-                    EsiProvided = s.EsiProvided,
-                    ServiceRegisterMaintained = s.ServiceRegisterMaintained,
-                    SalaryAcquaintanceRegister = s.SalaryAcquaintanceRegister
-                }
-            ).ToListAsync();
-
-            return data;
+            return rows.Select(s => new NonTeachingStaffDisplayVM
+            {
+                StaffId = s.Id,
+                StaffName = s.StaffName ?? string.Empty,
+                Designation = s.Designation ?? string.Empty,
+                MobileNumber = s.MobileNumber,
+                SalaryPaid = decimal.TryParse(s.SalaryPaid, out var salary) ? salary : 0,
+                PfProvided = false,
+                EsiProvided = false,
+                ServiceRegisterMaintained = false,
+                SalaryAcquaintanceRegister = false
+            }).ToList();
         }
 
     }

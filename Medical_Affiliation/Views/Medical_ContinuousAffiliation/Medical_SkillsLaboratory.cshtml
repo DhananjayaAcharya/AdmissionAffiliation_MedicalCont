@@ -840,10 +840,6 @@
                             <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
                             &#128190; Save &amp; Continue
                         </button>
-                        <button type="button" class="btn-next" id="btnNext"
-                                onclick="window.location.href='@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")'">
-                            Next →
-                        </button>
                     @* </div> *@
                 </div>
 
@@ -973,7 +969,7 @@
                         confirmButtonColor: '#0f2545'
                     });
 
-                    window.location.href = '@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")';
+        window.location.href = '@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")';
                 } catch (err) {
                     Swal.fire({
                         icon: 'error',

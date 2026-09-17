@@ -6,33 +6,12 @@
     // Sourced the same way BaseController reads them (claims + session) since
     // PaymentCalculationViewModel doesn't currently carry these fields.
     // Swap these for Model properties instead if you thread them through the VM.
-    var payCollegeCode = Context.Session.GetString("CollegeCode")
-        ?? User.FindFirst("CollegeCode")?.Value ?? string.Empty;
-    var payFacultyCode = Context.Session.GetString("FacultyCode")
-        ?? User.FindFirst("FacultyCode")?.Value ?? "0";
+    var payCollegeCode = User.FindFirst("CollegeCode")?.Value ?? string.Empty;
+    var payFacultyCode = User.FindFirst("FacultyCode")?.Value ?? "0";
     var payCourseLevel = Context.Session.GetString("CourseLevel")
                           ?? Context.Session.GetString("SelectedCourseLevel")
-                          ?? User.FindFirst("CourseLevel")?.Value
-                          ?? User.FindFirst("SelectedCourseLevel")?.Value
-                          ?? "PG";
+                          ?? "UG";
     var payAffiliationTypeId = Context.Session.GetString("AffiliationTypeId") ?? "0";
-    var payApplicationType = Context.Session.GetString("TypeOfAffiliation")
-        ?? Model.TypeOfAffiliation
-        ?? Context.Session.GetString("ApplicationType")
-        ?? string.Empty;
-    var normalizedPayCourseLevel = payCourseLevel.Trim();
-    var normalizedAppType = payApplicationType.Trim();
-    var isAdditionalCoursesType = normalizedAppType.Contains("Additional", StringComparison.OrdinalIgnoreCase)
-        || normalizedAppType.Contains("Add Course", StringComparison.OrdinalIgnoreCase)
-        || normalizedAppType.Contains("Addl", StringComparison.OrdinalIgnoreCase)
-        || payAffiliationTypeId == "4";
-    var isContinuationType = normalizedAppType.Contains("Continuation", StringComparison.OrdinalIgnoreCase)
-        || normalizedAppType.Contains("Continuation of Affiliation", StringComparison.OrdinalIgnoreCase)
-        || payAffiliationTypeId == "1";
-    var isIncreaseIntakeType = normalizedAppType.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
-        || normalizedAppType.Contains("Increase", StringComparison.OrdinalIgnoreCase)
-        || normalizedAppType.Contains("Intake", StringComparison.OrdinalIgnoreCase)
-        || payAffiliationTypeId == "3";
 }
 
 <style>
@@ -84,14 +63,6 @@
         font-weight: 600;
     }
 
-    .payment-calculation-page .payment-amount-readonly {
-        background-color: #eef2f6;
-        border-color: #b8c4d1;
-        color: #435273;
-        font-weight: 600;
-        cursor: not-allowed;
-    }
-
     .payment-calculation-page .table {
         margin-bottom: 0;
         vertical-align: middle;
@@ -116,18 +87,7 @@
         <h1><i class="bi bi-cash-coin me-2" aria-hidden="true"></i>Payment Calculation</h1>
         <p>Calculate the applicable affiliation fee for the selected college and course details.</p>
     </div>
-    @{
-        var snapshotData = new
-        {
-            collegeName = (string?)null,
-            courseLevel = Model.Summary?.CourseLevelGroup,
-            affiliationTypeName = Context.Session.GetString("TypeOfAffiliation"),
-            matchedCourses = Model.MatchedCourses.Select(c => new { courseName = c.CourseName, courseLevel = c.RawCourseLevel, intake = c.Intake_26_27 }),
-            feeLines = Model.FeeLines.Select(f => new { feeHead = f.FeeHeadName, unitAmount = f.UnitAmount, basis = f.IsPerCourse ? "Per course" : f.IsPerSeat ? "Per seat" : "Fixed", multiplier = f.Multiplier, lineAmount = f.LineAmount }),
-            grandTotal = Model.Summary?.GrandTotal ?? 0
-        };
-    }
-    <input type="hidden" id="pd_CalculationSnapshot" value="@Html.Raw(Json.Serialize(snapshotData))" />
+
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
         <div class="alert alert-danger">@Model.ErrorMessage</div>
@@ -135,38 +95,8 @@
 
     @if (Model.HasResult)
     {
-        var applicationTypeName = Model.TypeOfAffiliation
-            ?? Context.Session.GetString("TypeOfAffiliation")
-            ?? Context.Session.GetString("ApplicationType")
-            ?? string.Empty;
-
-        var isEnhancementApplication = Model.AffiliationTypeId == 3
-            || applicationTypeName.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
-            || applicationTypeName.Contains("Increase in Intake", StringComparison.OrdinalIgnoreCase)
-            || (applicationTypeName.Contains("Increase", StringComparison.OrdinalIgnoreCase)
-                && applicationTypeName.Contains("Intake", StringComparison.OrdinalIgnoreCase));
-
-        var showIncreasedIntakeColumns = isEnhancementApplication
-            && Model.MatchedCourses.Any(c => c.IncreasedIntake.HasValue || !string.IsNullOrWhiteSpace(c.AcademicYear));
-
-        var activeCollegeCode = Context.Session.GetString("CollegeCode") ?? Model.CollegeCode ?? payCollegeCode;
-        var activeFacultyCode = Context.Session.GetString("FacultyCode") ?? payFacultyCode;
-        var activeCourseLevel = Context.Session.GetString("CourseLevel")
-            ?? Context.Session.GetString("SelectedCourseLevel")
-            ?? Model.CourseLevel
-            ?? payCourseLevel;
-        var activeApplicationType = Context.Session.GetString("TypeOfAffiliation")
-            ?? Model.TypeOfAffiliation
-            ?? payApplicationType
-            ?? string.Empty;
-
         <div class="payment-panel">
-            <div class="payment-panel-header d-flex justify-content-between align-items-center">
-                <span>Matched Courses (@Model.MatchedCourses.Count)</span>
-                <a href="@Url.Action("DownloadPdf", "PaymentCalculation")" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener noreferrer">
-                    <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i> Download PDF
-                </a>
-            </div>
+            <div class="payment-panel-header">Matched Courses (@Model.MatchedCourses.Count)</div>
             <div class="payment-panel-body table-responsive">
                 <table class="table table-bordered table-sm">
                     <thead class="table-light">
@@ -175,11 +105,6 @@
                             <th>Course (Intake sheet)</th>
                             <th>Course Level</th>
                             <th>Intake (26-27)</th>
-                            @if (showIncreasedIntakeColumns)
-                            {
-                                <th>Increased Intake</th>
-                                <th>Academic Year</th>
-                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -190,16 +115,11 @@
                                 <td>@c.course</td>
                                 <td>@c.RawCourseLevel</td>
                                 <td>@c.Intake_26_27</td>
-                                @if (showIncreasedIntakeColumns)
-                                {
-                                    <td>@(c.IncreasedIntake.HasValue ? c.IncreasedIntake.Value.ToString() : "-")</td>
-                                    <td>@(!string.IsNullOrWhiteSpace(c.AcademicYear) ? c.AcademicYear : "-")</td>
-                                }
                             </tr>
                         }
                         @if (!Model.MatchedCourses.Any())
                         {
-                            <tr><td colspan="@(showIncreasedIntakeColumns ? 7 : 5)" class="text-center text-muted">No courses matched for this college / affiliation type.</td></tr>
+                            <tr><td colspan="7" class="text-center text-muted">No courses matched for this college / affiliation type.</td></tr>
                         }
                     </tbody>
                 </table>
@@ -207,152 +127,64 @@
         </div>
 
         <div class="payment-panel">
-            <div class="payment-panel-header d-flex justify-content-between align-items-center">
-                <span>Fee Breakdown</span>
-                <small class="text-muted">College: @activeCollegeCode &nbsp;|&nbsp; Level: @activeCourseLevel &nbsp;|&nbsp; Type: @activeApplicationType</small>
-            </div>
+            <div class="payment-panel-header">Fee Breakdown</div>
             <div class="payment-panel-body table-responsive">
-                @if (Model.FeeLines.Any())
-                {
-                    <table class="table table-bordered table-sm">
-                        <thead class="table-light">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fee Head</th>
+                            <th>Unit Amount</th>
+                            <th>Basis</th>
+                            <th>Multiplier</th>
+                            <th class="text-end">Line Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in Model.FeeLines)
+                        {
                             <tr>
-                                <th>Fee Head</th>
-                                <th>Unit Amount</th>
-                                <th>Basis</th>
-                                <th>Multiplier</th>
-                                <th>Calculation</th>
-                                <th class="text-end">Line Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var f in Model.FeeLines)
-                            {
-                                var basisText = f.IsPerCourse ? "Per course" : f.IsPerSeat ? "Per seat" : "Fixed";
-                                var multiplierValue = f.Multiplier > 0 ? f.Multiplier.ToString() : "1";
-                                var formulaText = f.IsPerCourse
-                                    ? $"{f.UnitAmount:N2} × {multiplierValue} course(s)"
-                                    : f.IsPerSeat
-                                        ? $"{f.UnitAmount:N2} × {multiplierValue} seat(s)"
-                                        : $"{f.UnitAmount:N2} × 1";
+                                <td>
+                                    @f.FeeHeadName
+                                    @if (f.SeatRangeFrom.HasValue)
+                                    {
+                                        <span class="text-muted">(@f.SeatRangeFrom - @f.SeatRangeTo seats)</span>
+                                    }
+                                </td>
+                                <td>@f.UnitAmount.ToString("N2")</td>
+                                <td>
+                                    @if (f.IsPerCourse)
+                                    {
+                                        <span>Per course</span>
+                                    }
+                                    else if (f.IsPerSeat)
+                                    {
 
-                                <tr>
-                                    <td>@f.FeeHeadName</td>
-                                    <td>@f.UnitAmount.ToString("N2")</td>
-                                    <td>@basisText</td>
-                                    <td>@multiplierValue</td>
-                                    <td>@formulaText</td>
-                                    <td class="text-end">@f.LineAmount.ToString("N2")</td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr class="table-secondary fw-bold">
-                                <td colspan="5" class="text-end">Grand Total</td>
-                                <td class="text-end">@((Model.Summary?.GrandTotal ?? Model.FeeLines.Sum(x => x.LineAmount)).ToString("N2"))</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                }
-                else if (isAdditionalCoursesType)
-                {
-                    <table class="table table-bordered table-sm">
-                        <tbody>
-                            <tr><th style="width: 60%;">Fee Head</th><th style="width: 20%;">Multiplier</th><th class="text-end" style="width: 20%;">Amount</th></tr>
-                            @if (normalizedPayCourseLevel.Equals("PG", StringComparison.OrdinalIgnoreCase))
-                            {
-                                <tr><td>Application fee</td><td>1</td><td class="text-end">3,000-00</td></tr>
-                                <tr><td>Course identification fee</td><td>1</td><td class="text-end">10-00</td></tr>
-                                <tr><td>PG fresh course affiliation fee <strong>(per course)</strong></td><td>@Model.MatchedCourses.Count</td><td class="text-end">4,00,000-00</td></tr>
-                            }
-                            else if (normalizedPayCourseLevel.Equals("SS", StringComparison.OrdinalIgnoreCase))
-                            {
-                                <tr><td>Application fee</td><td>1</td><td class="text-end">3,000-00</td></tr>
-                                <tr><td>Course identification fee</td><td>1</td><td class="text-end">10-00</td></tr>
-                                <tr><td>Fresh PG Super Specialty course <strong>(per course)</strong></td><td>@Model.MatchedCourses.Count</td><td class="text-end">4,00,000-00</td></tr>
-                            }
-                            else
-                            {
-                                <tr><td>Application fee</td><td>1</td><td class="text-end">3,000-00</td></tr>
-                                <tr><td>Course identification fee</td><td>1</td><td class="text-end">10-00</td></tr>
-                                <tr><td>UG additional course affiliation fee <strong>(per course)</strong></td><td>@Model.MatchedCourses.Count</td><td class="text-end">1,00,000-00</td></tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr class="table-secondary fw-bold">
-                                <td colspan="2" class="text-end">Grand Total</td>
-                                <td class="text-end">@((Model.Summary?.GrandTotal ?? 0m).ToString("N2"))</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                }
-                else
-                {
-                    <table class="table table-bordered table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Fee Head</th>
-                                <th>Unit Amount</th>
-                                <th>Basis</th>
-                                <th>Multiplier</th>
-                                <th class="text-end">Line Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var f in Model.FeeLines)
-                            {
-                                <tr>
-                                    <td>@f.FeeHeadName</td>
-                                    <td>@f.UnitAmount.ToString("N2")</td>
-                                    <td>
-                                        @if (f.IsPerCourse)
-                                        {
-                                            <span>Per course</span>
-                                        }
-                                        else if (f.IsPerSeat)
-                                        {
-                                            <span>Per seat</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Fixed</span>
-                                        }
-                                    </td>
-                                    <td>@(f.Multiplier > 0 ? f.Multiplier.ToString() : "1")</td>
-                                    <td class="text-end">@f.LineAmount.ToString("N2")</td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr class="table-secondary fw-bold">
-                                <td colspan="4" class="text-end">Grand Total</td>
-                                <td class="text-end">@((Model.Summary?.GrandTotal ?? Model.FeeLines.Sum(x => x.LineAmount)).ToString("N2"))</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                }
+                                        <span>Per seat</span>
+                                    }
+                                    else
+                                    {
 
-                <div class="row mt-3">
+                                        <span>Fixed</span>
+                                    }
+                                </td>
+                                <td>@f.Multiplier</td>
+                                <td class="text-end">@f.LineAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-secondary fw-bold">
+                            <td colspan="4" class="text-end">Grand Total</td>
+                            <td class="text-end">@Model.Summary?.GrandTotal.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="row">
                     <div class="col-md-3"><strong>Matched Courses:</strong> @Model.Summary?.MatchedCourseCount</div>
                     <div class="col-md-3"><strong>Total Intake Seats:</strong> @Model.Summary?.TotalIntakeSeats</div>
                     <div class="col-md-3"><strong>Course Level Group:</strong> @Model.Summary?.CourseLevelGroup</div>
-                    <div class="col-md-3"><strong>College Code:</strong> @activeCollegeCode</div>
                 </div>
-            </div>
-        </div>
-
-        <div class="payment-panel">
-            <div class="payment-panel-header">How to Complete Payment</div>
-            <div class="payment-panel-body">
-                <ol class="mb-0">
-                    <li>
-                        Click <a href="https://payments.billdesk.com/bdcollect/bd/rguohsc/2632" target="_blank" rel="noopener noreferrer"><strong>Pay securely through BillDesk</strong></a>; the official RGUHS payment page opens in a new tab.
-                    </li>
-                    <li>Complete the payment for the exact Grand Total displayed on this page.</li>
-                    <li>Save the successful receipt or take a clear screenshot showing the reference number, payment date and amount.</li>
-                    <li>Return here, enter the reference number and payment date, then choose the receipt or screenshot.</li>
-                    <li>Verify every detail before saving. Accepted formats: PDF, PNG, JPG and JPEG.</li>
-                </ol>
             </div>
         </div>
 
@@ -375,7 +207,7 @@
 
                         <div class="col-md-4">
                             <label for="pd_PaymentAmount" class="form-label">Payment Amount</label>
-                            <input type="number" step="0.01" id="pd_PaymentAmount" class="form-control payment-amount-readonly" value="@Model.Summary?.GrandTotal.ToString("0.00")" readonly aria-readonly="true" />
+                            <input type="number" step="0.01" id="pd_PaymentAmount" class="form-control" />
                         </div>
 
                         <div class="col-md-4">
@@ -418,8 +250,6 @@
 
 <script>
     (function () {
-        var pageSnapshot = @Html.Raw(Json.Serialize(snapshotData));
-
         // Falls back to a plain alert if SweetAlert2 (Swal) isn't loaded on this
         // page's layout — avoids "Swal is not defined" breaking the save flow.
         function showAlert(opts) {
@@ -501,12 +331,11 @@
             var form = document.getElementById('PaymentDocumentForm');
             var tokenInput = form.querySelector('input[name="__RequestVerificationToken"]');
             var token = tokenInput ? tokenInput.value : '';
-            var ctx = getContext();
-
             if (!token) {
                 showAlert({ icon: "error", title: "Security token missing", text: "Please refresh the page and try again." });
                 return;
             }
+            var ctx = getContext();
 
             var transactionId = document.getElementById('pd_TransactionId').value.trim();
             if (!transactionId) {
@@ -529,9 +358,6 @@
             formData.append('AffiliationTypeId', ctx.affiliationTypeId);
             formData.append('TransactionId', transactionId);
 
-            var snapshotJson = JSON.stringify(pageSnapshot || {});
-            formData.append('CalculationSnapshotJson', snapshotJson);
-
             var amount = document.getElementById('pd_PaymentAmount').value;
             if (amount) formData.append('PaymentAmount', amount);
 
@@ -541,10 +367,6 @@
             if (fileInput.files && fileInput.files.length > 0) {
                 formData.append('ScreenshotFile', fileInput.files[0]);
             }
-
-            var saveBtn = document.getElementById('pd_SaveBtn');
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Saving...';
 
             fetch(form.action, {
                 method: 'POST',
@@ -591,10 +413,6 @@
                     text: error.message || 'Error while saving payment details.',
                     confirmButtonText: 'OK'
                 });
-            })
-            .finally(function () {
-                saveBtn.disabled = false;
-                saveBtn.textContent = 'Save Payment Details';
             });
         }
     })();

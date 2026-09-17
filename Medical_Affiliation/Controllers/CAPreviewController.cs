@@ -20,9 +20,22 @@ namespace Medical_Affiliation.Controllers
         }
         public async Task<IActionResult> Preview()
         {
-
             var model = await _capreviewService.GetPreviewAsync();
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GeneratePdf(bool declarationConsent)
+        {
+            if (!declarationConsent)
+            {
+                TempData["PreviewError"] = "Please accept the declaration before generating the preview PDF.";
+                return RedirectToAction(nameof(Preview));
+            }
+
+            var model = await _capreviewService.GetPreviewAsync();
+            return GeneratePreviewPdf(model);
         }
 
         public async Task<IActionResult> GetCurriculumFile(int id)
@@ -253,7 +266,11 @@ namespace Medical_Affiliation.Controllers
 
         public async Task<IActionResult> TestPdf()
         {
-            var model = await _capreviewService.GetPreviewAsync(); // you already have this
+            return RedirectToAction(nameof(Preview));
+        }
+
+        private IActionResult GeneratePreviewPdf(Medical_Affiliation.Models.CApreviewViewModel model)
+        {
             var logoPath = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "wwwroot",
@@ -272,6 +289,7 @@ namespace Medical_Affiliation.Controllers
             var pdf = new PreviewReportPdf(model, logoBytes, clglogoBytes);
             var bytes = pdf.GeneratePdf();
 
+            Response.Headers["Content-Disposition"] = "inline; filename=AffiliationPreview.pdf";
             return File(bytes, "application/pdf");
         }
 

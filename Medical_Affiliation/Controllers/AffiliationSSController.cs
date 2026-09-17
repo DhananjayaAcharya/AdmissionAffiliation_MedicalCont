@@ -354,28 +354,19 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCoursesByCollege(string collegeCode, string facultyCode, string courseLevel)
+        public async Task<IActionResult> GetCoursesByCollege(string facultyCode, string courseLevel)
         {
-            var courses = await _context.CollegeCourseIntakeDetails
+            var courses = await _context.MstCourses
                 .AsNoTracking()
                 .Where(c =>
-                    c.CollegeCode == collegeCode &&
-                    c.FacultyCode.ToString() == facultyCode
-                )
-                .Join(
-                    _context.MstCourses,
-                    ci => ci.CourseCode,
-                    mc => mc.CourseCode.ToString(),
-                    (ci, mc) => new { ci, mc }
-                )
-                .Where(x => x.mc.CourseLevel == courseLevel)
+                    c.FacultyCode.ToString() == facultyCode &&
+                    c.CourseLevel == courseLevel)
                 .Select(x => new CourseOptionVM
                 {
-                    CourseCode = x.mc.CourseCode.ToString(),
-                    CourseName = x.mc.CourseName,
-                    CourseLevel = x.mc.CourseLevel
+                    CourseCode = x.CourseCode.ToString(),
+                    CourseName = x.CourseName,
+                    CourseLevel = x.CourseLevel
                 })
-                .Distinct()
                 .OrderBy(e => e.CourseName)
                 .ToListAsync();
 

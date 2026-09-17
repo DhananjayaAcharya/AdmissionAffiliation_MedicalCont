@@ -78,6 +78,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AffiliationLicinpsection> AffiliationLicinpsections { get; set; }
 
+    public virtual DbSet<AffiliationNotification> AffiliationNotifications { get; set; }
+
     public virtual DbSet<AffiliationOtherCoursesPermittedByNmc> AffiliationOtherCoursesPermittedByNmcs { get; set; }
 
     public virtual DbSet<AffiliationOthersCollegeMaster> AffiliationOthersCollegeMasters { get; set; }
@@ -512,6 +514,10 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<OtherCourseObservership> OtherCourseObserverships { get; set; }
 
+    public virtual DbSet<PaymentAffiliationDocument> PaymentAffiliationDocuments { get; set; }
+
+    public virtual DbSet<PaymentReceipt> PaymentReceipts { get; set; }
+
     public virtual DbSet<PgStudentsYearWiseDetail> PgStudentsYearWiseDetails { get; set; }
 
     public virtual DbSet<RguhsIntakeChangeAndApproval> RguhsIntakeChangeAndApprovals { get; set; }
@@ -608,9 +614,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server= DESKTOP-VM4KIHQ;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server= DESKTOP-VM4KIHQ;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1546,6 +1552,22 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<AffiliationNotification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId);
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.NotificationType)
+                .HasMaxLength(20)
                 .IsUnicode(false);
         });
 
@@ -4205,12 +4227,17 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AdmissionOpeningDate).HasColumnName("Admission_openingDate");
-            entity.Property(e => e.AppointmentLetterDoc).HasColumnName("AppointmentLetter_Doc");
+            entity.Property(e => e.AppointmentLetterDoc)
+                .HasMaxLength(500)
+                .HasColumnName("AppointmentLetter_Doc");
+            entity.Property(e => e.AppointmentLetterDocGuid).HasColumnName("AppointmentLetter_Doc_Guid");
             entity.Property(e => e.ApprovalRemark).HasMaxLength(500);
             entity.Property(e => e.ApprovalStatus)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.CandidateRegisteredNumber).HasMaxLength(100);
             entity.Property(e => e.Collegecode).HasMaxLength(50);
+            entity.Property(e => e.ContactNumber).HasMaxLength(20);
             entity.Property(e => e.Course).HasMaxLength(150);
             entity.Property(e => e.Dob).HasColumnName("DOB");
             entity.Property(e => e.DrApprovalRemark)
@@ -4220,13 +4247,35 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("DR_ApprovalStatus");
-            entity.Property(e => e.ExperienceLetterDoc).HasColumnName("Experience_Letter_Doc");
+            entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.ExperienceCollege).HasMaxLength(200);
+            entity.Property(e => e.ExperienceLetterDoc)
+                .HasMaxLength(500)
+                .HasColumnName("Experience_Letter_Doc");
+            entity.Property(e => e.ExperienceLetterDocGuid).HasColumnName("Experience_Letter_Doc_Guid");
             entity.Property(e => e.FacultyCode).HasMaxLength(50);
+            entity.Property(e => e.FatherGuardianName).HasMaxLength(200);
             entity.Property(e => e.FellowshipCode).HasMaxLength(150);
+            entity.Property(e => e.Gender).HasMaxLength(20);
             entity.Property(e => e.KmcCertificateNumber)
                 .HasMaxLength(150)
                 .HasColumnName("KMC_CertificateNumber");
-            entity.Property(e => e.KmcDoc).HasColumnName("KMC_Doc");
+            entity.Property(e => e.KmcDoc)
+                .HasMaxLength(500)
+                .HasColumnName("KMC_Doc");
+            entity.Property(e => e.KmcDocGuid).HasColumnName("KMC_Doc_Guid");
+            entity.Property(e => e.Nationality).HasMaxLength(100);
+            entity.Property(e => e.PgDegree)
+                .HasMaxLength(200)
+                .HasColumnName("PG_Degree");
+            entity.Property(e => e.PgDegreeCertificateGuid).HasColumnName("PG_DegreeCertificate_Guid");
+            entity.Property(e => e.PgDegreeCertificatePath)
+                .HasMaxLength(500)
+                .HasColumnName("PG_DegreeCertificate_Path");
+            entity.Property(e => e.PgUniversityCollegeName)
+                .HasMaxLength(250)
+                .HasColumnName("PG_UniversityCollegeName");
+            entity.Property(e => e.PgYearOfPassing).HasColumnName("PG_YearOfPassing");
             entity.Property(e => e.PrincipalDeclaration)
                 .HasMaxLength(10)
                 .IsUnicode(false)
@@ -4234,8 +4283,22 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.PrincipalName)
                 .HasMaxLength(200)
                 .HasColumnName("principal_name");
-            entity.Property(e => e.SslcDoc).HasColumnName("SSLC_Doc");
+            entity.Property(e => e.SslcDoc)
+                .HasMaxLength(500)
+                .HasColumnName("SSLC_Doc");
+            entity.Property(e => e.SslcDocGuid).HasColumnName("SSLC_Doc_Guid");
             entity.Property(e => e.StudentName).HasMaxLength(150);
+            entity.Property(e => e.UgDegree)
+                .HasMaxLength(200)
+                .HasColumnName("UG_Degree");
+            entity.Property(e => e.UgDegreeCertificateGuid).HasColumnName("UG_DegreeCertificate_Guid");
+            entity.Property(e => e.UgDegreeCertificatePath)
+                .HasMaxLength(500)
+                .HasColumnName("UG_DegreeCertificate_Path");
+            entity.Property(e => e.UgUniversityCollegeName)
+                .HasMaxLength(250)
+                .HasColumnName("UG_UniversityCollegeName");
+            entity.Property(e => e.UgYearOfPassing).HasColumnName("UG_YearOfPassing");
         });
 
         modelBuilder.Entity<FreshOrIncreaseMaster>(entity =>
@@ -6511,6 +6574,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Slno)
                 .ValueGeneratedNever()
                 .HasColumnName("SLNO");
+            entity.Property(e => e.AcademicYear)
+                .HasMaxLength(10)
+                .IsUnicode(false);
             entity.Property(e => e.Address)
                 .HasMaxLength(500)
                 .HasColumnName("address");
@@ -6526,6 +6592,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.District)
                 .HasMaxLength(100)
                 .HasColumnName("DISTRICT");
+            entity.Property(e => e.IncreasedIntake).HasColumnName("Increased_Intake");
             entity.Property(e => e.Intake2627).HasColumnName("Intake_26_27");
             entity.Property(e => e.MatchNote).HasMaxLength(50);
             entity.Property(e => e.PvtGovt)
@@ -6915,6 +6982,44 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PaymentAffiliationDocument>(entity =>
+        {
+            entity.HasKey(e => e.PaymentDocumentId).HasName("PK__PaymentA__1DD9EE6C49F1891F");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.CourseLevel, e.AffiliationTypeId }, "UQ_PaymentAffiliationDocuments_Key").IsUnique();
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CourseLevel).HasMaxLength(50);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.PaymentAmount).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.PaymentDate).HasColumnType("datetime");
+            entity.Property(e => e.PublicAccessToken).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.ScreenshotFileName).HasMaxLength(255);
+            entity.Property(e => e.ScreenshotFilePath).HasMaxLength(500);
+            entity.Property(e => e.TransactionId).HasMaxLength(100);
+            entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<PaymentReceipt>(entity =>
+        {
+            entity.HasKey(e => e.ReceiptId).HasName("PK__PaymentR__CC08C4209461E2A8");
+
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.PublicAccessToken).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.WhatsAppSentOn).HasColumnType("datetime");
+            entity.Property(e => e.WhatsAppStatus).HasMaxLength(200);
+
+            entity.HasOne(d => d.PaymentDocument).WithMany(p => p.PaymentReceipts)
+                .HasForeignKey(d => d.PaymentDocumentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PaymentReceipts_PaymentAffiliationDocuments");
         });
 
         modelBuilder.Entity<PgStudentsYearWiseDetail>(entity =>

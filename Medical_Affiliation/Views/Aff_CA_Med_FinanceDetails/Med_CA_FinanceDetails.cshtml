@@ -49,10 +49,9 @@
     }
 
     .page-container {
-        width: 330% !important;
-        max-width: 1500px !important;
-        margin: 0 auto !important;
-        padding: 0 24px !important;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
     }
     /* ── Header Banner ── */
     .page-header {
@@ -219,12 +218,12 @@
         transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-        .form-control:focus,
-        .form-select:focus {
-            outline: none;
-            border-color: var(--navy-mid);
-            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
-        }
+    .form-control:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--navy-mid);
+        box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
+    }
 
     select.form-control,
     .form-select {
@@ -421,6 +420,7 @@
             display: none;
         }
     }
+
     .btn-next {
         display: inline-flex;
         align-items: center;
@@ -462,6 +462,7 @@
         background: var(--white);
         padding: 24px 20px;
     }
+
     .course-badge {
         background: var(--navy);
         color: white;
@@ -522,17 +523,17 @@
                 @* <div class="accordion" id="courseAccordion"> *@
                 <div class="course-sections">
 
-                @if (Model.Sections != null && Model.Sections.Any())
-                {
-                    @for (int i = 0; i < Model.Sections.Count; i++)
+                    @if (Model.Sections != null && Model.Sections.Any())
                     {
-                        var item = Model.Sections[i];
+                        @for (int i = 0; i < Model.Sections.Count; i++)
+                        {
+                            var item = Model.Sections[i];
 
-                        <div class="accordion-item mb-3 border rounded">
+                            <div class="accordion-item mb-3 border rounded">
 
-                            <!-- HEADER -->
-                            <h2 class="accordion-header">
-                                @* <button class="accordion-button @(i != 0 ? "collapsed" : "")"
+                                <!-- HEADER -->
+                                <h2 class="accordion-header">
+                                    @* <button class="accordion-button @(i != 0 ? "collapsed" : "")"
                                         type="button"
                                         data-bs-toggle="collapse"
                                         data-bs-target="#collapse_@i">
@@ -543,10 +544,10 @@
                                         <strong class="course-badge">@item.CourseLevel</strong>
                                         Account & Fee Details
                                     </div>
-                            </h2>
+                                </h2>
 
-                            <!-- BODY -->
-                            @* <div id="collapse_@i"
+                                <!-- BODY -->
+                                @* <div id="collapse_@i"
                                  class="accordion-collapse collapse @(i == 0 ? "show" : "")"> *@
                                 <div class="section-body">
 
@@ -579,16 +580,16 @@
                                                        name="Sections[@i].GoverningCouncilPdf"
                                                        class="form-control pdf-file" />
 
-                                            @if (!string.IsNullOrEmpty(item.GoverningCouncilPdfName))
-                                            {
-                                                @* FIX: Added asp-action, asp-route, and target="_blank" *@
-                                                <a asp-action="ViewGoverningCouncilPdf"
-                                                   asp-route-courseLevel="@item.CourseLevel"
-                                                   target="_blank"
-                                                   class="btn-view-pdf">📄 View — @item.GoverningCouncilPdfName</a>
-                                            }
+                                                @if (!string.IsNullOrEmpty(item.GoverningCouncilPdfName))
+                                                {
+                                                    @* FIX: Added asp-action, asp-route, and target="_blank" *@
+                                                    <a asp-action="ViewGoverningCouncilPdf"
+                                                       asp-route-courseLevel="@item.CourseLevel"
+                                                       target="_blank"
+                                                       class="btn-view-pdf">📄 View — @item.GoverningCouncilPdfName</a>
+                                                }
+                                            </div>
                                         </div>
-                                    </div>
 
                                         <!-- ================= b. AUTHORITY ================= -->
                                         <div class="section-block">
@@ -655,15 +656,15 @@
 
                                                 <input type="file" accept=".pdf" name="Sections[@i].AccountSummaryPdf" class="form-control pdf-file" />
 
-                                            @if (!string.IsNullOrEmpty(item.AccountSummaryPdfName))
-                                            {
-                                                <a asp-action="ViewAccountSummaryPdf"
-                                                   asp-route-courseLevel="@item.CourseLevel"
-                                                   target="_blank"
-                                                   class="btn-view-pdf">📄 View — @item.AccountSummaryPdfName</a>
-                                            }
+                                                @if (!string.IsNullOrEmpty(item.AccountSummaryPdfName))
+                                                {
+                                                    <a asp-action="ViewAccountSummaryPdf"
+                                                       asp-route-courseLevel="@item.CourseLevel"
+                                                       target="_blank"
+                                                       class="btn-view-pdf">📄 View — @item.AccountSummaryPdfName</a>
+                                                }
+                                            </div>
                                         </div>
-                                    </div>
 
                                         <!-- ================= f. AUDIT ================= -->
                                         <div class="section-block">
@@ -680,15 +681,15 @@
 
                                                 <input type="file" accept=".pdf" name="Sections[@i].AuditedStatementPdf" class="form-control pdf-file" />
 
-                                            @if (!string.IsNullOrEmpty(item.AuditedStatementPdfName))
-                                            {
-                                                <a asp-action="ViewAuditedStatementPdf"
-                                                   asp-route-courseLevel="@item.CourseLevel"
-                                                   target="_blank"
-                                                   class="btn-view-pdf">📄 View — @item.AuditedStatementPdfName</a>
-                                            }
+                                                @if (!string.IsNullOrEmpty(item.AuditedStatementPdfName))
+                                                {
+                                                    <a asp-action="ViewAuditedStatementPdf"
+                                                       asp-route-courseLevel="@item.CourseLevel"
+                                                       target="_blank"
+                                                       class="btn-view-pdf">📄 View — @item.AuditedStatementPdfName</a>
+                                                }
+                                            </div>
                                         </div>
-                                    </div>
 
                                         <!-- ================= g. DONATION (PG) ================= -->
                                         @if (item.CourseLevel == "PG")
@@ -707,29 +708,30 @@
 
                                                     <input type="file" name="Sections[@i].DonationPdf" accept=".pdf" class="form-control pdf-file" />
 
-                                                @if (!string.IsNullOrEmpty(item.DonationPdfName))
-                                                {
-                                                    <a asp-action="ViewDonationPdf"
-                                                       asp-route-courseLevel="@item.CourseLevel"
-                                                       target="_blank"
-                                                       class="btn-view-pdf">📄 View — @item.DonationPdfName</a>
-                                                }
+                                                    @if (!string.IsNullOrEmpty(item.DonationPdfName))
+                                                    {
+                                                        <a asp-action="ViewDonationPdf"
+                                                           asp-route-courseLevel="@item.CourseLevel"
+                                                           target="_blank"
+                                                           class="btn-view-pdf">📄 View — @item.DonationPdfName</a>
+                                                    }
+                                                </div>
                                             </div>
-                                        </div>
-                                    }
+                                        }
 
                                     </div>
                                 </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center mt-4">
+                            Courses are yet to be submitted by the college.
                         </div>
                     }
-                } else
-                {
-                    <div class="alert alert-warning text-center mt-4">
-                        Courses are yet to be submitted by the college.
-                    </div>
-                }
-                </div>   
-            
+                </div>
+
                 <div class="form-footer">
 
                     @{
@@ -778,29 +780,17 @@
                     <!-- LEFT SIDE -->
                     @* <div class="nav-controls"> *@
 
-                        <!-- PREVIOUS -->
-                        <a asp-controller="@prevController"
-                           asp-action="@prevAction"
-                           class="btn-prev">
-                            ← Previous
-                        </a>
+                    <!-- PREVIOUS -->
+                    <a asp-controller="@prevController"
+                       asp-action="@prevAction"
+                       class="btn-prev">
+                        ← Previous
+                    </a>
 
-                        <!-- RIGHT SIDE -->
-                        <button type="submit" class="btn-save">
-                            Save
-                        </button>
-
-                        <!-- NEXT -->
-                        <a asp-controller="CA_Med_StaffDetails"
-                           asp-action="CA_Med_StaffDetails"
-                           class="btn-next">
-                            Next →
-                        </a>
-
-                    @* </div> *@
-
-                   
-
+                    <!-- RIGHT SIDE -->
+                    <button type="submit" class="btn-save">
+                        Save
+                    </button>
                 </div>
             </form>
         </div>
@@ -811,7 +801,7 @@
 @* <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script> *@
 @* <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script> *@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
@@ -966,3 +956,15 @@
 
     });
 </script>
+@if (TempData["Info"] != null)
+{
+    <script>
+        Swal.fire({ icon: 'success', title: 'Saved Successfully!', text: '@TempData["Info"]', timer: 5000, timerProgressBar: true });
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        Swal.fire({ icon: 'error', title: 'Validation Error', text: '@TempData["Error"]' });
+    </script>
+}

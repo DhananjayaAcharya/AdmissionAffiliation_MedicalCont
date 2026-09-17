@@ -26,6 +26,57 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction(nameof(MedicalCollegeCourseIntake));
         }
 
+        private const string EnhancementApplicationType = "Enhancement of Seats / Increase in Intake";
+        private const string FixedAcademicYear = "2027-28";
+
+        private static bool IsEnhancementApplication(string? applicationType) =>
+            string.Equals(applicationType?.Trim(), EnhancementApplicationType, StringComparison.OrdinalIgnoreCase);
+
+        private static bool IsEnhancementApplicationId(int? affiliationTypeId) =>
+            affiliationTypeId == 3;
+
+        private async Task<bool> IsEnhancementApplicationSelectedAsync()
+        {
+            var candidateSessionValues = new[]
+            {
+                HttpContext.Session.GetString("ApplicationType"),
+                HttpContext.Session.GetString("AffiliationType"),
+                HttpContext.Session.GetString("TypeOfAffiliation"),
+                HttpContext.Session.GetString("SelectedTypeOfAffiliation"),
+                HttpContext.Session.GetString("AffiliationTypeId"),
+                HttpContext.Session.GetString("TypeOfAffiliationId")
+            };
+
+            foreach (var value in candidateSessionValues)
+            {
+                if (IsEnhancementApplication(value))
+                    return true;
+
+                if (int.TryParse(value, out var parsedId) && IsEnhancementApplicationId(parsedId))
+                    return true;
+            }
+
+            var affiliationTypeIdValue = HttpContext.Session.GetInt32("AffiliationType")
+                ?? HttpContext.Session.GetInt32("AffiliationTypeId")
+                ?? HttpContext.Session.GetInt32("TypeOfAffiliationId");
+
+            if (IsEnhancementApplicationId(affiliationTypeIdValue))
+                return true;
+
+            if (affiliationTypeIdValue.HasValue)
+            {
+                var resolvedDescription = await _context.TypeOfAffiliations
+                    .Where(t => t.TypeId == affiliationTypeIdValue.Value)
+                    .Select(t => t.TypeDescription)
+                    .FirstOrDefaultAsync();
+
+                if (IsEnhancementApplication(resolvedDescription))
+                    return true;
+            }
+
+            return false;
+        }
+
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
         public async Task<IActionResult> MedicalCollegeCourseIntake()
@@ -34,6 +85,7 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var collegeName = HttpContext.Session.GetString("CollegeName");
             var courseLevel = HttpContext.Session.GetString("SelectedCourseLevel")?.Trim();
+            var applicationType = HttpContext.Session.GetString("ApplicationType");
 
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("Collegelogin", "Login");
@@ -43,6 +95,9 @@ namespace Medical_Affiliation.Controllers
 
             if (string.IsNullOrWhiteSpace(courseLevel))
                 return BadRequest("Course level is not selected");
+
+            var showIncreasedIntakeFields = await IsEnhancementApplicationSelectedAsync();
+            HttpContext.Session.SetString("ApplicationType", showIncreasedIntakeFields ? EnhancementApplicationType : (applicationType ?? ""));
 
             var intakeRows = await (
                 from intake in _context.MstMedicalCollegeCourseIntakes
@@ -59,7 +114,11 @@ namespace Medical_Affiliation.Controllers
                     Slno = intake.Slno,
                     CourseCode = course.CourseCode.ToString(),
                     CourseName = course.CourseName,
-                    Intake2627 = intake.Intake2627 ?? 0
+                    Intake2627 = intake.Intake2627 ?? 0,
+                    IncreasedIntake = intake.IncreasedIntake,
+                    AcademicYear = showIncreasedIntakeFields
+                        ? (intake.AcademicYear ?? FixedAcademicYear)
+                        : intake.AcademicYear
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -70,10 +129,63 @@ namespace Medical_Affiliation.Controllers
                 CollegeName = collegeName ?? string.Empty,
                 FacultyCode = facultyCode,
                 CourseLevel = courseLevel.ToUpperInvariant(),
-                Courses = intakeRows
+                Courses = intakeRows,
+                ShowIncreasedIntakeFields = showIncreasedIntakeFields
             };
 
             return View(model);
+        }
+
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveIncreasedIntake(MedicalCollegeCourseIntakeViewModel model)
+        {
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var applicationType = HttpContext.Session.GetString("ApplicationType");
+
+            if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("Collegelogin", "Login");
+
+            if (!int.TryParse(facultyCode, out var facultyId))
+                return BadRequest("Invalid faculty code");
+
+            // This save path only applies to the Enhancement application type —
+            // reject if the session says otherwise, regardless of what was posted.
+            var isEnhancementApplication = await IsEnhancementApplicationSelectedAsync();
+            if (!isEnhancementApplication)
+                return Forbid();
+
+            if (model.Courses == null || model.Courses.Count == 0)
+                return RedirectToAction("MedicalCollegeCourseIntake");
+
+            var slnos = model.Courses.Select(c => c.Slno).ToList();
+
+            var entities = await _context.MstMedicalCollegeCourseIntakes
+                .Where(x => slnos.Contains(x.Slno)
+                            && x.CollCode == collegeCode
+                            && x.Facultycode == facultyId)
+                .ToListAsync();
+
+            var entityMap = entities.ToDictionary(e => e.Slno);
+
+            foreach (var row in model.Courses)
+            {
+                if (!entityMap.TryGetValue(row.Slno, out var entity))
+                    continue; // skip rows that don't belong to this college/faculty
+
+                entity.IncreasedIntake = row.IncreasedIntake;
+
+                // AcademicYear is server-enforced, never trusted from the client
+                entity.AcademicYear = FixedAcademicYear;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Increased intake details saved successfully.";
+            return RedirectToAction("MedicalCollegeCourseIntake");
         }
 
 

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 public class AddCourseToMstCourseViewModel
 {
-    public int? SelectedFacultyCode { get; set; } 
+    public int? SelectedFacultyCode { get; set; }
     public List<SelectListItem> Faculties { get; set; } = new();
     public List<SelectListItem> CourseLevels { get; set; } = new();
     public List<SelectListItem> CoursePrefixList { get; set; } = new();
@@ -181,6 +181,69 @@ public class FellowshipMedicalVm
 
     [StringLength(150)]
     public string? FellowshipCode { get; set; }
+
+    // ---------- Candidate personal / contact details ----------
+    [Required(ErrorMessage = "Father / Guardian name is required")]
+    [StringLength(200)]
+    [Display(Name = "Father Name / Guardian Name")]
+    public string FatherGuardianName { get; set; } = "";
+
+    [Required(ErrorMessage = "Gender is required")]
+    [StringLength(20)]
+    public string Gender { get; set; } = "";
+
+    [Required(ErrorMessage = "Contact number is required")]
+    [Phone(ErrorMessage = "Enter a valid contact number")]
+    [StringLength(20)]
+    [Display(Name = "Contact Number")]
+    public string ContactNumber { get; set; } = "";
+
+    [Required(ErrorMessage = "Email is required")]
+    [EmailAddress(ErrorMessage = "Enter a valid email address")]
+    [StringLength(150)]
+    public string Email { get; set; } = "";
+
+    [Required(ErrorMessage = "Nationality is required")]
+    [StringLength(100)]
+    public string Nationality { get; set; } = "";
+
+    [Required(ErrorMessage = "Candidate registered number is required")]
+    [StringLength(100)]
+    [Display(Name = "Candidate Registered No.")]
+    public string CandidateRegisteredNumber { get; set; } = "";
+
+    [StringLength(200)]
+    [Display(Name = "Experience College")]
+    public string? ExperienceCollege { get; set; }
+
+    // ---------- UG degree row ----------
+    [Required(ErrorMessage = "UG degree is required")]
+    [StringLength(200)]
+    [Display(Name = "UG Degree")]
+    public string UG_Degree { get; set; } = "";
+
+    [Required(ErrorMessage = "UG college / university name is required")]
+    [StringLength(250)]
+    [Display(Name = "College / University")]
+    public string UG_UniversityCollegeName { get; set; } = "";
+
+    [Required(ErrorMessage = "UG year of passing is required")]
+    [Range(1950, 2100, ErrorMessage = "Enter a valid year")]
+    [Display(Name = "Year of Passing")]
+    public int? UG_YearOfPassing { get; set; }
+
+    // ---------- PG degree row ----------
+    [StringLength(200)]
+    [Display(Name = "PG Degree")]
+    public string? PG_Degree { get; set; }
+
+    [StringLength(250)]
+    [Display(Name = "College / University")]
+    public string? PG_UniversityCollegeName { get; set; }
+
+    [Range(1950, 2100, ErrorMessage = "Enter a valid year")]
+    [Display(Name = "Year of Passing")]
+    public int? PG_YearOfPassing { get; set; }
 }
 
 // Entity (add to your DbContext)
@@ -205,11 +268,34 @@ public class FellowShip_Medical
     public byte[]? KMC_Doc { get; set; }
     public byte[]? Experience_Letter_Doc { get; set; }
     public byte[]? AppointmentLetter_Doc { get; set; }
+
+    // ---------- Candidate personal / contact details ----------
+    public string? FatherGuardianName { get; set; }
+    public string? Gender { get; set; }
+    public string? ContactNumber { get; set; }
+    public string? Email { get; set; }
+    public string? Nationality { get; set; }
+    public string? CandidateRegisteredNumber { get; set; }
+    public string? ExperienceCollege { get; set; }
+
+    // ---------- UG degree row ----------
+    public string? UG_Degree { get; set; }
+    public string? UG_UniversityCollegeName { get; set; }
+    public int? UG_YearOfPassing { get; set; }
+    public string? UG_DegreeCertificate_Path { get; set; }
+    public Guid? UG_DegreeCertificate_Guid { get; set; }
+
+    // ---------- PG degree row ----------
+    public string? PG_Degree { get; set; }
+    public string? PG_UniversityCollegeName { get; set; }
+    public int? PG_YearOfPassing { get; set; }
+    public string? PG_DegreeCertificate_Path { get; set; }
+    public Guid? PG_DegreeCertificate_Guid { get; set; }
 }
 public class FellowshipMedicalPageVm
 {
     public FellowshipMedicalVm Form { get; set; } = new();
-    public List<FellowShipMedical> ExistingRecords { get; set; } = new();
+    public List<FellowShipMedical> ExistingRecords { get; set; }
 }
 public class FellowshipDashboardRowVm
 {
@@ -373,12 +459,12 @@ public class InstitutionViewModel
     public string EmailId { get; set; }
 
     // ✅ Alt Mobile
-    
+
     public string? AltLandlineMobile { get; set; }
 
     [EmailAddress(ErrorMessage = "Invalid email")]
     public string? AltEmailId { get; set; }
-    
+
     public string? HeadOfInstitution { get; set; }
     public string HeadAddress { get; set; }
 
@@ -386,7 +472,7 @@ public class InstitutionViewModel
 
     [Required(ErrorMessage = "Status is required")]
     public string? StatusOfCollege { get; set; }
-        
+
     public string? CourseApplied { get; set; }
 
     public string? DocumentName { get; set; }
@@ -436,7 +522,7 @@ public class InstitutionViewModel
     // ✅ Dean
     public string DeanName { get; set; }
 
-    
+
     public string? DeanMobileNumber { get; set; }
 
     public string? DeanEmailId { get; set; }
@@ -470,84 +556,11 @@ public class InstitutionViewModel
 
 
 }
-//public class InstitutionViewModel
-//{
-//    // Keys (from Session)
-//    public string CollegeCode { get; set; }
-//    public string FacultyCode { get; set; }
-
-//    public string? CourseLevel { get; set; }
-//    public string TypeOfInstitution { get; set; }
-//    public string NameOfInstitution { get; set; }
-//    public string Address { get; set; }
-//    public string VillageTownCity { get; set; }
-//    public string Taluk { get; set; }
-//    public string District { get; set; }
-//    public string PinCode { get; set; }
-//    public string MobileNumber { get; set; }
-//    public string StdCode { get; set; }
-//    public string Fax { get; set; }
-//    public string Website { get; set; }
-//    public string SurveyNoPidNo { get; set; }
-//    public bool MinorityInstitute { get; set; }
-//    public bool AttachedToMedicalClg { get; set; }
-//    public bool RuralInstitute { get; set; }
-//    public string YearOfEstablishment { get; set; }
-//    public string EmailId { get; set; }
-//    public string AltLandlineMobile { get; set; }
-//    public string AltEmailId { get; set; }
-//    public string HeadOfInstitution { get; set; }
-//    public string HeadAddress { get; set; }
-//    public string FinancingAuthority { get; set; }
-//    public string StatusOfCollege { get; set; }
-//    public string CourseApplied { get; set; }
-
-//    public string? DocumentName { get; set; }
-//    public string? DocumentContentType { get; set; }
-//    // DocumentData will be handled via IFormFile in controller, not in ViewModel
-
-//    public string NodalOfficer_Name { get; set; }
-//    public string NodalOfficer_Mob_Number { get; set; }
-//    public string NodalOfficer_Email { get; set; }
-
-//    public string Principal_Name { get; set; }
-//    public string Principal_Mob_No { get; set; }
-//    public string Principal_Email { get; set; }
-
-//    public string HeadOfInstitution_Mob_NO { get; set; }
-//    public string HeadOfInstitution_Email { get; set; }
-
-//    public string College_URL { get; set; }
-
-//    public string TrustName { get; set; }
-//    public string TrustAddress { get; set; }
-//    public DateOnly? TrustEstablishmentDate { get; set; }
-//    public string TrustPresidentName { get; set; }
-//    public string TrustPresidentContactNo { get; set; }
-
-//    public string DeanName { get; set; }
-//    public string DeanMobileNumber { get; set; }
-//    public string DeanEmailId { get; set; }
-
-//    public string PrincipalMobileNumber { get; set; }
-//    public string PrincipalEmailId { get; set; }
-
-//    public string MinorityCategory { get; set; }
-//    public string RunningCourse { get; set; }
-
-//    // Dropdown data
-//    public List<SelectListItem> TalukList { get; set; }
-//    public List<SelectListItem> DistrictList { get; set; }
-//    public List<SelectListItem> CourseList { get; set; }
-//    public List<SelectListItem> institutetypelist { get; set; }
-//    public List<SelectListItem> Institutestatuslist { get; set; }
-
-//}
 
 public class AcademicReportViewModel
 {
     public string SelectedCollege { get; set; } = "All";
-    public string? CourseName { get; set; } 
+    public string? CourseName { get; set; }
     public string? CollegeName { get; set; }
     public List<string> Colleges { get; set; } = new List<string>();
 
@@ -744,13 +757,13 @@ public class LICInspectionDetailsViewModel
 
     // Professional Details
     //public string? ProfessionalCollegeCode { get; set; }
-public string? ProfessionalDesignation { get; set; }
-//public string? ProfessionalDepartment { get; set; }
+    public string? ProfessionalDesignation { get; set; }
+    //public string? ProfessionalDepartment { get; set; }
 
-// Dropdown options
-//public List<SelectListItem> CollegeOptions { get; set; } = new();
-public List<SelectListItem> DesignationOptions { get; set; } = new();
-//public List<SelectListItem> DepartmentOptions { get; set; } = new();
+    // Dropdown options
+    //public List<SelectListItem> CollegeOptions { get; set; } = new();
+    public List<SelectListItem> DesignationOptions { get; set; } = new();
+    //public List<SelectListItem> DepartmentOptions { get; set; } = new();
     // Bank Details
     public string AccountHolderName { get; set; }   // ✅ KEEP THIS
     public string AccountNumber { get; set; }
@@ -776,8 +789,8 @@ public List<SelectListItem> DesignationOptions { get; set; } = new();
     public List<AssignedCollegeDto> AssignedColleges { get; set; } = new();
     public List<InspectionCollegeItem> Colleges { get; set; } = new();
     public List<SelectListItem> ModeOfTravelOptions { get; set; } = new();   // ← add this
-    public string SelectedCollegeCode { get;  set; }
-    public string? SelectedCollegeName { get;  set; }
+    public string SelectedCollegeCode { get; set; }
+    public string? SelectedCollegeName { get; set; }
     //public List<SelectListItem> CollegeOptions { get; set; }
     public List<LicinspectionDetail> SavedInspections { get; set; } = new();
 
@@ -869,4 +882,3 @@ public class LICDashboardViewModel
 
     public List<ClaimVM> Claims { get; set; }
 }
-

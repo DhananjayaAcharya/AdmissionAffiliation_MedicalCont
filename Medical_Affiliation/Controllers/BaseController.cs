@@ -19,10 +19,46 @@ namespace Medical_Affiliation.Controllers
         }
         protected string? FacultyCode => User.FindFirst("FacultyCode")?.Value;
         protected string? CollegeCode => User.FindFirst("CollegeCode")?.Value;
-        protected int? AffTypeId => Convert.ToInt32(HttpContext.Session.GetString("AffiliationTypeId"));
+        protected int? AffTypeId => ResolveAffiliationTypeId();
         protected int? NameOfAffiliationType => Convert.ToInt32(HttpContext.Session.GetString("TypeOfAffiliation"));
 
         protected string? SelectedCourseLevel => HttpContext.Session.GetString("SelectedCourseLevel");
+
+        protected int? ResolveAffiliationTypeId(int? requestValue = null)
+        {
+            if (requestValue.HasValue && requestValue.Value > 0)
+            {
+                return requestValue.Value;
+            }
+
+            var formAffiliationTypeId = HttpContext.Request.HasFormContentType
+                ? HttpContext.Request.Form["AffiliationTypeId"].FirstOrDefault()
+                : null;
+            var formAffiliationType = HttpContext.Request.HasFormContentType
+                ? HttpContext.Request.Form["AffiliationType"].FirstOrDefault()
+                : null;
+
+            var sessionValues = new[]
+            {
+                HttpContext.Session.GetString("AffiliationTypeId"),
+                HttpContext.Session.GetString("AffiliationType"),
+                HttpContext.Request.Query["affiliationTypeId"].FirstOrDefault(),
+                formAffiliationTypeId,
+                HttpContext.Request.Query["AffiliationType"].FirstOrDefault(),
+                formAffiliationType
+            };
+
+            foreach (var value in sessionValues)
+            {
+                if (int.TryParse(value, out var parsed) && parsed > 0)
+                {
+                    HttpContext.Session.SetString("AffiliationTypeId", parsed.ToString());
+                    return parsed;
+                }
+            }
+
+            return null;
+        }
 
         protected string BaseMedicalPath
         {

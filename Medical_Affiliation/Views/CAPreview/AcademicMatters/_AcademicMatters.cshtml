@@ -491,49 +491,6 @@
             }
         </div>
 
-        <!-- Examination schemes -->
-        <div class="section-block">
-            <div class="section-header-block">
-                <div class="section-title-text section-badge">
-                    <i class="bi bi-clipboard-check"></i>
-                    Examination Schemes
-                </div>
-                <p class="section-description">
-                    Scheme-wise student distribution
-                </p>
-            </div>
-
-            @if (Model.ExaminationSchemes != null && Model.ExaminationSchemes.Any())
-            {
-                <div class="data-table-wrapper">
-                    <table class="table data-table align-middle">
-                        <thead>
-                            <tr>
-                                <th scope="col">Scheme</th>
-                                <th scope="col" class="text-end">Number of Students</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var s in Model.ExaminationSchemes)
-                            {
-                                <tr>
-                                    <td class="year-cell">@s.SchemeCode</td>
-                                    <td class="text-end fw-semibold">@s.NumberOfStudents</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="empty-state">
-                    <i class="bi bi-clipboard-x"></i>
-                    <p class="mb-0">No examination scheme data available.</p>
-                </div>
-            }
-        </div>
-
         <!-- Student register records -->
         <div class="section-block">
             <div class="section-header-block">

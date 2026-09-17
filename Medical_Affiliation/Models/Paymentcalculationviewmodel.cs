@@ -24,6 +24,7 @@ namespace Medical_Affiliation.Models
 
         // ---- Results (populated only after Calculate is clicked) ----
         public bool HasResult { get; set; }
+        public bool PaymentSaved { get; set; }
         public string ErrorMessage { get; set; }
 
         public List<MatchedCourseVM> MatchedCourses { get; set; } = new List<MatchedCourseVM>();
@@ -51,6 +52,8 @@ namespace Medical_Affiliation.Models
         public string CourseCode { get; set; }
         public string CourseName { get; set; }
         public string RawCourseLevel { get; set; }
+        public int? IncreasedIntake { get; set; }
+        public string AcademicYear { get; set; }
         public string MatchNote { get; set; }
     }
 

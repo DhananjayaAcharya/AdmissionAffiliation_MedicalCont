@@ -1,6 +1,7 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Authorization;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace Medical_Affiliation.Controllers
 
     public class Medical_ContinuousAffiliationController : BaseController
     {
+        private const string EquipmentAcademicYear = "2027-28";
 
         private readonly ApplicationDbContext _context;
 
@@ -72,7 +74,7 @@ namespace Medical_Affiliation.Controllers
             // ============================
             var teaching = await _context.SmallGroupTeachings
                                          .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+                                              x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
 
             // ============================
             // 🔹 TABLE 2: Medical_StudentPracticalLabs
@@ -492,9 +494,7 @@ namespace Medical_Affiliation.Controllers
                 // ========================= SAVE =========================
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
-                TempData["Success"] = "Data saved successfully!";
-                return RedirectToAction("Medical_LandBuildingdetails");
+                return RedirectToAction("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation");
             }
             catch (Exception ex)
             {
@@ -532,11 +532,6 @@ namespace Medical_Affiliation.Controllers
 
             return PhysicalFile(teaching.ApprovedBuildingPlanFilePath, "application/pdf");
         }
-
-
-
-      
-
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
@@ -660,13 +655,11 @@ namespace Medical_Affiliation.Controllers
             {
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
-                TempData["Success"] = "Saved successfully!";
-                return RedirectToAction(nameof(Medical_SkillsLaboratory));
+                return RedirectToAction("Medical_EquimentDetails", "Medical_ContinuousAffiliation");
             }
-            catch
+            catch 
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(); 
                 ModelState.AddModelError("", "Error while saving data");
                 return View(model);
             }
@@ -914,7 +907,7 @@ namespace Medical_Affiliation.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SaveSuccess"] = "Saved successfully.";
-            return RedirectToAction(nameof(Medical_DepartmentOfficesAndEducationalUnit));
+            return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
         }
 
         public async Task<IActionResult> ViewMeuMembersList()
@@ -951,6 +944,8 @@ namespace Medical_Affiliation.Controllers
             int facultyCode = Convert.ToInt32(facultyCodeStr);
 
             var model = new EquipmentAvailabilityViewModel();
+            model.FacultyId = facultyCode;
+            model.CollegeCode = collegeCode;
 
             // 1. Load only departments where DepartmentFilter = Y
             model.Courses = await _context.DepartmentMasters
@@ -986,6 +981,10 @@ namespace Medical_Affiliation.Controllers
                         a.CollegeCode == collegeCode)
                     .ToListAsync();
 
+                model.AcademicYear = availabilityList
+                    .Select(a => a.AcademicYear)
+                    .FirstOrDefault(a => !string.IsNullOrWhiteSpace(a));
+
                 model.Equipments = equipments.Select(e =>
                 {
                     var existing = availabilityList
@@ -1017,8 +1016,6 @@ namespace Medical_Affiliation.Controllers
             //var facultyCode = HttpContext.Session.GetString("FacultyCode") ?? "1";
             //int facultyId = Convert.ToInt32(facultyCode);
 
-
-
             if (string.IsNullOrWhiteSpace(FacultyCode) || string.IsNullOrWhiteSpace(CollegeCode))
             {
                 TempData["Error"] = "Session expired. Please login again.";
@@ -1040,7 +1037,7 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction(nameof(Medical_EquimentDetails));
             }
 
-            string departmentCode = model.SelectedDepartmentCode; // MD001
+            string departmentCode = model.SelectedDepartmentCode;
 
             var validDepartment = await _context.DepartmentMasters
             .AnyAsync(d =>
@@ -1062,7 +1059,6 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
 
             using var transaction = await _context.Database.BeginTransactionAsync();
-
             try
             {
 
@@ -1086,12 +1082,14 @@ namespace Medical_Affiliation.Controllers
                                     IsAvailable = true,
                                     AvailableQuantity = quantity,
                                     CollegeCode = collegeCode,
+                                    AcademicYear = EquipmentAcademicYear,
                                 });
                         }
                         else
                         {
                             existing.IsAvailable = true;
                             existing.AvailableQuantity = quantity;
+                            existing.AcademicYear = EquipmentAcademicYear;
                         }
                     }
                     else
@@ -1122,6 +1120,191 @@ namespace Medical_Affiliation.Controllers
                 return View(model);
             }
 
+        }
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpGet]
+        public async Task<IActionResult> DownloadEquipmentTemplate(string departmentCode)
+        {
+            if (!int.TryParse(FacultyCode, out var facultyId) || string.IsNullOrWhiteSpace(CollegeCode))
+                return Unauthorized();
+
+            var validDepartment = await _context.DepartmentMasters
+                .AnyAsync(d => d.DepartmentCode == departmentCode && d.FacultyCode == facultyId && d.DepartmentFilter == "Y");
+
+            if (!validDepartment)
+                return BadRequest("Invalid department selected.");
+
+            var equipments = await _context.MstLaboratoryEquipmentDetails
+                .Where(e => e.CourseCode == departmentCode && e.FacultyId == facultyId)
+                .OrderBy(e => e.EquipmentId)
+                .ToListAsync();
+
+            using var workbook = new XLWorkbook();
+            var sheet = workbook.Worksheets.Add("Equipment Availability");
+            var headers = new[]
+            {
+                "FacultyId", "CourseCode", "CollegeCode", "EquipmentId",
+                "EquipmentName", "AvailableQuantity", "AcademicYear"
+            };
+
+            for (var index = 0; index < headers.Length; index++)
+                sheet.Cell(1, index + 1).Value = headers[index];
+
+            var headerRange = sheet.Range(1, 1, 1, headers.Length);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#0f2545");
+            headerRange.Style.Font.FontColor = XLColor.White;
+
+            for (var rowIndex = 0; rowIndex < equipments.Count; rowIndex++)
+            {
+                var row = rowIndex + 2;
+                var equipment = equipments[rowIndex];
+                sheet.Cell(row, 1).Value = facultyId;
+                sheet.Cell(row, 2).Value = departmentCode;
+                sheet.Cell(row, 3).Value = CollegeCode;
+                sheet.Cell(row, 4).Value = equipment.EquipmentId;
+                sheet.Cell(row, 5).Value = equipment.EquipmentName ?? string.Empty;
+                sheet.Cell(row, 6).Value = 0;
+                sheet.Cell(row, 7).Value = EquipmentAcademicYear;
+            }
+
+            sheet.Columns().AdjustToContents();
+            sheet.Column(5).Width = Math.Min(Math.Max(sheet.Column(5).Width, 24), 50);
+            sheet.Column(6).Style.Protection.Locked = false;
+            sheet.Protect();
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            return File(
+                stream.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"EquipmentAvailability_{departmentCode}.xlsx");
+        }
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadEquipmentAvailability(
+            string departmentCode,
+            IFormFile equipmentFile)
+        {
+            if (!int.TryParse(FacultyCode, out var facultyId) || string.IsNullOrWhiteSpace(CollegeCode))
+                return Unauthorized();
+
+            if (string.IsNullOrWhiteSpace(departmentCode) || equipmentFile == null || equipmentFile.Length == 0)
+            {
+                TempData["Error"] = "Select a department and an Excel file.";
+                return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
+            }
+
+            var validDepartment = await _context.DepartmentMasters
+                .AnyAsync(d => d.DepartmentCode == departmentCode && d.FacultyCode == facultyId && d.DepartmentFilter == "Y");
+
+            if (!validDepartment)
+            {
+                TempData["Error"] = "Invalid department selected.";
+                return RedirectToAction(nameof(Medical_EquimentDetails));
+            }
+
+            if (!string.Equals(Path.GetExtension(equipmentFile.FileName), ".xlsx", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] = "Only .xlsx files are supported.";
+                return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
+            }
+
+            var equipmentIds = await _context.MstLaboratoryEquipmentDetails
+                .Where(e => e.CourseCode == departmentCode && e.FacultyId == facultyId)
+                .Select(e => e.EquipmentId)
+                .ToHashSetAsync();
+
+            var rows = new List<(int EquipmentId, int Quantity, string? AcademicYear)>();
+            try
+            {
+                using var stream = equipmentFile.OpenReadStream();
+                using var workbook = new XLWorkbook(stream);
+                var sheet = workbook.Worksheets.FirstOrDefault();
+                if (sheet == null)
+                    throw new InvalidDataException("The workbook has no worksheet.");
+
+                var requiredHeaders = new[]
+                {
+                    "FacultyId", "CourseCode", "CollegeCode", "EquipmentId",
+                    "EquipmentName", "AvailableQuantity", "AcademicYear"
+                };
+
+                for (var index = 0; index < requiredHeaders.Length; index++)
+                {
+                    if (!string.Equals(sheet.Cell(1, index + 1).GetString().Trim(), requiredHeaders[index], StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException("The uploaded template columns do not match the downloaded template.");
+                }
+
+                foreach (var row in sheet.RowsUsed().Skip(1))
+                {
+                    if (row.CellsUsed().All(cell => string.IsNullOrWhiteSpace(cell.GetString())))
+                        continue;
+
+                    if (row.Cell(1).GetValue<int>() != facultyId ||
+                        !string.Equals(row.Cell(2).GetString().Trim(), departmentCode, StringComparison.OrdinalIgnoreCase) ||
+                        !string.Equals(row.Cell(3).GetString().Trim(), CollegeCode, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException("FacultyId, CourseCode, and CollegeCode must match the current session and selected department.");
+
+                    var equipmentId = row.Cell(4).GetValue<int>();
+                    var quantity = row.Cell(6).GetValue<int>();
+                    if (!equipmentIds.Contains(equipmentId) || quantity < 0)
+                        throw new InvalidDataException("The workbook contains an invalid equipment or quantity value.");
+
+                    var academicYear = row.Cell(7).GetString().Trim();
+                    if (!string.Equals(academicYear, EquipmentAcademicYear, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException($"AcademicYear must be {EquipmentAcademicYear}.");
+
+                    rows.Add((equipmentId, quantity, EquipmentAcademicYear));
+                }
+            }
+            catch (Exception ex) when (ex is InvalidDataException || ex is FormatException || ex is ArgumentException)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
+            }
+
+            if (rows.Count == 0)
+            {
+                TempData["Error"] = "The uploaded workbook contains no equipment rows.";
+                return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
+            }
+
+            var existingRows = await _context.TblMedicalEquipmentAvailabilities
+                .Where(x => x.FacultyId == facultyId && x.CourseCode == departmentCode && x.CollegeCode == CollegeCode)
+                .ToListAsync();
+
+            foreach (var row in rows)
+            {
+                var existing = existingRows.FirstOrDefault(x => x.EquipmentId == row.EquipmentId);
+                if (existing == null)
+                {
+                    _context.TblMedicalEquipmentAvailabilities.Add(new TblMedicalEquipmentAvailability
+                    {
+                        FacultyId = facultyId,
+                        CourseCode = departmentCode,
+                        CollegeCode = CollegeCode,
+                        EquipmentId = row.EquipmentId,
+                        AvailableQuantity = row.Quantity,
+                        IsAvailable = row.Quantity > 0,
+                        AcademicYear = row.AcademicYear,
+                        CreatedOn = DateTime.Now
+                    });
+                }
+                else
+                {
+                    existing.AvailableQuantity = row.Quantity;
+                    existing.IsAvailable = row.Quantity > 0;
+                    existing.AcademicYear = row.AcademicYear;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Equipment availability uploaded successfully.";
+            return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
         }
 
         //[HttpPost]

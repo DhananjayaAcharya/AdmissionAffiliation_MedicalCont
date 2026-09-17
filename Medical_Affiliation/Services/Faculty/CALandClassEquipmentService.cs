@@ -62,7 +62,15 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var facultyId = _userContext.FacultyId;
             var collegeCode = _userContext.CollegeCode;
-            var entity = await _context.MedicalDepartmentOfficesMeus.FirstOrDefaultAsync();
+            var courseLevel = _userContext.CourseLevel?.Trim().ToUpperInvariant();
+            var entity = await _context.MedicalDepartmentOfficesMeus
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyId.ToString() &&
+                            x.CourseLevel != null &&
+                            x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .OrderByDescending(x => x.UpdatedOn ?? x.CreatedOn)
+                .FirstOrDefaultAsync();
 
             if(entity == null) return new DepartmentOfficesMeuDisplayViewModel();
 

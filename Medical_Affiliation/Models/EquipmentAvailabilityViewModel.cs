@@ -9,6 +9,9 @@ namespace Medical_Affiliation.Models
 
 
         public List<SelectListItem> Courses { get; set; }
+        public int FacultyId { get; set; }
+        public string? CollegeCode { get; set; }
+        public string? AcademicYear { get; set; }
 
         // Equipment list
         public List<EquipmentItemViewModel> Equipments { get; set; }

@@ -27,61 +27,41 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             //var regNo = HttpContext.Session.GetString("RegistrationNo");
 
+            // First try from CollegeCourseIntakeDetails
+            var levels = await (
+                from cc in _context.CollegeCourseIntakeDetails
+                join cm in _context.MstCourses
+                    on cc.CourseCode equals cm.CourseCode.ToString()
+                where cc.CollegeCode == CollegeCode
+                select cm.CourseLevel
+            )
+            .Distinct()
+            .ToListAsync();
+
+            // If no levels found, then take from AcademicIntake
+            if (!levels.Any())
+            {
+                levels = await GetSortedCourseLevels();
+            }
+
+            levels = levels
+                .OrderBy(l => l == "UG" ? 1 :
+                              l == "PG" ? 2 :
+                              l == "SS" ? 3 : 99)
+                .ToList();
+
+
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
 
-            var selectedCourseLevel = HttpContext.Session.GetString("SelectedCourseLevel")?
-                                        .Trim().ToUpper()
-                                     ?? HttpContext.Session.GetString("CourseLevel")?
-                                        .Trim().ToUpper();
-
-            List<string> levels;
-            var validLevels = new[] { "UG", "PG", "SS" };
-
-            if (!string.IsNullOrEmpty(selectedCourseLevel) && validLevels.Contains(selectedCourseLevel))
-            {
-                levels = new List<string> { selectedCourseLevel };
-            }
-            else
-            {
-                // First try from CollegeCourseIntakeDetails
-                levels = await (
-                    from cc in _context.CollegeCourseIntakeDetails
-                    join cm in _context.MstCourses
-                        on cc.CourseCode equals cm.CourseCode.ToString()
-                    where cc.CollegeCode == CollegeCode
-                    select cm.CourseLevel
-                )
-                .Distinct()
-                .ToListAsync();
-
-                // If no levels found, then take from AcademicIntake
-                if (!levels.Any())
-                {
-                    levels = await GetSortedCourseLevels();
-                }
-
-                levels = levels
-                    .Select(l => l?.Trim().ToUpper())
-                    .Where(l => !string.IsNullOrEmpty(l))
-                    .Distinct()
-                    .OrderBy(l => l == "UG" ? 1 :
-                                  l == "PG" ? 2 :
-                                  l == "SS" ? 3 : 99)
-                    .ToList();
-            }
+            //var acc = await _context.MedCaAccountAndFeeDetails
+            //    .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode && x.CourseLevel == courseLevel);
 
             var vm = new Med_CA_AccountAndFeeDetailsPageVM();
-            var accQuery = _context.MedCaAccountAndFeeDetails
+            var accList = await _context.MedCaAccountAndFeeDetails
                                 .Where(x => x.CollegeCode == collegeCode
-                                         && x.FacultyCode == facultyCode);
-
-            if (levels.Count == 1)
-            {
-                accQuery = accQuery.Where(x => x.CourseLevel == levels[0]);
-            }
-
-            var accList = await accQuery.ToListAsync();
+                                         && x.FacultyCode == facultyCode)
+                                .ToListAsync();
 
             foreach (var level in levels)
             {
@@ -119,14 +99,6 @@ namespace Medical_Affiliation.Controllers
                 });
             }
 
-            // If course level was explicitly selected, hide other sections in the view by keeping a single section.
-            if (levels.Count == 1 && vm.Sections.Count > 1)
-            {
-                vm.Sections = vm.Sections
-                    .Where(s => s.CourseLevel == levels[0])
-                    .ToList();
-            }
-
             //ModelState.Clear()/*;*/
             return View("Med_CA_FinanceDetails", vm);
             //return View("Med_CA_FinanceDetails", new Med_CA_AccountAndFeeDetailsPageVM()); // Simplified for brevity, keep your full code
@@ -135,35 +107,70 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Med_CA_AccountAndFeeDetails(
-                                    Med_CA_AccountAndFeeDetailsPageVM model,
-                                    IFormFile? GoverningCouncilPdf,
-                                    IFormFile? AccountSummaryPdf,
-                                    IFormFile? AuditedStatementPdf,
-                                    IFormFile? DonationPdf)
+                    Med_CA_AccountAndFeeDetailsPageVM model,
+                    IFormFile? GoverningCouncilPdf,
+                    IFormFile? AccountSummaryPdf,
+                    IFormFile? AuditedStatementPdf,
+                    IFormFile? DonationPdf)
         {
-            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Login");
 
-
-            // Remove validation for session fields
             ModelState.Remove("CollegeCode");
             ModelState.Remove("FacultyCode");
             ModelState.Remove("CourseLevel");
 
             // ===============================
-            // 🔥 LOOP THROUGH EACH SECTION
+            // 🔥 PRE-VALIDATE — ONLY SECTIONS THE USER ACTUALLY FILLED IN
+            // ===============================
+            var missingFields = new List<string>();
+            bool anySectionFilled = false;
+
+            for (int i = 0; i < model.Sections.Count; i++)
+            {
+                var item = model.Sections[i];
+
+                if (IsSectionEmpty(item))
+                    continue; // untouched level — skip validation entirely
+
+                anySectionFilled = true;
+
+                var levelLabel = string.IsNullOrWhiteSpace(item.CourseLevel) ? $"Section {i + 1}" : item.CourseLevel;
+
+                if (string.IsNullOrWhiteSpace(item.AuthorityNameAddress))
+                    missingFields.Add($"{levelLabel}: Authority Name & Address is required.");
+
+                if (string.IsNullOrWhiteSpace(item.AuthorityContact))
+                    missingFields.Add($"{levelLabel}: Authority Contact is required.");
+            }
+
+            if (!anySectionFilled)
+            {
+                ModelState.AddModelError(string.Empty, "Please fill in at least one course level before saving.");
+                return View("Med_CA_FinanceDetails", model);
+            }
+
+            if (missingFields.Any())
+            {
+                foreach (var msg in missingFields)
+                    ModelState.AddModelError(string.Empty, msg);
+
+                return View("Med_CA_FinanceDetails", model);
+            }
+
+            // ===============================
+            // 🔥 LOOP THROUGH EACH FILLED-IN SECTION ONLY
             // ===============================
             foreach (var item in model.Sections)
             {
+                if (IsSectionEmpty(item))
+                    continue; // don't touch DB for levels the user didn't fill in
+
                 var courseLevel = item.CourseLevel?.Trim().ToUpper();
 
-                // ===============================
-                // FETCH EXISTING RECORD
-                // ===============================
                 var db = await _context.MedCaAccountAndFeeDetails
                     .FirstOrDefaultAsync(x =>
                         x.CollegeCode == collegeCode &&
@@ -185,11 +192,8 @@ namespace Medical_Affiliation.Controllers
                     _context.MedCaAccountAndFeeDetails.Add(db);
                 }
 
-                // ===============================
-                // 🔥 NORMAL FIELD UPDATE
-                // ===============================
-                db.AuthorityNameAddress = item.AuthorityNameAddress;
-                db.AuthorityContact = item.AuthorityContact;
+                db.AuthorityNameAddress = item.AuthorityNameAddress!;
+                db.AuthorityContact = item.AuthorityContact!;
 
                 db.RecurrentAnnual = item.RecurrentAnnual ?? 0m;
                 db.NonRecurrentAnnual = item.NonRecurrentAnnual ?? 0m;
@@ -211,7 +215,6 @@ namespace Medical_Affiliation.Controllers
                 db.AccountBooksMaintained = item.AccountBooksMaintained;
                 db.AccountsAudited = item.AccountsAudited;
 
-                // PG only
                 if (courseLevel == "PG")
                     db.DonationLevied = item.DonationLevied;
                 else
@@ -221,7 +224,6 @@ namespace Medical_Affiliation.Controllers
                 // 🔥 FILE HANDLING
                 // ===============================
 
-                // 1. Governing Council PDF
                 if (item.GoverningCouncilPdf != null && item.GoverningCouncilPdf.Length > 0)
                 {
                     var path = await SaveFinanceFileAsync(item.GoverningCouncilPdf, "GoverningCouncil");
@@ -236,7 +238,6 @@ namespace Medical_Affiliation.Controllers
                     db.GoverningCouncilPdfName = item.GoverningCouncilPdf.FileName;
                 }
 
-                // 2. Account Summary PDF
                 if (item.AccountBooksMaintained == "N")
                 {
                     if (!string.IsNullOrEmpty(db.AccountSummaryPdfPath) &&
@@ -262,7 +263,6 @@ namespace Medical_Affiliation.Controllers
                     db.AccountSummaryPdfName = item.AccountSummaryPdf.FileName;
                 }
 
-                // 3. Audited Statement PDF
                 if (item.AccountsAudited == "N")
                 {
                     if (!string.IsNullOrEmpty(db.AuditedStatementPdfPath) &&
@@ -288,7 +288,6 @@ namespace Medical_Affiliation.Controllers
                     db.AuditedStatementPdfName = item.AuditedStatementPdf.FileName;
                 }
 
-                // 4. Donation PDF (PG only)
                 if (courseLevel == "PG")
                 {
                     if (item.DonationLevied == "N")
@@ -321,15 +320,46 @@ namespace Medical_Affiliation.Controllers
             // ===============================
             // SAVE ALL
             // ===============================
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "Failed to save. Please check that all required fields are filled in for every section.");
+
+                return View("Med_CA_FinanceDetails", model);
+            }
 
             ContinuousAffiliationController.MarkDone(HttpContext, "FinancialDetails");
 
-            return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
-            return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
+            return RedirectToAction("CA_Med_StaffDetails", "CA_Med_StaffDetails");
         }
 
-
+        // ===============================
+        // 🔥 Helper: is this section untouched by the user?
+        // ===============================
+        private bool IsSectionEmpty(Med_CA_AccountAndFeeDetailsViewModel item)
+        {
+            return string.IsNullOrWhiteSpace(item.AuthorityNameAddress)
+                && string.IsNullOrWhiteSpace(item.AuthorityContact)
+                && !item.RecurrentAnnual.HasValue
+                && !item.NonRecurrentAnnual.HasValue
+                && !item.Deposits.HasValue
+                && !item.TuitionFee.HasValue
+                && !item.SportsFee.HasValue
+                && !item.UnionFee.HasValue
+                && !item.LibraryFee.HasValue
+                && !item.OtherFee.HasValue
+                && string.IsNullOrWhiteSpace(item.AccountBooksMaintained)
+                && string.IsNullOrWhiteSpace(item.AccountsAudited)
+                && string.IsNullOrWhiteSpace(item.DonationLevied)
+                && (item.GoverningCouncilPdf == null || item.GoverningCouncilPdf.Length == 0)
+                && (item.AccountSummaryPdf == null || item.AccountSummaryPdf.Length == 0)
+                && (item.AuditedStatementPdf == null || item.AuditedStatementPdf.Length == 0)
+                && (item.DonationPdf == null || item.DonationPdf.Length == 0);
+        }
 
         // View PDF actions (keep these)
         [HttpGet]
@@ -469,8 +499,8 @@ namespace Medical_Affiliation.Controllers
 
             // 2. FALLBACK: If no specific drive is available (typical for Live Hosting),
             //brainchild use the Application's base directory.
-    // This ensures the app works on any server without needing a specific drive letter.
-    return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads", folderName);
+            // This ensures the app works on any server without needing a specific drive letter.
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads", folderName);
         }
 
     }

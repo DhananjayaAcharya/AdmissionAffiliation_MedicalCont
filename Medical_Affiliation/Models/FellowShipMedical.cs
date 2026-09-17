@@ -31,13 +31,13 @@ public partial class FellowShipMedical
 
     public string? FellowshipCode { get; set; }
 
-    public byte[]? SslcDoc { get; set; }
+    public string? SslcDoc { get; set; }
 
-    public byte[]? KmcDoc { get; set; }
+    public string? KmcDoc { get; set; }
 
-    public byte[]? ExperienceLetterDoc { get; set; }
+    public string? ExperienceLetterDoc { get; set; }
 
-    public byte[]? AppointmentLetterDoc { get; set; }
+    public string? AppointmentLetterDoc { get; set; }
 
     public string? ApprovalStatus { get; set; }
 
@@ -46,4 +46,48 @@ public partial class FellowShipMedical
     public string? DrApprovalStatus { get; set; }
 
     public string? DrApprovalRemark { get; set; }
+
+    public string? FatherGuardianName { get; set; }
+
+    public string? Gender { get; set; }
+
+    public string? ContactNumber { get; set; }
+
+    public string? Email { get; set; }
+
+    public string? Nationality { get; set; }
+
+    public string? CandidateRegisteredNumber { get; set; }
+
+    public string? UgDegree { get; set; }
+
+    public string? PgDegree { get; set; }
+
+    public string? ExperienceCollege { get; set; }
+
+    public int? YearOfPassing { get; set; }
+
+    public string? UgDegreeCertificatePath { get; set; }
+
+    public Guid? UgDegreeCertificateGuid { get; set; }
+
+    public string? PgDegreeCertificatePath { get; set; }
+
+    public Guid? PgDegreeCertificateGuid { get; set; }
+
+    public string? UgUniversityCollegeName { get; set; }
+
+    public int? UgYearOfPassing { get; set; }
+
+    public string? PgUniversityCollegeName { get; set; }
+
+    public int? PgYearOfPassing { get; set; }
+
+    public Guid? SslcDocGuid { get; set; }
+
+    public Guid? KmcDocGuid { get; set; }
+
+    public Guid? ExperienceLetterDocGuid { get; set; }
+
+    public Guid? AppointmentLetterDocGuid { get; set; }
 }

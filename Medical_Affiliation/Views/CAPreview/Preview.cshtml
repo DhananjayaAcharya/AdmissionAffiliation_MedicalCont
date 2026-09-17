@@ -2,218 +2,261 @@
 @{
     ViewData["Title"] = "Details Preview";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var previewCourseLevel = (Context.Session.GetString("CourseLevel")
+                              ?? Context.Session.GetString("SelectedCourseLevel")
+                              ?? Model.ApplyingCourseLevel
+                              ?? string.Empty).Trim().ToUpperInvariant();
+    var isUgPreview = previewCourseLevel == "UG";
+    var isPgPreview = previewCourseLevel == "PG";
+    var isSsPreview = previewCourseLevel == "SS";
+    var courseLevelLabel = previewCourseLevel switch
+    {
+        "UG" => "Undergraduate (UG)",
+        "PG" => "Postgraduate (PG)",
+        "SS" => "Super Specialty (SS)",
+        _ => "Not specified"
+    };
 }
 
 <style>
-    .affiliation-page-container {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        min-height: 100vh;
-        padding: 2rem 0;
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    /* ==========================================================
+           Palette pulled directly from the CA topbar (_CaLayout.cshtml):
+           gradient  #0a3d7c -> #0d4a94 -> #0e57ad
+           accent    #f4b400 -> #f7c948 -> #f4b400
+           body bg   #f4f7fb
+           fonts     EB Garamond (display) / DM Sans (body)
+           ========================================================== */
+    :root {
+        --ink: #10203a;
+        --navy-deep: #0a3d7c;
+        --navy: #0d4a94;
+        --navy-light: #0e57ad;
+        --navy-soft: #eaf1fb;
+        --gold: #f4b400;
+        --gold-soft: #f7c948;
+        --gold-ink: #7a5600;
+        --paper: #f4f7fb;
+        --surface: #ffffff;
+        --border: #dbe6f7;
+        --border-soft: #e9f0fa;
+        --muted: #5b6b84;
+        --danger: #a83232;
+        --card-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+        --header-shadow: 0 10px 30px rgba(9, 40, 78, 0.22);
+        --font-serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
+        --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
+    /* ========================= */
+    /* PAGE SHELL */
+    /* ========================= */
+    .affiliation-page-container {
+        background: transparent;
+        min-height: 100vh;
+        padding: 0 0 1rem;
+        font-family: var(--font-sans);
+        color: var(--ink);
+    }
+
+        .affiliation-page-container > .container-fluid {
+            max-width: 1360px;
+        }
+
+    /* ========================= */
+    /* HEADER */
+    /* ========================= */
     .affiliation-header-wrapper {
-        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-        border-radius: 20px;
-        padding: 2.5rem;
-        margin-bottom: 2.5rem;
-        box-shadow: 0 10px 30px rgba(14, 165, 233, 0.2);
-        position: relative;
+        background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
+        border: 0;
+        border-radius: 14px;
+        box-shadow: var(--header-shadow);
+        color: #fff;
+        margin-bottom: 1rem;
         overflow: hidden;
+        padding: 1.85rem 2.1rem;
+        position: relative;
     }
 
         .affiliation-header-wrapper::before {
-            content: '';
+            content: "";
             position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 400px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-        }
-
-        .affiliation-header-wrapper::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -5%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 50%;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-soft) 45%, var(--gold) 100%);
         }
 
     .affiliation-header-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .affiliation-badge {
-        background: rgba(255, 255, 255, 0.25);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        backdrop-filter: blur(10px);
-        margin-bottom: 0.75rem;
-    }
-
-    .affiliation-title {
-        color: white;
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0 0 0.75rem 0;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .affiliation-meta {
         display: flex;
-        gap: 2rem;
+        flex-direction: column;
+        gap: 1.1rem;
+    }
+
+    .affiliation-header-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1.75rem;
         flex-wrap: wrap;
     }
 
+    .affiliation-header-primary {
+        min-width: 0;
+        flex: 1 1 320px;
+    }
+
+    .affiliation-header-actions {
+        flex-shrink: 0;
+        padding-top: 0.15rem;
+    }
+
+    .submit-application-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, var(--gold-soft) 0%, var(--gold) 100%);
+        border: 1px solid var(--gold);
+        border-radius: 8px;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+        color: var(--navy-deep);
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 0.65rem 1.2rem;
+        white-space: nowrap;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+        .submit-application-btn:hover {
+            background: linear-gradient(135deg, #fff 0%, var(--gold-soft) 100%);
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+            transform: translateY(-1px);
+        }
+
+        .submit-application-btn i {
+            font-size: 0.95rem;
+        }
+
+    .affiliation-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(247, 201, 72, 0.55);
+        color: #ffe27a;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        margin-bottom: 0.9rem;
+    }
+
+    .affiliation-title {
+        font-family: var(--font-serif);
+        font-weight: 600;
+        font-size: clamp(1.5rem, 2.4vw, 2.05rem);
+        line-height: 1.25;
+        margin: 0;
+        max-width: 34ch;
+        overflow-wrap: break-word;
+    }
+
+    .affiliation-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        margin-top: 0.45rem;
+    }
+
+    .affiliation-meta {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.6rem;
+    }
+
     .meta-item {
-        background: white;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        min-width: 180px;
+        background: rgba(4, 20, 39, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-left: 2px solid var(--gold-soft);
+        border-radius: 6px;
+        padding: 0.65rem 0.85rem;
+        min-width: 0;
     }
 
     .meta-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #64748b;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.2rem;
     }
-
-        .meta-label i {
-            color: #0284c7;
-        }
 
     .meta-value {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #0284c7;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .sections-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0rem;
-    }
-
-    .navigation-tabs {
-        background: white;
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e0f2fe;
-        margin-bottom: 2rem;
-    }
-
-    .nav-tabs-custom {
-        border: none;
-        gap: 0.5rem;
-    }
-
-        .nav-tabs-custom .nav-link {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 2px solid #bae6fd;
-            color: #0284c7;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-        }
-
-            .nav-tabs-custom .nav-link:hover {
-                background: linear-gradient(135deg, #dbeafe 0%, #bae6fd 100%);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
-                color: #0284c7;
-            }
-
-            .nav-tabs-custom .nav-link.active {
-                background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-                color: white;
-                border-color: #0284c7;
-                box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-            }
-
-    .sections-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0rem;
-        scroll-margin-top: 100px;
-    }
-
-    #academic-section,
-    #hospital-section {
-        scroll-margin-top: 120px;
-    }
-
+    /* ========================= */
+    /* BREADCRUMB */
+    /* ========================= */
     .breadcrumb-wrapper {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e0f2fe;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--border);
+        border-radius: 0;
+        margin-bottom: 1.1rem;
+        padding: 0.25rem 0 0.75rem;
     }
 
     .breadcrumb-custom {
         margin: 0;
         background: transparent;
+        font-size: 0.82rem;
     }
 
-        .breadcrumb-custom .breadcrumb-item {
-            color: #0284c7;
+        .breadcrumb-custom .breadcrumb-item a {
+            color: var(--navy-light);
             font-weight: 500;
-            font-size: 0.9rem;
+            text-decoration: none;
         }
 
-            .breadcrumb-custom .breadcrumb-item.active {
-                color: #64748b;
+            .breadcrumb-custom .breadcrumb-item a:hover {
+                text-decoration: underline;
             }
 
-            .breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
-                color: #0284c7;
-            }
+        .breadcrumb-custom .breadcrumb-item.active {
+            color: var(--muted);
+        }
 
+        .breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
+            color: #b7c2cd;
+        }
+
+    /* ========================= */
+    /* INFO ALERT */
+    /* ========================= */
     .info-alert {
-        background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-        border-radius: 12px;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 2rem;
-        border-left: 4px solid #3b82f6;
         display: flex;
-        align-items: center;
-        gap: 1rem;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        align-items: flex-start;
+        gap: 0.9rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--gold);
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        padding: 0.95rem 1.2rem;
+        margin-bottom: 1.15rem;
     }
 
         .info-alert i {
-            color: #3b82f6;
-            font-size: 1.75rem;
-            flex-shrink: 0;
+            color: var(--gold-ink);
+            font-size: 1.2rem;
+            margin-top: 0.1rem;
         }
 
     .info-alert-content {
@@ -222,51 +265,568 @@
 
     .info-alert-title {
         font-weight: 700;
-        color: #1e40af;
-        margin-bottom: 0.25rem;
-        font-size: 1rem;
+        color: var(--navy);
+        font-size: 0.9rem;
+        margin-bottom: 0.15rem;
     }
 
     .info-alert-text {
-        color: #64748b;
-        font-size: 0.9rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+        line-height: 1.55;
         margin: 0;
-        line-height: 1.5;
     }
 
-    .section-separator {
-        height: 3px;
-        background: linear-gradient(90deg, #0ea5e9, transparent, #0ea5e9);
-        margin: 2.5rem 0;
-        border-radius: 2px;
+    /* ========================= */
+    /* TAB DIRECTORY */
+    /* ========================= */
+    .preview-tab-directory {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.85rem;
+        margin-bottom: 1.4rem;
     }
 
-    @@media (max-width: 768px) {
-        .affiliation-header-wrapper {
-            padding: 1.5rem;
+    .preview-tab-group {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+
+    .preview-tab-group-title {
+        background: var(--navy-soft);
+        border-bottom: 1px solid var(--border);
+        color: var(--navy);
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        margin: 0;
+        padding: 0.65rem 0.85rem;
+    }
+
+    .preview-tab-list {
+        display: grid;
+    }
+
+    .preview-tab-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        background: var(--surface);
+        border: 0;
+        border-bottom: 1px solid var(--border-soft);
+        border-radius: 0;
+        padding: 0.55rem 0.85rem;
+        transition: background 0.15s ease;
+    }
+
+        .preview-tab-row:last-child {
+            border-bottom: 0;
         }
 
-        .affiliation-title {
-            font-size: 1.75rem;
+        .preview-tab-row:hover {
+            background: var(--navy-soft);
+        }
+
+        .preview-tab-row span {
+            color: var(--navy);
+            cursor: pointer;
+            font-size: 0.83rem;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+
+            .preview-tab-row span:hover {
+                color: var(--navy-light);
+                text-decoration: underline;
+                text-decoration-thickness: 1px;
+                text-underline-offset: 3px;
+            }
+
+        .preview-tab-row a {
+            flex-shrink: 0;
+            background: transparent;
+            border: 1px solid var(--navy);
+            border-radius: 6px;
+            color: var(--navy);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.3rem 0.6rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+            .preview-tab-row a:hover {
+                background: var(--navy);
+                color: #fff;
+            }
+
+    /* ========================= */
+    /* REPORT SECTIONS */
+    /* ========================= */
+    .preview-report {
+        display: grid;
+        gap: 0.9rem;
+    }
+
+    .preview-report-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        scroll-margin-top: 20px;
+    }
+
+    .preview-report-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        background: var(--navy-soft);
+        border-bottom: 1px solid var(--border);
+        color: var(--navy);
+        font-family: var(--font-serif);
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 0;
+        padding: 0.8rem 1.1rem;
+    }
+
+        .preview-report-heading span {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+            .preview-report-heading span::before {
+                content: "";
+                display: inline-block;
+                width: 3px;
+                height: 1.05rem;
+                background: var(--gold);
+                margin-right: 0.65rem;
+                border-radius: 2px;
+            }
+
+    .preview-report-body {
+        padding: 1.15rem 1.25rem;
+    }
+
+        .preview-report-body .general-section,
+        .preview-report-body .general-body {
+            border: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .preview-report-body .general-header {
+            display: none;
+        }
+
+        .preview-report-body .section-block {
+            border: 0;
+            margin: 0;
+        }
+
+        .preview-report-body .section-header-block {
+            margin-top: 0.3rem;
+        }
+
+        .preview-report-body .empty-state {
+            padding: 0.9rem 0;
+        }
+
+    .empty-state {
+        color: var(--muted);
+        font-size: 0.85rem;
+        font-style: italic;
+        padding: 0.5rem 0;
+    }
+
+    /* ========================= */
+    /* DATA TABLES */
+    /* ========================= */
+    .data-table {
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        overflow: hidden;
+        font-size: 0.87rem;
+    }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.55rem 0.85rem;
+            vertical-align: middle;
+            border-color: var(--border-soft) !important;
+        }
+
+        .data-table tbody th {
+            background: var(--navy-soft);
+            color: var(--navy);
+            font-weight: 600;
+            width: 30%;
+            white-space: nowrap;
+        }
+
+        .data-table tbody td {
+            color: var(--ink);
+        }
+
+        .data-table thead th {
+            background: var(--navy);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.02em;
+            border-bottom: 1px solid var(--navy-deep);
+        }
+
+    .preview-report-body h5.fw-bold {
+        font-family: var(--font-serif);
+        color: var(--navy);
+        font-size: 0.98rem;
+        font-weight: 600;
+        margin-bottom: 0.6rem;
+    }
+
+    /* ========================= */
+    /* CONSENT MODAL */
+    /* ========================= */
+    .consent-modal .modal-dialog {
+        max-width: 580px;
+    }
+
+    .consent-modal .modal-content {
+        border: 0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(9, 40, 78, 0.28);
+    }
+
+    .consent-modal .modal-header {
+        background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
+        border-bottom: 3px solid var(--gold-soft);
+        color: #fff;
+        align-items: flex-start;
+        padding: 1.3rem 1.5rem;
+        position: relative;
+    }
+
+    .consent-modal-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #ffe27a;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+    }
+
+    .consent-modal .modal-title {
+        font-family: var(--font-serif);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .consent-modal .btn-close {
+        filter: invert(1);
+        margin-top: 0.2rem;
+    }
+
+    .consent-body {
+        padding: 1.4rem 1.6rem 1.6rem;
+    }
+
+        .consent-body p {
+            color: var(--muted);
+            font-size: 0.87rem;
+            line-height: 1.65;
+            margin-bottom: 1.1rem;
+        }
+
+            .consent-body p strong {
+                color: var(--navy);
+                font-weight: 700;
+            }
+
+    .preview-caution {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        background: #fff8e6;
+        border: 1px solid #f3dfa0;
+        border-left: 4px solid var(--gold);
+        border-radius: 8px;
+        color: var(--gold-ink);
+        font-size: 0.82rem;
+        font-weight: 500;
+        line-height: 1.5;
+        margin-bottom: 1.25rem;
+        padding: 0.75rem 1.1rem;
+    }
+
+        .preview-caution i {
+            color: var(--gold-ink);
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+
+        .preview-caution strong {
+            color: var(--gold-ink);
+            font-weight: 700;
+        }
+
+    .consent-body .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        border-top: 1px solid var(--border-soft);
+        padding-top: 1rem;
+        margin-top: 0.2rem;
+    }
+
+    .consent-body .form-check-input {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin: 0;
+        border: 1.75px solid #8a96a3;
+        border-radius: 4px;
+        background-color: #fff;
+        cursor: pointer;
+        position: relative;
+        flex-shrink: 0;
+        transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+        .consent-body .form-check-input:hover {
+            border-color: var(--navy-light);
+        }
+
+        .consent-body .form-check-input:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(14, 87, 173, 0.22);
+        }
+
+        .consent-body .form-check-input:checked {
+            background-color: var(--navy);
+            border-color: var(--navy);
+            box-shadow: 0 2px 6px rgba(13, 74, 148, 0.28);
+        }
+
+            .consent-body .form-check-input:checked::after {
+                content: "";
+                position: absolute;
+                left: 0.36rem;
+                top: 0.16rem;
+                width: 0.32rem;
+                height: 0.62rem;
+                border: solid #ffffff;
+                border-width: 0 2px 2px 0;
+                transform: rotate(40deg);
+            }
+
+    .consent-body .form-check-label {
+        color: var(--ink);
+        font-size: 0.87rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color 0.15s ease;
+    }
+
+    .consent-body .form-check-input:checked + .form-check-label {
+        color: var(--navy);
+        font-weight: 600;
+    }
+
+    .consent-body .pdf-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        width: 100%;
+        background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
+        border: 1px solid var(--navy-deep);
+        border-radius: 8px;
+        box-shadow: 0 8px 18px rgba(13, 74, 148, 0.28);
+        color: #fff;
+        font-size: 0.88rem;
+        font-weight: 700;
+        padding: 0.75rem 1.05rem;
+        margin-top: 1.1rem;
+        cursor: pointer;
+        transition: filter 0.15s ease, opacity 0.15s ease;
+    }
+
+        .consent-body .pdf-action:hover:not(:disabled) {
+            filter: brightness(1.08);
+        }
+
+        .consent-body .pdf-action:disabled {
+            background: #c3cdd6;
+            border-color: #c3cdd6;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+
+    .consent-body .pdf-hint {
+        color: var(--muted);
+        font-size: 0.74rem;
+        text-align: center;
+        margin-top: 0.55rem;
+    }
+
+    /* ========================= */
+    /* FOOTER ACTIONS */
+    /* ========================= */
+    .page-actions {
+        margin-top: 1.25rem;
+    }
+
+        .page-actions .btn-secondary {
+            background: var(--surface);
+            border: 1px solid var(--navy);
+            color: var(--navy);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.55rem 1.35rem;
+            border-radius: 8px;
+            transition: all 0.15s ease;
+        }
+
+            .page-actions .btn-secondary:hover {
+                background: var(--navy);
+                color: #fff;
+            }
+
+    /* ========================= */
+    /* TAB PREVIEW MODAL */
+    /* ========================= */
+    .preview-modal .modal-dialog {
+        max-width: 1120px;
+    }
+
+    .preview-modal .modal-content {
+        border: 0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .preview-modal .modal-header {
+        background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
+        border-bottom: 3px solid var(--gold-soft);
+        color: #fff;
+        padding: 0.8rem 1.1rem;
+    }
+
+    .preview-modal .modal-title {
+        font-family: var(--font-serif);
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .preview-modal .btn-close {
+        filter: invert(1);
+    }
+
+    .preview-modal .modal-body {
+        background: var(--paper);
+        height: min(74vh, 760px);
+        padding: 0;
+    }
+
+        .preview-modal .modal-body.is-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .preview-modal .modal-body.is-loading::after {
+                content: "Loading preview…";
+                color: var(--navy);
+                font-size: 0.85rem;
+                font-weight: 600;
+            }
+
+    .preview-modal iframe {
+        background: #fff;
+        border: 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    .preview-modal .modal-footer {
+        background: #fff;
+        border-top: 1px solid var(--border);
+        padding: 0.65rem 1rem;
+    }
+
+        .preview-modal .modal-footer a {
+            background: var(--navy);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.76rem;
+            font-weight: 600;
+            padding: 0.45rem 0.85rem;
+            text-decoration: none;
+        }
+
+            .preview-modal .modal-footer a:hover {
+                background: var(--navy-light);
+            }
+
+    /* ========================= */
+    /* RESPONSIVE */
+    /* ========================= */
+    @@media (max-width: 992px) {
+        .preview-tab-directory {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .affiliation-meta {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .affiliation-header-top {
             flex-direction: column;
-            gap: 1rem;
+            align-items: flex-start;
+            gap: 0.9rem;
         }
 
-        .meta-item {
+        .submit-application-btn {
             width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .preview-tab-directory {
+            grid-template-columns: 1fr;
         }
 
-        .nav-tabs-custom {
-            flex-direction: column;
+        .affiliation-meta {
+            grid-template-columns: 1fr;
         }
 
-            .nav-tabs-custom .nav-link {
-                width: 100%;
-                justify-content: center;
-            }
+        .affiliation-header-wrapper {
+            padding: 1.4rem 1.25rem;
+        }
+
+        .data-table th, .data-table td {
+            font-size: 0.82rem;
+            padding: 0.5rem 0.6rem;
+        }
     }
 </style>
 
@@ -274,33 +834,46 @@
     <div class="container-fluid">
 
         <!-- ========================= -->
-        <!-- PAGE HEADER -->
+        <!-- OFFICIAL HEADER -->
         <!-- ========================= -->
         <div class="affiliation-header-wrapper">
             <div class="affiliation-header-content">
-                <span class="affiliation-badge">
-                    <i class="bi bi-clipboard-check"></i>
-                    <a href="@Url.Action("TestPdf","CAPreview")" target="_blank">
-
-                    Preview Mode
-                    </a>
-                </span>
-                <h1 class="affiliation-title">Details Preview</h1>
-
+                <div class="affiliation-header-top">
+                    <div class="affiliation-header-primary">
+                        <div class="affiliation-badge">
+                            <i class="bi bi-patch-check-fill"></i>
+                            Continuous Affiliation &middot; Application Preview
+                        </div>
+                        <h1 class="affiliation-title">
+                            @(Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.NameOfInstitution)
+                                ? Model.InstitutionDetails.NameOfInstitution
+                                : "College Affiliation Preview")
+                        </h1>
+                        <div class="affiliation-subtitle">Read-only summary generated from your submitted application. Edit any section from the directory below before final submission.</div>
+                    </div>
+                    <div class="affiliation-header-actions">
+                        <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal">
+                            <i class="bi bi-send-check-fill"></i>
+                            Submit Application
+                        </button>
+                    </div>
+                </div>
                 <div class="affiliation-meta">
                     <div class="meta-item">
-                        <div class="meta-label">
-                            <i class="bi bi-building"></i>
-                            College
-                        </div>
-                        <div class="meta-value">@Model.CollegeName</div>
+                        <div class="meta-label">Course Level</div>
+                        <div class="meta-value">@courseLevelLabel</div>
                     </div>
                     <div class="meta-item">
-                        <div class="meta-label">
-                            <i class="bi bi-mortarboard"></i>
-                            Faculty
-                        </div>
-                        <div class="meta-value">@Model.FacultyName</div>
+                        <div class="meta-label">Institution Type</div>
+                        <div class="meta-value">@(Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.TypeOfInstitution) ? Model.InstitutionDetails.TypeOfInstitution : "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">District</div>
+                        <div class="meta-value">@(Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.District) ? Model.InstitutionDetails.District : "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Preview Generated</div>
+                        <div class="meta-value">@DateTime.Now.ToString("dd MMM yyyy")</div>
                     </div>
                 </div>
             </div>
@@ -341,279 +914,501 @@
         </div>
 
         <!-- ========================= -->
-        <!-- NAVIGATION TABS -->
+        <!-- ORDERED TAB DIRECTORY -->
         <!-- ========================= -->
-        <div class="navigation-tabs">
-            <ul class="nav nav-tabs nav-tabs-custom">
-                @if (Model.InstitutionBasicVM != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#basic-section">
-                            <i class="bi bi-book"></i>
-                            Basic Details
-                        </a>
-                    </li>
-                }
+        <div class="preview-tab-directory">
+            <div class="preview-tab-group">
+                <div class="preview-tab-group-title">Basic Details</div>
+                <div class="preview-tab-list">
+                    <div class="preview-tab-row"><span>Institution Details</span><a href="@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Trust Institution Details</span><a href="@Url.Action("Aff_InstituteDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Trust Member Details</span><a href="@Url.Action("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Staff Particulars - Dean / Director</span><a href="@Url.Action("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Staff Particulars - Principal</span><a href="@Url.Action("Aff_PrincipalDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                </div>
+            </div>
 
-                @if (Model.CAacademicMattersVM != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#academic-section">
-                            <i class="bi bi-book"></i>
-                            Academic Matters
-                        </a>
-                    </li>
-                }
-                
-                @if (Model.CAHospitalAFfiliationCompVM != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.CAacademicMattersVM == null ? "active" : "")" href="#hospital-section">
-                            <i class="bi bi-hospital"></i>
-                            Clinical Hospital Details
-                        </a>
-                    </li>
-                }
-                @if (Model.PhysicalFacilities != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.PhysicalFacilities == null ? "active" : "")" href="#small-group">
-                            <i class="bi bi-hospital"></i>
-                            Small Group
-                        </a>
-                    </li>
-                }
-                @if (Model.LibraryDisplay != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.LibraryDisplay == null ? "active" : "")" href="#library-group">
-                            <i class="bi bi-hospital"></i>
-                            Library Display
-                        </a>
-                    </li>
-                }
-                @if (Model.VehicleDetailsVM != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.VehicleDetailsVM == null ? "active" : "")" href="#vehicle-group">
-                            <i class="bi bi-hospital"></i>
-                            Vehicle Details
-                        </a>
-                    </li>
-                }
-                @if (Model.FinanceVm != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.FinanceVm == null ? "active" : "")" href="#finance-group">
-                            <i class="bi bi-hospital"></i>
-                            Finance Display
-                        </a>
-                    </li>
-                }
-                @if (Model.AdminTeachAndHostelVM != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.AdminTeachAndHostelVM == null ? "active" : "")" href="#admin-group">
-                            <i class="bi bi-hospital"></i>
-                            Admin Details
-                        </a>
-                    </li>
-                }
-                @if (Model.FacultyDesigNonTeachDisplayVM != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.FacultyDesigNonTeachDisplayVM == null ? "active" : "")" href="#fac-group">
-                            <i class="bi bi-hospital"></i>
-                            Faculty Details
-                        </a>
-                    </li>
-                }
-            </ul>
+            <div class="preview-tab-group">
+                <div class="preview-tab-group-title">Intake Details</div>
+                <div class="preview-tab-list">
+                    @if (isUgPreview)
+                    {
+                        <div class="preview-tab-row"><span>Details of MBBS Course - UG</span><a href="@Url.Action("Details_Of_MBBS", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                    }
+                    <div class="preview-tab-row"><span>Course Intake List</span><a href="@Url.Action("MedicalCollegeCourseIntake", "ContinuousAffiliationIncreaseintake")">Edit</a></div>
+                    @if (isPgPreview)
+                    {
+                        <div class="preview-tab-row"><span>PG Course Affiliation - PG</span><a href="@Url.Action("PgCourses", "AffiliationPgCourse")">Edit</a></div>
+                    }
+                    @if (isSsPreview)
+                    {
+                        <div class="preview-tab-row"><span>Super Specialty Courses - SS</span><a href="@Url.Action("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS")">Edit</a></div>
+                    }
+                </div>
+            </div>
+
+            <div class="preview-tab-group">
+                <div class="preview-tab-group-title">Physical Infrastructure</div>
+                <div class="preview-tab-list">
+                    <div class="preview-tab-row"><span>Land, Building &amp; Teaching Facilities</span><a href="@Url.Action("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Skills Laboratory</span><a href="@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Clinical Facilities</span><a href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")">Edit</a></div>
+                    @if (isUgPreview)
+                    {
+                        <div class="preview-tab-row"><span>Bed Distribution - MBBS - UG</span><a href="@Url.Action("MedicalUGBedDistribution", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                    }
+                    <div class="preview-tab-row"><span>Department Offices Details</span><a href="@Url.Action("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Affiliation Hostel Details</span><a href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Associated Institutions</span><a href="@Url.Action("AssociatedInstitutions", "AffiliationSS")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Vehicle Registration &amp; Documents</span><a href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")">Edit</a></div>
+                </div>
+            </div>
+
+            <div class="preview-tab-group">
+                <div class="preview-tab-group-title">Academic &amp; Admin</div>
+                <div class="preview-tab-list">
+                    @if (isUgPreview)
+                    {
+                        <div class="preview-tab-row"><span>Academic Matters - UG</span><a href="@Url.Action("AcademicMatters", "CA_Aff_AcademicMatters")">Edit</a></div>
+                    }
+                    <div class="preview-tab-row"><span>Account and Fee Details</span><a href="@Url.Action("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Staff Details</span><a href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")">Edit</a></div>
+                    @if (isPgPreview)
+                    {
+                        <div class="preview-tab-row"><span>Academic Matters PG - PG</span><a href="@Url.Action("AcademicMattersPG", "CA_Aff_AcademicMatters")">Edit</a></div>
+                    }
+                </div>
+            </div>
+
+            <div class="preview-tab-group">
+                <div class="preview-tab-group-title">Human Resource</div>
+                <div class="preview-tab-list">
+                    <div class="preview-tab-row"><span>Faculty Details</span><a href="@Url.Action("Repo_FacultyDetails", "FacultyDetails")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Non-Teaching Staff Details</span><a href="@Url.Action("NonTeachingStaffDepartmentwise", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                </div>
+            </div>
+
+            <div class="preview-tab-group">
+                <div class="preview-tab-group-title">Payment</div>
+                <div class="preview-tab-list">
+                    <div class="preview-tab-row"><span>Payment Calculation</span><a href="@Url.Action("Index", "PaymentCalculation")">Edit</a></div>
+                </div>
+            </div>
         </div>
 
         <!-- ========================= -->
         <!-- SECTIONS CONTAINER -->
         <!-- ========================= -->
-        <div class="sections-container">
+        <div class="preview-report">
+            <div class="preview-report-section">
+                <h2 class="preview-report-heading"><span>01 · Institution Details</span></h2>
+                <div class="preview-report-body">
+                    @if (Model.InstitutionDetails != null)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm data-table align-middle mb-0">
+                                <tbody>
+                                    <tr><th>Type of Institution</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.TypeOfInstitution) ? Model.InstitutionDetails.TypeOfInstitution : "—")</td></tr>
+                                    <tr><th>Institution Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NameOfInstitution) ? Model.InstitutionDetails.NameOfInstitution : "—")</td></tr>
+                                    <tr><th>Address</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Address) ? Model.InstitutionDetails.Address : "—")</td></tr>
+                                    <tr><th>City / Taluk / District</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.VillageTownCity) ? Model.InstitutionDetails.VillageTownCity : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Taluk) ? Model.InstitutionDetails.Taluk : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.District) ? Model.InstitutionDetails.District : "—")</td></tr>
+                                    <tr><th>PIN Code</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.PinCode) ? Model.InstitutionDetails.PinCode : "—")</td></tr>
+                                    <tr><th>Mobile / Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.MobileNumber) ? Model.InstitutionDetails.MobileNumber : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.EmailId) ? Model.InstitutionDetails.EmailId : "—")</td></tr>
+                                    <tr><th>Website</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Website) ? Model.InstitutionDetails.Website : "—")</td></tr>
+                                    <tr><th>Survey / PID No</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.SurveyNoPidNo) ? Model.InstitutionDetails.SurveyNoPidNo : "—")</td></tr>
+                                    <tr><th>Minority Institute</th><td>@(Model.InstitutionDetails.MinorityInstitute ? "Yes" : "No")</td></tr>
+                                    <tr><th>Attached to Medical College</th><td>@(Model.InstitutionDetails.AttachedToMedicalClg ? "Yes" : "No")</td></tr>
+                                    <tr><th>Rural Institute</th><td>@(Model.InstitutionDetails.RuralInstitute ? "Yes" : "No")</td></tr>
+                                    <tr><th>Year of Establishment</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.YearOfEstablishment) ? Model.InstitutionDetails.YearOfEstablishment : "—")</td></tr>
+                                    <tr><th>Alternate Landline / Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.AltLandlineMobile) ? Model.InstitutionDetails.AltLandlineMobile : "—")</td></tr>
+                                    <tr><th>Alternate Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.AltEmailId) ? Model.InstitutionDetails.AltEmailId : "—")</td></tr>
+                                    <tr><th>Nodal Officer Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Name) ? Model.InstitutionDetails.NodalOfficer_Name : "—")</td></tr>
+                                    <tr><th>Nodal Officer Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Mob_Number) ? Model.InstitutionDetails.NodalOfficer_Mob_Number : "—")</td></tr>
+                                    <tr><th>Nodal Officer Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Email) ? Model.InstitutionDetails.NodalOfficer_Email : "—")</td></tr>
+                                    <tr><th>Principal Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Name) ? Model.InstitutionDetails.Principal_Name : "—")</td></tr>
+                                    <tr><th>Principal Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Mob_No) ? Model.InstitutionDetails.Principal_Mob_No : "—")</td></tr>
+                                    <tr><th>Principal Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Email) ? Model.InstitutionDetails.Principal_Email : "—")</td></tr>
+                                    <tr><th>Course Level</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.CourseLevel) ? Model.InstitutionDetails.CourseLevel : "—")</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">No institution details available.</div>
+                    }
+                </div>
+            </div>
 
-            <!-- ========================= -->
-            <!-- ACADEMIC MATTERS -->
-            <!-- ========================= -->
+            <div class="preview-report-section">
+                <h2 class="preview-report-heading"><span>02 · Trust Institution Details</span></h2>
+                <div class="preview-report-body">
+                    @if (Model.AffInstituteDetails != null)
+                    {
+                        <div class="table-responsive mb-4">
+                            <h5 class="mb-2 fw-bold">Trust / Society Details</h5>
+                            <table class="table table-sm data-table align-middle mb-0">
+                                <tbody>
+                                    <tr><th>Trust Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.TrustName) ? Model.AffInstituteDetails.TrustName : "—")</td></tr>
+                                    <tr><th>TRUST PAN Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.PANNumber) ? Model.AffInstituteDetails.PANNumber : "—")</td></tr>
+                                    <tr><th>Registration Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.RegistrationNumber) ? Model.AffInstituteDetails.RegistrationNumber : "—")</td></tr>
+                                    <tr><th>Registration Date</th><td>@(Model.AffInstituteDetails.RegistrationDate.HasValue ? Model.AffInstituteDetails.RegistrationDate.Value.ToString("dd-MM-yyyy") : "—")</td></tr>
+                                    <tr><th>President Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.PresidentName) ? Model.AffInstituteDetails.PresidentName : "—")</td></tr>
+                                    <tr><th>Category of Organisation</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.CategoryOfOrganisation) ? Model.AffInstituteDetails.CategoryOfOrganisation : "—")</td></tr>
+                                    <tr><th>Address</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.Address) ? Model.AffInstituteDetails.Address : "—")</td></tr>
+                                    <tr><th>Mobile Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.MobileNumber) ? Model.AffInstituteDetails.MobileNumber : "—")</td></tr>
+                                    <tr><th>Email ID</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.EmailId) ? Model.AffInstituteDetails.EmailId : "—")</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="table-responsive mb-4">
+                            <h5 class="mb-2 fw-bold">Trust Contact Person</h5>
+                            <table class="table table-sm data-table align-middle mb-0">
+                                <tbody>
+                                    <tr><th>Full Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonName) ? Model.AffInstituteDetails.ContactPersonName : "—")</td></tr>
+                                    <tr><th>Designation</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonRelation) ? Model.AffInstituteDetails.ContactPersonRelation : "—")</td></tr>
+                                    <tr><th>Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonMobile) ? Model.AffInstituteDetails.ContactPersonMobile : "—")</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="table-responsive">
+                            <h5 class="mb-2 fw-bold">Upload Documents</h5>
+                            <table class="table table-sm data-table align-middle mb-0">
+                                <tbody>
+                                    <tr><th>Trust PAN File</th><td>@(Model.AffInstituteDetails.hasPANFile ? "Uploaded" : "Not Uploaded")</td></tr>
+                                    <tr><th>Bank Statement</th><td>@(Model.AffInstituteDetails.hasBankStatementFile ? "Uploaded" : "Not Uploaded")</td></tr>
+                                    <tr><th>Registration Certificate</th><td>@(Model.AffInstituteDetails.hasRegistrationCertificateFile ? "Uploaded" : "Not Uploaded")</td></tr>
+                                    <tr><th>Audit Statement</th><td>@(Model.AffInstituteDetails.hasAuditStatementFile ? "Uploaded" : "Not Uploaded")</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">No trust institution details available.</div>
+                    }
+                </div>
+            </div>
+
             @if (Model.InstitutionBasicVM != null)
             {
-                <div id="academic-section">
-                    @await Html.PartialAsync("BasicDetails/BasicDetailsPreview", Model.InstitutionBasicVM)
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>03 · Trust Member Details</span></h2>
+                    <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_TrustMembersDetails", Model.InstitutionBasicVM)</div>
+                </div>
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>04 · Staff Particulars - Dean / Director</span></h2>
+                    <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_DeanOrDirectorDetails", Model.InstitutionBasicVM)</div>
+                </div>
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>05 · Staff Particulars - Principal</span></h2>
+                    <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_PrincipalDetails", Model.InstitutionBasicVM)</div>
                 </div>
             }
 
+            @if (isUgPreview)
+            {
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>06 · Details of MBBS Course - UG</span></h2>
+                    <div class="preview-report-body">
+                        @if (Model.InstitutionBasicVM != null)
+                        {
+                            @await Html.PartialAsync("BasicDetails/_AffiliatedUgCourseDetails", Model.InstitutionBasicVM)
+                        }
+                    </div>
+                </div>
+            }
+            <div class="preview-report-section">
+                <h2 class="preview-report-heading"><span>07 · Course Intake List</span></h2>
+                <div class="preview-report-body">
+                    @if (Model.CourseIntakeList.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm data-table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Course Level</th>
+                                        <th class="text-center">Intake (26-27)</th>
+                                        <th>Course Code</th>
+                                        <th>Match Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.CourseIntakeList)
+                                    {
+                                        <tr>
+                                            <td>@item.CourseName</td>
+                                            <td>@item.CourseLevel</td>
+                                            <td class="text-center">@(item.Intake?.ToString() ?? "—")</td>
+                                            <td>@(item.CourseCode?.ToString() ?? "—")</td>
+                                            <td>@(string.IsNullOrWhiteSpace(item.MatchNote) ? "—" : item.MatchNote)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">No course intake details available for the selected college and course level.</div>
+                    }
+                </div>
+            </div>
+            @if (isPgPreview)
+            {
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>08 · PG Course Affiliation - PG</span></h2>
+                    <div class="preview-report-body">
+                        @if (Model.InstitutionBasicVM != null)
+                        {
+                            @await Html.PartialAsync("BasicDetails/_AffCourseDetails", Model.InstitutionBasicVM)
+                        }
+                    </div>
+                </div>
+            }
+            @if (isSsPreview)
+            {
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>09 · Super Specialty Courses - SS</span></h2>
+                    <div class="preview-report-body"><div class="empty-state">No Super Specialty course preview data is available.</div></div>
+                </div>
+            }
 
-            <!-- Section Separator -->
-            @if (Model.InstitutionBasicVM != null && Model.PhysicalFacilities != null)
+            @if (Model.PhysicalFacilities != null)
             {
-                <div class="section-separator"></div>
-            }
-            @if (Model.InstitutionBasicVM != null)
-            {
-                <div id="small-group">
-                    @await Html.PartialAsync("PhysicalFacilities/PhysicalFacilitiesPreview", Model.PhysicalFacilities)
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>10 · Land, Building &amp; Teaching Facilities</span></h2>
+                    <div class="preview-report-body"><partial name="PhysicalFacilities/_SmallGroupTeaching" model="Model.PhysicalFacilities.SmallGroupTeaching" /></div>
+                </div>
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>11 · Skills Laboratory</span></h2>
+                    <div class="preview-report-body"><partial name="PhysicalFacilities/_SkillsLab" model="Model.PhysicalFacilities.SkillsLab" /></div>
                 </div>
             }
-            <!-- Section Separator -->
-            @if (Model.PhysicalFacilities != null && Model.LibraryDisplay != null)
+
+            @if (Model.CAHospitalAFfiliationCompVM != null)
             {
-                <div class="section-separator"></div>
-            }
-            @if (Model.LibraryDisplay != null)
-            {
-                <div id="library-group">
-                    @await Html.PartialAsync("Library/LibraryPreview", Model.LibraryDisplay)
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>13 · Clinical Facilities</span></h2>
+                    <div class="preview-report-body">@await Html.PartialAsync("ClinicalFacilities/_HospitalAffiliation", Model.CAHospitalAFfiliationCompVM)</div>
                 </div>
             }
-            <!-- Section Separator -->
-            @if (Model.LibraryDisplay != null && Model.VehicleDetailsVM != null)
+            @if (isUgPreview)
             {
-                <div class="section-separator"></div>
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>14 · Bed Distribution - MBBS - UG</span></h2>
+                    <div class="preview-report-body">
+                        @if (Model.BedDistribution != null)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm data-table align-middle mb-0">
+                                    <tbody>
+                                        <tr><th>General Medicine</th><td>@Model.BedDistribution.GenMedicine</td><th>Paediatrics</th><td>@Model.BedDistribution.Paediatrics</td></tr>
+                                        <tr><th>Skin &amp; V.D.</th><td>@Model.BedDistribution.SkinVD</td><th>Psychiatry</th><td>@Model.BedDistribution.Psychiatry</td></tr>
+                                        <tr><th>General Surgery</th><td>@Model.BedDistribution.GenSurgery</td><th>Orthopaedics</th><td>@Model.BedDistribution.Orthopaedics</td></tr>
+                                        <tr><th>Ophthalmology</th><td>@Model.BedDistribution.Ophthalmology</td><th>ENT</th><td>@Model.BedDistribution.ENT</td></tr>
+                                        <tr><th>Obstetrics &amp; ANC</th><td>@Model.BedDistribution.ObstetricsANC</td><th>Gynaecology</th><td>@Model.BedDistribution.Gynaecology</td></tr>
+                                        <tr><th>Postpartum</th><td>@Model.BedDistribution.Postpartum</td><th>Major OT</th><td>@Model.BedDistribution.MajorOT</td></tr>
+                                        <tr><th>Minor OT</th><td>@Model.BedDistribution.MinorOT</td><th>ICCU</th><td>@Model.BedDistribution.ICCU</td></tr>
+                                        <tr><th>ICU</th><td>@Model.BedDistribution.ICU</td><th>PICU / NICU</th><td>@Model.BedDistribution.PICU_NICU</td></tr>
+                                        <tr><th>SICU</th><td>@Model.BedDistribution.SICU</td><th>Casualty Beds</th><td>@Model.BedDistribution.CasualtyBeds</td></tr>
+                                        <tr><th>Total ICU Beds</th><td colspan="3">@Model.BedDistribution.TotalICUBeds</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">No bed distribution details available.</div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (Model.PhysicalFacilities != null)
+            {
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>15 · Department Offices Details</span></h2>
+                    <div class="preview-report-body"><partial name="PhysicalFacilities/_DepartmentOfficesMeuPartial" model="Model.PhysicalFacilities.DeptOfficeMeu" /></div>
+                </div>
+            }
+            @if (Model.AdminTeachAndHostelVM != null)
+            {
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>16 · Affiliation Hostel Details</span></h2>
+                    <div class="preview-report-body"><partial name="AdminTeachAndHostel/_HostelDetails" model="Model.AdminTeachAndHostelVM.HostelDetailsVM" /></div>
+                </div>
             }
             @if (Model.VehicleDetailsVM != null)
             {
-                <div id="vehicle-group">
-                    @await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehicleDetailsVM)
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>17 · Vehicle Registration &amp; Documents</span></h2>
+                    <div class="preview-report-body">@await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehicleDetailsVM)</div>
                 </div>
             }
 
-            <!-- ========================= -->
-            <!-- HOSPITAL AFFILIATION -->
-            <!-- ========================= -->
-            <!-- Section Separator -->
-            @if (Model.VehicleDetailsVM != null && Model.CAHospitalAFfiliationCompVM != null)
+            @if (isUgPreview && Model.CAacademicMattersVM != null)
             {
-                <div class="section-separator"></div>
-            }
-            @if (Model.CAHospitalAFfiliationCompVM != null)
-            {
-                <div id="hospital-section">
-                    @await Html.PartialAsync("ClinicalFacilities/_HospitalAffiliation", Model.CAHospitalAFfiliationCompVM)
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>18 · Academic Matters - UG</span></h2>
+                    <div class="preview-report-body">@await Html.PartialAsync("AcademicMatters/_AcademicMatters", Model.CAacademicMattersVM)</div>
                 </div>
-            }
-
-            <!-- Section Separator -->
-            @if (Model.CAHospitalAFfiliationCompVM != null && Model.FacultyDesigNonTeachDisplayVM != null)
-            {
-                <div class="section-separator"></div>
-            }
-            @if (Model.FacultyDesigNonTeachDisplayVM != null)
-            {
-                <div id="fac-group">
-                    @await Html.PartialAsync("FacultyDesigNonTEaching/Preview", Model.FacultyDesigNonTeachDisplayVM)
-                </div>
-            }
-
-            <!-- ========================= -->
-            <!-- HOSPITAL AFFILIATION -->
-            <!-- ========================= -->
-            <!-- Section Separator -->
-            @if (Model.FacultyDesigNonTeachDisplayVM != null && Model.CAacademicMattersVM != null)
-            {
-                <div class="section-separator"></div>
-            }
-
-            <!-- ========================= -->
-            <!-- ACADEMIC MATTERS -->
-            <!-- ========================= -->
-            @if (Model.CAacademicMattersVM != null)
-            {
-                <div id="academic-section">
-                    @await Html.PartialAsync("AcademicMatters/_AcademicMatters", Model.CAacademicMattersVM)
-                </div>
-            }
-
-            <!-- Section Separator -->
-            @if (Model.CAacademicMattersVM != null && Model.FinanceVm != null)
-            {
-                <div class="section-separator"></div>
             }
             @if (Model.FinanceVm != null)
             {
-                <div id="finance-group">
-                    @await Html.PartialAsync("FinancialDetails/FinanceDetailsPreview", Model.FinanceVm)
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>19 · Account and Fee Details</span></h2>
+                    <div class="preview-report-body"><partial name="FinancialDetails/_AccountAndFeeDetailsPreview" model="Model.FinanceVm" /></div>
+                </div>
+            }
+            @if (Model.FinanceVm != null)
+            {
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>20 · Staff Details</span></h2>
+                    <div class="preview-report-body">
+                        @if (Model.FinanceVm != null)
+                        {
+                            <partial name="FinancialDetails/_StaffParticularsPreview" model="Model.FinanceVm" />
+                        }
+                        else
+                        {
+                            <div class="empty-state">No staff details available.</div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (isPgPreview)
+            {
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>21 · Academic Matters PG - PG</span></h2>
+                    <div class="preview-report-body"><div class="empty-state">No separate PG academic preview data is available.</div></div>
                 </div>
             }
 
-           
-            
-            <!-- Section Separator -->
-            @if (Model.FinanceVm != null && Model.AdminTeachAndHostelVM != null )
+            @if (Model.FacultyDesigNonTeachDisplayVM != null)
             {
-                <div class="section-separator"></div>
-            }
-            @if (Model.AdminTeachAndHostelVM != null)
-            {
-                <div id="admin-group">
-                    @await Html.PartialAsync("AdminTeachAndHostel/AdminAndHostelPreview", Model.AdminTeachAndHostelVM)
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>22 · Faculty Details</span></h2>
+                    <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_FacultyDetails" model="Model.FacultyDesigNonTeachDisplayVM.FacultyDetailDisplayVM" /></div>
+                </div>
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>23 · Non-Teaching Staff Details</span></h2>
+                    <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_NonTeachingStaffDetails" model="Model.FacultyDesigNonTeachDisplayVM.NonTeachingStaffSectionVM" /></div>
                 </div>
             }
-
-
-            @if (Model.AdminTeachAndHostelVM != null && Model.PaymentVM != null)
+            @if (Model.PaymentVM != null)
             {
-                <div class="section-separator"></div>
-            }
-            @if(Model.PaymentVM != null)
-            {
-                <div id="payment-group">
-                    @await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)
+                <div class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>24 · Payment Calculation</span></h2>
+                    <div class="preview-report-body">@await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)</div>
                 </div>
             }
-
-            <!-- Section Separator -->
-            @* @if (Model.FinanceVm != null && Model.AdminTeachAndHostelVM != null )
-            {
-                <div class="section-separator"></div>
-            }
-            @if (Model.AdminTeachAndHostelVM != null)
-            {
-                <div id="admin-group">
-                    @await Html.PartialAsync("AdminTeachAndHostel/AdminAndHostelPreview", Model.AdminTeachAndHostelVM)
-                </div>
-            } *@
-            
         </div>
 
-        <div class="d-flex justify-content-start align-items-center">
-
-            <!-- 🔙 PREVIOUS -->
-            <a href="@Url.Action("Payment", "AffiliationPayment")"
-                   class="btn btn-secondary">
-                ← Previous
+        <!-- ========================= -->
+        <!-- FOOTER ACTIONS -->
+        <!-- ========================= -->
+        <div class="page-actions d-flex justify-content-start align-items-center">
+            <a href="@Url.Action("Payment", "AffiliationPayment")" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Previous
             </a>
-
         </div>
     </div>
+</div>
 
-    
+<div class="modal fade preview-modal" id="tabPreviewModal" tabindex="-1" aria-labelledby="tabPreviewModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="tabPreviewModalTitle">Tab Preview</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close preview"></button>
+            </div>
+            <div class="modal-body">
+                <iframe id="tabPreviewFrame" title="Selected tab preview" loading="lazy"></iframe>
+            </div>
+            <div class="modal-footer">
+                <span class="me-auto text-muted small">Review the selected page below or open it for editing.</span>
+                <a id="tabPreviewEdit" href="#">Edit this page</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- CONSENT MODAL -->
+<!-- ========================= -->
+<div class="modal fade consent-modal" id="consentModal" tabindex="-1" aria-labelledby="consentModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="consent-modal-eyebrow">
+                        <i class="bi bi-bank2"></i>
+                        RGUHS &middot; Continuous Affiliation
+                    </div>
+                    <h2 class="modal-title" id="consentModalTitle">Declaration and Consent</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body consent-body">
+                @{
+                    var declPrincipal = Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Name)
+                        ? Model.InstitutionDetails.Principal_Name
+                        : "the Principal";
+                    var declInstitution = Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.NameOfInstitution)
+                        ? Model.InstitutionDetails.NameOfInstitution
+                        : "this institution";
+                }
+                <p>
+                    I, <strong>@declPrincipal</strong>, Principal of <strong>@declInstitution</strong>, hereby declare to the
+                    <strong>Rajiv Gandhi University of Health Sciences (RGUHS)</strong> that the information displayed in this
+                    application is complete and correct to the best of my knowledge.
+                </p>
+                <div class="preview-caution">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span><strong>Before you proceed:</strong> close this dialog and scroll through every section of the preview, then return here, tick the consent box and click Generate — consent is mandatory to generate the preview PDF.</span>
+                </div>
+                @if (TempData["PreviewError"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["PreviewError"]</div>
+                }
+                <form id="consentForm" asp-controller="CAPreview" asp-action="GeneratePdf" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="declarationConsent" name="declarationConsent" value="true" />
+                        <label class="form-check-label" for="declarationConsent">
+                            I confirm and consent to generate the affiliation preview PDF.
+                        </label>
+                    </div>
+                    <button type="submit" id="generatePreviewPdf" class="pdf-action" disabled>
+                        <i class="bi bi-file-earmark-pdf-fill"></i> Generate Preview PDF
+                    </button>
+                    <div class="pdf-hint">You must tick the consent box above to enable this button.</div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
     // Smooth scroll to section when tab is clicked
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const navLinks = document.querySelectorAll('.nav-tabs-custom .nav-link');
 
         navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
 
-                // Remove active class from all links
                 navLinks.forEach(l => l.classList.remove('active'));
-
-                // Add active class to clicked link
                 this.classList.add('active');
 
-                // Get target section
                 const targetId = this.getAttribute('href');
                 const targetSection = document.querySelector(targetId);
 
                 if (targetSection) {
-                    // Smooth scroll to section
                     targetSection.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
@@ -622,15 +1417,14 @@
             });
         });
 
-        // Optional: Update active tab based on scroll position
-        const sections = document.querySelectorAll('#academic-section, #hospital-section, #small-group');
+        // Update active tab based on scroll position
+        const sections = document.querySelectorAll('.sections-container > div[id]');
 
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             let current = '';
 
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
                 if (pageYOffset >= (sectionTop - 150)) {
                     current = section.getAttribute('id');
                 }
@@ -643,5 +1437,131 @@
                 }
             });
         });
+
+        const consent = document.getElementById('declarationConsent');
+        const pdfAction = document.getElementById('generatePreviewPdf');
+
+        if (consent && pdfAction) {
+            consent.addEventListener('change', function () {
+                pdfAction.disabled = !consent.checked;
+            });
+        }
+
+        const consentModalElement = document.getElementById('consentModal');
+        const consentModal = consentModalElement && typeof bootstrap !== 'undefined'
+            ? bootstrap.Modal.getOrCreateInstance(consentModalElement)
+            : null;
+
+        if (consentModalElement) {
+            consentModalElement.addEventListener('hidden.bs.modal', function () {
+                if (consent) {
+                    consent.checked = false;
+                }
+                if (pdfAction) {
+                    pdfAction.disabled = true;
+                }
+            });
+        }
+
+        @if (TempData["PreviewError"] != null)
+        {
+                    <text>
+                        if (consentModal) {
+                            consentModal.show();
+                        }
+                    </text>
+        }
+
+        const tabPreviewModalElement = document.getElementById('tabPreviewModal');
+        const tabPreviewFrame = document.getElementById('tabPreviewFrame');
+        const tabPreviewTitle = document.getElementById('tabPreviewModalTitle');
+        const tabPreviewEdit = document.getElementById('tabPreviewEdit');
+        const tabPreviewBody = tabPreviewFrame ? tabPreviewFrame.closest('.modal-body') : null;
+        const tabPreviewModal = tabPreviewModalElement && typeof bootstrap !== 'undefined'
+            ? bootstrap.Modal.getOrCreateInstance(tabPreviewModalElement)
+            : null;
+
+        const makeTabPreviewReadOnly = function () {
+            if (!tabPreviewFrame || !tabPreviewFrame.contentDocument) {
+                return;
+            }
+
+            const previewDocument = tabPreviewFrame.contentDocument;
+            const previewStyle = previewDocument.createElement('style');
+            previewStyle.textContent = `
+                .ca-sb { display: none !important; }
+                .ca-shell { gap: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
+                .ca-main { margin-left: 0 !important; width: 100% !important; }
+                input, select, textarea, button, [contenteditable="true"] { cursor: not-allowed !important; }
+                input:not([type="hidden"]), select, textarea { background: #eef2f6 !important; color: #435273 !important; }
+                input[type="checkbox"], input[type="radio"] { accent-color: #7d8ea1; }
+                button[type="submit"], input[type="submit"], input[type="button"] { display: none !important; }
+            `;
+            previewDocument.head.appendChild(previewStyle);
+
+            previewDocument.querySelectorAll('input, select, textarea, button, [contenteditable="true"]').forEach(function (field) {
+                if (field.matches('input[type="hidden"]')) {
+                    return;
+                }
+
+                if (field.matches('input[type="checkbox"], input[type="radio"], select, button')) {
+                    field.disabled = true;
+                } else if ('readOnly' in field) {
+                    field.readOnly = true;
+                }
+
+                field.setAttribute('aria-readonly', 'true');
+            });
+
+            previewDocument.querySelectorAll('form').forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                });
+            });
+
+            if (tabPreviewBody) {
+                tabPreviewBody.classList.remove('is-loading');
+            }
+        };
+
+        if (tabPreviewFrame) {
+            tabPreviewFrame.addEventListener('load', makeTabPreviewReadOnly);
+        }
+
+        document.querySelectorAll('.preview-tab-row span').forEach(function (name) {
+            name.setAttribute('role', 'button');
+            name.setAttribute('tabindex', '0');
+
+            const openPreview = function () {
+                const row = name.closest('.preview-tab-row');
+                const editLink = row ? row.querySelector('a[href]') : null;
+
+                if (!editLink || !tabPreviewModal || !tabPreviewFrame || !tabPreviewEdit) {
+                    return;
+                }
+
+                tabPreviewTitle.textContent = name.textContent.trim() + ' Preview';
+                if (tabPreviewBody) {
+                    tabPreviewBody.classList.add('is-loading');
+                }
+                tabPreviewFrame.src = editLink.href;
+                tabPreviewEdit.href = editLink.href;
+                tabPreviewModal.show();
+            };
+
+            name.addEventListener('click', openPreview);
+            name.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openPreview();
+                }
+            });
+        });
+
+        if (tabPreviewModalElement && tabPreviewFrame) {
+            tabPreviewModalElement.addEventListener('hidden.bs.modal', function () {
+                tabPreviewFrame.src = 'about:blank';
+            });
+        }
     });
 </script>

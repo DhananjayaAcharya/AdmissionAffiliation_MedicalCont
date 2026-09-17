@@ -2,6 +2,7 @@
 using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,16 @@ namespace Medical_Affiliation.Controllers
     public class FellowshipController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public FellowshipController(ApplicationDbContext context)
+        // Relative folder (under wwwroot) where UG/PG certificates are stored on disk.
+        // Only the GUID + relative path are persisted in the FellowShip_Medical table.
+        private const string DegreeCertUploadFolder = "uploads/fellowship/degree-certificates";
+
+        public FellowshipController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
 
@@ -60,16 +67,54 @@ namespace Medical_Affiliation.Controllers
             IFormFile? ssLC_Doc,
             IFormFile? kmc_Doc,
             IFormFile? experience_Letter_Doc,
-            IFormFile? appointmentLetter_Doc)
+            IFormFile? appointmentLetter_Doc,
+            IFormFile? ugDegreeCertificate_Doc,
+            IFormFile? pgDegreeCertificate_Doc)
         {
             var vm = pageVm.Form;
 
-            if (ModelState.IsValid)
-            {
-                vm.FacultyCode = HttpContext.Session.GetString("FacultyCode") ?? string.Empty;
-                vm.CollegeCode = HttpContext.Session.GetString("CollegeCode") ?? string.Empty;
+            // Session-sourced values are never part of the posted form, so the model
+            // binder has nothing to validate them against on POST. If FacultyCode /
+            // CollegeCode carry [Required] on the VM, ModelState fails here on every
+            // submission before any of the user's own input is even checked - which
+            // silently drops into the "invalid" branch below with no visible error.
+            // Fill them in first, then clear any stale binder error attached to them.
+            vm.FacultyCode = HttpContext.Session.GetString("FacultyCode") ?? string.Empty;
+            vm.CollegeCode = HttpContext.Session.GetString("CollegeCode") ?? string.Empty;
+            ModelState.Remove("Form.FacultyCode");
+            ModelState.Remove("Form.CollegeCode");
 
+            if (!ModelState.IsValid)
+            {
+                // Surface exactly which field(s) failed instead of failing silently.
+                var errors = ModelState
+                    .Where(kvp => kvp.Value?.Errors.Count > 0)
+                    .Select(kvp => $"{kvp.Key}: {string.Join("; ", kvp.Value!.Errors.Select(e => e.ErrorMessage))}")
+                    .ToList();
+
+                TempData["Error"] = "Record was NOT saved. " + string.Join(" | ", errors);
+                return await ReloadFellowshipMedicalView(pageVm);
+            }
+
+            var safeCollegeCode = string.IsNullOrWhiteSpace(vm.CollegeCode)
+                ? "UNKNOWN"
+                : vm.CollegeCode.Trim().Replace(" ", string.Empty).ToUpperInvariant();
+
+            // Track every file actually written to disk so we can clean them up if
+            // the DB save fails partway through - otherwise a failed save still
+            // leaves orphaned documents behind on the D: drive.
+            var writtenPaths = new List<string>();
+
+            try
+            {
                 var generatedFellowshipCode = GenerateFellowshipCode(vm.Course);
+
+                var (sslcPath, sslcGuid) = SaveDocumentToCollegeFolder(ssLC_Doc, safeCollegeCode, "SSLC", writtenPaths);
+                var (kmcPath, kmcGuid) = SaveDocumentToCollegeFolder(kmc_Doc, safeCollegeCode, "KMC", writtenPaths);
+                var (experiencePath, experienceGuid) = SaveDocumentToCollegeFolder(experience_Letter_Doc, safeCollegeCode, "Experience", writtenPaths);
+                var (appointmentPath, appointmentGuid) = SaveDocumentToCollegeFolder(appointmentLetter_Doc, safeCollegeCode, "Appointment", writtenPaths);
+                var (ugPath, ugGuid) = SaveDocumentToCollegeFolder(ugDegreeCertificate_Doc, safeCollegeCode, "UG", writtenPaths);
+                var (pgPath, pgGuid) = SaveDocumentToCollegeFolder(pgDegreeCertificate_Doc, safeCollegeCode, "PG", writtenPaths);
 
                 var entity = new FellowShipMedical
                 {
@@ -85,46 +130,124 @@ namespace Medical_Affiliation.Controllers
                     PrincipalName = vm.principal_name,
                     PrincipalDeclaration = vm.principal_Declaration ? "Yes" : "No",
                     FellowshipCode = generatedFellowshipCode,
-                    SslcDoc = GetBytes(ssLC_Doc),
-                    KmcDoc = GetBytes(kmc_Doc),
-                    ExperienceLetterDoc = GetBytes(experience_Letter_Doc),
-                    AppointmentLetterDoc = GetBytes(appointmentLetter_Doc)
+
+                    // ---- documents: path + GUID, nothing else, for all six ----
+                    SslcDoc = sslcPath,
+                    SslcDocGuid = sslcGuid,
+                    KmcDoc = kmcPath,
+                    KmcDocGuid = kmcGuid,
+                    ExperienceLetterDoc = experiencePath,
+                    ExperienceLetterDocGuid = experienceGuid,
+                    AppointmentLetterDoc = appointmentPath,
+                    AppointmentLetterDocGuid = appointmentGuid,
+
+                    // ---- new candidate details ----
+                    FatherGuardianName = vm.FatherGuardianName,
+                    Gender = vm.Gender,
+                    ContactNumber = vm.ContactNumber,
+                    Email = vm.Email,
+                    Nationality = vm.Nationality,
+                    CandidateRegisteredNumber = vm.CandidateRegisteredNumber,
+                    ExperienceCollege = vm.ExperienceCollege,
+
+                    // ---- UG row ----
+                    UgDegree = vm.UG_Degree,
+                    UgUniversityCollegeName = vm.UG_UniversityCollegeName,
+                    UgYearOfPassing = vm.UG_YearOfPassing,
+                    UgDegreeCertificatePath = ugPath,
+                    UgDegreeCertificateGuid = ugGuid,
+
+                    // ---- PG row ----
+                    PgDegree = vm.PG_Degree,
+                    PgUniversityCollegeName = vm.PG_UniversityCollegeName,
+                    PgYearOfPassing = vm.PG_YearOfPassing,
+                    PgDegreeCertificatePath = pgPath,
+                    PgDegreeCertificateGuid = pgGuid
                 };
 
                 _context.FellowShipMedicals.Add(entity);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = "Record saved successfully!";
+                TempData["Success"] = $"Record saved successfully! Fellowship Code: {generatedFellowshipCode}";
                 return RedirectToAction(nameof(FellowshipMedical_Details));
             }
+            catch (Exception ex)
+            {
+                // Don't leave half-saved files sitting on disk for a record that
+                // never made it into the DB (e.g. the save throws because a
+                // document column's type doesn't match what we're writing).
+                foreach (var path in writtenPaths)
+                {
+                    try { if (System.IO.File.Exists(path)) System.IO.File.Delete(path); }
+                    catch { /* best-effort cleanup, ignore */ }
+                }
+
+                TempData["Error"] = "Record was NOT saved due to an error: " + ex.Message;
+                return await ReloadFellowshipMedicalView(pageVm);
+            }
+        }
+
+        private async Task<IActionResult> ReloadFellowshipMedicalView(FellowshipMedicalPageVm pageVm)
+        {
+            var facultyCode = HttpContext.Session.GetString("FacultyCode") ?? string.Empty;
+            var collegeCode = HttpContext.Session.GetString("CollegeCode") ?? string.Empty;
 
             ViewBag.CollegeName = HttpContext.Session.GetString("CollegeName") ?? string.Empty;
             ViewBag.CourseList = _context.MstCourses
                 .OrderBy(c => c.CourseName)
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CourseName,
-                    Text = c.CourseName
-                })
+                .Select(c => new SelectListItem { Value = c.CourseName, Text = c.CourseName })
                 .ToList();
 
-            // Reload list when validation fails
             pageVm.ExistingRecords = _context.FellowShipMedicals
+                .Where(e => e.FacultyCode == facultyCode && e.Collegecode == collegeCode)
                 .OrderByDescending(f => f.Id)
                 .Take(1000)
                 .ToList();
 
-            return View(pageVm);
+            return await Task.FromResult(View("FellowshipMedical_Details", pageVm));
         }
 
-
-        private static byte[]? GetBytes(IFormFile? file)
+        /// <summary>
+        /// Saves any of the six fellowship documents under
+        /// D:\MedicalAffiliation\FellowshipDocuments\{CollegeCode}\ using a GUID-based
+        /// filename, and returns (path, guid) - the only two values persisted on the
+        /// entity for that document. Returns (null, null) if nothing was posted.
+        /// </summary>
+        private (string? path, Guid? guid) SaveDocumentToCollegeFolder(
+            IFormFile? file,
+            string collegeCode,
+            string docType,
+            List<string> writtenPaths)
         {
-            if (file == null || file.Length == 0) return null;
+            if (file == null || file.Length == 0)
+            {
+                return (null, null);
+            }
 
-            using var stream = new MemoryStream();
-            file.CopyTo(stream);
-            return stream.ToArray();
+            var safeCollegeCode = string.IsNullOrWhiteSpace(collegeCode)
+                ? "UNKNOWN"
+                : collegeCode.Trim().Replace(" ", string.Empty).ToUpperInvariant();
+
+            var rootFolder = Path.Combine("D:\\MedicalAffiliation", "FellowshipDocuments", safeCollegeCode);
+            Directory.CreateDirectory(rootFolder);
+
+            var guid = Guid.NewGuid();
+            var extension = Path.GetExtension(file.FileName);
+            if (string.IsNullOrWhiteSpace(extension))
+            {
+                extension = ".pdf";
+            }
+
+            var fileName = $"{docType}_{guid:N}{extension}";
+            var fullPath = Path.Combine(rootFolder, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                file.CopyTo(stream);
+            }
+
+            writtenPaths.Add(fullPath);
+            return (fullPath, guid);
         }
 
         private string GenerateFellowshipCode(string course)
@@ -183,11 +306,38 @@ namespace Medical_Affiliation.Controllers
             var entity = await _context.FellowShipMedicals.FindAsync(id);
             if (entity != null)
             {
+                // Best-effort cleanup of disk-stored degree certificates.
+                TryDeletePhysicalFile(entity.UgDegreeCertificatePath);
+                TryDeletePhysicalFile(entity.PgDegreeCertificatePath);
+                TryDeletePhysicalFile(entity.SslcDoc);
+                TryDeletePhysicalFile(entity.KmcDoc);
+                TryDeletePhysicalFile(entity.ExperienceLetterDoc);
+                TryDeletePhysicalFile(entity.AppointmentLetterDoc);
+
                 _context.FellowShipMedicals.Remove(entity);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Record deleted successfully!";
             }
             return RedirectToAction(nameof(FellowshipMedical_Details));
+        }
+
+        private void TryDeletePhysicalFile(string? storedValue)
+        {
+            if (string.IsNullOrWhiteSpace(storedValue)) return;
+            try
+            {
+                var filePath = storedValue.Contains("|") ? storedValue.Split('|')[0] : storedValue;
+                if (string.IsNullOrWhiteSpace(filePath)) return;
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch
+            {
+                // Non-fatal: DB row is still cleaned up even if disk cleanup fails.
+            }
         }
 
 
@@ -196,33 +346,57 @@ namespace Medical_Affiliation.Controllers
             var entity = await _context.FellowShipMedicals.FindAsync(id);
             if (entity == null) return NotFound();
 
-            byte[]? data = null;
-            string fileName = "document";
-
-            switch (type)
+            var storedValue = type?.ToLowerInvariant() switch
             {
-                case "sslc":
-                    data = entity.SslcDoc;
-                    fileName = "SSLC.pdf";
-                    break;
-                case "kmc":
-                    data = entity.KmcDoc;
-                    fileName = "KMC.pdf";
-                    break;
-                case "exp":
-                    data = entity.ExperienceLetterDoc;
-                    fileName = "ExperienceLetter.pdf";
-                    break;
-                case "appt":
-                    data = entity.AppointmentLetterDoc;
-                    fileName = "AppointmentLetter.pdf";
-                    break;
-            }
+                "sslc" => entity.SslcDoc,
+                "kmc" => entity.KmcDoc,
+                "exp" => entity.ExperienceLetterDoc,
+                "appt" => entity.AppointmentLetterDoc,
+                _ => null
+            };
 
-            if (data == null) return NotFound();
+            if (string.IsNullOrWhiteSpace(storedValue)) return NotFound();
 
-            // Adjust content type/filename as needed for real file types.[web:90][web:92]
-            return File(data, "application/octet-stream", fileName);
+            var filePath = storedValue.Contains("|") ? storedValue.Split('|')[0] : storedValue;
+            if (!System.IO.File.Exists(filePath)) return NotFound();
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            var fileName = type?.ToLowerInvariant() switch
+            {
+                "sslc" => "SSLC.pdf",
+                "kmc" => "KMC.pdf",
+                "exp" => "ExperienceLetter.pdf",
+                "appt" => "AppointmentLetter.pdf",
+                _ => "document.pdf"
+            };
+
+            return File(bytes, "application/octet-stream", fileName);
+        }
+
+        /// <summary>
+        /// Serves the disk-stored UG / PG degree certificate for a record.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> DownloadDegreeCertificate(int id, string type)
+        {
+            var entity = await _context.FellowShipMedicals.FindAsync(id);
+            if (entity == null) return NotFound();
+
+            string? storedValue = type?.ToUpperInvariant() switch
+            {
+                "UG" => entity.UgDegreeCertificatePath,
+                "PG" => entity.PgDegreeCertificatePath,
+                _ => null
+            };
+
+            if (string.IsNullOrWhiteSpace(storedValue)) return NotFound();
+
+            var fullPath = storedValue.Contains("|") ? storedValue.Split('|')[0] : storedValue;
+            if (!System.IO.File.Exists(fullPath)) return NotFound();
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(fullPath);
+            var downloadName = $"{type?.ToUpperInvariant()}_Degree_Certificate_{id}{Path.GetExtension(fullPath)}";
+            return File(bytes, "application/octet-stream", downloadName);
         }
 
         [HttpGet]
@@ -337,35 +511,36 @@ namespace Medical_Affiliation.Controllers
             var e = await _context.FellowShipMedicals.FirstOrDefaultAsync(x => x.Id == id);
             if (e == null) return NotFound();
 
-            byte[]? bytes = null;
+            string? storedPath = null;
             string fileName;
-            const string contentType = "application/pdf"; // adjust if needed
+            const string contentType = "application/octet-stream";
 
             switch (doc)
             {
                 case "SSLC":
-                    bytes = e.SslcDoc;
+                    storedPath = e.SslcDoc;
                     fileName = $"SSLC_{id}.pdf";
                     break;
                 case "KMC":
-                    bytes = e.KmcDoc;
+                    storedPath = e.KmcDoc;
                     fileName = $"KMC_{id}.pdf";
                     break;
                 case "EXP":
-                    bytes = e.ExperienceLetterDoc;
+                    storedPath = e.ExperienceLetterDoc;
                     fileName = $"Experience_{id}.pdf";
                     break;
                 case "APPT":
-                    bytes = e.AppointmentLetterDoc;
+                    storedPath = e.AppointmentLetterDoc;
                     fileName = $"Appointment_{id}.pdf";
                     break;
                 default:
                     return BadRequest();
             }
 
-            if (bytes == null || bytes.Length == 0)
+            if (string.IsNullOrWhiteSpace(storedPath) || !System.IO.File.Exists(storedPath))
                 return NotFound();
 
+            var bytes = await System.IO.File.ReadAllBytesAsync(storedPath);
             return File(bytes, contentType, fileName);
         }
         [HttpPost]
@@ -414,35 +589,36 @@ namespace Medical_Affiliation.Controllers
             var e = await _context.FellowShipMedicals.FirstOrDefaultAsync(x => x.Id == id);
             if (e == null) return NotFound();
 
-            byte[]? bytes = null;
+            string? storedPath = null;
             string fileName;
-            const string contentType = "application/pdf";
+            const string contentType = "application/octet-stream";
 
             switch (doc)
             {
                 case "SSLC":
-                    bytes = e.SslcDoc;
+                    storedPath = e.SslcDoc;
                     fileName = $"SSLC_{id}.pdf";
                     break;
                 case "KMC":
-                    bytes = e.KmcDoc;
+                    storedPath = e.KmcDoc;
                     fileName = $"KMC_{id}.pdf";
                     break;
                 case "EXP":
-                    bytes = e.ExperienceLetterDoc;
+                    storedPath = e.ExperienceLetterDoc;
                     fileName = $"Experience_{id}.pdf";
                     break;
                 case "APPT":
-                    bytes = e.AppointmentLetterDoc;
+                    storedPath = e.AppointmentLetterDoc;
                     fileName = $"Appointment_{id}.pdf";
                     break;
                 default:
                     return BadRequest();
             }
 
-            if (bytes == null || bytes.Length == 0)
+            if (string.IsNullOrWhiteSpace(storedPath) || !System.IO.File.Exists(storedPath))
                 return NotFound();
 
+            var bytes = await System.IO.File.ReadAllBytesAsync(storedPath);
             return File(bytes, contentType, fileName);
         }
 
@@ -590,11 +766,16 @@ namespace Medical_Affiliation.Controllers
                         principal_name = reader["principal_name"] != DBNull.Value ? reader["principal_name"].ToString() : null,
                         principal_Declaration = reader["principal_Declaration"] != DBNull.Value ? reader["principal_Declaration"].ToString() : null,
                         FellowshipCode = reader["FellowshipCode"] != DBNull.Value ? reader["FellowshipCode"].ToString() : null,
-                        // documents presence
-                        HasSSLC = reader["SSLC_Doc"] != DBNull.Value && ((byte[])reader["SSLC_Doc"]).Length > 0,
-                        HasKMC = reader["KMC_Doc"] != DBNull.Value && ((byte[])reader["KMC_Doc"]).Length > 0,
-                        HasExperience = reader["Experience_Letter_Doc"] != DBNull.Value && ((byte[])reader["Experience_Letter_Doc"]).Length > 0,
-                        HasAppointment = reader["AppointmentLetter_Doc"] != DBNull.Value && ((byte[])reader["AppointmentLetter_Doc"]).Length > 0,
+                        // Documents are now stored as file-path strings (path + GUID on disk),
+                        // NOT as raw bytes in the column - so presence is "is there a non-empty
+                        // path string", not "cast the column to byte[]". The old byte[] cast
+                        // here would throw an InvalidCastException against a string/nvarchar
+                        // column and is almost certainly why this dashboard (and potentially
+                        // the underlying column type) was left mismatched with the save path.
+                        HasSSLC = reader["SSLC_Doc"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["SSLC_Doc"].ToString()),
+                        HasKMC = reader["KMC_Doc"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["KMC_Doc"].ToString()),
+                        HasExperience = reader["Experience_Letter_Doc"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["Experience_Letter_Doc"].ToString()),
+                        HasAppointment = reader["AppointmentLetter_Doc"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["AppointmentLetter_Doc"].ToString()),
                         DR_ApprovalStatus = reader["DR_ApprovalStatus"] != DBNull.Value ? reader["DR_ApprovalStatus"].ToString() : null,
                         DR_ApprovalRemark = reader["DR_ApprovalRemark"] != DBNull.Value ? reader["DR_ApprovalRemark"].ToString() : null
                     };

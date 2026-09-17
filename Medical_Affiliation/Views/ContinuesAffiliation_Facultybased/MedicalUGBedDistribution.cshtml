@@ -549,13 +549,8 @@
                                asp-action="Aff_HostelDetails"
                                class="btn-next">Next →</a>
                             } 
-                            else
-                            {
-                            <!-- 🔹 NEXT -->
-                            <a asp-controller="Medical_ContinuousAffiliation"
-                               asp-action="Medical_DepartmentOfficesAndEducationalUnit"
-                               class="btn-next">Next →</a>
-                            }
+                           
+                            
 
                         @* </div> *@
 
@@ -635,6 +630,24 @@
 
                     if (grandTotal) {
                         grandTotal.textContent = grand;
+                    }
+
+                    let icu = 0;
+
+                    document.querySelectorAll('.icu')
+                        .forEach(el => icu += Number(el.value) || 0);
+
+                    const totalICUBedsDisplay =
+                        document.getElementById('totalICUBedsDisplay');
+                    const totalICUBeds =
+                        document.getElementById('totalICUBeds');
+
+                    if (totalICUBedsDisplay) {
+                        totalICUBedsDisplay.textContent = icu;
+                    }
+
+                    if (totalICUBeds) {
+                        totalICUBeds.value = icu;
                     }
                 };
 

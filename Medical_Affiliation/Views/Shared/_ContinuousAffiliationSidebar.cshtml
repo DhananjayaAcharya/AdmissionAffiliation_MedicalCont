@@ -149,7 +149,7 @@
 
         // ---- Physical Infrastructure ----
         new StepItem{ Key="ClinicalFacilities", Label="Clinical Facilities", Group="Physical Infrastructure", Ctrl="ContinuationAffiliationClinicalFacilities", Act="ClinicalFacilities" },
-        new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
+        new StepItem{ Key="BedDistribution", Label="Bed Distribution", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution", Levels = new List<string>{ "UG" } },
         new StepItem{ Key="DepartmentUnits", Label="Department / Clinics / Labs", Group="Physical Infrastructure", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
         new StepItem{ Key="Hostel", Label="Hostel Details", Group="Physical Infrastructure", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
         new StepItem{ Key="AssociatedInstitutions", Label="Associated Institutions", Group="Physical Infrastructure", Ctrl="AffiliationSS", Act="AssociatedInstitutions" },
@@ -403,7 +403,27 @@
         allSteps.InsertRange(basicLastIndex + 1, orderedIntakeSteps.Concat(remainingIntakeSteps));
     }
 
-    var groupedSteps = allSteps.GroupBy(s => s.Group).ToList();
+    var groupOrder = new[]
+    {
+        "Basic Details",
+        "Intake Details",
+        "Coursewise Application(Form-B)",
+        "Physical Infrastructure",
+        "Academic & Admin",
+        "Research & Library",
+        "Human Resources",
+        "Payment",
+        "Final Preview"
+    };
+
+    var groupedSteps = allSteps
+        .GroupBy(s => s.Group)
+        .OrderBy(group =>
+        {
+            var index = Array.IndexOf(groupOrder, group.Key);
+            return index < 0 ? int.MaxValue : index;
+        })
+        .ToList();
 
     // ------------------------------------------------------------------
     // Icon used for each group in the collapsed icon-rail. Falls back to a
@@ -1101,6 +1121,7 @@
         if (!sidebar || !handle) return;
 
         if (shell) shell.classList.toggle("sidebar-collapsed", collapsed);
+        document.body.classList.toggle("ca-sidebar-collapsed", collapsed);
         sidebar.classList.toggle("sidebar-collapsed", collapsed);
 
         sessionStorage.setItem("caSidebarCollapsed", collapsed ? "true" : "false");

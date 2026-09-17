@@ -1064,6 +1064,17 @@ namespace Medical_Affiliation.Controllers
             return View(ugdetails);
         }
 
+        [HttpGet]
+        public IActionResult UgCoaPreview()
+        {
+            const string coaPath = @"D:\01 UG COA.pdf";
+
+            if (!System.IO.File.Exists(coaPath))
+                return NotFound("UG COA PDF was not found.");
+
+            return PhysicalFile(coaPath, "application/pdf", enableRangeProcessing: true);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]  // Security fix
         public async Task<IActionResult> MedicalUgAndPgDetail(UgdetailViewModel model)

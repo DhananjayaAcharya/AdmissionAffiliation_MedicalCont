@@ -28,4 +28,8 @@ public partial class MstMedicalCollegeCourseIntake
     public int? CourseCode { get; set; }
 
     public string? MatchNote { get; set; }
+
+    public int? IncreasedIntake { get; set; }
+
+    public string? AcademicYear { get; set; }
 }

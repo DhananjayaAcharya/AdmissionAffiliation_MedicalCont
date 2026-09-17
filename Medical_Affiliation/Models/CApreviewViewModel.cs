@@ -9,12 +9,18 @@ namespace Medical_Affiliation.Models
 
         public string CollegeName { get; set; }
         public string FacultyName { get; set; }
+        public string ApplicationType { get; set; }
+        public string ApplyingCourseLevel { get; set; }
 
+        public InstitutionViewModel InstitutionDetails { get; set; }
+        public MedicalVm AffInstituteDetails { get; set; }
         public InstituionBasicDetailsDisplayVM InstitutionBasicVM { get; set; }
+        public List<PreviewCourseIntakeItemVM> CourseIntakeList { get; set; } = new();
 
         public CA_Aff_AcademicMattersViewModel CAacademicMattersVM { get; set; }
         public HospitalAffiliationCompositeDisplayVM CAHospitalAFfiliationCompVM { get; set; }
         public PhysicalFacilitiesDisplayViewModel PhysicalFacilities { get; set; }
+        public MedicalUGBedDistributionVm BedDistribution { get; set; }
 
         public MedicalLibraryDisplayViewModel LibraryDisplay { get; set; }
 
@@ -28,6 +34,16 @@ namespace Medical_Affiliation.Models
         public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
         //public
 
+    }
+
+    public class PreviewCourseIntakeItemVM
+    {
+        public int Slno { get; set; }
+        public string CourseName { get; set; } = string.Empty;
+        public string CourseLevel { get; set; } = string.Empty;
+        public int? Intake { get; set; }
+        public int? CourseCode { get; set; }
+        public string MatchNote { get; set; } = string.Empty;
     }
 
     public class HospitalAffiliationCompositeDisplayVM

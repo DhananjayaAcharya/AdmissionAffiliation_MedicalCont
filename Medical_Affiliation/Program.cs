@@ -1,5 +1,6 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Middleware;
+using Medical_Affiliation.Models;
 using Medical_Affiliation.Services;
 using Medical_Affiliation.Services.Faculty;
 using Medical_Affiliation.Services.Handlers;
@@ -149,7 +150,12 @@ builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
 builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
+builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("WhatsAppSettings"));
+builder.Services.AddHttpClient<IWhatsAppService, WhatsAppService>();
+builder.Services.AddScoped<IPrincipalContactLookupService, PrincipalContactLookupService>();
+builder.Services.AddScoped<IPaymentReceiptPdfService, PaymentReceiptPdfService>();
 
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 // =============================================
 // 🔹 Authentication Schemes
 // To add a new role: just add one line to the array below. Nothing else changes.
@@ -212,6 +218,36 @@ foreach (var s in authSchemes)
 
         options.ExpireTimeSpan = TimeSpan.FromMinutes(s.ExpireMinutes);
         options.SlidingExpiration = true;
+
+        // 🔹 NEW: For AJAX/fetch requests, return 401/403 instead of redirecting
+        // to the login page. Without this, an expired session (or missing
+        // claims) on a fetch() call gets a 302 to the login page, the browser
+        // follows it and returns login-page HTML, and client-side
+        // response.json() breaks with "Unexpected token '<'" — masking the
+        // real "session expired" condition as a JSON parse error.
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                if (IsAjaxRequest(context.Request))
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                }
+                context.Response.Redirect(context.RedirectUri);
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = context =>
+            {
+                if (IsAjaxRequest(context.Request))
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                }
+                context.Response.Redirect(context.RedirectUri);
+                return Task.CompletedTask;
+            }
+        };
     });
 }
 
@@ -396,3 +432,18 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+
+// =============================================
+// 🔹 Local Helpers
+// =============================================
+// Detects fetch()/XHR/JSON-expecting requests so cookie auth can return a
+// plain 401/403 status instead of a login-page redirect for them. Browser
+// navigations (full page loads, e.g. clicking a normal <a> link) are left
+// alone and still redirect to the login page as before.
+static bool IsAjaxRequest(HttpRequest request)
+{
+    return request.Headers["X-Requested-With"] == "XMLHttpRequest"
+        || request.Headers.Accept.Any(h => h != null && h.Contains("application/json"))
+        || request.Path.StartsWithSegments("/PaymentDocument");
+}
