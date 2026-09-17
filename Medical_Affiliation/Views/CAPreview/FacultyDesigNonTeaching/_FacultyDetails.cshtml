@@ -15,34 +15,41 @@
                 <table class="table data-table align-middle">
                     <thead>
                         <tr>
+                            <th>Photo</th>
                             <th>Name</th>
+                            <th>Department</th>
                             <th>Designation</th>
-                            <th>Course</th>
-                            <th>PG Teacher</th>
-                            <th>PhD Teacher</th>
-                            <th>Litigation</th>
+                            <th>Qualification</th>
+                            <th>Employment</th>
+                            <th>Experience</th>
                             <th>Mobile</th>
                             <th>Email</th>
-                            <th>Documents</th>
+                            <th>Council Reg. No.</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
                             <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.PhotoFilePath))
+                                    {
+                                        <img src="@Url.Action("Photo", "UGFaculty", new { file = System.IO.Path.GetFileName(item.PhotoFilePath) })" alt="Faculty photo" style="width:48px;height:58px;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <span>—</span>
+                                    }
+                                </td>
                                 <td>@item.NameOfFaculty</td>
-                                <td>@item.Designation</td>
-                                <td>@(item.Course ?? "—")</td>
-                                <td>@(item.RecognizedPgTeacher ?? "—")</td>
-                                <td>@(item.RecognizedPhDteacher ?? "—")</td>
-                                <td>@(item.LitigationPending ?? "—")</td>
+                                <td>@(item.DepartmentName ?? item.DepartmentCode ?? "—")</td>
+                                <td>@(item.DesignationName ?? item.DesignationCode ?? "—")</td>
+                                <td>@(item.ProfessionalQualification ?? "—")</td>
+                                <td>@(item.NatureOfEmployment ?? "—")</td>
+                                <td>@(item.TeachingExpInYrs ?? "—")</td>
                                 <td>@item.Mobile</td>
                                 <td>@item.Email</td>
-                                <td>
-                                    @(item.HasGuideRecognitionDoc ? "Guide " : "")
-                                    @(item.HasPhDRecognitionDoc ? "PhD " : "")
-                                    @(item.HasLitigationDoc ? "Litigation" : "—")
-                                </td>
+                                <td>@(item.StateCouncilRegNo ?? "—")</td>
                             </tr>
                         }
                     </tbody>

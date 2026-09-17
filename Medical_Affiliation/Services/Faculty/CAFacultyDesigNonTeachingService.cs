@@ -43,47 +43,40 @@ namespace Medical_Affiliation.Services.Faculty
             var collegeCode = _userContext.CollegeCode;
             var facultyId = _userContext.FacultyId;
 
-            var data = await (
-                from f in _context.FacultyDetails
-                join d in _context.DesignationMasters
-                    on new { Code = f.Designation, Faculty = facultyId }
-                    equals new { Code = d.DesignationCode, Faculty = d.FacultyCode }
-                    into desig
-                from d in desig.DefaultIfEmpty()
-
-                join c in _context.MstCourses
-                    on f.DepartmentDetails equals c.CourseCode.ToString()
-                    into course
-                from c in course.DefaultIfEmpty()
-
+            return await (from f in _context.UgFacultyDetails.AsNoTracking()
+                join department in _context.DepartmentMastersForUgs.AsNoTracking()
+                    on new { Code = f.DepartmentCode, Faculty = facultyId }
+                    equals new { Code = department.DepartmentCode, Faculty = department.FacultyCode }
+                    into departments
+                from department in departments.DefaultIfEmpty()
+                join designation in _context.UgdesignationMasters.AsNoTracking()
+                    on f.DesignationCode equals designation.DesignationId
+                    into designations
+                from designation in designations.DefaultIfEmpty()
                 where f.CollegeCode == collegeCode
-                      && f.FacultyCode == facultyId.ToString()
-                      && (f.IsRemoved == null || f.IsRemoved == false)
-
-                orderby d.DesignationOrder, f.NameOfFaculty
-
+                orderby f.DepartmentCode, f.NameOftheFaculty
                 select new FacultyDetailDisplayVM
                 {
-                    NameOfFaculty = f.NameOfFaculty,
-                    Subject = c != null ? c.SubjectName : f.Subject,
-                    Course = c.CourseName.Trim(),
-                    Designation = d != null ? d.DesignationName : f.Designation,
-
-                    RecognizedPgTeacher = f.RecognizedPgTeacher,
-                    RecognizedPhDteacher = f.RecognizedPhDteacher,
-                    LitigationPending = f.LitigationPending,
-
-                    Mobile = f.Mobile,
-                    Email = f.Email,
-                    DepartmentDetails = f.DepartmentDetails,
-
-                    HasGuideRecognitionDoc = f.GuideRecognitionDocPath != null,
-                    HasPhDRecognitionDoc = f.PhDrecognitionDocPath != null,
-                    HasLitigationDoc = f.LitigationDocPath != null
-                }
-            ).ToListAsync();
-
-            return data;
+                    Id = f.Id,
+                    NameOfFaculty = f.NameOftheFaculty ?? string.Empty,
+                    DepartmentCode = f.DepartmentCode,
+                    DepartmentName = department.DepartmentName ?? f.DepartmentCode,
+                    DesignationCode = f.DesignationCode,
+                    DesignationName = designation.DesignationName ?? f.DesignationCode,
+                    Dob = f.Dob,
+                    DateOfAppointment = f.DateOfAppointment,
+                    AadhaarNo = f.AadhaarNo,
+                    PanNo = f.Panno,
+                    Mobile = f.MobileNo ?? string.Empty,
+                    Email = f.EmailId ?? string.Empty,
+                    StateCouncilRegNo = f.StateCouncilRegNo,
+                    AebasAttendId = f.AebasattendId,
+                    ProfessionalQualification = f.ProfessionalQualification,
+                    NatureOfEmployment = f.NatureOfEmployment,
+                    TeachingExpInYrs = f.TeachingExpInYrs,
+                    PhotoFilePath = f.PhotoFilePath
+                })
+                .ToListAsync();
         }
 
         public async Task<List<CollegeDesignationDepartmentGroupVM>> GetCollegeDesignationDetails()

@@ -113,41 +113,71 @@ namespace Medical_Affiliation.Controllers
 
             ViewBag.CollegeCode = collegeCode.Trim();
 
-            try
-            {
-                var client = _httpClientFactory.CreateClient("RguhsFacultyApi");
-                var apiPath = $"api/college?college_code={Uri.EscapeDataString(collegeCode.Trim())}";
-                using var response = await client.GetAsync(apiPath);
-                response.EnsureSuccessStatusCode();
+            var facultyCode = int.TryParse(
+                HttpContext.Session.GetString("FacultyCode") ?? User.FindFirst("FacultyCode")?.Value,
+                out var parsedFacultyCode)
+                ? parsedFacultyCode
+                : 0;
 
-                await using var responseStream = await response.Content.ReadAsStreamAsync();
-                using var document = await JsonDocument.ParseAsync(responseStream);
-                var faculties = FindFacultyArray(document.RootElement)
-                    .Select(item => new ApiFacultyViewModel
-                    {
-                        Id = GetInt(item, "id"),
-                        Name = GetString(item, "name"),
-                        Email = GetString(item, "email"),
-                        Mobile = GetString(item, "mobile"),
-                        Stream = GetString(item, "stream"),
-                        Designation = GetString(item, "designation"),
-                        Department = GetString(item, "department"),
-                        Status = GetString(item, "status")
-                    })
-                    .ToList();
+            // ── FIX: split GroupBy + ToDictionaryAsync into a translatable step + in-memory step ──
+            var departmentGroups = await _context.DepartmentMastersForUgs
+                .AsNoTracking()
+                .Where(x => facultyCode <= 0 || x.FacultyCode == facultyCode)
+                .GroupBy(x => x.DepartmentCode)
+                .Select(g => new { g.Key, Name = g.Select(v => v.DepartmentName).FirstOrDefault() })
+                .ToListAsync();
 
-                return View(faculties);
-            }
-            catch (HttpRequestException)
+            var departmentNames = departmentGroups
+                .ToDictionary(x => x.Key, x => x.Name ?? x.Key);
+
+            // ── FIX: same pattern applied here ──
+            var designationGroups = await _context.UgdesignationMasters
+                .AsNoTracking()
+                .GroupBy(x => x.DesignationId)
+                .Select(g => new { g.Key, Name = g.Select(v => v.DesignationName).FirstOrDefault() })
+                .ToListAsync();
+
+            var designationNames = designationGroups
+                .ToDictionary(x => x.Key, x => x.Name ?? x.Key);
+
+            var facultyRows = await _context.UgFacultyDetails
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == collegeCode.Trim())
+                .OrderBy(x => x.DepartmentCode)
+                .ThenBy(x => x.NameOftheFaculty)
+                .ToListAsync();
+
+            var faculties = facultyRows.Select(faculty => new ApiFacultyViewModel
             {
-                TempData["Error"] = "Faculty details could not be retrieved right now. Please try again.";
-                return View(new List<ApiFacultyViewModel>());
-            }
-            catch (JsonException)
-            {
-                TempData["Error"] = "The faculty service returned an unexpected response.";
-                return View(new List<ApiFacultyViewModel>());
-            }
+                Id = faculty.Id,
+                Name = faculty.NameOftheFaculty ?? string.Empty,
+                Email = faculty.EmailId ?? string.Empty,
+                Mobile = faculty.MobileNo ?? string.Empty,
+                Stream = faculty.ProfessionalQualification ?? string.Empty,
+                DepartmentCode = faculty.DepartmentCode ?? string.Empty,
+                Department = !string.IsNullOrWhiteSpace(faculty.DepartmentCode)
+                    && departmentNames.TryGetValue(faculty.DepartmentCode, out var departmentName)
+                    ? departmentName
+                    : faculty.DepartmentCode ?? string.Empty,
+                DesignationCode = faculty.DesignationCode ?? string.Empty,
+                Designation = !string.IsNullOrWhiteSpace(faculty.DesignationCode)
+                    && designationNames.TryGetValue(faculty.DesignationCode, out var designationName)
+                    ? designationName
+                    : faculty.DesignationCode ?? string.Empty,
+                Dob = faculty.Dob ?? string.Empty,
+                DateOfAppointment = faculty.DateOfAppointment ?? string.Empty,
+                AadhaarNo = faculty.AadhaarNo ?? string.Empty,
+                PanNo = faculty.Panno ?? string.Empty,
+                StateCouncilRegNo = faculty.StateCouncilRegNo ?? string.Empty,
+                AebasAttendId = faculty.AebasattendId ?? string.Empty,
+                ProfessionalQualification = faculty.ProfessionalQualification ?? string.Empty,
+                NatureOfEmployment = faculty.NatureOfEmployment ?? string.Empty,
+                TeachingExpInYrs = faculty.TeachingExpInYrs ?? string.Empty,
+                PhotoFilePath = faculty.PhotoFilePath ?? string.Empty,
+                Status = faculty.IsDeclared == true ? "Declared" : "Active"
+            }).ToList();
+
+            return View(faculties);
         }
 
         private static IEnumerable<JsonElement> FindFacultyArray(JsonElement root)
@@ -503,6 +533,31 @@ namespace Medical_Affiliation.Controllers
                 formFile.CopyTo(ms);
                 return ms.ToArray();
             }
+        }
+
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpGet]
+        public IActionResult ViewFacultyPhoto(int id)
+        {
+            var faculty = _context.UgFacultyDetails.AsNoTracking().FirstOrDefault(f => f.Id == id);
+
+            if (faculty == null || string.IsNullOrEmpty(faculty.PhotoFilePath) || !System.IO.File.Exists(faculty.PhotoFilePath))
+            {
+                // Serve a placeholder so broken <img> tags don't show a red X
+                var placeholderPath = Path.Combine("wwwroot", "images", "no-photo.png");
+                return System.IO.File.Exists(placeholderPath)
+                    ? PhysicalFile(Path.GetFullPath(placeholderPath), "image/png")
+                    : NotFound();
+            }
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(faculty.PhotoFilePath, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            return PhysicalFile(faculty.PhotoFilePath, contentType);
         }
     }
 }

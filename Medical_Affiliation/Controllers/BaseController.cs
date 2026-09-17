@@ -17,8 +17,8 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
-        protected string? FacultyCode => User.FindFirst("FacultyCode")?.Value;
-        protected string? CollegeCode => User.FindFirst("CollegeCode")?.Value;
+        protected string? FacultyCode => HttpContext.Session.GetString("FacultyCode") ?? User.FindFirst("FacultyCode")?.Value;
+        protected string? CollegeCode => HttpContext.Session.GetString("CollegeCode") ?? User.FindFirst("CollegeCode")?.Value;
         protected int? AffTypeId => ResolveAffiliationTypeId();
         protected int? NameOfAffiliationType => Convert.ToInt32(HttpContext.Session.GetString("TypeOfAffiliation"));
 
@@ -122,7 +122,7 @@ namespace Medical_Affiliation.Controllers
 
         protected async Task<List<string>> GetSortedCourseLevels()
         {
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var collegeCode = CollegeCode;
 
             var order = new List<string> { "UG", "PG", "SS" };
 
@@ -130,7 +130,7 @@ namespace Medical_Affiliation.Controllers
                 from ai in _context.AcademicIntakes
                 join mc in _context.MstCourses
                     on ai.Courses equals mc.CourseCode.ToString()
-                where ai.CollegeCode == collegeCode && ai.Ay2026TotalIntake > 0 
+                where ai.CollegeCode == collegeCode && ai.Ay2026TotalIntake > 0
                       && !string.IsNullOrEmpty(ai.Courses)
                 select mc.CourseLevel
             )
@@ -167,7 +167,7 @@ namespace Medical_Affiliation.Controllers
             return intake;
         }
 
-        protected async Task<string?> SaveFileAndReturnPath( IFormFile? file, string subFolder, string? filePrefix = null)
+        protected async Task<string?> SaveFileAndReturnPath(IFormFile? file, string subFolder, string? filePrefix = null)
         {
             if (file == null || file.Length == 0)
                 return null;

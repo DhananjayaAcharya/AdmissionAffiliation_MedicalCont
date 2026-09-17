@@ -7,29 +7,189 @@
 }
 
 <style>
-    .faculty-page { max-width: 1500px; margin: 0 auto; }
-    .faculty-intro { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1.25rem; }
-    .faculty-intro h1 { margin: 0; color: #102a43; font-size: clamp(1.35rem, 2vw, 1.9rem); font-weight: 700; }
-    .faculty-intro p { margin: .35rem 0 0; color: #627d98; font-size: .9rem; }
-    .college-code { color: #1769aa; font-weight: 700; font-size: .85rem; white-space: nowrap; }
-    .faculty-panel { border: 1px solid #d9e2ec; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 8px 24px rgba(16, 42, 67, .07); }
-    .faculty-panel-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 1.1rem; background: #f7f9fc; border-bottom: 1px solid #d9e2ec; }
-    .faculty-panel-head strong { color: #243b53; }
-    .faculty-count { color: #627d98; font-size: .82rem; }
-    .faculty-table-wrap { overflow-x: auto; }
-    .faculty-table { width: 100%; min-width: 850px; border-collapse: collapse; color: #243b53; font-size: .86rem; }
-    .faculty-table th { padding: .8rem .95rem; background: #102a43; color: #fff; text-align: left; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
-    .faculty-table td { padding: .85rem .95rem; border-bottom: 1px solid #e6edf3; vertical-align: middle; }
-    .faculty-table tbody tr:last-child td { border-bottom: 0; }
-    .faculty-table tbody tr:hover { background: #f7fbff; }
-    .faculty-name { font-weight: 700; color: #102a43; }
-    .faculty-id { color: #829ab1; font-size: .76rem; }
-    .contact { color: #486581; white-space: nowrap; }
-    .status { display: inline-flex; align-items: center; gap: .4rem; color: #147d64; font-weight: 700; }
-    .status::before { content: ''; width: .45rem; height: .45rem; border-radius: 50%; background: currentColor; }
-    .empty-state { padding: 3rem 1rem; text-align: center; color: #627d98; }
-    .empty-state i { display: block; margin-bottom: .75rem; color: #9fb3c8; font-size: 2rem; }
-    @@media (max-width: 600px) { .faculty-intro { align-items: start; flex-direction: column; } .faculty-panel-head { align-items: start; flex-direction: column; } }
+    .faculty-page {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .faculty-intro {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+        .faculty-intro h1 {
+            margin: 0;
+            color: #102a43;
+            font-size: clamp(1.35rem, 2vw, 1.9rem);
+            font-weight: 700;
+        }
+
+        .faculty-intro p {
+            margin: .35rem 0 0;
+            color: #627d98;
+            font-size: .9rem;
+        }
+
+    .college-code {
+        color: #1769aa;
+        font-weight: 700;
+        font-size: .85rem;
+        white-space: nowrap;
+    }
+
+    .faculty-panel {
+        border: 1px solid #d9e2ec;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 8px 24px rgba(16, 42, 67, .07);
+    }
+
+    .faculty-panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: .9rem 1.1rem;
+        background: #f7f9fc;
+        border-bottom: 1px solid #d9e2ec;
+    }
+
+        .faculty-panel-head strong {
+            color: #243b53;
+        }
+
+    .faculty-count {
+        color: #627d98;
+        font-size: .82rem;
+    }
+
+    .faculty-table-wrap {
+        overflow-x: auto;
+    }
+
+    .faculty-table {
+        width: 100%;
+        min-width: 950px;
+        border-collapse: collapse;
+        color: #243b53;
+        font-size: .86rem;
+    }
+
+        .faculty-table th {
+            padding: .8rem .95rem;
+            background: #102a43;
+            color: #fff;
+            text-align: left;
+            font-size: .72rem;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .faculty-table td {
+            padding: .85rem .95rem;
+            border-bottom: 1px solid #e6edf3;
+            vertical-align: middle;
+        }
+
+        .faculty-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .faculty-table tbody tr:hover {
+            background: #f7fbff;
+        }
+
+    .faculty-name {
+        font-weight: 700;
+        color: #102a43;
+    }
+
+    .faculty-id {
+        color: #829ab1;
+        font-size: .76rem;
+    }
+
+    .faculty-photo {
+        width: 58px;
+        height: 70px;
+        object-fit: cover;
+        border: 1px solid #d9e2ec;
+        border-radius: 6px;
+        background: #f7f9fc;
+    }
+
+    .faculty-photo-empty {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 58px;
+        height: 70px;
+        border: 1px solid #d9e2ec;
+        border-radius: 6px;
+        color: #829ab1;
+        font-size: .72rem;
+        text-align: center;
+    }
+
+    .contact {
+        color: #486581;
+        white-space: nowrap;
+    }
+
+    .status {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        color: #147d64;
+        font-weight: 700;
+    }
+
+        .status::before {
+            content: '';
+            width: .45rem;
+            height: .45rem;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status.declared {
+            color: #9a6700;
+        }
+
+    .id-doc {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .empty-state {
+        padding: 3rem 1rem;
+        text-align: center;
+        color: #627d98;
+    }
+
+        .empty-state i {
+            display: block;
+            margin-bottom: .75rem;
+            color: #9fb3c8;
+            font-size: 2rem;
+        }
+
+    @@media (max-width: 600px) {
+        .faculty-intro {
+            align-items: start;
+            flex-direction: column;
+        }
+
+        .faculty-panel-head {
+            align-items: start;
+            flex-direction: column;
+        }
+    }
 </style>
 
 <section class="faculty-page" aria-labelledby="faculty-heading">
@@ -60,7 +220,24 @@
             <div class="faculty-table-wrap">
                 <table class="faculty-table">
                     <thead>
-                        <tr><th>#</th><th>Name</th><th>Email</th><th>Mobile</th><th>Stream</th><th>Designation</th><th>Department</th><th>Status</th></tr>
+                        <tr>
+                            <th>#</th>
+                            <th>Photo</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>DOB</th>
+                            <th>Appointment Date</th>
+                            <th>Aadhaar No.</th>
+                            <th>PAN No.</th>
+                            <th>Qualification</th>
+                            <th>Employment</th>
+                            <th>Experience</th>
+                            <th>Mobile / Email</th>
+                            <th>Council Reg. No.</th>
+                            <th>AEBAS ID</th>
+                            <th>Status</th>
+                        </tr>
                     </thead>
                     <tbody>
                         @for (var index = 0; index < Model.Count; index++)
@@ -68,13 +245,32 @@
                             var faculty = Model[index];
                             <tr>
                                 <td>@(index + 1)</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(faculty.PhotoFilePath))
+                                    {
+                                        <img class="faculty-photo" src="@Url.Action("Photo", "UGFaculty", new { file = System.IO.Path.GetFileName(faculty.PhotoFilePath) })" alt="Photo of @faculty.Name" />
+                                    }
+                                    else
+                                    {
+                                        <span class="faculty-photo-empty">No photo</span>
+                                    }
+                                </td>
                                 <td><div class="faculty-name">@faculty.Name</div><div class="faculty-id">ID: @faculty.Id</div></td>
-                                <td class="contact">@faculty.Email</td>
-                                <td class="contact">@faculty.Mobile</td>
-                                <td>@faculty.Stream</td>
-                                <td>@faculty.Designation</td>
                                 <td>@faculty.Department</td>
-                                <td><span class="status">@faculty.Status</span></td>
+                                <td>@faculty.Designation</td>
+                                <td>@(string.IsNullOrWhiteSpace(faculty.Dob) ? "—" : faculty.Dob)</td>
+                                <td>@(string.IsNullOrWhiteSpace(faculty.DateOfAppointment) ? "—" : faculty.DateOfAppointment)</td>
+                                <td class="id-doc">@(string.IsNullOrWhiteSpace(faculty.AadhaarNo) ? "—" : faculty.AadhaarNo)</td>
+                                <td class="id-doc">@(string.IsNullOrWhiteSpace(faculty.PanNo) ? "—" : faculty.PanNo)</td>
+                                <td>@(string.IsNullOrWhiteSpace(faculty.ProfessionalQualification) ? "—" : faculty.ProfessionalQualification)</td>
+                                <td>@(string.IsNullOrWhiteSpace(faculty.NatureOfEmployment) ? "—" : faculty.NatureOfEmployment)</td>
+                                <td>@(string.IsNullOrWhiteSpace(faculty.TeachingExpInYrs) ? "—" : faculty.TeachingExpInYrs)</td>
+                                <td class="contact">@faculty.Mobile<br />@faculty.Email</td>
+                                <td>@(string.IsNullOrWhiteSpace(faculty.StateCouncilRegNo) ? "—" : faculty.StateCouncilRegNo)</td>
+                                <td>@(string.IsNullOrWhiteSpace(faculty.AebasAttendId) ? "—" : faculty.AebasAttendId)</td>
+                                <td>
+                                    <span class="status @(faculty.Status == "Declared" ? "declared" : "")">@faculty.Status</span>
+                                </td>
                             </tr>
                         }
                     </tbody>

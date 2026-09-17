@@ -13,10 +13,15 @@ namespace Medical_Affiliation.Controllers
         private readonly ICAPreviewService _capreviewService;
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
-        public CAPreviewController(ApplicationDbContext context, ICAPreviewService capreviewService)
+        private readonly PaymentCalculationController _paymentCalculationController;
+        public CAPreviewController(
+            ApplicationDbContext context,
+            ICAPreviewService capreviewService,
+            PaymentCalculationController paymentCalculationController)
         {
             _context = context;
             _capreviewService = capreviewService;
+            _paymentCalculationController = paymentCalculationController;
         }
         public async Task<IActionResult> Preview()
         {
@@ -34,7 +39,11 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction(nameof(Preview));
             }
 
+            HttpContext.Session.SetString("CAApplicationReadOnly", "true");
+
             var model = await _capreviewService.GetPreviewAsync();
+            _paymentCalculationController.ControllerContext = ControllerContext;
+            model.PaymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
             return GeneratePreviewPdf(model);
         }
 
@@ -289,8 +298,40 @@ namespace Medical_Affiliation.Controllers
             var pdf = new PreviewReportPdf(model, logoBytes, clglogoBytes);
             var bytes = pdf.GeneratePdf();
 
-            Response.Headers["Content-Disposition"] = "inline; filename=AffiliationPreview.pdf";
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var affiliationType = HttpContext.Session.GetString("TypeOfAffiliation");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel");
+            var fileName = string.Join("_", new[]
+            {
+                NormalizeFileNamePart(collegeCode, "College"),
+                NormalizeFileNamePart(affiliationType, "Affiliation"),
+                NormalizeFileNamePart(courseLevel, "CourseLevel")
+            }) + ".pdf";
+
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
             return File(bytes, "application/pdf");
+        }
+
+        private static string NormalizeFileNamePart(string? value, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return fallback;
+            }
+
+            var invalidCharacters = Path.GetInvalidFileNameChars();
+            var normalized = new string(value.Trim()
+                .Select(character => invalidCharacters.Contains(character) || char.IsWhiteSpace(character) ? '_' : character)
+                .ToArray());
+
+            while (normalized.Contains("__", StringComparison.Ordinal))
+            {
+                normalized = normalized.Replace("__", "_", StringComparison.Ordinal);
+            }
+
+            return normalized.Trim('_');
         }
 
 

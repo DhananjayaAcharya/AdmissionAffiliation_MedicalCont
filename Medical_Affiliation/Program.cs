@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.DATA;
+using Medical_Affiliation.Controllers;
 using Medical_Affiliation.Middleware;
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services;
@@ -147,6 +148,7 @@ builder.Services.AddScoped<ICAAdminTeachAndHostel, CAAdminTeachAndHostelService>
 builder.Services.AddScoped<ICAFacultyDesigNonTeaching, CAFacultyDesigNonTeachingService>();
 builder.Services.AddScoped<IUserContext, SessionUserContext>();
 builder.Services.AddScoped<ICAPaymentService, CAPaymentService>();
+builder.Services.AddScoped<PaymentCalculationController>();
 builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
@@ -380,6 +382,36 @@ app.Use(async (context, next) =>
 
 
 app.UseAuthentication();
+
+
+// =============================================
+// Lock the college application after declaration consent.
+// The readonly preview remains available, while all edit routes and POST
+// requests are redirected back to it for the current session.
+// =============================================
+app.Use(async (context, next) =>
+{
+    var isReadOnly = string.Equals(
+        context.Session.GetString("CAApplicationReadOnly"),
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+    var controller = context.Request.RouteValues["controller"]?.ToString() ?? string.Empty;
+    var action = context.Request.RouteValues["action"]?.ToString() ?? string.Empty;
+    var isPreview = controller.Equals("CAPreview", StringComparison.OrdinalIgnoreCase);
+    var isLogout = action.Contains("Logout", StringComparison.OrdinalIgnoreCase)
+        || context.Request.Path.Value?.Contains("/Logout", StringComparison.OrdinalIgnoreCase) == true;
+
+    if (isReadOnly && !isPreview && !isLogout
+        && !HttpMethods.IsGet(context.Request.Method)
+        && !HttpMethods.IsHead(context.Request.Method))
+    {
+        context.Response.Redirect("/CAPreview/Preview");
+        return;
+    }
+
+    await next();
+});
 
 
 // =============================================

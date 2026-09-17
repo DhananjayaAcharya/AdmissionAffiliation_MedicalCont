@@ -16,6 +16,10 @@
         "SS" => "Super Specialty (SS)",
         _ => "Not specified"
     };
+    var applicationReadOnly = string.Equals(
+        Context.Session.GetString("CAApplicationReadOnly"),
+        "true",
+        StringComparison.OrdinalIgnoreCase);
 }
 
 <style>
@@ -394,6 +398,43 @@
         margin: 0;
         padding: 0.8rem 1.1rem;
     }
+
+    .preview-report-edit {
+        flex: 0 0 auto;
+        background: #fff;
+        border: 1px solid var(--navy);
+        border-radius: 6px;
+        color: var(--navy);
+        font-family: var(--font-sans);
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.3rem 0.65rem;
+        text-decoration: none;
+    }
+
+        .preview-report-edit:hover {
+            background: var(--navy);
+            color: #fff;
+        }
+
+        .application-readonly .preview-report-edit,
+        .application-readonly .preview-tab-row a,
+        .application-readonly .submit-application-btn {
+            display: none;
+        }
+
+        .readonly-status {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .35);
+            border-radius: 8px;
+            color: #fff;
+            font-size: .8rem;
+            font-weight: 700;
+            padding: .6rem .85rem;
+        }
 
         .preview-report-heading span {
             display: flex;
@@ -830,7 +871,7 @@
     }
 </style>
 
-<div class="affiliation-page-container">
+<div id="PreviewTop" class="affiliation-page-container @(applicationReadOnly ? "application-readonly" : string.Empty)">
     <div class="container-fluid">
 
         <!-- ========================= -->
@@ -852,10 +893,17 @@
                         <div class="affiliation-subtitle">Read-only summary generated from your submitted application. Edit any section from the directory below before final submission.</div>
                     </div>
                     <div class="affiliation-header-actions">
-                        <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal">
+                        @if (applicationReadOnly)
+                        {
+                            <div class="readonly-status"><i class="bi bi-lock-fill"></i> Application is read only</div>
+                        }
+                        else
+                        {
+                            <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal">
                             <i class="bi bi-send-check-fill"></i>
                             Submit Application
-                        </button>
+                            </button>
+                        }
                     </div>
                 </div>
                 <div class="affiliation-meta">
@@ -1000,8 +1048,8 @@
         <!-- SECTIONS CONTAINER -->
         <!-- ========================= -->
         <div class="preview-report">
-            <div class="preview-report-section">
-                <h2 class="preview-report-heading"><span>01 · Institution Details</span></h2>
+            <div id="InstitutionDetails" class="preview-report-section">
+                <h2 class="preview-report-heading"><span>01 · Institution Details</span><a class="preview-report-edit" href="@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                 <div class="preview-report-body">
                     @if (Model.InstitutionDetails != null)
                     {
@@ -1040,8 +1088,8 @@
                 </div>
             </div>
 
-            <div class="preview-report-section">
-                <h2 class="preview-report-heading"><span>02 · Trust Institution Details</span></h2>
+            <div id="TrustInstitutionDetails" class="preview-report-section">
+                <h2 class="preview-report-heading"><span>02 · Trust Institution Details</span><a class="preview-report-edit" href="@Url.Action("Aff_InstituteDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                 <div class="preview-report-body">
                     @if (Model.AffInstituteDetails != null)
                     {
@@ -1094,24 +1142,24 @@
 
             @if (Model.InstitutionBasicVM != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>03 · Trust Member Details</span></h2>
+                <div id="TrustMemberDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>03 · Trust Member Details</span><a class="preview-report-edit" href="@Url.Action("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_TrustMembersDetails", Model.InstitutionBasicVM)</div>
                 </div>
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>04 · Staff Particulars - Dean / Director</span></h2>
+                <div id="DeanDirectorDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>04 · Staff Particulars - Dean / Director</span><a class="preview-report-edit" href="@Url.Action("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_DeanOrDirectorDetails", Model.InstitutionBasicVM)</div>
                 </div>
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>05 · Staff Particulars - Principal</span></h2>
+                <div id="PrincipalDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>05 · Staff Particulars - Principal</span><a class="preview-report-edit" href="@Url.Action("Aff_PrincipalDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_PrincipalDetails", Model.InstitutionBasicVM)</div>
                 </div>
             }
 
             @if (isUgPreview)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>06 · Details of MBBS Course - UG</span></h2>
+                <div id="MBBSDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>06 · Details of MBBS Course - UG</span><a class="preview-report-edit" href="@Url.Action("Details_Of_MBBS", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">
                         @if (Model.InstitutionBasicVM != null)
                         {
@@ -1120,8 +1168,8 @@
                     </div>
                 </div>
             }
-            <div class="preview-report-section">
-                <h2 class="preview-report-heading"><span>07 · Course Intake List</span></h2>
+            <div id="CourseIntakeList" class="preview-report-section">
+                <h2 class="preview-report-heading"><span>07 · Course Intake List</span><a class="preview-report-edit" href="@Url.Action("MedicalCollegeCourseIntake", "ContinuousAffiliationIncreaseintake")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                 <div class="preview-report-body">
                     @if (Model.CourseIntakeList.Any())
                     {
@@ -1159,8 +1207,8 @@
             </div>
             @if (isPgPreview)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>08 · PG Course Affiliation - PG</span></h2>
+                <div id="PGCourseAffiliation" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>08 · PG Course Affiliation - PG</span><a class="preview-report-edit" href="@Url.Action("PgCourses", "AffiliationPgCourse")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">
                         @if (Model.InstitutionBasicVM != null)
                         {
@@ -1171,35 +1219,35 @@
             }
             @if (isSsPreview)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>09 · Super Specialty Courses - SS</span></h2>
+                <div id="SSCourseAffiliation" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>09 · Super Specialty Courses - SS</span><a class="preview-report-edit" href="@Url.Action("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><div class="empty-state">No Super Specialty course preview data is available.</div></div>
                 </div>
             }
 
             @if (Model.PhysicalFacilities != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>10 · Land, Building &amp; Teaching Facilities</span></h2>
+                <div id="LandBuilding" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>10 · Land, Building &amp; Teaching Facilities</span><a class="preview-report-edit" href="@Url.Action("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><partial name="PhysicalFacilities/_SmallGroupTeaching" model="Model.PhysicalFacilities.SmallGroupTeaching" /></div>
                 </div>
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>11 · Skills Laboratory</span></h2>
+                <div id="SkillsLaboratory" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>11 · Skills Laboratory</span><a class="preview-report-edit" href="@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><partial name="PhysicalFacilities/_SkillsLab" model="Model.PhysicalFacilities.SkillsLab" /></div>
                 </div>
             }
 
             @if (Model.CAHospitalAFfiliationCompVM != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>13 · Clinical Facilities</span></h2>
+                <div id="ClinicalFacilities" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>13 · Clinical Facilities</span><a class="preview-report-edit" href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">@await Html.PartialAsync("ClinicalFacilities/_HospitalAffiliation", Model.CAHospitalAFfiliationCompVM)</div>
                 </div>
             }
             @if (isUgPreview)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>14 · Bed Distribution - MBBS - UG</span></h2>
+                <div id="BedDistribution" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>14 · Bed Distribution - MBBS - UG</span><a class="preview-report-edit" href="@Url.Action("MedicalUGBedDistribution", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">
                         @if (Model.BedDistribution != null)
                         {
@@ -1229,44 +1277,44 @@
             }
             @if (Model.PhysicalFacilities != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>15 · Department Offices Details</span></h2>
+                <div id="DepartmentOffices" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>15 · Department Offices Details</span><a class="preview-report-edit" href="@Url.Action("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><partial name="PhysicalFacilities/_DepartmentOfficesMeuPartial" model="Model.PhysicalFacilities.DeptOfficeMeu" /></div>
                 </div>
             }
             @if (Model.AdminTeachAndHostelVM != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>16 · Affiliation Hostel Details</span></h2>
+                <div id="HostelDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>16 · Affiliation Hostel Details</span><a class="preview-report-edit" href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><partial name="AdminTeachAndHostel/_HostelDetails" model="Model.AdminTeachAndHostelVM.HostelDetailsVM" /></div>
                 </div>
             }
             @if (Model.VehicleDetailsVM != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>17 · Vehicle Registration &amp; Documents</span></h2>
+                <div id="VehicleDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>17 · Vehicle Registration &amp; Documents</span><a class="preview-report-edit" href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">@await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehicleDetailsVM)</div>
                 </div>
             }
 
             @if (isUgPreview && Model.CAacademicMattersVM != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>18 · Academic Matters - UG</span></h2>
+                <div id="AcademicMattersUG" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>18 · Academic Matters - UG</span><a class="preview-report-edit" href="@Url.Action("AcademicMatters", "CA_Aff_AcademicMatters")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">@await Html.PartialAsync("AcademicMatters/_AcademicMatters", Model.CAacademicMattersVM)</div>
                 </div>
             }
             @if (Model.FinanceVm != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>19 · Account and Fee Details</span></h2>
+                <div id="AccountAndFeeDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>19 · Account and Fee Details</span><a class="preview-report-edit" href="@Url.Action("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><partial name="FinancialDetails/_AccountAndFeeDetailsPreview" model="Model.FinanceVm" /></div>
                 </div>
             }
             @if (Model.FinanceVm != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>20 · Staff Details</span></h2>
+                <div id="StaffDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>20 · Staff Details</span><a class="preview-report-edit" href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">
                         @if (Model.FinanceVm != null)
                         {
@@ -1281,27 +1329,27 @@
             }
             @if (isPgPreview)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>21 · Academic Matters PG - PG</span></h2>
+                <div id="AcademicMattersPG" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>21 · Academic Matters PG - PG</span><a class="preview-report-edit" href="@Url.Action("AcademicMattersPG", "CA_Aff_AcademicMatters")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><div class="empty-state">No separate PG academic preview data is available.</div></div>
                 </div>
             }
 
             @if (Model.FacultyDesigNonTeachDisplayVM != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>22 · Faculty Details</span></h2>
+                <div id="FacultyDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>22 · Faculty Details</span><a class="preview-report-edit" href="@Url.Action("Repo_FacultyDetails", "FacultyDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_FacultyDetails" model="Model.FacultyDesigNonTeachDisplayVM.FacultyDetailDisplayVM" /></div>
                 </div>
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>23 · Non-Teaching Staff Details</span></h2>
+                <div id="NonTeachingStaffDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>23 · Non-Teaching Staff Details</span><a class="preview-report-edit" href="@Url.Action("NonTeachingStaffDepartmentwise", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_NonTeachingStaffDetails" model="Model.FacultyDesigNonTeachDisplayVM.NonTeachingStaffSectionVM" /></div>
                 </div>
             }
             @if (Model.PaymentVM != null)
             {
-                <div class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>24 · Payment Calculation</span></h2>
+                <div id="PaymentCalculation" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>24 · Payment Calculation</span><a class="preview-report-edit" href="@Url.Action("Index", "PaymentCalculation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">@await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)</div>
                 </div>
             }
@@ -1375,7 +1423,7 @@
                 {
                     <div class="alert alert-danger">@TempData["PreviewError"]</div>
                 }
-                <form id="consentForm" asp-controller="CAPreview" asp-action="GeneratePdf" method="post">
+                <form id="consentForm" asp-controller="CAPreview" asp-action="GeneratePdf" method="post" target="_blank">
                     @Html.AntiForgeryToken()
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="declarationConsent" name="declarationConsent" value="true" />

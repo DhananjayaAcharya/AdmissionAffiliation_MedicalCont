@@ -8,6 +8,7 @@ public class PreviewReportPdf : IDocument
     private readonly CApreviewViewModel _model;
     private readonly byte[] _logo;
     private readonly byte[] _collegeLogoBytes;
+    private int _sectionNumber;
 
     public PreviewReportPdf(CApreviewViewModel model, byte[] logo, byte[] clgLogoBytes)
     {
@@ -18,6 +19,8 @@ public class PreviewReportPdf : IDocument
 
     public void Compose(IDocumentContainer container)
     {
+        _sectionNumber = 0;
+
         container.Page(page =>
         {
             page.Size(PageSizes.A4);
@@ -40,7 +43,6 @@ public class PreviewReportPdf : IDocument
                 // Basic Details
                 AddInstitutionDetailsSection(col);
                 AddAffiliatedInstituteDetailsSection(col);
-                AddTrustMembersSection(col);
                 AddDeanOrDirectorSection(col);
                 AddPrincipalSection(col);
 
@@ -56,14 +58,16 @@ public class PreviewReportPdf : IDocument
                 }
 
                 // Physical Infrastructure
-                AddSmallGroupTeachingSection(col);
-                AddSkillsLabSection(col);
                 AddHospitalAffiliationSection(col);
                 AddDepartmentSections(col);
                 if (isUg)
                 {
                     AddBedDistributionSection(col);
                 }
+                AddSmallGroupTeachingSection(col);
+                AddStudentPracticalLabsSection(col);
+                AddMuseumsSection(col);
+                AddSkillsLabSection(col);
                 AddDepartmentOfficesAndMeuSection(col);
                 AddHostelDetailsSection(col);
                 AddHostelFacilitiesSection(col);
@@ -74,7 +78,6 @@ public class PreviewReportPdf : IDocument
                 {
                     AddAcademicMattersSection(col);
                 }
-                AddFinanceAccountsAndFeesSection(col);
                 AddFinanceStaffParticularsSection(col);
                 AddFinanceOtherStaffDetailsSection(col);
                 AddAdminTeachingBlockSection(col);
@@ -112,38 +115,47 @@ public class PreviewReportPdf : IDocument
     {
         col.Item().Background("#123A63").Padding(14).Row(row =>
         {
-            row.ConstantItem(60).AlignMiddle().Width(60).Height(60)
+            row.ConstantItem(72).AlignMiddle().Width(72).Height(72)
                 .Image(_collegeLogoBytes);
 
-            row.ConstantItem(16);
+            row.ConstantItem(18);
 
             row.RelativeItem().AlignMiddle().Column(c =>
             {
-                c.Item().Text("RAJIV GANDHI UNIVERSITY OF HEALTH SCIENCES")
-                    .FontSize(15).Bold().FontColor(Colors.White);
+                c.Item().AlignCenter().Text("RAJIV GANDHI UNIVERSITY OF HEALTH SCIENCES")
+                    .FontSize(16).Bold().FontColor(Colors.White);
 
-                c.Item().PaddingTop(2).Text("KARNATAKA")
-                    .FontSize(10).Bold().FontColor("#E4C875");
-
-                c.Item().PaddingTop(3).Text("College Affiliation Application Preview")
-                    .FontSize(8.5f).FontColor("#D9E6F2");
+                c.Item().PaddingTop(5).AlignCenter().Text("Jayanagar, Bengaluru, Karnataka 560041")
+                    .FontSize(9).Bold().FontColor(Colors.White);
             });
         });
 
-        col.Item().PaddingTop(3).LineHorizontal(3).LineColor("#C9A24B");
+        col.Item().PaddingTop(4).LineHorizontal(3).LineColor("#C9A24B");
     }
 
     private void AddPreviewMetadataHeader(ColumnDescriptor col)
     {
+        var totalSeats = _model.PaymentCalculation?.MatchedCourses
+            .FirstOrDefault()?.TotalSeats;
+
         col.Item().PaddingTop(4).PaddingBottom(9).Column(section =>
         {
             section.Item().PaddingTop(10).AlignCenter().Text(_model.CollegeName ?? "College Affiliation Application")
                 .FontSize(14).Bold().FontColor("#123A63");
 
-            section.Item().PaddingTop(3).AlignCenter().Text("AFFILIATION PREVIEW REPORT")
-                .FontSize(8).Bold().LetterSpacing(1.2f).FontColor("#1F6F6B");
+            var affiliationType = string.IsNullOrWhiteSpace(_model.ApplicationType)
+                ? "Affiliation"
+                : _model.ApplicationType.Trim();
 
-            section.Item().PaddingTop(10).Table(table =>
+            section.Item().PaddingTop(4).AlignCenter().Text(text =>
+            {
+                text.Span("TYPE OF AFFILIATION: ")
+                    .FontSize(8).Bold().FontColor("#60758A");
+                text.Span(affiliationType)
+                    .FontSize(10).Bold().FontColor("#1F6F6B");
+            });
+
+            section.Item().PaddingTop(9).Table(table =>
             {
                 table.ColumnsDefinition(columns =>
                 {
@@ -154,7 +166,7 @@ public class PreviewReportPdf : IDocument
 
                 AddMetadataCell(table, "Application Type", _model.ApplicationType);
                 AddMetadataCell(table, "Applying Course Level", _model.ApplyingCourseLevel);
-                AddMetadataCell(table, "College Code", _model.CollegeCode);
+                AddMetadataCell(table, "Total Seats", totalSeats?.ToString() ?? "—");
             });
         });
     }
@@ -190,41 +202,26 @@ public class PreviewReportPdf : IDocument
             AddTextRow(table, "District", institution.District);
             AddTextRow(table, "PIN Code", institution.PinCode);
             AddTextRow(table, "Mobile Number", institution.MobileNumber);
-            AddTextRow(table, "STD Code", institution.StdCode);
-            AddTextRow(table, "Fax", institution.Fax);
             AddTextRow(table, "Website", institution.Website);
-            AddTextRow(table, "Survey / PID Number", institution.SurveyNoPidNo);
             AddTextRow(table, "Minority Institution", institution.MinorityInstitute ? "Yes" : "No");
-            AddTextRow(table, "Attached to Medical College", institution.AttachedToMedicalClg ? "Yes" : "No");
-            AddTextRow(table, "Rural Institute", institution.RuralInstitute ? "Yes" : "No");
             AddTextRow(table, "Year of Establishment", institution.YearOfEstablishment);
             AddTextRow(table, "Email", institution.EmailId);
             AddTextRow(table, "Alternate Contact", institution.AltLandlineMobile);
             AddTextRow(table, "Alternate Email", institution.AltEmailId);
-            AddTextRow(table, "Head of Institution", institution.HeadOfInstitution);
-            AddTextRow(table, "Head Address", institution.HeadAddress);
-            AddTextRow(table, "Financing Authority", institution.FinancingAuthority);
             AddTextRow(table, "College Status", institution.StatusOfCollege);
-            AddTextRow(table, "Course Applied", institution.CourseApplied);
             AddTextRow(table, "Nodal Officer", institution.NodalOfficer_Name);
             AddTextRow(table, "Nodal Officer Mobile", institution.NodalOfficer_Mob_Number);
             AddTextRow(table, "Nodal Officer Email", institution.NodalOfficer_Email);
             AddTextRow(table, "Principal", institution.Principal_Name);
-            AddTextRow(table, "Principal Mobile", institution.Principal_Mob_No);
-            AddTextRow(table, "Principal Email", institution.Principal_Email);
             AddTextRow(table, "Trust Name", institution.TrustName);
             AddTextRow(table, "Trust Address", institution.TrustAddress);
             AddTextRow(table, "Trust Establishment Date", institution.TrustEstablishmentDate);
             AddTextRow(table, "Trust President", institution.TrustPresidentName);
             AddTextRow(table, "Trust President Contact", institution.TrustPresidentContactNo);
             AddTextRow(table, "Dean", institution.DeanName);
-            AddTextRow(table, "Dean Mobile", institution.DeanMobileNumber);
-            AddTextRow(table, "Dean Email", institution.DeanEmailId);
             AddTextRow(table, "Running Course", institution.RunningCourse);
             AddTextRow(table, "Minority Category", institution.MinorityCategory);
             AddTextRow(table, "Autonomous Certificate Number", institution.GovAutonomousCertNumber);
-            AddTextRow(table, "Institution Document", institution.DocumentName ?? "—");
-            AddTextRow(table, "Government Certificate", institution.hasGovAutoCertFile ? "Available" : "—");
         });
     }
 
@@ -276,40 +273,6 @@ public class PreviewReportPdf : IDocument
             });
 
             rows(table);
-        });
-    }
-
-    private void AddTrustMembersSection(ColumnDescriptor col)
-    {
-        if (_model?.InstitutionBasicVM?.TrustMemberVM?.Items == null ||
-        !_model.InstitutionBasicVM.TrustMemberVM.Items.Any())
-            return;
-
-        var members = _model.InstitutionBasicVM.TrustMemberVM;
-
-        if (members == null || members.Items == null || !members.Items.Any())
-            return;
-
-        AddMainHeading(col, "Institution Basic Details");
-        AddSubHeading(col, "Trust Members", 78);
-
-        col.Item().PaddingTop(8).Table(table =>
-        {
-            table.ColumnsDefinition(columns =>
-            {
-                columns.RelativeColumn(3); // Label
-                columns.RelativeColumn(2); // Value
-            });
-
-            foreach (var member in members.Items)
-            {
-                AddTextRow(table, "Name", member.TrustMemberName);
-                AddTextRow(table, "Designation", member.Designation ?? "—");
-                AddTextRow(table, "Qualification", member.Qualification ?? "—");
-                AddTextRow(table, "Mobile", member.MobileDisplay);
-                AddTextRow(table, "Age", member.Age?.ToString() ?? "—");
-                AddTextRow(table, "Joining Date", member.JoiningDateDisplay);
-            }
         });
     }
 
@@ -611,7 +574,7 @@ public class PreviewReportPdf : IDocument
                 header.Cell().Border(1).Padding(5).Text("Remarks").Bold();
             });
 
-            foreach (var row in rows)
+            foreach (var row in rows.Take(4))
             {
                 table.Cell().Border(1).Padding(2).AlignCenter().Text(row.YearName);
                 table.Cell().Border(1).Padding(2).AlignCenter().Text(row.RegularStudents.ToString());
@@ -1030,7 +993,7 @@ public class PreviewReportPdf : IDocument
         {
             col2.Item()
                 .AlignCenter()
-                .Text("Skills Laboratory")
+                .Text("Classroom Details")
                 .FontSize(14)
                 .Bold();
 
@@ -1444,7 +1407,7 @@ public class PreviewReportPdf : IDocument
         {
             col2.Item()
                 .AlignCenter()
-                .Text("Small Group Teaching")
+                .Text("Building Details")
                 .FontSize(14)
                 .Bold();
 
@@ -2371,30 +2334,6 @@ public class PreviewReportPdf : IDocument
             foreach (var vehicle in vehicleList.Items)
             {
                 AddTextRow(table, "Vehicle Registration No", vehicle.VehicleRegNo);
-                AddTextRow(table, "Vehicle Purpose", vehicle.VehicleForCode);
-                AddTextRow(
-                    table,
-                    "Seating Capacity",
-                    vehicle.SeatingCapacity?.ToString() ?? "—"
-                );
-
-                AddTextRow(
-                    table,
-                    "RC Book",
-                    vehicle.HasValidRc ? "Available" : "Not Available"
-                );
-
-                AddTextRow(
-                    table,
-                    "Insurance",
-                    vehicle.HasValidInsurance ? "Available" : "Not Available"
-                );
-
-                AddTextRow(
-                    table,
-                    "Driving License",
-                    vehicle.HasValidLicense ? "Available" : "Not Available"
-                );
             }
         });
     }
@@ -2536,51 +2475,89 @@ public class PreviewReportPdf : IDocument
 
         if (facultyList == null || !facultyList.Any())
             return;
-        AddMainHeading(col, "22 · Faculty Details");
-        AddSubHeading(col, "Faculty Details", 80);
+        AddMainHeading(col, "Faculty Details");
+        AddSubHeading(col, "UG Faculty Details", 120);
 
         col.Item().PaddingTop(8).Table(table =>
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(3); // Name
-                columns.RelativeColumn(2); // Designation
-                columns.RelativeColumn(2); // Subject
-                columns.ConstantColumn(60); // PG
-                columns.ConstantColumn(60); // PhD
-                columns.ConstantColumn(70); // Litigation
-                columns.ConstantColumn(70); // Docs
+                columns.ConstantColumn(58); // Photo
+                columns.RelativeColumn(2.2f); // Name
+                columns.RelativeColumn(1.2f); // Department
+                columns.RelativeColumn(1.3f); // Designation
+                columns.RelativeColumn(1.6f); // Qualification
+                columns.RelativeColumn(1.5f); // Employment
+                columns.RelativeColumn(1.6f); // Contact
             });
 
-            // Header
             table.Header(header =>
             {
-                header.Cell().Border(1).Padding(3).Text("Name").Bold();
-                header.Cell().Border(1).Padding(3).Text("Designation").Bold();
-                header.Cell().Border(1).Padding(3).Text("Subject").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("PG").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("PhD").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Litigation").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Docs").Bold();
+                header.Cell().Border(1).Background("#EAF0F5").Padding(3).AlignCenter().Text("Photo").Bold();
+                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Name / Dates").Bold();
+                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Department").Bold();
+                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Designation").Bold();
+                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Qualification").Bold();
+                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Employment / Experience").Bold();
+                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Contact / Registration").Bold();
             });
 
-            // Body
             foreach (var f in facultyList)
             {
-                table.Cell().Border(1).Padding(3).Text(f.NameOfFaculty);
-                table.Cell().Border(1).Padding(3).Text(f.Designation);
-                table.Cell().Border(1).Padding(3).Text(f.Subject ?? "—");
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(f.RecognizedPgTeacher ?? "—");
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(f.RecognizedPhDteacher ?? "—");
-                table.Cell().Border(1).Padding(3).AlignCenter().Text(f.LitigationPending ?? "—");
-                table.Cell().Border(1).Padding(3).AlignCenter()
-                    .Text(
-                        (f.HasGuideRecognitionDoc || f.HasPhDRecognitionDoc || f.HasLitigationDoc)
-                        ? "Available"
-                        : "—"
-                    );
+                var photoPath = ResolveFacultyPhotoPath(f.PhotoFilePath);
+                var photoCell = table.Cell().Border(1).Padding(3).AlignCenter().AlignMiddle();
+                if (photoPath != null)
+                {
+                    photoCell.Width(48).Height(58).Image(photoPath).FitArea();
+                }
+                else
+                {
+                    photoCell.Text("No photo").FontSize(7).FontColor("#60758A");
+                }
+
+                table.Cell().Border(1).Padding(3).Column(cell =>
+                {
+                    cell.Item().Text(f.NameOfFaculty ?? "—").Bold();
+                    cell.Item().PaddingTop(2).Text($"DOB: {f.Dob ?? "—"}");
+                    cell.Item().Text($"Appointment: {f.DateOfAppointment ?? "—"}");
+                });
+                table.Cell().Border(1).Padding(3).Text(f.DepartmentName ?? f.DepartmentCode ?? "—");
+                table.Cell().Border(1).Padding(3).Text(f.DesignationName ?? f.DesignationCode ?? "—");
+                table.Cell().Border(1).Padding(3).Column(cell =>
+                {
+                    cell.Item().Text(f.ProfessionalQualification ?? "—");
+                    cell.Item().PaddingTop(2).Text($"PAN: {f.PanNo ?? "—"}");
+                    cell.Item().Text($"Aadhaar: {f.AadhaarNo ?? "—"}");
+                });
+                table.Cell().Border(1).Padding(3).Column(cell =>
+                {
+                    cell.Item().Text(f.NatureOfEmployment ?? "—");
+                    cell.Item().PaddingTop(2).Text($"Teaching exp: {f.TeachingExpInYrs ?? "—"}");
+                });
+                table.Cell().Border(1).Padding(3).Column(cell =>
+                {
+                    cell.Item().Text(f.Mobile ?? "—");
+                    cell.Item().Text(f.Email ?? "—");
+                    cell.Item().PaddingTop(2).Text($"Council: {f.StateCouncilRegNo ?? "—"}");
+                    cell.Item().Text($"AEBAS: {f.AebasAttendId ?? "—"}");
+                });
             }
         });
+    }
+
+    private static string? ResolveFacultyPhotoPath(string? storedPath)
+    {
+        if (string.IsNullOrWhiteSpace(storedPath))
+        {
+            return null;
+        }
+
+        var normalizedPath = storedPath.Trim().Replace("/", Path.DirectorySeparatorChar.ToString()).Replace("\\", Path.DirectorySeparatorChar.ToString());
+        var fullPath = Path.IsPathRooted(normalizedPath)
+            ? normalizedPath
+            : Path.Combine(@"D:\MedicalUGFacultyList\Photos", Path.GetFileName(normalizedPath));
+
+        return System.IO.File.Exists(fullPath) ? fullPath : null;
     }
 
     private void AddCollegeDesignationSection(ColumnDescriptor col)
@@ -2647,40 +2624,100 @@ public class PreviewReportPdf : IDocument
 
     private void AddPaymentSection(ColumnDescriptor col)
     {
-        var payment = _model?.PaymentVM;
+        var calculation = _model?.PaymentCalculation;
 
-        if (payment == null || payment.Id <= 0)
+        if (calculation == null || !calculation.HasResult)
             return;
 
-        AddMainHeading(col, "24 · Payment Calculation");
+        AddMainHeading(col, "16 · Payment Calculation");
 
-        // ===== MAIN HEADING =====
         col.Item().PaddingTop(25)
             .AlignCenter()
-            .Text("Payment Details")
+            .Text("Payment Calculation")
             .FontSize(14)
             .Bold();
 
-        // ===== TABLE =====
-        col.Item().PaddingTop(10).Table(table =>
+        AddSubHeading(col, "Matched Courses", 105);
+        col.Item().PaddingTop(8).Table(table =>
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(3); // Label
-                columns.RelativeColumn(4); // Value
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(1.5f);
+                columns.RelativeColumn(1.5f);
+                columns.RelativeColumn(1.5f);
+                columns.RelativeColumn(1.5f);
+                columns.RelativeColumn(1.5f);
             });
 
-            AddTextRow(table, "Amount Paid", payment.Amount);
-            AddTextRow(table,
-                "Payment Date",
-                payment.PaymentDate != default
-                    ? payment.PaymentDate.ToString("dd MMM yyyy")
-                    : "—");
-            AddTextRow(table, "Transaction Reference", payment.TransactionReferenceNo ?? "—");
+            table.Header(header =>
+            {
+                header.Cell().Border(1).Padding(4).Text("Course Name").Bold();
+                header.Cell().Border(1).Padding(4).Text("Course (Intake Sheet)").Bold();
+                header.Cell().Border(1).Padding(4).Text("Course Level").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Intake").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Total Seats").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Increased Intake").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Academic Year").Bold();
+            });
 
-            AddTextRow(table,
-                "Supporting Document",
-                payment.HasDocument ? "Available" : "—");
+            foreach (var course in calculation.MatchedCourses)
+            {
+                table.Cell().Border(1).Padding(4).Text(course.CourseName ?? course.course ?? "—");
+                table.Cell().Border(1).Padding(4).Text(course.course ?? "—");
+                table.Cell().Border(1).Padding(4).Text(course.RawCourseLevel ?? course.ug_pg ?? "—");
+                table.Cell().Border(1).Padding(4).AlignCenter().Text(course.Intake_26_27?.ToString() ?? "—");
+                table.Cell().Border(1).Padding(4).AlignCenter().Text(course.TotalSeats?.ToString() ?? "0");
+                table.Cell().Border(1).Padding(4).AlignCenter().Text(course.IncreasedIntake?.ToString() ?? "—");
+                table.Cell().Border(1).Padding(4).AlignCenter().Text(course.AcademicYear ?? "—");
+            }
+        });
+
+        AddSubHeading(col, "Fee Breakdown", 90);
+        col.Item().PaddingTop(8).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(1.5f);
+                columns.RelativeColumn(1.5f);
+                columns.RelativeColumn(1.2f);
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(1.5f);
+            });
+
+            table.Header(header =>
+            {
+                header.Cell().Border(1).Padding(4).Text("Fee Head").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Unit Amount").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Basis").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Multiplier").Bold();
+                header.Cell().Border(1).Padding(4).Text("Calculation").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Line Amount").Bold();
+            });
+
+            foreach (var fee in calculation.FeeLines)
+            {
+                var basis = fee.IsPerCourse ? "Per course" : fee.IsPerSeat ? "Per seat" : "Fixed";
+                var multiplier = fee.Multiplier > 0 ? fee.Multiplier.ToString() : "1";
+                var formula = fee.IsPerCourse
+                    ? $"{fee.UnitAmount:N2} x {multiplier} course(s)"
+                    : fee.IsPerSeat
+                        ? $"{fee.UnitAmount:N2} x {multiplier} seat(s)"
+                        : $"{fee.UnitAmount:N2} x 1";
+                table.Cell().Border(1).Padding(4).Text(fee.FeeHeadName ?? "—");
+                table.Cell().Border(1).Padding(4).AlignRight().Text(fee.UnitAmount.ToString("N2"));
+                table.Cell().Border(1).Padding(4).AlignCenter().Text(basis);
+                table.Cell().Border(1).Padding(4).AlignCenter().Text(multiplier);
+                table.Cell().Border(1).Padding(4).Text(formula);
+                table.Cell().Border(1).Padding(4).AlignRight().Text(fee.LineAmount.ToString("N2"));
+            }
+
+            table.Cell().ColumnSpan(5).Border(1).Padding(5).AlignRight().Text("Grand Total").Bold();
+            table.Cell().Border(1).Padding(5).AlignRight()
+                .Text((calculation.Summary?.GrandTotal ?? calculation.FeeLines.Sum(x => x.LineAmount)).ToString("N2"))
+                .Bold();
         });
     }
 
@@ -2752,10 +2789,16 @@ public class PreviewReportPdf : IDocument
 
     private void AddMainHeading(ColumnDescriptor col, string title)
     {
+        var titleSeparator = title.IndexOf('·');
+        var cleanTitle = titleSeparator >= 0
+            ? title[(titleSeparator + 1)..].Trim()
+            : title.Trim();
+        _sectionNumber++;
+
         col.Item().PaddingTop(16).PaddingBottom(5).Background("#123A63").BorderLeft(4).BorderColor("#C9A24B").Padding(8).Row(row =>
         {
             row.ConstantItem(8);
-            row.RelativeItem().Text(title).FontSize(11).Bold().FontColor(Colors.White);
+            row.RelativeItem().Text($"{_sectionNumber}. {cleanTitle}").FontSize(11).Bold().FontColor(Colors.White);
         });
     }
 

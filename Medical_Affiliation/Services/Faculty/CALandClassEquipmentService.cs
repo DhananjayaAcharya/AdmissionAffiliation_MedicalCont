@@ -22,7 +22,8 @@ namespace Medical_Affiliation.Services.Faculty
             var collegeCode = _userContext.CollegeCode;
             var lab = await _context.MedicalSkillsLaboratories
                             .AsNoTracking()
-                            .Where(x => x.FacultyCode == facultyId.ToString())
+                            .Where(x => x.FacultyCode == facultyId.ToString()
+                                     && x.CollegeCode == collegeCode)
                             .Select(x => new SkillsLabDisplayViewModel
                             {
                                 AnnualMbbsIntake = x.AnnualMbbsIntake ?? 0,
@@ -181,7 +182,9 @@ namespace Medical_Affiliation.Services.Faculty
             var collegeCode = _userContext.CollegeCode;
             var smg = await _context.SmallGroupTeachings
                 .AsNoTracking()
-                .Where(x => x.FacultyCode == facultyId.ToString())
+                .Where(x => x.FacultyCode == facultyId.ToString()
+                         && x.CollegeCode == collegeCode
+                         && x.CourseLevel == _userContext.CourseLevel)
                 .ToListAsync();
 
             var teaching = smg.Select(x => new SmallGroupTeachingDisplayViewModel
@@ -204,6 +207,10 @@ namespace Medical_Affiliation.Services.Faculty
             }).FirstOrDefault() ?? new SmallGroupTeachingDisplayViewModel();
 
             var studentLabs = await _context.MedicalStudentPracticalLabs
+                .AsNoTracking()
+                .Where(x => x.FacultyCode == facultyId.ToString()
+                         && x.CollegeCode == collegeCode
+                         && x.CourseLevel == _userContext.CourseLevel)
                 .Select(x => new SmallGroupStudentLabsDisplayViewModel
                 {
                     HistologyAvailable = x.HistologyAvailable,
@@ -229,7 +236,9 @@ namespace Medical_Affiliation.Services.Faculty
 
             var museums = await _context.MedicalMuseums
                 .AsNoTracking()
-                .Where(x => x.FacultyCode == facultyId.ToString())
+                .Where(x => x.FacultyCode == facultyId.ToString()
+                         && x.CollegeCode == collegeCode
+                         && x.CourseLevel == _userContext.CourseLevel)
                 .Select(x => new SmallGroupMuseumsDisplayViewModel
                 {
                     SeparateAnatomyMuseumAvailable = x.SeparateAnatomyMuseumAvailable,

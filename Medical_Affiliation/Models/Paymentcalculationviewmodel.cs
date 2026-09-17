@@ -53,6 +53,7 @@ namespace Medical_Affiliation.Models
         public string CourseName { get; set; }
         public string RawCourseLevel { get; set; }
         public int? IncreasedIntake { get; set; }
+        public int? TotalSeats { get; set; }
         public string AcademicYear { get; set; }
         public string MatchNote { get; set; }
     }

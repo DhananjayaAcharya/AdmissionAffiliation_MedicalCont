@@ -67,10 +67,14 @@ namespace Medical_Affiliation.Services.Faculty
                 ?.Trim()
                 .ToUpperInvariant();
             var facultyName = await _context.Faculties.Where(e => e.FacultyId == facultyCode).Select(e => e.FacultyName).FirstOrDefaultAsync();
-            var applicationType = await _context.TypeOfAffiliations
-                .Where(e => e.TypeId == _userContext.TypeOfAffiliation)
-                .Select(e => e.TypeDescription)
-                .FirstOrDefaultAsync();
+            var applicationType = _httpContextAccessor.HttpContext?.Session.GetString("TypeOfAffiliation");
+            if (string.IsNullOrWhiteSpace(applicationType))
+            {
+                applicationType = await _context.TypeOfAffiliations
+                    .Where(e => e.TypeId == _userContext.TypeOfAffiliation)
+                    .Select(e => e.TypeDescription)
+                    .FirstOrDefaultAsync();
+            }
             var institutionEntity = await _context.AffInstitutionsDetails
                 .AsNoTracking()
                 .Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString())
@@ -208,7 +212,7 @@ namespace Medical_Affiliation.Services.Faculty
                 CollegeName = collegeName,
                 FacultyName = facultyName,
                 ApplicationType = applicationType ?? "—",
-                ApplyingCourseLevel = _userContext.CourseLevel,
+                ApplyingCourseLevel = courseLevel,
                 AffInstituteDetails = affInstituteDetails,
                 InstitutionDetails = institutionEntity == null ? null : new InstitutionViewModel
                 {

@@ -86,6 +86,11 @@
         .ToList();
 
     var selectedCourseLevel = HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel")?.Trim().ToUpperInvariant();
+    var applicationReadOnly = string.Equals(
+        HttpContextAccessor.HttpContext?.Session?.GetString("CAApplicationReadOnly"),
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
 
     var institutionRecord = await _context.AffInstitutionsDetails
         .AsNoTracking()
@@ -116,6 +121,13 @@
                     && x.IsCompleted == true)
         .Select(x => x.StepKey)
         .ToList();
+
+    // Faculty details are optional for continuous affiliation and should not
+    // block completion when the page has not been submitted.
+    if (!doneSteps.Contains("FacultyDetails"))
+    {
+        doneSteps.Add("FacultyDetails");
+    }
 
     var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAct = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
@@ -221,14 +233,6 @@
     allSteps.Insert(landInsertIndex, isDental
         ? new StepItem { Key = "LandBuilding", Label = "Land & Building", Group = "Physical Infrastructure", Ctrl = "PhysicalInfrastructure", Act = "DentalCollegeLandBuildingDetail" }
         : new StepItem { Key = "LandBuilding", Label = "Land & Building", Group = "Physical Infrastructure", Ctrl = "Medical_ContinuousAffiliation", Act = "Medical_LandBuildingdetails" });
-
-    // Teaching Staff Dept Wise — placed just before Non-Teaching Staff
-    var nonTeachingIndex = allSteps.FindIndex(x => x.Key == "NonTeachingStaff");
-    if (nonTeachingIndex < 0) nonTeachingIndex = allSteps.Count;
-
-    allSteps.Insert(nonTeachingIndex, isDental
-        ? new StepItem { Key = "TeachingStaff", Label = "Teaching Staff Dept Wise", Group = "Human Resources", Ctrl = "Dental", Act = "TeachingStaffDepartmentWise" }
-        : new StepItem { Key = "TeachingStaff", Label = "Teaching Staff Dept Wise", Group = "Human Resources", Ctrl = "ContinuesAffiliation_Facultybased", Act = "TeachingStaffDepartmentWise" });
 
     // Equipment Details / Equipment List
     var equipmentIndex = allSteps.FindIndex(x => x.Key == "ClinicalFacilities");
@@ -345,8 +349,15 @@
             ))
         .ToList();
 
-    // Progress % excludes the "Course-wise Intake Details" step
-    var progressSteps = allSteps.Where(s => s.Key != "IntakeDetails").ToList();
+    // These pages remain available from the sidebar but are informational and
+    // must not affect the completion percentage.
+    var excludedProgressKeys = new HashSet<string>
+    {
+        "IntakeDetails",
+        "AssociatedInstitutions",
+        "PreviewMode"
+    };
+    var progressSteps = allSteps.Where(s => !excludedProgressKeys.Contains(s.Key)).ToList();
     int total = progressSteps.Count;
     int done = progressSteps.Count(s => doneSteps.Contains(s.Key));
     int pct = total > 0 ? (int)Math.Round((double)done / total * 100) : 0;
@@ -1111,6 +1122,24 @@
 </aside>
 
 <script>
+    const caApplicationReadOnly = @applicationReadOnly.ToString().ToLowerInvariant();
+
+    if (caApplicationReadOnly) {
+        document.documentElement.classList.add('ca-application-readonly');
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('main form input:not([type="hidden"]), main form select, main form textarea, main form button[type="submit"], main form input[type="file"]')
+                .forEach(function (control) {
+                    control.setAttribute('disabled', 'disabled');
+                    control.setAttribute('aria-disabled', 'true');
+                });
+
+            document.querySelectorAll('main form button[type="submit"], main form input[type="submit"], main form button.btn-primary, main form button.btn-success')
+                .forEach(function (button) {
+                    button.style.display = 'none';
+                });
+        });
+    }
+
     // Applies (or clears) the collapsed state on both the shell wrapper
     // (if present) and the sidebar itself, keeps the handle's a11y
     // attributes in sync, and persists the choice for the session.

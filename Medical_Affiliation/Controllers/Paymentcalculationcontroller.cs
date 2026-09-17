@@ -46,6 +46,13 @@ namespace Medical_Affiliation.Controllers
             return View("Index", vm);
         }
 
+        public async Task<PaymentCalculationViewModel> GetCurrentCalculationAsync()
+        {
+            var vm = await LoadSessionCalculationDetailsAsync();
+            await CalculateForCurrentSessionAsync(vm);
+            return vm;
+        }
+
         // POST: /PaymentCalculation/Calculate
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -546,7 +553,37 @@ namespace Medical_Affiliation.Controllers
 
             await EnrichAdditionalCourseSelectionsAsync(vm);
             await PopulateIncreasedIntakeDataAsync(vm);
+            await PopulateTotalSeatsAsync(vm);
             ApplyCircularFeeSchedule(vm);
+        }
+
+        private async Task PopulateTotalSeatsAsync(PaymentCalculationViewModel vm)
+        {
+            if (string.IsNullOrWhiteSpace(vm.CollegeCode) || vm.MatchedCourses.Count == 0)
+            {
+                return;
+            }
+
+            var intakeRows = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(x => x.CollCode == vm.CollegeCode)
+                .Select(x => new { x.UgPg, x.Intake2627 })
+                .ToListAsync();
+
+            var totalsByLevel = intakeRows
+                .GroupBy(x => NormalizeCourseLevel(x.UgPg))
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Sum(x => x.Intake2627 ?? 0),
+                    StringComparer.OrdinalIgnoreCase);
+
+            foreach (var course in vm.MatchedCourses)
+            {
+                var courseLevel = NormalizeCourseLevel(course.RawCourseLevel ?? course.ug_pg);
+                course.TotalSeats = totalsByLevel.TryGetValue(courseLevel, out var totalSeats)
+                    ? totalSeats
+                    : 0;
+            }
         }
 
         private async Task EnrichAdditionalCourseSelectionsAsync(PaymentCalculationViewModel vm)

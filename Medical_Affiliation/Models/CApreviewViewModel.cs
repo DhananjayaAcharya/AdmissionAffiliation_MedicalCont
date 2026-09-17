@@ -31,6 +31,7 @@ namespace Medical_Affiliation.Models
         public AdminTeachAndHostelDisplayVM AdminTeachAndHostelVM { get; set; }
         public FacultyDesigNonTeachDisplayVM FacultyDesigNonTeachDisplayVM { get; set; }
         public AffiliationPaymentViewModel PaymentVM { get; set; }
+        public PaymentCalculationViewModel PaymentCalculation { get; set; }
         public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
         //public
 
@@ -940,23 +941,25 @@ namespace Medical_Affiliation.Models
 
     public class FacultyDetailDisplayVM
     {
+        public int Id { get; set; }
         public string NameOfFaculty { get; set; } = string.Empty;
-        public string? Subject { get; set; }
-        public string Designation { get; set; } = string.Empty;
-        public string Course { get; set; }
-
-        public string? RecognizedPgTeacher { get; set; }
-        public string? RecognizedPhDteacher { get; set; }
-        public string? LitigationPending { get; set; }
+        public string? DepartmentCode { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? DesignationCode { get; set; }
+        public string? DesignationName { get; set; }
+        public string? Dob { get; set; }
+        public string? DateOfAppointment { get; set; }
+        public string? AadhaarNo { get; set; }
+        public string? PanNo { get; set; }
+        public string? StateCouncilRegNo { get; set; }
+        public string? AebasAttendId { get; set; }
+        public string? ProfessionalQualification { get; set; }
+        public string? NatureOfEmployment { get; set; }
+        public string? TeachingExpInYrs { get; set; }
+        public string? PhotoFilePath { get; set; }
 
         public string Mobile { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-
-        public string? DepartmentDetails { get; set; }
-
-        public bool HasGuideRecognitionDoc { get; set; }
-        public bool HasPhDRecognitionDoc { get; set; }
-        public bool HasLitigationDoc { get; set; }
     }
 
     public class CollegeDesignationDisplayVM

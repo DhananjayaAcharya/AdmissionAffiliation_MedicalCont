@@ -38,7 +38,6 @@ namespace Medical_Affiliation.Controllers
                 ("Library",               "Library Details",                  "Research & Library"),
                 ("LibraryServices",       "Library Services",                 "Research & Library"),
                 ("FacultyDetails",        "Faculty Details",                  "Human Resources"),
-                ("TeachingStaff",         "Teaching Staff Dept Wise",         "Human Resources"),
                 ("NonTeachingStaff",      "Non-Teaching Staff Dept Wise",     "Human Resources"),
                 ("PreviewMode",           "Preview",                          "Final Preview"),
             };
@@ -233,9 +232,9 @@ namespace Medical_Affiliation.Controllers
             var commonSteps = new HashSet<string> {
         "Institution", "TrustDetails", "TrustMemberDetails", "DeanDetails", "PrincipalDetails",
         "LandBuilding", "SkillsLab", "EquipmentDetails", "EquipmentMaster", "ClinicalFacilities",
-        "Vehicle", "BedDistribution", "DepartmentUnits", "Hostel", "AssociatedInstitutions",
+        "Vehicle", "BedDistribution", "DepartmentUnits", "Hostel",
         "AcademicMatters", "Finance", "StaffDetails", "Research", "Library",
-        "LibraryServices", "FacultyDetails", "TeachingStaff", "NonTeachingStaff",
+        "LibraryServices", "FacultyDetails", "NonTeachingStaff",
         "IntakeDetails"
     };
 
@@ -246,6 +245,7 @@ namespace Medical_Affiliation.Controllers
                     .Where(x => x.CollegeCode == collegeCode)
                     .Select(x => x.StepKey)
                     .ToHashSet();
+                completedByCollege.Add("FacultyDetails");
 
                 List<string> levels = levelDict.ContainsKey(collegeCode) ? levelDict[collegeCode] : new List<string>();
 
@@ -255,9 +255,11 @@ namespace Medical_Affiliation.Controllers
                 if (levels.Contains("PG")) { applicableSteps.Add("PgCourses"); applicableSteps.Add("PGAcademicMatters"); }
                 if (levels.Contains("SS")) { applicableSteps.Add("SsCoursesApplied"); applicableSteps.Add("SsCoursesOffered"); }
 
-                // SIDEBAR RULE: 'IntakeDetails' is NOT counted in the progress percentage
+                // These pages remain navigable but are not completion requirements.
                 var progressApplicableSteps = new HashSet<string>(applicableSteps);
                 progressApplicableSteps.Remove("IntakeDetails");
+                progressApplicableSteps.Remove("AssociatedInstitutions");
+                progressApplicableSteps.Remove("PreviewMode");
 
                 // Calculate DONE based on the specific applicable list for this college
                 int done = progressApplicableSteps.Count(stepKey => completedByCollege.Contains(stepKey));
@@ -313,6 +315,7 @@ namespace Medical_Affiliation.Controllers
                 .Where(x => x.CollegeCode == collegeCode && x.IsCompleted == true)
                 .Select(x => x.StepKey)
                 .ToListAsync();
+            doneKeys.Add("FacultyDetails");
 
             // 3. Build the list of steps
             // FIX: Added .Where(s => s.Key != "PreviewMode") to remove the Final Preview page
