@@ -80,6 +80,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AffiliationNotification> AffiliationNotifications { get; set; }
 
+    public virtual DbSet<AffiliationNotificationRead> AffiliationNotificationReads { get; set; }
+
     public virtual DbSet<AffiliationOtherCoursesPermittedByNmc> AffiliationOtherCoursesPermittedByNmcs { get; set; }
 
     public virtual DbSet<AffiliationOthersCollegeMaster> AffiliationOthersCollegeMasters { get; set; }
@@ -614,9 +616,9 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<YearwiseMaterialsDatum> YearwiseMaterialsData { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server= DESKTOP-VM4KIHQ;Database=Admission_Affiliation;Trusted_Connection=true;TrustServerCertificate=true");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Server=localhost\\MSSQLSERVER01;Database=Admission_Affiliation;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1569,6 +1571,16 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.NotificationType)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<AffiliationNotificationRead>(entity =>
+        {
+            entity.HasKey(e => e.NotificationReadId);
+
+            entity.HasIndex(e => new { e.NotificationId, e.CollegeCode }, "UQ_AffiliationNotificationReads_Notification_College").IsUnique();
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
         });
 
         modelBuilder.Entity<AffiliationOtherCoursesPermittedByNmc>(entity =>
