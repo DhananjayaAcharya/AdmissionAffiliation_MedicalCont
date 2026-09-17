@@ -789,6 +789,9 @@
                 <a class="sidebar-link" href="@Url.Action("Index", "AdminDentalFeeStructure")">
                     <i class="bi bi-cash-coin"></i> Manage Dental Fee Structure
                 </a>
+                <a class="sidebar-link" href="@Url.Action("Index", "CAProgress")">
+                    <i class="bi bi-cash-coin"></i> Manage Application Progress
+                </a>
             }
 
             <div class="sidebar-divider" style="margin-top:auto;"></div>
@@ -868,11 +871,11 @@
                 </a>
 
                 @* --- Updated Application Fill Status Report Link --- *@
-                <a asp-controller="DentalApplicationStatusReport"
+                @* <a asp-controller="DentalApplicationStatusReport"
                    asp-action="ApplicationStatusReport"
                    class="action-btn">
                     <i class="bi bi-bar-chart-fill"></i>Dental Application Status Report
-                </a>
+                </a> *@
 
                 @* --- Dental Updated Intake Status Report Link --- *@
                 <a asp-controller="DentalSuperAdmin"

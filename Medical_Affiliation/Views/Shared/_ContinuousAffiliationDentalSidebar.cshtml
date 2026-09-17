@@ -185,13 +185,40 @@
     // COMPLETED STEPS
     // ============================================================
 
-    var doneSteps = await _context.CaProgresses
+    // var doneSteps = await _context.CaProgresses
+    //     .Where(x =>
+    //         x.CollegeCode == collegeCode
+    //         && x.IsCompleted == true
+    //         && !string.IsNullOrWhiteSpace(x.CourseLevel)
+    //         && levels.Contains(
+    //             x.CourseLevel.Trim().ToUpper()))
+    //     .Select(x => x.StepKey)
+    //     .Distinct()
+    //     .ToListAsync();
+
+    // ============================================================
+    // COMPLETED STEPS FOR CURRENT COURSE LEVEL ONLY
+    // ============================================================
+
+    var doneStepsQuery = _context.CaProgresses
         .Where(x =>
-            x.CollegeCode == collegeCode
-            && x.IsCompleted == true
-            && !string.IsNullOrWhiteSpace(x.CourseLevel)
-            && levels.Contains(
-                x.CourseLevel.Trim().ToUpper()))
+            x.CollegeCode == collegeCode &&
+            x.IsCompleted == true &&
+            !string.IsNullOrWhiteSpace(x.CourseLevel));
+
+    if (!string.IsNullOrWhiteSpace(activeLevel))
+    {
+        doneStepsQuery = doneStepsQuery.Where(x =>
+            x.CourseLevel!.Trim().ToUpper() == activeLevel);
+    }
+    else
+    {
+        doneStepsQuery = doneStepsQuery.Where(x =>
+            levels.Contains(
+                x.CourseLevel!.Trim().ToUpper()));
+    }
+
+    var doneSteps = await doneStepsQuery
         .Select(x => x.StepKey)
         .Distinct()
         .ToListAsync();

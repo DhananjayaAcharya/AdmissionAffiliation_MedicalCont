@@ -20,6 +20,11 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
         public string Ctrl { get; set; }
         public string Act { get; set; }
     }
+
+    public class CADentalStep : CAStep
+    {
+        public List<string> Acts { get; set; } = new();
+    }
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
 
@@ -113,20 +118,20 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
         Console.WriteLine($"CTRL = [{ctrl}]");
         Console.WriteLine($"ACT = [{act}]");
         // 🔥 STEP LIST (same as sidebar — keys must match)
-        var allSteps = new List<CAStep>
+        var allSteps = new List<CADentalStep>
         {
-            new CAStep { Key="Institution", Ctrl="ContinuesAffiliation_Facultybased", Act="Institution_Details" },
-            new CAStep { Key="TrustDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_InstituteDetails" },
-            new CAStep { Key="TrustMemberDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_TrustMemberDetails" },
+            new () { Key="Institution", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"Institution_Details" } },
+            new () { Key="TrustDetails", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"Aff_InstituteDetails" } },
+            new () { Key="TrustMemberDetails", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"Aff_TrustMemberDetails" } },
 
             // ✅ ADD THIS
             //new CAStep { Key="MBBSDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Details_Of_MBBS" },
-            new CAStep { Key="BDSDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Ug_Course_Details" },
+            new () { Key="BDSDetails", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"Ug_Course_Details" } },
 
-            new CAStep { Key="FacultyDetails", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
-            new CAStep { Key="DeanDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Dean_DirectorDetails" },
-            new CAStep { Key="PrincipalDetails", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_PrincipalDetails" },
-            new CAStep { Key="DentalFacultyDetails", Ctrl="DentalRepository", Act="TeachingFacultyDetails" },
+            new () { Key="FacultyDetails", Ctrl="FacultyDetails", Acts=new() {"Repo_FacultyDetails" } },
+            new () { Key="DeanDetails", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"Dean_DirectorDetails" } },
+            new () { Key="PrincipalDetails", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"Aff_PrincipalDetails" } },
+            new () { Key="DentalFacultyDetails", Ctrl="DentalRepository", Acts=new() {"TeachingFacultyDetails" } },
 
             //new CAStep { Key="LandBuilding", Ctrl="Medical_ContinuousAffiliation", Act="Medical_LandBuildingdetails" },
             //new CAStep { Key="SkillsLab", Ctrl="Medical_ContinuousAffiliation", Act="Medical_SkillsLaboratory" },
@@ -134,57 +139,57 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
             //new CAStep { Key="EquipmentDetails", Ctrl="Medical_ContinuousAffiliation", Act="Medical_EquimentDetails" },
             //new CAStep { Key="DentalEquipmentDetails", Ctrl="Dental", Act="SaveEquipment" },
 
-            new CAStep { Key = "BDSDetails", Ctrl = "ContinuesAffiliation_Facultybased", Act = "Ug_Course_Details" },
+            new () { Key = "BDSDetails", Ctrl = "ContinuesAffiliation_Facultybased", Acts = new(){ "Ug_Course_Details" }},
 
-            new CAStep { Key = "PgCourses", Ctrl = "AffiliationPgCourse", Act = "SavePgCoursesRguhs" },
+            new () { Key = "PgCourses", Ctrl = "AffiliationPgCourse", Acts = new() {"SavePgCoursesRguhs" }},
 
-            new CAStep { Key = "DentalEquipmentDetails", Ctrl = "Dental", Act = "SaveEquipment" },
+            new () { Key = "DentalEquipmentDetails", Ctrl = "Dental", Acts = new() {"SaveEquipment" } },
 
-            new CAStep { Key = "DentalSkillsLab", Ctrl = "PhysicalInfrastructure", Act = "DentalSkillsLaboratory" },
+            new () { Key = "DentalSkillsLab", Ctrl = "PhysicalInfrastructure", Acts = new() {"DentalSkillsLaboratory" } },
 
-            new CAStep {  Key = "LandBuilding", Ctrl = "PhysicalInfrastructure", Act = "DentalCollegeLandBuildingDetail" },
+            new () {  Key = "LandBuilding", Ctrl = "PhysicalInfrastructure", Acts=new() {"DentalCollegeLandBuildingDetail" } },
 
-            new CAStep {  Key = "WorkshopDetails", Ctrl = "WorkShopDetails", Act = "Create" },
-            new CAStep {  Key = "AnimalHouseDetails", Ctrl = "AnimalHouseDetails", Act = "Create" },
-            new CAStep {  Key = "DentalFieldPracticeArea", Ctrl = "DentalFieldPracticeArea", Act = "Create" },
+            new () {  Key = "WorkshopDetails", Ctrl = "WorkShopDetails", Acts=new() {"Create" } },
+            new () {  Key = "AnimalHouseDetails", Ctrl = "AnimalHouseDetails", Acts=new() {"Create" } },
+            new () {  Key = "DentalFieldPracticeArea", Ctrl = "DentalFieldPracticeArea", Acts=new() {"Create" } },
 
-            new CAStep  { Key = "IntakeDetails", Ctrl = "ContinuousAffiliationIncreaseintake", Act = "DentalIncreaseIntake" },
+            new ()  { Key = "IntakeDetails", Ctrl = "ContinuousAffiliationIncreaseintake", Acts=new() {"DentalIncreaseIntake" } },
 
-            new CAStep { Key="ClinicalFacilities", Ctrl="ContinuationAffiliationClinicalFacilities", Act="SaveDentalWardDistribution" },
-            new CAStep { Key="Vehicle", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
+            new () { Key="ClinicalFacilities", Ctrl="ContinuationAffiliationClinicalFacilities", Acts=new() {"SaveDentalWardDistribution" } },
+            new () { Key="Vehicle", Ctrl="Aff_AHS_ContinousApplication", Acts=new() {"CA_VehicleDetails" } },
 
-            new CAStep { Key="BedDistribution", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
-            new CAStep { Key="ChairDistribution", Ctrl="PhysicalInfrastructure", Act="ChairDistribution" },
+            new () { Key="BedDistribution", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"MedicalUGBedDistribution" } },
+            new () { Key="ChairDistribution", Ctrl="PhysicalInfrastructure", Acts=new() {"ChairDistribution" } },
 
             //new CAStep { Key="PgCourses", Ctrl="AffiliationPgCourse", Act="SaveOtherDeptCourses" },
 
 
-            new CAStep { Key="AcademicMatters", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters" },
-            new CAStep{ Key="PGAcademicMatters", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMattersPG" },
+            new () { Key="AcademicMatters", Ctrl="CA_Aff_AcademicMatters", Acts=new() {"AcademicMatters" } },
+            new (){ Key="PGAcademicMatters", Ctrl="CA_Aff_AcademicMatters", Acts=new() {"AcademicMattersPG" } },
 
-            new CAStep { Key="Finance", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
-            new CAStep { Key="StaffDetails", Ctrl="CA_Med_StaffDetails", Act="SavePayScale" },
+            new () { Key="Finance", Ctrl="Aff_CA_Med_FinanceDetails", Acts=new() {"Med_CA_AccountAndFeeDetails" } },
+            new () { Key="StaffDetails", Ctrl="CA_Med_StaffDetails", Acts=new() {"SavePayScale" } },
 
-            new CAStep { Key="Research", Ctrl="CA_Med_ResearchPublications", Act="CA_Med_ResearchPublicationsDetails" },
-            new CAStep { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Act="Aff_CA_Medical_LibraryDetails" },
-            new CAStep { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Act="SaveFinance" },
-            new CAStep { Key="LibraryServices", Ctrl="CA_Aff_MedicalLibrary", Act="MedicalLibrary" },
-            new CAStep { Key="DentalLibrary", Ctrl="DentalLibrary", Act="Save" },
-            new CAStep { Key="DentalLibraryStaff", Ctrl="DentalLibraryStaff", Act="Save" },
-            new CAStep { Key="DentalLibraryUser", Ctrl="DentalLibraryUser", Act="Save" },
+            new () { Key="Research", Ctrl="CA_Med_ResearchPublications", Acts=new() {"CA_Med_ResearchPublicationsDetails" } },
+            new () { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Acts=new() {"Aff_CA_Medical_LibraryDetails" } },
+            new () { Key="Library", Ctrl="Aff_CA_MedicalLibrary", Acts=new() {"SaveFinance" } },
+            new () { Key="LibraryServices", Ctrl="CA_Aff_MedicalLibrary", Acts=new() {"MedicalLibrary" } },
+            new () { Key="DentalLibrary", Ctrl="DentalLibrary", Acts=new() {"Save" } },
+            new () { Key="DentalLibraryStaff", Ctrl="DentalLibraryStaff", Acts=new() {"Save" } },
+            new () { Key="DentalLibraryUser", Ctrl="DentalLibraryUser", Acts=new() {"Save" } },
             //new CAStep { Key = "PgAssociatedInstitutions", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
-            new CAStep { Key="TeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="TeachingStaffDepartmentWise" },
-            new CAStep { Key="TeachingStaff", Ctrl="Dental", Act="TeachingStaffDepartmentWise" },
-            new CAStep { Key="NonTeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
+            new () { Key="TeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"TeachingStaffDepartmentWise" } },
+            new () { Key="TeachingStaff", Ctrl="Dental", Acts=new() {"TeachingStaffDepartmentWise" } },
+            new () { Key="NonTeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"NonTeachingStaffDepartmentwise" } },
 
-            new CAStep { Key="Hostel", Ctrl="ContinuesAffiliation_Facultybased", Act="Aff_HostelDetails" },
-            new CAStep { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Act=facultyCode == "1" ? "IncreaseIntake" : "DentalIncreaseIntake"},
+            new () { Key="Hostel", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"Aff_HostelDetails" }},
+            new () { Key="IntakeDetails", Ctrl="ContinuousAffiliationIncreaseintake", Acts=new() {facultyCode == "1" ? "IncreaseIntake" : "DentalIncreaseIntake"} },
 
-            new CAStep { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Act="Medical_DepartmentOfficesAndEducationalUnit" },
-            new CAStep{ Key = "SsCoursesOffered",  Ctrl = "AffiliationSS", Act = "CoursesOffered" },
-            new CAStep{ Key = "AssociatedInstitutions", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
-            new CAStep { Key = "PaymentDetails", Ctrl="DentalPayment", Act="Index" },
+            new () { Key="DepartmentUnits", Ctrl="Medical_ContinuousAffiliation", Acts=new() {"Medical_DepartmentOfficesAndEducationalUnit" } },
+            new (){ Key = "SsCoursesOffered",  Ctrl = "AffiliationSS", Acts=new() {"CoursesOffered" } },
+            new (){ Key = "AssociatedInstitutions", Ctrl = "AffiliationSS", Acts=new() {"AssociatedInstitutions" } },
+            new () { Key = "PaymentDetails", Ctrl="DentalPayment", Acts=new() {"Index" } },
             //new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
         };
 
@@ -204,24 +209,67 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
         var stepKey = step.Key;
 
         // ✅ Save to DB
-        foreach (var level in levels)
-        {
-            var exists = await _db.CaProgresses.AnyAsync(x =>
+        //foreach (var level in levels)
+        //{
+        //    var exists = await _db.CaProgresses.AnyAsync(x =>
+        //        x.CollegeCode == collegeCode &&
+        //        x.CourseLevel == level &&
+        //        x.StepKey == stepKey);
+
+        //    if (!exists)
+        //    {
+        //        _db.CaProgresses.Add(new CaProgress
+        //        {
+        //            CollegeCode = collegeCode,
+        //            CourseLevel = level,
+        //            StepKey = stepKey,
+        //            IsCompleted = true,
+        //            UpdatedAt = DateTime.Now
+        //        });
+        //    }
+        //}
+
+        // ============================================================
+        // SAVE PROGRESS ONLY FOR CURRENTLY SELECTED COURSE LEVEL
+        // ============================================================
+
+        var currentLevel = courseLevel?
+            .Trim()
+            .ToUpperInvariant();
+
+        if (string.IsNullOrWhiteSpace(currentLevel))
+            return;
+
+
+        // Make sure the selected level is actually available
+        if (!levels.Contains(currentLevel))
+            return;
+
+
+        // Check whether this exact college + level + step already exists
+        var progress = await _db.CaProgresses
+            .FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
-                x.CourseLevel == level &&
+                x.CourseLevel == currentLevel &&
                 x.StepKey == stepKey);
 
-            if (!exists)
+        if (progress == null)
+        {
+            // First submission
+            _db.CaProgresses.Add(new CaProgress
             {
-                _db.CaProgresses.Add(new CaProgress
-                {
-                    CollegeCode = collegeCode,
-                    CourseLevel = level,
-                    StepKey = stepKey,
-                    IsCompleted = true,
-                    UpdatedAt = DateTime.Now
-                });
-            }
+                CollegeCode = collegeCode,
+                CourseLevel = currentLevel,
+                StepKey = stepKey,
+                IsCompleted = true,
+                UpdatedAt = DateTime.Now
+            });
+        }
+        else
+        {
+            // Existing record
+            progress.IsCompleted = true;
+            progress.UpdatedAt = DateTime.Now;
         }
 
         await _db.SaveChangesAsync();
