@@ -944,21 +944,42 @@
     // LEVEL FILTER
     // ============================================================
 
+    // allSteps = allSteps
+    //     .Where(step =>
+    //         step.Levels == null
+    //         || step.Levels.Count == 0
+    //         || step.Levels.Any(l =>
+    //             levels.Contains(l)
+    //             &&
+    //             (
+    //                 isDental
+    //                 || string.IsNullOrEmpty(activeLevel)
+    //                 || l.Equals(
+    //                     activeLevel,
+    //                     StringComparison.OrdinalIgnoreCase)
+    //             )
+    //         ))
+    //     .ToList();
+
     allSteps = allSteps
         .Where(step =>
             step.Levels == null
             || step.Levels.Count == 0
-            || step.Levels.Any(l =>
-                levels.Contains(l)
-                &&
-                (
-                    isDental
-                    || string.IsNullOrEmpty(activeLevel)
-                    || l.Equals(
+            || (
+                !string.IsNullOrEmpty(activeLevel)
+                && step.Levels.Any(l =>
+                    l.Equals(
                         activeLevel,
-                        StringComparison.OrdinalIgnoreCase)
-                )
-            ))
+                        StringComparison.OrdinalIgnoreCase))
+            )
+            || (
+                string.IsNullOrEmpty(activeLevel)
+                && step.Levels.Any(l =>
+                    levels.Contains(
+                        l,
+                        StringComparer.OrdinalIgnoreCase))
+            )
+        )
         .ToList();
 
     // ============================================================

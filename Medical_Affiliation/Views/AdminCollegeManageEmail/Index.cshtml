@@ -4,7 +4,18 @@
     ViewData["Title"] = "Update College Email";
 }
 
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+
 <style>
+
+    .page-wrapper{
+        padding-top: 0;
+    }
     .college-email-page {
         --email-ink: #18324b;
         --email-muted: #6b7d90;
@@ -15,6 +26,25 @@
         padding: 1.5rem 0 3rem;
         color: var(--email-ink);
         background: #f4f8fb;
+    }
+
+    .page-wrapper:has(.college-email-page) .page-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0 1.25rem 2rem;
+    }
+
+    .page-wrapper:has(.college-email-page) .portal-sidebar-shell { display: none; }
+    .page-wrapper:has(.college-email-page) .page-content,
+    .page-wrapper:has(.college-email-page) .portal-main-card {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin-left: 0;
     }
 
     .college-email-page .page-heading {
@@ -181,10 +211,10 @@
         box-shadow: none;
     }
 
-        .email-input[readonly]:hover {
-            background-color: #f8f9fa;
-            border-color: #dee2e6;
-        }
+    .email-input[readonly]:hover {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
 
     /* Editing */
     .email-input.email-editing {
@@ -195,6 +225,84 @@
 
     .email-wrapper {
         min-width: 18rem;
+    }
+
+    /* ==============================
+       PASSWORD FIELD
+       ============================== */
+
+    .password-wrapper {
+        min-width: 18rem;
+    }
+
+    .password-input {
+        background-color: #f8fafc !important;
+        border-color: var(--email-line) !important;
+        letter-spacing: 0.08em;
+        font-family: monospace;
+    }
+
+    .password-input:focus {
+        box-shadow: none !important;
+    }
+
+    .password-toggle-btn,
+    .password-copy-btn {
+        min-width: 42px;
+        background: #fff;
+        border-color: var(--email-line);
+        color: var(--email-muted);
+    }
+
+    .password-toggle-btn:hover,
+    .password-copy-btn:hover {
+        background: #f1f6fa;
+        color: var(--email-blue);
+        border-color: #b9d2e3;
+    }
+
+    .password-toggle-btn:focus,
+    .password-copy-btn:focus {
+        box-shadow: 0 0 0 0.15rem rgba(23, 105, 170, 0.12);
+    }
+
+
+    /* ==========================================
+       EMAIL STATUS HIGHLIGHT
+       ========================================== */
+
+    .college-email-page .college-has-email {
+        background: #f5fbf7;
+    }
+
+    .college-email-page .college-has-email:hover {
+        background: #edf8f1 !important;
+    }
+
+    .college-email-page .college-has-email td:first-child {
+        border-left: 3px solid #3aa76d;
+    }
+
+    .college-email-page .email-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-top: 0.35rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .college-email-page .email-status-badge.available {
+        color: #26734d;
+        background: #e5f6ec;
+    }
+
+    .college-email-page .email-status-badge.missing {
+        color: #8a5a00;
+        background: #fff4d6;
     }
 
     @@media (max-width: 767.98px) {
@@ -251,32 +359,149 @@
     <!-- COLLEGE TABLE -->
     <!-- ============================= -->
 
-    <div id="collegeTableCard" class="card results-card border-0 shadow-sm d-none">
+    <div id="collegeTableCard" class="card results-card border-0 shadow-sm d-none">\
+        <!-- ============================= -->
+        <!-- EMAIL SUMMARY -->
+        <!-- ============================= -->
+
+        <div class="email-summary px-4 pt-4">
+            <div class="row g-3">
+
+                <!-- TOTAL -->
+                <div class="col-md-4">
+                    <div class="email-stat-card total-stat">
+                        <div class="stat-icon">
+                            <i class="bi bi-buildings"></i>
+                        </div>
+
+                        <div>
+                            <div class="stat-label">Total Colleges</div>
+                            <div class="stat-value" id="totalCollegeCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EMAIL AVAILABLE -->
+                <div class="col-md-4">
+                    <div class="email-stat-card email-available-stat">
+                        <div class="stat-icon">
+                            <i class="bi bi-envelope-check"></i>
+                        </div>
+
+                        <div>
+                            <div class="stat-label">Email Available</div>
+                            <div class="stat-value" id="emailAvailableCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EMAIL MISSING -->
+                <div class="col-md-4">
+                    <div class="email-stat-card email-missing-stat">
+                        <div class="stat-icon">
+                            <i class="bi bi-envelope-x"></i>
+                        </div>
+
+                        <div>
+                            <div class="stat-label">Email Missing</div>
+                            <div class="stat-value" id="emailMissingCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
         <div class="card-header bg-white border-0 p-4">
             <div class="row align-items-center">
-                <div class="col-md-5">
+                <div class="col-lg-4">
                     <h5 class="fw-bold mb-1">
                         College Email Details
                     </h5>
-
                     <small class="text-muted">
                         Click an email address to edit it.
                     </small>
                 </div>
+                <div class="col-lg-8 mt-3 mt-lg-0">
+                    <div class="row g-2">
+                        <!-- SEARCH -->
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">
+                                    <i class="bi bi-search"></i>
+                                </span>
 
-                @* Search  *@
-                <div class="col-md-7 mt-3 mt-md-0">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white">
-                            <i class="bi bi-search"></i>
-                        </span>
+                                <input type="text"
+                                        class="form-control"
+                                        id="collegeSearch"
+                                        placeholder="Search college code, name or email..." />
 
-                        <input type="text" class="form-control" id="collegeSearch" placeholder="Search college code, name or email." />
+                            </div>
+
+                        </div>
+
+
+                        <!-- EMAIL STATUS -->
+                        <div class="col-md-3">
+                            <select class="form-select"
+                                    id="emailStatusFilter">
+                                <option value="all">
+                                    All Colleges
+                                </option>
+
+                                <option value="available">
+                                    Email Available
+                                </option>
+
+                                <option value="missing">
+                                    Email Missing
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- SORT -->
+                        <div class="col-md-4">
+
+                            <select class="form-select"
+                                    id="collegeSort">
+
+                                <option value="code-asc">
+                                    College Code ↑
+                                </option>
+
+                                <option value="code-desc">
+                                    College Code ↓
+                                </option>
+
+                                <option value="name-asc">
+                                    College Name A–Z
+                                </option>
+
+                                <option value="name-desc">
+                                    College Name Z–A
+                                </option>
+
+                                <option value="email-first">
+                                    Email Available First
+                                </option>
+
+                                <option value="email-last">
+                                    Email Missing First
+                                </option>
+
+                            </select>
+
+                        </div>
+
                     </div>
-                </div>
-            </div>
-        </div>
 
+                </div>
+
+            </div>
+
+        </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -293,6 +518,9 @@
                             </th>
                             <th style="min-width: 320px;">
                                 Email
+                            </th>
+                            <th style="min-width: 320px;">
+                                Password
                             </th>
 
                             <th class="text-center">
@@ -364,6 +592,88 @@
         let currentPage = 1;
         const pageSize = 10;
 
+        const emailStatusFilter =
+            document.getElementById("emailStatusFilter");
+
+        const collegeSort =
+            document.getElementById("collegeSort");
+
+        const totalCollegeCount =
+            document.getElementById("totalCollegeCount");
+
+        const emailAvailableCount =
+            document.getElementById("emailAvailableCount");
+
+        const emailMissingCount =
+            document.getElementById("emailMissingCount");
+
+        function hasCollegeEmail(college) {
+            return !!(
+                college.collegeEmail &&
+                college.collegeEmail.trim() !== ""
+            );
+        }
+
+
+        function updateEmailCounts() {
+            const total = allColleges.length;
+
+            const available = allColleges.filter(
+                college => hasCollegeEmail(college)
+            ).length;
+
+            const missing = total - available;
+
+            totalCollegeCount.textContent = total;
+
+            emailAvailableCount.textContent = available;
+
+            emailMissingCount.textContent = missing;
+        }
+
+        function sortColleges(colleges) {
+            const sortValue = collegeSort.value;
+
+            return [...colleges].sort((a, b) => {
+
+                const codeA = String(a.collegeCode ?? "").toLowerCase();
+                const codeB = String(b.collegeCode ?? "").toLowerCase();
+
+                const nameA = String(a.collegeName ?? "").toLowerCase();
+                const nameB = String(b.collegeName ?? "").toLowerCase();
+
+                const emailA = hasCollegeEmail(a);
+                const emailB = hasCollegeEmail(b);
+
+                switch (sortValue) {
+
+                    case "code-asc":
+                        return codeA.localeCompare(codeB, undefined, {
+                            numeric: true
+                        });
+
+                    case "code-desc":
+                        return codeB.localeCompare(codeA, undefined, {
+                            numeric: true
+                        });
+
+                    case "name-asc":
+                        return nameA.localeCompare(nameB);
+
+                    case "name-desc":
+                        return nameB.localeCompare(nameA);
+
+                    case "email-first":
+                        return Number(emailB) - Number(emailA);
+
+                    case "email-last":
+                        return Number(emailA) - Number(emailB);
+
+                    default:
+                        return 0;
+                }
+            });
+        }
         // ===============================
         // FACULTY CHANGED
         // ===============================
@@ -420,7 +730,14 @@
 
                     allColleges = data;
                     currentPage = 1;
+                    collegeSearch.value = "";
+
+                    emailStatusFilter.value = "all";
+
+                    collegeSort.value = "code-asc";
+
                     renderCollegeTable();
+                    updateEmailCounts();
                 })
                 .catch(error => {
                     console.error("error Message ", error);
@@ -446,7 +763,15 @@
         function createCollegeRow(college, index) {
             const row = document.createElement("tr");
 
+            const hasEmail =
+                college.collegeEmail &&
+                college.collegeEmail.trim() !== "";
+
             row.dataset.collegeCode = college.collegeCode;
+
+            if (hasEmail) {
+                row.classList.add("college-has-email");
+            }
 
             row.innerHTML = `
                         <td class="ps-4">
@@ -474,6 +799,31 @@
                             </div>
                         </td>
 
+                        <td>
+                            <div class="password-wrapper">
+                                <div class="input-group input-group-sm">
+
+                                    <input type="password"
+                                           class="form-control password-input"
+                                           value="${escapeHtml(college.collegePassword ?? "")}"
+                                           readonly />
+
+                                    <button type="button"
+                                            class="btn btn-outline-secondary password-toggle-btn"
+                                            title="Show password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-outline-secondary password-copy-btn"
+                                            title="Copy password">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+
+                                </div>
+                            </div>
+                        </td>
+
                         <td class="text-center">
                             <button type="button" class="btn btn-sm btn-primary update-email-btn">
                                 <i class="bi bi-save me-1" ></i>
@@ -489,6 +839,93 @@
 
             const updateButton = row.querySelector(".update-email-btn");
 
+            const passwordInput = row.querySelector(".password-input");
+            const passwordToggleButton = row.querySelector(".password-toggle-btn");
+            const passwordCopyButton = row.querySelector(".password-copy-btn");
+
+
+            // ======================================
+            // SHOW / HIDE PASSWORD
+            // ======================================
+
+            passwordToggleButton.addEventListener("click", function (e) {
+
+                e.stopPropagation();
+
+                if (passwordInput.type === "password") {
+
+                    passwordInput.type = "text";
+
+                    passwordToggleButton.innerHTML = ` <i class="bi bi-eye-slash"></i>`;
+
+                    passwordToggleButton.title = "Hide password";
+
+                } else {
+
+                    passwordInput.type = "password";
+
+                    passwordToggleButton.innerHTML = `<i class="bi bi-eye"></i>`;
+
+                    passwordToggleButton.title = "Show password";
+                }
+            });
+
+
+            // ======================================
+            // COPY PASSWORD
+            // ======================================
+
+            passwordCopyButton.addEventListener("click", async function (e) {
+
+                e.stopPropagation();
+
+                const password = passwordInput.value;
+
+                if (!password) {
+
+                    showEmailAlert(
+                        "warning",
+                        "Password is not available."
+                    );
+
+                    return;
+                }
+
+                try {
+
+                    await navigator.clipboard.writeText(password);
+
+                    passwordCopyButton.innerHTML = `
+                        <i class="bi bi-check-lg"></i>
+                    `;
+
+                    passwordCopyButton.title = "Copied";
+
+                    showEmailAlert(
+                        "success",
+                        "Password copied to clipboard."
+                    );
+
+                    setTimeout(() => {
+
+                        passwordCopyButton.innerHTML = `
+                            <i class="bi bi-clipboard"></i>
+                        `;
+
+                        passwordCopyButton.title = "Copy password";
+
+                    }, 1500);
+
+                } catch (error) {
+
+                    console.error("Copy password failed:", error);
+
+                    showEmailAlert(
+                        "error",
+                        "Unable to copy password."
+                    );
+                }
+            });
 
             // ======================================
             // CLICK EMAIL CELL
@@ -509,68 +946,179 @@
             collegeTableBody.appendChild(row);
         }
 
+        // ==========================================
+        // EMAIL STATUS FILTER
+        // ==========================================
+
+        emailStatusFilter.addEventListener("change", function () {
+
+            currentPage = 1;
+
+            renderCollegeTable();
+
+        });
+
+
+        // ==========================================
+        // SORT
+        // ==========================================
+
+        collegeSort.addEventListener("change", function () {
+
+            currentPage = 1;
+
+            renderCollegeTable();
+
+        });
         function renderCollegeTable() {
+
             collegeTableBody.innerHTML = "";
 
-            const searchText = collegeSearch.value.toLowerCase().trim();
+            const searchText =
+                collegeSearch.value.toLowerCase().trim();
 
-            // FILTER
+            const status =
+                emailStatusFilter.value;
 
-            const filteredcolleges = allColleges.filter(college => {
-                const collegeCode = (college.collegeCode ?? "").toLowerCase();
-                const collegeName = (college.collegeName ?? "").toLowerCase();
-                const collegeEmail = (college.collegeEmail ?? "").toLowerCase();
 
-                return collegeCode.includes(searchText) || collegeName.includes(searchText) || collegeEmail.includes(searchText);
-            })
+            // ==========================================
+            // SEARCH + STATUS FILTER
+            // ==========================================
 
+            let filteredColleges = allColleges.filter(college => {
+
+                const collegeCode =
+                    (college.collegeCode ?? "").toLowerCase();
+
+                const collegeName =
+                    (college.collegeName ?? "").toLowerCase();
+
+                const collegeEmail =
+                    (college.collegeEmail ?? "").toLowerCase();
+
+
+                const matchesSearch =
+                    collegeCode.includes(searchText) ||
+                    collegeName.includes(searchText) ||
+                    collegeEmail.includes(searchText);
+
+
+                const hasEmail =
+                    hasCollegeEmail(college);
+
+
+                let matchesStatus = true;
+
+
+                if (status === "available") {
+                    matchesStatus = hasEmail;
+                }
+
+                else if (status === "missing") {
+                    matchesStatus = !hasEmail;
+                }
+
+
+                return matchesSearch && matchesStatus;
+
+            });
+
+
+            // ==========================================
+            // SORT
+            // ==========================================
+
+            filteredColleges =
+                sortColleges(filteredColleges);
+
+
+            // ==========================================
             // NO RESULTS
+            // ==========================================
 
-            if (filteredcolleges.length === 0) {
+            if (filteredColleges.length === 0) {
+
                 collegeTableBody.innerHTML = `
-                            <tr>
-                                <td colspan="5" class="text-center text-muted py-5">
-                                    <i class="bi bi-search fs-3"></i>
+                    <tr>
+                        <td colspan="6"
+                            class="text-center text-muted py-5">
 
-                                    <div class="mt-2">
-                                        No colleges found.
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
+                            <i class="bi bi-search fs-3"></i>
+
+                            <div class="mt-2">
+                                No colleges found.
+                            </div>
+
+                        </td>
+                    </tr>
+                `;
 
                 collegePagination.innerHTML = "";
 
-                paginationInfo.textContent = "Showing 0 of 0 colleges";
+                paginationInfo.textContent =
+                    "Showing 0 of 0 colleges";
 
                 return;
             }
 
-            // PAGINATION CALCULATION
 
-            const totalRecords = filteredcolleges.length;
+            // ==========================================
+            // PAGINATION
+            // ==========================================
 
-            const totalPages = Math.ceil(totalRecords / pageSize);
+            const totalRecords =
+                filteredColleges.length;
 
-            // MAKE SURE CURRENT PAGE IS VALID
+            const totalPages =
+                Math.ceil(totalRecords / pageSize);
 
-            if (currentPage > totalPages) currentPage = totalPages;
 
-            const startIndex = (currentPage - 1) * pageSize;
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
 
-            const endIndex = Math.min(startIndex + pageSize, totalRecords);
 
-            const pageColleges = filteredcolleges.slice(startIndex, endIndex);
+            const startIndex =
+                (currentPage - 1) * pageSize;
 
+            const endIndex =
+                Math.min(
+                    startIndex + pageSize,
+                    totalRecords
+                );
+
+
+            const pageColleges =
+                filteredColleges.slice(
+                    startIndex,
+                    endIndex
+                );
+
+
+            // ==========================================
             // CREATE ROWS
+            // ==========================================
 
             pageColleges.forEach((college, index) => {
-                createCollegeRow(college, startIndex + index);
+
+                createCollegeRow(
+                    college,
+                    startIndex + index
+                );
+
             });
 
-            // PAGINATION
 
-            renderPagination(totalPages, totalRecords, startIndex, endIndex);
+            // ==========================================
+            // PAGINATION
+            // ==========================================
+
+            renderPagination(
+                totalPages,
+                totalRecords,
+                startIndex,
+                endIndex
+            );
         }
 
         function renderPagination(totalPages, totalRecords, startIndex, endIndex) {
@@ -828,11 +1376,14 @@
 
                     college.collegeEmail = email;
 
+                    updateEmailCounts();
+
                     emailInput.readOnly = true;
 
                     emailInput.classList.remove("email-editing");
 
                     showEmailAlert("success", result.noCollegeMessage || "College email updated successfully.");
+                    renderCollegeTable();
                 })
                 .catch(error => {
                     console.error(error);
@@ -881,7 +1432,7 @@
                 .replaceAll("&", "&amp;")
                 .replaceAll("<", "&lt;")
                 .replaceAll(">", "&gt;")
-                .replaceAll('""', "&quot;")
+                .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#039;");
         }
 

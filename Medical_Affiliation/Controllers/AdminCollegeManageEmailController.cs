@@ -53,7 +53,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     collegeCode = x.CollegeCode,
                     collegeName = x.CollegeName,
-                    collegeEmail = x.CollegeEmail
+                    collegeEmail = x.CollegeEmail,
+                    collegePassword = x.ChangedPassword
                 })
                 .ToListAsync();
 
@@ -78,7 +79,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     collegeCode = x.CollegeCode,
                     collegeName = x.CollegeName,
-                    collegeEmail = x.CollegeEmail
+                    collegeEmail = x.CollegeEmail,
+                    collegePassword = x.ChangedPassword
                 })
                 .FirstOrDefaultAsync();
 
@@ -106,7 +108,8 @@ namespace Medical_Affiliation.Controllers
                 {
                     collegeCode = e.CollegeCode,
                     collegeName = e.CollegeName,
-                    collegeEmail = e.CollegeEmail
+                    collegeEmail = e.CollegeEmail,
+                    collegePassword = e.ChangedPassword
                 })
                 .ToListAsync();
 
