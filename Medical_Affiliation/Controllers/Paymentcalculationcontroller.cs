@@ -101,7 +101,7 @@ namespace Medical_Affiliation.Controllers
             {
                 return BadRequest(vm.ErrorMessage ?? "Payment calculation is not available.");
             }
-
+            
             var collegeName = await _context.AffiliationCollegeMasters
                 .AsNoTracking()
                 .Where(x => x.CollegeCode == vm.CollegeCode)

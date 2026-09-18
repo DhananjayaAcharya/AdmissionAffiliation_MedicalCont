@@ -161,12 +161,12 @@
             ?? string.Empty;
 
         <div class="payment-panel">
-            <div class="payment-panel-header d-flex justify-content-between align-items-center">
+            @* <div class="payment-panel-header d-flex justify-content-between align-items-center">
                 <span>Matched Courses (@Model.MatchedCourses.Count)</span>
                 <a href="@Url.Action("DownloadPdf", "PaymentCalculation")" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener noreferrer">
                     <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i> Download PDF
                 </a>
-            </div>
+            </div> *@
             <div class="payment-panel-body table-responsive">
                 <table class="table table-bordered table-sm">
                     <thead class="table-light">

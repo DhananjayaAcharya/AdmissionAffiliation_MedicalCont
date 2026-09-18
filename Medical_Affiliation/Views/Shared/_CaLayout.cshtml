@@ -74,7 +74,7 @@
             }
 
             body {
-                padding-top: 8.6rem;
+                padding-top: 7.4rem;
             }
 
             .page-wrapper {
@@ -173,14 +173,14 @@
             }
 
             .ca-topbar-inner {
-                max-width: 1500px;
+                width: min(100%, 1500px);
                 margin: 0 auto;
-                padding: 0.85rem 1.5rem;
-                display: flex;
+                padding: 0.7rem 1.5rem;
+                display: grid;
+                grid-template-columns: minmax(240px, 1fr) minmax(300px, 1.35fr) minmax(240px, 1fr);
                 align-items: center;
-                justify-content: space-between;
-                gap: 1.5rem;
-                flex-wrap: wrap;
+                gap: 1.25rem;
+                box-sizing: border-box;
             }
 
             /* top-left — logo + college name + tab name */
@@ -188,13 +188,12 @@
                 display: flex;
                 align-items: center;
                 gap: 1rem;
-                flex: 1 1 260px;
                 min-width: 200px;
             }
 
             .ca-logo {
-                width: 64px;
-                height: 64px;
+                width: 56px;
+                height: 56px;
                 object-fit: contain;
                 background: #fff;
                 border-radius: 16px;
@@ -231,13 +230,13 @@
                 justify-content: center;
                 align-items: center;
                 text-align: center;
-                min-width: 220px;
+                min-width: 0;
             }
 
             .ca-topbar-university {
                 margin: 0;
                 font-family: 'EB Garamond', 'Segoe UI', serif;
-                font-size: 1.45rem;
+                font-size: clamp(1.15rem, 1.7vw, 1.45rem);
                 font-weight: 600;
                 letter-spacing: 0.015em;
                 line-height: 1.2;
@@ -250,9 +249,9 @@
                 flex-direction: column;
                 align-items: flex-end;
                 gap: 0.45rem;
-                flex: 1 1 260px;
                 max-width: 320px;
                 margin-left: auto;
+                width: 100%;
             }
 
             .ca-pill {
@@ -293,14 +292,78 @@
                 z-index: 2;
             }
 
-            @@media (max-width: 991px) {
+            @@media (max-width: 1199px) {
                 body {
-                    padding-top: 17rem;
+                    padding-top: 9.8rem;
                 }
 
                 .ca-topbar-inner {
-                    flex-direction: column;
+                    grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+                    align-items: start;
+                    gap: 0.75rem 1rem;
+                }
+
+                .ca-topbar-center {
+                    grid-column: 1 / -1;
+                    grid-row: 2;
+                    justify-content: center;
+                    text-align: center;
+                    width: 100%;
+                }
+
+                .ca-topbar-right {
                     align-items: flex-start;
+                    justify-self: end;
+                }
+            }
+
+            @@media (max-width: 767px) {
+                body {
+                    padding-top: 13.2rem;
+                }
+
+                .ca-topbar-inner {
+                    grid-template-columns: 1fr;
+                    padding: 0.65rem 0.85rem 0.8rem;
+                    gap: 0.65rem;
+                }
+
+                .ca-topbar-left,
+                .ca-topbar-center,
+                .ca-topbar-right {
+                    grid-column: 1;
+                    grid-row: auto;
+                    width: 100%;
+                }
+
+                .ca-topbar-left {
+                    gap: 0.7rem;
+                    min-width: 0;
+                }
+
+                .ca-logo {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 12px;
+                }
+
+                .ca-topbar-college {
+                    font-size: 0.82rem;
+                    line-height: 1.25;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                }
+
+                .ca-topbar-page {
+                    margin-top: 0.2rem;
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.55rem;
+                    max-width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
 
                 .ca-topbar-center {
@@ -308,15 +371,40 @@
                     text-align: left;
                 }
 
+                .ca-topbar-university {
+                    font-size: 1.12rem;
+                    line-height: 1.15;
+                }
+
                 .ca-topbar-right {
-                    align-items: flex-start;
-                    margin-left: 0;
+                    align-items: stretch;
+                    justify-self: stretch;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    gap: 0.4rem;
                     max-width: none;
-                    width: 100%;
+                }
+
+                .ca-pill {
+                    flex: 1 1 190px;
+                    min-width: 0;
+                    justify-content: center;
+                    font-size: 0.72rem;
+                    padding: 0.32rem 0.5rem;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .ca-pill-label,
+                .ca-pill strong {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 .ca-shell {
                     flex-direction: column;
+                    padding: 0 0.75rem 1.25rem;
+                    gap: 0.85rem;
                 }
 
                     .ca-shell > .ca-sb {
@@ -324,6 +412,20 @@
                         position: static;
                         top: auto !important;
                     }
+            }
+
+            @@media (max-width: 420px) {
+                body {
+                    padding-top: 14.8rem;
+                }
+
+                .ca-topbar-university {
+                    font-size: 1rem;
+                }
+
+                .ca-pill {
+                    flex-basis: 100%;
+                }
             }
     </style>
 
