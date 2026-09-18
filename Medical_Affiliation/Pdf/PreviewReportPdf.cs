@@ -10,6 +10,7 @@ public class PreviewReportPdf : IDocument
     private readonly CApreviewViewModel _model;
     private readonly byte[] _logo;
     private readonly byte[] _collegeLogoBytes;
+    private readonly PdfTheme _theme;
     private int _sectionNumber;
     private byte[]? _watermarkLogoBytes;
 
@@ -18,6 +19,7 @@ public class PreviewReportPdf : IDocument
         _model = model;
         _logo = logo;
         _collegeLogoBytes = clgLogoBytes;
+        _theme = PdfTheme.ForApplicationType(model.ApplicationType);
     }
 
     private byte[] GetWatermarkLogo()
@@ -66,7 +68,7 @@ public class PreviewReportPdf : IDocument
                     .Image(GetWatermarkLogo())
                     .FitArea());
 
-            page.Content().Border(1.2f).BorderColor("#123A63").Padding(10).Column(col =>
+            page.Content().Border(1.2f).BorderColor(_theme.Primary).Padding(10).Column(col =>
             {
                 // --- REPORT HEADER ---
                 AddReportHeader(col);
@@ -129,7 +131,7 @@ public class PreviewReportPdf : IDocument
                 AddPaymentSection(col);
             });
 
-            page.Footer().PaddingTop(8).BorderTop(1).BorderColor("#D8E2EC").Row(row =>
+            page.Footer().PaddingTop(8).BorderTop(1).BorderColor(_theme.Border).Row(row =>
             {
                 row.RelativeItem().AlignLeft().Text(text =>
                 {
@@ -149,7 +151,7 @@ public class PreviewReportPdf : IDocument
     }
     private void AddReportHeader(ColumnDescriptor col)
     {
-        col.Item().Background("#123A63").Padding(14).Row(row =>
+        col.Item().Background(_theme.Primary).Padding(14).Row(row =>
         {
             row.ConstantItem(72).AlignMiddle().Width(72).Height(72)
                 .Image(_collegeLogoBytes);
@@ -166,7 +168,7 @@ public class PreviewReportPdf : IDocument
             });
         });
 
-        col.Item().PaddingTop(4).LineHorizontal(3).LineColor("#C9A24B");
+        col.Item().PaddingTop(4).LineHorizontal(3).LineColor(_theme.Accent);
     }
 
     private void AddPreviewMetadataHeader(ColumnDescriptor col)
@@ -188,7 +190,7 @@ public class PreviewReportPdf : IDocument
                 text.Span("TYPE OF AFFILIATION: ")
                     .FontSize(8).Bold().FontColor("#60758A");
                 text.Span(affiliationType)
-                    .FontSize(10).Bold().FontColor("#1F6F6B");
+                    .FontSize(10).Bold().FontColor(_theme.Secondary);
             });
 
             section.Item().PaddingTop(9).Table(table =>
@@ -207,12 +209,12 @@ public class PreviewReportPdf : IDocument
         });
     }
 
-    private static void AddMetadataCell(TableDescriptor table, string label, string value)
+    private void AddMetadataCell(TableDescriptor table, string label, string value)
     {
-        table.Cell().Border(1).BorderColor("#D8E2EC").Background("#F4F7FA").Padding(7).Column(cell =>
+        table.Cell().Border(1).BorderColor(_theme.Border).Background(_theme.Light).Padding(7).Column(cell =>
         {
             cell.Item().Text(label).FontSize(7).Bold().FontColor("#60758A");
-            cell.Item().PaddingTop(2).Text(value ?? "—").FontSize(9).Bold().FontColor("#123A63");
+            cell.Item().PaddingTop(2).Text(value ?? "—").FontSize(9).Bold().FontColor(_theme.Primary);
         });
     }
 
@@ -833,9 +835,26 @@ public class PreviewReportPdf : IDocument
         if (hospital?.Sections == null || !hospital.Sections.Any())
             return;
 
+        var excludedSections = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "radiodiagnosis",
+            "radiationoncology",
+            "pharmacy",
+            "indoorbedsunits",
+            "outpatientarea",
+            "artcentre"
+        };
+
         // Loop through each department/section
         foreach (var section in hospital.Sections)
         {
+            var normalizedSectionName = new string((section.SectionName ?? string.Empty)
+                .Where(char.IsLetterOrDigit)
+                .ToArray());
+
+            if (excludedSections.Contains(normalizedSectionName))
+                continue;
+
             // Section heading
             col.Item().PaddingTop(15).Row(row =>
             {
@@ -2518,65 +2537,42 @@ public class PreviewReportPdf : IDocument
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.ConstantColumn(58); // Photo
                 columns.RelativeColumn(2.2f); // Name
-                columns.RelativeColumn(1.2f); // Department
                 columns.RelativeColumn(1.3f); // Designation
-                columns.RelativeColumn(1.6f); // Qualification
-                columns.RelativeColumn(1.5f); // Employment
                 columns.RelativeColumn(1.6f); // Contact
             });
 
             table.Header(header =>
             {
-                header.Cell().Border(1).Background("#EAF0F5").Padding(3).AlignCenter().Text("Photo").Bold();
                 header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Name / Dates").Bold();
-                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Department").Bold();
                 header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Designation").Bold();
-                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Qualification").Bold();
-                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Employment / Experience").Bold();
-                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Contact / Registration").Bold();
+                header.Cell().Border(1).Background("#EAF0F5").Padding(3).Text("Contact").Bold();
             });
 
-            foreach (var f in facultyList)
+            foreach (var departmentGroup in facultyList
+                .GroupBy(f => string.IsNullOrWhiteSpace(f.DepartmentName)
+                    ? (f.DepartmentCode ?? "Unassigned Department")
+                    : f.DepartmentName)
+                .OrderBy(group => group.Key))
             {
-                var photoPath = ResolveFacultyPhotoPath(f.PhotoFilePath);
-                var photoCell = table.Cell().Border(1).Padding(3).AlignCenter().AlignMiddle();
-                if (photoPath != null)
-                {
-                    photoCell.Width(48).Height(58).Image(photoPath).FitArea();
-                }
-                else
-                {
-                    photoCell.Text("No photo").FontSize(7).FontColor("#60758A");
-                }
+                table.Cell().ColumnSpan(3).Border(1).Background("#EAF0F5").Padding(4)
+                    .Text($"Department: {departmentGroup.Key} ({departmentGroup.Count()} faculty)").Bold();
 
-                table.Cell().Border(1).Padding(3).Column(cell =>
+                foreach (var f in departmentGroup)
                 {
-                    cell.Item().Text(f.NameOfFaculty ?? "—").Bold();
-                    cell.Item().PaddingTop(2).Text($"DOB: {f.Dob ?? "—"}");
-                    cell.Item().Text($"Appointment: {f.DateOfAppointment ?? "—"}");
-                });
-                table.Cell().Border(1).Padding(3).Text(f.DepartmentName ?? f.DepartmentCode ?? "—");
-                table.Cell().Border(1).Padding(3).Text(f.DesignationName ?? f.DesignationCode ?? "—");
-                table.Cell().Border(1).Padding(3).Column(cell =>
-                {
-                    cell.Item().Text(f.ProfessionalQualification ?? "—");
-                    cell.Item().PaddingTop(2).Text($"PAN: {f.PanNo ?? "—"}");
-                    cell.Item().Text($"Aadhaar: {f.AadhaarNo ?? "—"}");
-                });
-                table.Cell().Border(1).Padding(3).Column(cell =>
-                {
-                    cell.Item().Text(f.NatureOfEmployment ?? "—");
-                    cell.Item().PaddingTop(2).Text($"Teaching exp: {f.TeachingExpInYrs ?? "—"}");
-                });
-                table.Cell().Border(1).Padding(3).Column(cell =>
-                {
-                    cell.Item().Text(f.Mobile ?? "—");
-                    cell.Item().Text(f.Email ?? "—");
-                    cell.Item().PaddingTop(2).Text($"Council: {f.StateCouncilRegNo ?? "—"}");
-                    cell.Item().Text($"AEBAS: {f.AebasAttendId ?? "—"}");
-                });
+                    table.Cell().Border(1).Padding(3).Column(cell =>
+                    {
+                        cell.Item().Text(f.NameOfFaculty ?? "—").Bold();
+                        cell.Item().PaddingTop(2).Text($"DOB: {f.Dob ?? "—"}");
+                        cell.Item().Text($"Appointment: {f.DateOfAppointment ?? "—"}");
+                    });
+                    table.Cell().Border(1).Padding(3).Text(f.DesignationName ?? f.DesignationCode ?? "—");
+                    table.Cell().Border(1).Padding(3).Column(cell =>
+                    {
+                        cell.Item().Text(f.Mobile ?? "—");
+                        cell.Item().Text(f.Email ?? "—");
+                    });
+                }
             }
         });
     }
@@ -2831,7 +2827,7 @@ public class PreviewReportPdf : IDocument
             : title.Trim();
         _sectionNumber++;
 
-        col.Item().PaddingTop(16).PaddingBottom(5).Background("#123A63").BorderLeft(4).BorderColor("#C9A24B").Padding(8).Row(row =>
+        col.Item().PaddingTop(16).PaddingBottom(5).Background(_theme.Primary).BorderLeft(4).BorderColor(_theme.Accent).Padding(8).Row(row =>
         {
             row.ConstantItem(8);
             row.RelativeItem().Text($"{_sectionNumber}. {cleanTitle}").FontSize(11).Bold().FontColor(Colors.White);
@@ -2842,9 +2838,9 @@ public class PreviewReportPdf : IDocument
     {
         col.Item().PaddingTop(12).PaddingBottom(3).Row(row =>
         {
-            row.ConstantItem(3).Background("#C9A24B").Height(13);
+            row.ConstantItem(3).Background(_theme.Accent).Height(13);
             row.ConstantItem(7);
-            row.RelativeItem().Text(title).FontSize(10).Bold().FontColor("#123A63");
+            row.RelativeItem().Text(title).FontSize(10).Bold().FontColor(_theme.Primary);
         });
     }
     private static void AddTextRow(TableDescriptor table, string label, object value)
@@ -2880,6 +2876,43 @@ public class PreviewReportPdf : IDocument
             .Border(1)
             .BorderColor(Colors.Grey.Lighten3)
             .AlignMiddle();
+    }
+
+    private sealed class PdfTheme
+    {
+        public string Primary { get; }
+        public string Secondary { get; }
+        public string Accent { get; }
+        public string Light { get; }
+        public string Border { get; }
+
+        private PdfTheme(string primary, string secondary, string accent, string light, string border)
+        {
+            Primary = primary;
+            Secondary = secondary;
+            Accent = accent;
+            Light = light;
+            Border = border;
+        }
+
+        public static PdfTheme ForApplicationType(string? applicationType)
+        {
+            var value = (applicationType ?? string.Empty).Trim().ToLowerInvariant();
+
+            if (value.Contains("continu"))
+                return new PdfTheme("#14532D", "#15803D", "#84CC16", "#F0FDF4", "#BBF7D0");
+
+            if (value.Contains("renew"))
+                return new PdfTheme("#7C2D12", "#C2410C", "#F59E0B", "#FFF7ED", "#FED7AA");
+
+            if (value.Contains("increase") || value.Contains("intake"))
+                return new PdfTheme("#4C1D95", "#7E22CE", "#D946EF", "#FAF5FF", "#E9D5FF");
+
+            if (value.Contains("first") || value.Contains("new") || value.Contains("initial"))
+                return new PdfTheme("#1E3A8A", "#2563EB", "#06B6D4", "#EFF6FF", "#BFDBFE");
+
+            return new PdfTheme("#123A63", "#1F6F6B", "#C9A24B", "#F4F7FA", "#D8E2EC");
+        }
     }
 
 

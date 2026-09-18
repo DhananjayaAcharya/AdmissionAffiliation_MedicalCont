@@ -786,10 +786,10 @@ namespace Medical_Affiliation.Models
         public AffSanctionedIntakeForCourseListDisplayViewModel IntakeForCourseVM { get; set; }
         public AffCourseDisplayVM AffCoursesVM { get; set; }
 
-        public AffiliationCourseDetailDisplayVM AffiliationCourseDetailVM { get; set; }
+        public AffiliationCourseDetailDisplayVM? AffiliationCourseDetailVM { get; set; }
 
-        public AffDeanOrDirectorDetailDisplayVM DeanOrDirectorDetailDisplayVM { get; set; }
-        public AffPrincipalDetailDisplayVM PrincipalDetailDisplayVM { get; set; }
+        public AffDeanOrDirectorDetailDisplayVM? DeanOrDirectorDetailDisplayVM { get; set; }
+        public AffPrincipalDetailDisplayVM? PrincipalDetailDisplayVM { get; set; }
     }
 
     public class ContinuationTrustMemberListDisplayViewModel

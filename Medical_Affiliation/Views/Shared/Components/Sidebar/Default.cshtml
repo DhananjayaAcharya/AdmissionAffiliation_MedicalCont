@@ -439,6 +439,12 @@
             font-weight: 600;
         }
 
+            .affiliation-subitem.readonly {
+                color: var(--sb-text-muted);
+                cursor: default;
+                opacity: 0.65;
+            }
+
     .affiliation-option i.bi-chevron-right {
         transition: transform 0.2s ease;
     }
@@ -856,7 +862,7 @@
                        onclick="toggleAffiliationDropdown(event)">
 
                         <i class="bi bi-building"></i>
-                        <span class="sidebar-link-label">Admission Affiliation</span>
+                        <span class="sidebar-link-label">Application for Affiliation</span>
                         <i class="bi bi-chevron-down chevron"></i>
                     </a>
 
@@ -1088,7 +1094,7 @@
      const affiliationBaseUrlMap = {
          "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
          "3": '@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")',
-         "4": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
+  @*        "4": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")', *@
  
      };
 
@@ -1159,14 +1165,18 @@
                     .then(res => res.json())
                     .then(data => {
                         data.forEach(level => {
-                            const link = document.createElement("a");
-                            link.href = "#";
-                            link.className = "affiliation-subitem";
-                            link.dataset.level = level.toLowerCase();
-                            link.textContent = level;
-                            link.addEventListener("click", navigateToLevel);
+                            const normalizedLevel = level.trim().toLowerCase();
+                            const levelItem = document.createElement(normalizedLevel === "ug" ? "a" : "span");
+                            levelItem.className = `affiliation-subitem${normalizedLevel === "ug" ? "" : " readonly"}`;
+                            levelItem.textContent = level.toUpperCase();
 
-                            subMenu.appendChild(link);
+                            if (normalizedLevel === "ug") {
+                                levelItem.href = "#";
+                                levelItem.dataset.level = normalizedLevel;
+                                levelItem.addEventListener("click", navigateToLevel);
+                            }
+
+                            subMenu.appendChild(levelItem);
                         });
                     });
 
@@ -1175,14 +1185,18 @@
 
                 }
                 levels.forEach(level => {
-                    const link = document.createElement("a");
-                    link.href = "#";
-                    link.className = "affiliation-subitem";
-                    link.dataset.level = level;
-                    link.textContent = level.toUpperCase();
-                    link.addEventListener("click", navigateToLevel);
+                    const normalizedLevel = level.trim().toLowerCase();
+                    const levelItem = document.createElement(normalizedLevel === "ug" ? "a" : "span");
+                    levelItem.className = `affiliation-subitem${normalizedLevel === "ug" ? "" : " readonly"}`;
+                    levelItem.textContent = normalizedLevel.toUpperCase();
 
-                    subMenu.appendChild(link);
+                    if (normalizedLevel === "ug") {
+                        levelItem.href = "#";
+                        levelItem.dataset.level = normalizedLevel;
+                        levelItem.addEventListener("click", navigateToLevel);
+                    }
+
+                    subMenu.appendChild(levelItem);
                 });
 
                 panel.appendChild(subMenu);

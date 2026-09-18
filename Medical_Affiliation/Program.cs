@@ -368,7 +368,7 @@ app.UseSession();
 // =============================================
 app.Use(async (context, next) =>
 {
-    var path = context.Request.Path.Value;
+    var path = context.Request.Path.Value;  
 
     if (!string.IsNullOrEmpty(path) && path.StartsWith("/AdmissionAffiliation"))
     {

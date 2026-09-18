@@ -127,7 +127,7 @@ namespace Medical_Affiliation.Services.Faculty
             };
         }
 
-        public async Task<AffiliationCourseDetailDisplayVM> GetAffiliationCourseDetails()
+        public async Task<AffiliationCourseDetailDisplayVM?> GetAffiliationCourseDetails()
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;

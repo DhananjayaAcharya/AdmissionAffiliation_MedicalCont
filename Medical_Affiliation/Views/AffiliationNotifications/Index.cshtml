@@ -5,6 +5,12 @@
 
     ViewData["Title"] = "Notifications";
 
+    var httpContext = Context;
+    var facultyCode = httpContext.Session.GetString("FacultyCode") ?? "";
+    var collegeCode = httpContext.Session.GetString("CollegeCode") ?? "";
+    var collegeName = httpContext.Session.GetString("CollegeName") ?? "College";
+    var collegeLogoPath = httpContext.Session.GetString("CollegeLogoPath") ?? "";
+
     var unreadCount = Model.Count(x => !x.IsRead);
     var specificNotifications = Model
         .Where(x => !x.NotificationType.Equals("General", StringComparison.OrdinalIgnoreCase))
@@ -39,10 +45,84 @@
 
         body {
             margin: 0;
-            background: #f5f7fa;
-            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(180deg, #f7f9fd 0%, #eef4fc 280px, #eef4fc 100%);
+            font-family: 'Inter', sans-serif;
             color: #172033;
+            -webkit-font-smoothing: antialiased;
         }
+
+        .gov-strip {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            z-index: 1001;
+            background: linear-gradient(90deg, #1d5fd6 0%, #1d5fd6 33.3%, #fff 33.3%, #fff 66.6%, #0e7490 66.6%, #0e7490 100%);
+        }
+
+        .topbar {
+            position: fixed;
+            inset: 3px 0 auto 0;
+            height: 68px;
+            background: #0a3d91;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            z-index: 1000;
+            box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 8px 24px rgba(10,23,52,.22);
+        }
+
+        .topbar::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #1d5fd6 0%, #7fb0ff 38%, rgba(255,255,255,.20) 100%);
+        }
+
+        .tb-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .tb-logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            background: #fff;
+            border: 1px solid rgba(255,255,255,.35);
+        }
+
+        .tb-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .tb-brand-text { line-height: 1.2; }
+        .tb-brand-name { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .tb-brand-sub { font-size: 10px; color: rgba(255,255,255,.38); text-transform: uppercase; letter-spacing: 1.3px; }
+        .tb-official-badge { font-size: 8.5px; color: #7fb0ff; background: rgba(29,95,214,.14); border: 1px solid rgba(29,95,214,.30); padding: 2px 8px; border-radius: 20px; }
+
+        .tb-centre { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 8px; padding: 6px 16px 6px 10px; max-width: 520px; min-width: 0; }
+        .tb-centre-logo, .tb-centre-ico { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; }
+        .tb-centre-logo { object-fit: contain; background: #fff; }
+        .tb-centre-ico { display: grid; place-items: center; color: #7fb0ff; background: rgba(29,95,214,.18); }
+        .tb-centre-label { font-size: 9px; color: rgba(255,255,255,.32); text-transform: uppercase; letter-spacing: 1.1px; }
+        .tb-centre-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tb-right { display: flex; align-items: center; gap: 10px; }
+        .tb-code { background: rgba(29,95,214,.18); border: 1px solid rgba(29,95,214,.30); color: #7fb0ff; padding: 5px 13px; border-radius: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: .8px; }
+        .btn-logout { display: flex; align-items: center; gap: 6px; background: rgba(220,38,38,.09); border: 1px solid rgba(220,38,38,.25); color: #fca5a5; border-radius: 8px; padding: 6px 16px 6px 11px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        .layout { display: flex; min-height: 100vh; padding-top: 71px; }
+        .sidebar-wrap { position: fixed; top: 71px; left: 0; width: 280px; height: calc(100vh - 71px); z-index: 900; }
+        .main { flex: 1; min-width: 0; margin-left: 280px; }
 
         /* =========================================================
                    PAGE
@@ -50,7 +130,7 @@
 
         .notifications-page {
             min-height: 100vh;
-            padding: 35px 45px 50px;
+            padding: 28px 34px 50px;
         }
 
         .notifications-wrapper {
@@ -598,6 +678,29 @@
 
         @@media (max-width: 900px) {
 
+            .topbar {
+                padding: 0 18px;
+            }
+
+            .tb-centre {
+                display: none;
+            }
+
+            .layout {
+                display: block;
+            }
+
+            .sidebar-wrap {
+                position: relative;
+                top: auto;
+                width: 100%;
+                height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
             .notifications-page {
                 padding: 20px;
             }
@@ -699,6 +802,15 @@
 
         @@media (max-width: 500px) {
 
+            .tb-brand-sub,
+            .tb-code {
+                display: none;
+            }
+
+            .btn-logout {
+                padding-right: 10px;
+            }
+
             .notification-header {
                 padding: 18px;
             }
@@ -743,6 +855,51 @@
 
 <body>
 
+    <div class="gov-strip"></div>
+
+    <header class="topbar">
+        <a class="tb-brand" asp-controller="Collegelogin" asp-action="Dashboard">
+            <div class="tb-logo"><img src="~/images/newlogo.jpeg" alt="RGUHS Logo" /></div>
+            <div class="tb-brand-text">
+                <div class="tb-brand-name">RGUHS Portal <span class="tb-official-badge"><i class="bi bi-patch-check-fill"></i> Official</span></div>
+                <div class="tb-brand-sub">Affiliation Management</div>
+            </div>
+        </a>
+        <div class="tb-centre">
+            @if (!string.IsNullOrWhiteSpace(collegeLogoPath))
+            {
+                <img src="@Url.Content(collegeLogoPath)" alt="@collegeName logo" class="tb-centre-logo" />
+            }
+            else
+            {
+                <div class="tb-centre-ico"><i class="bi bi-buildings-fill"></i></div>
+            }
+            <div>
+                <div class="tb-centre-label">Institution</div>
+                <div class="tb-centre-name" title="@collegeName">@collegeName</div>
+            </div>
+        </div>
+        <div class="tb-right">
+            @if (!string.IsNullOrEmpty(collegeCode))
+            {
+                <span class="tb-code">@collegeCode</span>
+            }
+            <form asp-controller="Login" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Sign Out</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="layout">
+        @if (!string.IsNullOrEmpty(facultyCode))
+        {
+            <div class="sidebar-wrap">
+                @await Component.InvokeAsync("Sidebar")
+            </div>
+        }
+
+        <main class="main">
     <div class="notifications-page">
 
         <div class="notifications-wrapper">
@@ -1214,7 +1371,8 @@
             </div>
 
         </div>
-
+    </div>
+        </main>
     </div>
 
 

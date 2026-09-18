@@ -102,8 +102,9 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> Repo_FacultyDetails()
         {
-            var collegeCode = HttpContext.Session.GetString("CollegeCode")
-                ?? User.FindFirst("CollegeCode")?.Value;
+            var collegeCode = (HttpContext.Session.GetString("CollegeCode")
+                ?? User.FindFirst("CollegeCode")?.Value);
+            collegeCode = collegeCode?.Trim();
 
             if (string.IsNullOrWhiteSpace(collegeCode))
             {
@@ -111,7 +112,7 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
-            ViewBag.CollegeCode = collegeCode.Trim();
+            ViewBag.CollegeCode = collegeCode;
 
             var facultyCode = int.TryParse(
                 HttpContext.Session.GetString("FacultyCode") ?? User.FindFirst("FacultyCode")?.Value,
@@ -142,7 +143,7 @@ namespace Medical_Affiliation.Controllers
 
             var facultyRows = await _context.UgFacultyDetails
                 .AsNoTracking()
-                .Where(x => x.CollegeCode == collegeCode.Trim())
+                .Where(x => x.CollegeCode == collegeCode)
                 .OrderBy(x => x.DepartmentCode)
                 .ThenBy(x => x.NameOftheFaculty)
                 .ToListAsync();
@@ -150,6 +151,8 @@ namespace Medical_Affiliation.Controllers
             var faculties = facultyRows.Select(faculty => new ApiFacultyViewModel
             {
                 Id = faculty.Id,
+                FacultyCode = faculty.FacultyCode,
+                CollegeCode = faculty.CollegeCode ?? string.Empty,
                 Name = faculty.NameOftheFaculty ?? string.Empty,
                 Email = faculty.EmailId ?? string.Empty,
                 Mobile = faculty.MobileNo ?? string.Empty,
@@ -540,7 +543,12 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public IActionResult ViewFacultyPhoto(int id)
         {
-            var faculty = _context.UgFacultyDetails.AsNoTracking().FirstOrDefault(f => f.Id == id);
+            var collegeCode = HttpContext.Session.GetString("CollegeCode")
+                ?? User.FindFirst("CollegeCode")?.Value;
+
+            var faculty = _context.UgFacultyDetails
+                .AsNoTracking()
+                .FirstOrDefault(f => f.Id == id && f.CollegeCode == collegeCode);
 
             if (faculty == null || string.IsNullOrEmpty(faculty.PhotoFilePath) || !System.IO.File.Exists(faculty.PhotoFilePath))
             {

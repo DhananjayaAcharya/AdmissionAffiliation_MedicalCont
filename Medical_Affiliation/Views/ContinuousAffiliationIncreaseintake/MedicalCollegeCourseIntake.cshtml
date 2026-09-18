@@ -63,6 +63,9 @@
         "SS" => "Super Speciality",
         _ => currentCourseLevel
     };
+
+    // Fixed set of allowed "Increased Intake" values shown in the dropdown
+    var increasedIntakeOptions = new[] { 50, 100, 150, 200, 250 };
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -368,6 +371,18 @@
             box-shadow: 0 0 0 3px rgba(20, 49, 94, .14);
         }
 
+    select.editable-field {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0L5 6L10 0Z' fill='%23667b93'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right .6rem center;
+        background-size: .6rem .4rem;
+        padding-right: 1.6rem;
+        cursor: pointer;
+    }
+
     /* ---------- Buttons ---------- */
     .actions {
         display: flex;
@@ -539,8 +554,8 @@
                                     <th>Intake 2026-27</th>
                                     @if (Model.ShowIncreasedIntakeFields)
                                     {
-                                        <th>Increased Intake</th>
-                                        <th>Academic Year</th>
+                                        <th>Increasing Intake</th>
+                                        <th>Academic Year</th>  
                                     }
                                 </tr>
                             </thead>
@@ -563,9 +578,13 @@
                                                 <input type="hidden" asp-for="Courses[i].CourseCode" />
                                                 <input type="hidden" asp-for="Courses[i].CourseName" />
                                                 <input type="hidden" asp-for="Courses[i].Intake2627" />
-                                                <input type="number" min="0" step="1"
-                                                       class="editable-field"
-                                                       asp-for="Courses[i].IncreasedIntake" />
+                                                <select class="editable-field" asp-for="Courses[i].IncreasedIntake">
+                                                    <option value="">Select</option>
+                                                    @foreach (var option in increasedIntakeOptions)
+                                                    {
+                                                        <option value="@option">@option</option>
+                                                    }
+                                                </select>
                                             </td>
                                             <td>
                                                 <input type="text" readonly
@@ -584,7 +603,7 @@
                     @if (Model.ShowIncreasedIntakeFields)
                     {
                         <div class="actions">
-                            <button type="submit" class="btn btn-primary">Save Increased Intake</button>
+                            <button type="submit" class="btn btn-primary">Save & Apply</button>
                         </div>
                     }
                 </form>
