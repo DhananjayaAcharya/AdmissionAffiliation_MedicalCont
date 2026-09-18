@@ -5771,6 +5771,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DeuCoordinatorName).HasMaxLength(200);
             entity.Property(e => e.DeuCoordinatorPhone).HasMaxLength(50);
             entity.Property(e => e.DeuMembersListFilePath).HasMaxLength(500);
+            entity.Property(e => e.DeuyearOfStarting)
+                .HasMaxLength(50)
+                .HasColumnName("DEUYearOfStarting");
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -5782,6 +5785,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.MeuCoordinatorName).HasMaxLength(200);
             entity.Property(e => e.MeuCoordinatorPhone).HasMaxLength(50);
             entity.Property(e => e.MeuMembersListFilePath).HasMaxLength(500);
+            entity.Property(e => e.NatureOfActivities).HasMaxLength(2000);
         });
 
         modelBuilder.Entity<MedicalInstituteDetail>(entity =>

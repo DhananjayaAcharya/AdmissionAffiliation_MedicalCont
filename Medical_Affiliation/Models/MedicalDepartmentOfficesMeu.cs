@@ -68,4 +68,8 @@ public partial class MedicalDepartmentOfficesMeu
     public string? DeuActivitiesLastAcademicYear { get; set; }
 
     public string? DeuMembersListFilePath { get; set; }
+
+    public string? DeuyearOfStarting { get; set; }
+
+    public string? NatureOfActivities { get; set; }
 }

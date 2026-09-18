@@ -25,7 +25,7 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async  Task<IActionResult> AcademicMatters()
         {
-            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             int facultyId = HttpContext.Session.GetInt32("FacultyId") ?? 1;
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
@@ -46,8 +46,8 @@ namespace Medical_Affiliation.Controllers
             //x.CurriculumId == curriculumId);
             var savedCurriculums = await _context.CaCourseCurricula
                 .Where(x => x.CollegeCode == model.CollegeCode &&
-                            x.FacultyId == model.FacultyId &&
-                            x.CourseLevel == model.CourseLevel &&
+                            x.FacultyId == facultyId &&
+                            x.CourseLevel == courseLevel &&
                             x.AffiliationType == model.AffiliationType)
                 .ToListAsync();
 

@@ -729,16 +729,21 @@ namespace Medical_Affiliation.Controllers
                 vm.HasMeuMembersListFile = entity.MeuMembersListFilePath != null;
             } else if(facultyCode == "2")
             {
-                vm.HasDentalEducationUnit = entity.HasMedicalEducationUnit;
-                vm.DentalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm;
-                vm.DentalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual;
-                vm.DentalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet;
+                vm.HasDentalEducationUnit = entity.HasDentalEducationUnit;
+                vm.DentalEducationUnitAreaSqm = entity.DentalEducationUnitAreaSqm;
+                vm.DentalEducationUnitHasAudioVisual = entity.DentalEducationUnitHasAudioVisual;
+                vm.DentalEducationUnitHasInternet = entity.DentalEducationUnitHasInternet;
                 vm.DeuCoordinatorName = entity.DeuCoordinatorName;
                 vm.DeuCoordinatorPhone = entity.DeuCoordinatorPhone;
                 vm.DeuCoordinatorEmail = entity.DeuCoordinatorEmail;
                 vm.DeuCoordinatorDesignationDepartment = entity.DeuCoordinatorDesignationDepartment;
                 vm.DeuActivitiesLastAcademicYear = entity.DeuActivitiesLastAcademicYear;
                 vm.HasDeuMembersListFile = entity.DeuMembersListFilePath != null;
+
+                vm.DEUYearOfStarting = entity.DeuyearOfStarting;
+
+                vm.NatureOfActivities = entity.NatureOfActivities;
+
             }
 
             return View(vm);
@@ -892,6 +897,8 @@ namespace Medical_Affiliation.Controllers
                     entity.DeuCoordinatorDesignationDepartment = vm.DeuCoordinatorDesignationDepartment;
                     entity.DeuActivitiesLastAcademicYear = vm.DeuActivitiesLastAcademicYear;
                     entity.HasDentalEducationUnit = vm.HasDentalEducationUnit;
+                    entity.DeuyearOfStarting = vm.DEUYearOfStarting;
+                    entity.NatureOfActivities = vm.NatureOfActivities;
 
                     // 🔥 UPDATE FILE
                     if (filePath != null)

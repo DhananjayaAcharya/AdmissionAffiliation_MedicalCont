@@ -905,6 +905,30 @@
                                 @Html.ValidationMessageFor(m => m.DeuCoordinatorEmail, "", new { @class = "text-danger small" })
                             </div>
 
+                            <!-- ===================================================== --> 
+                            <!-- DEU Year of Starting -->
+                            <!-- ===================================================== -->
+
+                            <div class="col-lg-6"> 
+                                <label> 
+                                    <i class="fas fa-calendar-alt"></i> 
+                                    DEU Year of Starting 
+                                </label> 
+                                <input type="text" class="deu-field" asp-for="DEUYearOfStarting" placeholder="Enter year of starting" /> 
+                                @Html.ValidationMessageFor(m => m.DEUYearOfStarting, "", new { @class = "text-danger small" }) 
+                            </div> 
+                            
+                            <!-- ===================================================== -->
+                            <!-- Nature of Activities -->
+                            <!-- ===================================================== -->
+                            <div class="col-lg-6"> 
+                                <label> 
+                                    <i class="fas fa-list-check"></i> 
+                                    Nature of Activities 
+                                </label> 
+                                <textarea class="deu-field" asp-for="NatureOfActivities" rows="3" placeholder="Enter the nature of activities conducted by DEU"></textarea> 
+                                @Html.ValidationMessageFor(m => m.NatureOfActivities, "", new { @class = "text-danger small" }) 
+                            </div>
                         </div>
                     </div>
                 </div>

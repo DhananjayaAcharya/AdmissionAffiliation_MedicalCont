@@ -1,3 +1,24 @@
+Update CA_MST_Med_CommitteeNames
+SET CommitteeName = 'Internal Committee(POSH)'
+where CommitteeName like '%POSH%' and FacultyCode = 2
+
+-----------------------------------------------------
+
+INSERT INTO CA_MST_CourseCurriculum
+  (CurriculumName, IsActive)
+  VALUES
+  ('Vacation Period', 1),
+  ('University Examination', 1);
+
+
+-------------------------------------------------
+
+ALTER TABLE [dbo].[Medical_DepartmentOfficesMeu]
+ADD
+    DEUYearOfStarting NVARCHAR(50) NULL,
+    NatureOfActivities NVARCHAR(2000) NULL;
+
+-------------------------------------------------
 -- ============================================================
 -- Table Name : Mst_LibraryExpenditure
 -- Purpose    : Stores master data for library expenditure items
@@ -494,7 +515,11 @@ CREATE TABLE DentalFieldPracticeArea
 );
 --------------------------------
 
-select * from DentalFieldPracticeArea
+select * from CA_MST_Med_CommitteeNames
+where FacultyCode=2
+
+
+
 
 
 ----If a college should have only one Dental Field Practice Area record 
