@@ -146,21 +146,25 @@ namespace Medical_Affiliation.Controllers
 
 
             // ===================== 5. OTHER DETAILS =====================
-            var otherDetails = _context.CaMedicalLibraryOtherDetails
-                .FirstOrDefault(x => x.CollegeCode == collegeCode &&
-                                     x.FacultyCode == facultyCode &&
-                                     (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel == courseLevel) &&
-                                     x.AffiliationType == affiliationType);
+            var otherDetailsCandidates = _context.CaMedicalLibraryOtherDetails
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel == courseLevel) &&
+                            x.AffiliationType == affiliationType)
+                .ToList();
+
+            var otherDetails = otherDetailsCandidates.FirstOrDefault(x => x.CourseLevel == courseLevel)
+                ?? otherDetailsCandidates.FirstOrDefault(x => string.IsNullOrEmpty(x.CourseLevel));
 
             if (otherDetails != null)
             {
                 model.OtherDetails = new MedicalLibraryOtherDetailsViewModel
                 {
                     DigitalValuationId = otherDetails.DigitalValuationId,
-                    HasDigitalValuationCentre = otherDetails.HasDigitalValuationCentre,
+                    HasDigitalValuationCentre = NormalizeYesNo(otherDetails.HasDigitalValuationCentre),
                     NoOfSystems = otherDetails.NoOfSystems,
-                    HasStableInternet = otherDetails.HasStableInternet,
-                    HasCccameraSystem = otherDetails.HasCccameraSystem,
+                    HasStableInternet = NormalizeYesNo(otherDetails.HasStableInternet),
+                    HasCccameraSystem = NormalizeYesNo(otherDetails.HasCccameraSystem),
 
                     SpecialFeaturesQuestion =
                             otherDetails.SpecialFeaturesAchievementsPdfPath != null ? "Yes" : "No",
@@ -725,13 +729,17 @@ namespace Medical_Affiliation.Controllers
                 // =====================================================
               if (facultyCode != 2)
               {
-                    var otherEntity =
-                _context.CaMedicalLibraryOtherDetails
-                .FirstOrDefault(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
-                    x.CourseLevel == courseLevel &&
-                    x.AffiliationType == affiliationType);
+                    var otherEntityCandidates =
+                        _context.CaMedicalLibraryOtherDetails
+                        .Where(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel == courseLevel) &&
+                            x.AffiliationType == affiliationType)
+                        .ToList();
+
+                    var otherEntity = otherEntityCandidates.FirstOrDefault(x => x.CourseLevel == courseLevel)
+                        ?? otherEntityCandidates.FirstOrDefault(x => string.IsNullOrEmpty(x.CourseLevel));
 
                 if (otherEntity == null)
                 {
@@ -1351,6 +1359,17 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(d => d.DepartmentCode)
                 .ToList();
             ViewBag.IsDentalFaculty = model.FacultyCode == 2;
+        }
+
+        private static string? NormalizeYesNo(string? value)
+        {
+            if (string.Equals(value?.Trim(), "yes", StringComparison.OrdinalIgnoreCase))
+                return "Yes";
+
+            if (string.Equals(value?.Trim(), "no", StringComparison.OrdinalIgnoreCase))
+                return "No";
+
+            return value?.Trim();
         }
 
         [HttpGet]

@@ -89,7 +89,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             {
                 RequirementId = m.Id,
                 RequirementName = m.RequirementName,
-                IsAvailable = existing.Any(e => e.RequirementId == m.Id)
+                IsAvailable = existing.FirstOrDefault(e => e.RequirementId == m.Id)?.IsCompliant ?? false
             }).ToList();
         }
 
@@ -351,7 +351,10 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 .Where(r =>
                     r.CollegeCode == collegeCode &&
                     r.FacultyCode == facultyCode &&
-                    r.AffiliationTypeId == typeOfAffiliation)
+                    r.AffiliationTypeId == typeOfAffiliation &&
+                    r.CourseLevel == courseLevel &&
+                    hospital != null &&
+                    r.HospitalDetailsId == hospital.HospitalDetailsId)
                 .ToListAsync();
 
             var indoorDeptReqMaster = mastersBySection.Where(r => r.SectionCode == "1").ToList();

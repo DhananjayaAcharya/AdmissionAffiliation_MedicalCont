@@ -1,4 +1,7 @@
 ﻿@model CA_Aff_AcademicMattersViewModel
+@{
+    var displayedAcademicRows = Model.AcademicRows?.Take(4).ToList() ?? new List<AcademicPerformanceViewModel>();
+}
 
 <style>
     .academic-section {
@@ -368,16 +371,16 @@
                             Year-wise results, pass percentage and classifications
                         </p>
                     </div>
-                    @if (Model.AcademicRows != null && Model.AcademicRows.Any())
+                    @if (displayedAcademicRows.Any())
                     {
                         <span class="count-badge">
-                            @Model.AcademicRows.Count() years
+                            @displayedAcademicRows.Count years
                         </span>
                     }
                 </div>
             </div>
 
-            @if (Model.AcademicRows != null && Model.AcademicRows.Any())
+            @if (displayedAcademicRows.Any())
             {
                 <div class="data-table-wrapper">
                     <table class="table data-table table-hover align-middle">
@@ -394,7 +397,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var row in Model.AcademicRows)
+                            @foreach (var row in displayedAcademicRows)
                             {
                                 <tr>
                                     <td class="year-cell">@row.YearName</td>
