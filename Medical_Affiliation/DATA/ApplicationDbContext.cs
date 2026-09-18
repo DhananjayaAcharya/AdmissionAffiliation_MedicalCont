@@ -1031,6 +1031,8 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.AnyOtherFacility).HasMaxLength(500);
             entity.Property(e => e.BuiltUpAreaSqFt).HasMaxLength(200);
             entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CommonRoomForMenArea).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CommonRoomForWomenArea).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.CourseLevel)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -3659,7 +3661,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
             entity.Property(e => e.MuseumDemoRoomsAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.OtherStaffResidentialQuarterAreaSqFt).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.PreclinicalSkillLabAreaSqm).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.PrincipalStaffResidentialQuarterAreaSqFt).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.SaleDeedDocumentPath)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -3669,6 +3673,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.StructuralStabilityCertificateDocumentPath)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+            entity.Property(e => e.TeachingAncillaryStaffResidentialQuarterAreaSqFt).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TotalBuiltupAreaSqm).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TotalLandAreaAcres).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.WaterSupplyCertificateDocumentPath)

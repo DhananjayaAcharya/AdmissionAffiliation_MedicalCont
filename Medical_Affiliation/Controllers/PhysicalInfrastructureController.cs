@@ -596,6 +596,20 @@ namespace Medical_Affiliation.Controllers
 
                 model.SewageSanitationApprovalDocumentPath =
                     existingData.SewageSanitationApprovalDocumentPath;
+
+                // ----------------------------------------
+                // q. STAFF RESIDENTIAL QUARTERS
+                // ----------------------------------------
+
+                model.PrincipalStaffResidentialQuarter = existingData.PrincipalStaffResidentialQuarter;
+
+                model.PrincipalStaffResidentialQuarterAreaSqFt = existingData.PrincipalStaffResidentialQuarterAreaSqFt;
+
+                model.OtherStaffResidentialQuarter = existingData.OtherStaffResidentialQuarter;
+                model.OtherStaffResidentialQuarterAreaSqFt = existingData.OtherStaffResidentialQuarterAreaSqFt;
+
+                model.TeachingAncillaryStaffResidentialQuarter = existingData.TeachingAncillaryStaffResidentialQuarter;
+                model.TeachingAncillaryStaffResidentialQuarterAreaSqFt = existingData.TeachingAncillaryStaffResidentialQuarterAreaSqFt;
             }
 
             PopulateNorms(model, slabNorm);
@@ -707,6 +721,12 @@ namespace Medical_Affiliation.Controllers
             entity.MuseumDemoRoomsAreaSqm = model.MuseumDemoRoomsAreaSqm;
             entity.PreclinicalSkillLabAreaSqm = model.PreclinicalSkillLabAreaSqm;
             entity.DepartmentWiseAreaSqm = model.DepartmentWiseAreaSqm;
+            entity.PrincipalStaffResidentialQuarter = model.PrincipalStaffResidentialQuarter;
+            entity.PrincipalStaffResidentialQuarterAreaSqFt = model.PrincipalStaffResidentialQuarterAreaSqFt;
+            entity.TeachingAncillaryStaffResidentialQuarter = model.TeachingAncillaryStaffResidentialQuarter;
+            entity.TeachingAncillaryStaffResidentialQuarterAreaSqFt = model.TeachingAncillaryStaffResidentialQuarterAreaSqFt;
+            entity.OtherStaffResidentialQuarter = model.OtherStaffResidentialQuarter;
+            entity.OtherStaffResidentialQuarterAreaSqFt = model.OtherStaffResidentialQuarterAreaSqFt;
             entity.HospitalAreaSqm = model.HospitalAreaSqm;
             entity.Remarks = model.Remarks;
             entity.ModifiedOn = DateTime.Now;

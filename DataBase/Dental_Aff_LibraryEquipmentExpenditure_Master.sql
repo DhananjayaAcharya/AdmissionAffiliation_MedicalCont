@@ -18,7 +18,32 @@ ADD
     DEUYearOfStarting NVARCHAR(50) NULL,
     NatureOfActivities NVARCHAR(2000) NULL;
 
+
+----------------------------------------------------
+
+    ALTER TABLE [dbo].[AFF_HostelDetails]
+ADD
+    CommonRoomForMenArea DECIMAL(10,2) NULL,
+    CommonRoomForWomenArea DECIMAL(10,2) NULL,
+    GamesRecreationFacilities NVARCHAR(MAX) NULL,
+    MedicalExaminationHealthServices NVARCHAR(MAX) NULL;
 -------------------------------------------------
+
+ALTER TABLE DentalCollegeLandBuildingDetail
+ADD 
+    PrincipalStaffResidentialQuarter BIT NULL,
+    PrincipalStaffResidentialQuarterAreaSqFt DECIMAL(10,2) NULL,
+
+    OtherStaffResidentialQuarter BIT NULL,
+    OtherStaffResidentialQuarterAreaSqFt DECIMAL(10,2) NULL,
+
+    TeachingAncillaryStaffResidentialQuarter BIT NULL,
+    TeachingAncillaryStaffResidentialQuarterAreaSqFt DECIMAL(10,2) NULL;
+
+-------------------------------------------------------
+
+select * from [AFF_HostelDetails]
+where collegecode = 'd038'
 -- ============================================================
 -- Table Name : Mst_LibraryExpenditure
 -- Purpose    : Stores master data for library expenditure items

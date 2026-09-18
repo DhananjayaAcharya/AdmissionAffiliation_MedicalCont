@@ -1898,6 +1898,10 @@ namespace Medical_Affiliation.Controllers
 
                 existingHostel.CommonRoomMen = vm.Hostel.CommonRoomMen;
                 existingHostel.CommonRoomWomen = vm.Hostel.CommonRoomWomen;
+                existingHostel.CommonRoomForMenArea = vm.Hostel.CommonRoomForMenArea;
+                existingHostel.CommonRoomForWomenArea = vm.Hostel.CommonRoomForWomenArea;
+                existingHostel.GamesRecreationFacilities = vm.Hostel.GamesRecreationFacilities;
+                existingHostel.MedicalExaminationHealthServices = vm.Hostel.MedicalExaminationHealthServices;
                 existingHostel.AnyOtherFacility = vm.Hostel.AnyOtherFacility;
 
                 existingHostel.HostelFacilityDetails = vm.Hostel.HostelFacilityDetails;
