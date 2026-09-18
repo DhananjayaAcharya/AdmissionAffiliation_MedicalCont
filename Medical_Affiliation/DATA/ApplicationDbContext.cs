@@ -3694,16 +3694,22 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.ToTable("DentalFieldPracticeArea");
 
+            entity.Property(e => e.ActivitiesAndServices).HasMaxLength(2000);
             entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.CollegeCode).HasMaxLength(100);
             entity.Property(e => e.CourseLevel).HasMaxLength(50);
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.EquipmentsAvailable).HasMaxLength(2000);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Location).HasMaxLength(250);
             entity.Property(e => e.ManagedBy).HasMaxLength(250);
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
-            entity.Property(e => e.StaffList).HasMaxLength(500);
+            entity.Property(e => e.RecordsMaintained).HasMaxLength(2000);
+            entity.Property(e => e.StaffList).HasMaxLength(1000);
+            entity.Property(e => e.SupervisionMethod).HasMaxLength(2000);
+            entity.Property(e => e.TraineeSupervisorAccommodation).HasMaxLength(2000);
+            entity.Property(e => e.TrainingActivities).HasMaxLength(2000);
 
             entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DentalFieldPracticeAreas)
                 .HasForeignKey(d => d.CollegeCode)
@@ -3714,6 +3720,11 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.FacultyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DentalFieldPracticeArea_Faculty");
+
+            entity.HasOne(d => d.FieldType).WithMany(p => p.DentalFieldPracticeAreas)
+                .HasForeignKey(d => d.FieldTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DentalFieldPracticeArea_FieldType");
 
             entity.HasOne(d => d.Type).WithMany(p => p.DentalFieldPracticeAreas)
                 .HasForeignKey(d => d.TypeId)

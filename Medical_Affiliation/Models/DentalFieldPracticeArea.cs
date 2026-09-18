@@ -15,6 +15,8 @@ public partial class DentalFieldPracticeArea
 
     public string CourseLevel { get; set; } = null!;
 
+    public int FieldTypeId { get; set; }
+
     public string Location { get; set; } = null!;
 
     public string Address { get; set; } = null!;
@@ -24,6 +26,18 @@ public partial class DentalFieldPracticeArea
     public string? StaffList { get; set; }
 
     public int? PopulationServed { get; set; }
+
+    public string? ActivitiesAndServices { get; set; }
+
+    public string? RecordsMaintained { get; set; }
+
+    public string? EquipmentsAvailable { get; set; }
+
+    public string? TrainingActivities { get; set; }
+
+    public string? SupervisionMethod { get; set; }
+
+    public string? TraineeSupervisorAccommodation { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -38,6 +52,8 @@ public partial class DentalFieldPracticeArea
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 
     public virtual Faculty Faculty { get; set; } = null!;
+
+    public virtual MstFieldTypeChp FieldType { get; set; } = null!;
 
     public virtual TypeOfAffiliation Type { get; set; } = null!;
 }

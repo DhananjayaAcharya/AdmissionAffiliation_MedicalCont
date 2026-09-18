@@ -11,5 +11,7 @@ public partial class MstFieldTypeChp
 
     public string FieldType { get; set; } = null!;
 
+    public virtual ICollection<DentalFieldPracticeArea> DentalFieldPracticeAreas { get; set; } = new List<DentalFieldPracticeArea>();
+
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;
 }

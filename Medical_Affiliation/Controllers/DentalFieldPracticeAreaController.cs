@@ -27,7 +27,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> Index()
         {
             // --------------------------------------------------------
-            // Get session values
+            // Session values
             // --------------------------------------------------------
 
             var collegeCode =
@@ -61,17 +61,48 @@ namespace Medical_Affiliation.Controllers
 
 
             // --------------------------------------------------------
-            // Get FacultyId using FacultyCode + College
+            // Validate college + faculty
             // --------------------------------------------------------
 
-            var facultyId = await _context.Faculties
-                .Where(f =>
-                    f.Status == "Active" &&
-                    _context.AffiliationCollegeMasters.Any(c =>
-                        c.CollegeCode == collegeCode &&
-                        c.FacultyCode == facultyCode))
-                .Select(f => (int?)f.FacultyId)
-                .FirstOrDefaultAsync();
+            var college =
+                await _context.AffiliationCollegeMasters
+                    .FirstOrDefaultAsync(c =>
+                        c.CollegeCode == collegeCode);
+
+            if (college == null)
+            {
+                TempData["ErrorMessage"] =
+                    "College information not found.";
+
+                return RedirectToAction("Index", "Home");
+            }
+
+
+            if (!string.Equals(
+                    college.FacultyCode,
+                    facultyCode,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ErrorMessage"] =
+                    "The selected faculty does not match the college.";
+
+                return RedirectToAction("Index", "Home");
+            }
+
+
+            // --------------------------------------------------------
+            // Get FacultyId
+            // --------------------------------------------------------
+
+            var facultyId =
+                await _context.Faculties
+                    .Where(f =>
+                        f.Status == "Active" &&
+                        _context.AffiliationCollegeMasters.Any(c =>
+                            c.CollegeCode == collegeCode &&
+                            c.FacultyCode == facultyCode))
+                    .Select(f => (int?)f.FacultyId)
+                    .FirstOrDefaultAsync();
 
 
             if (!facultyId.HasValue)
@@ -81,6 +112,23 @@ namespace Medical_Affiliation.Controllers
 
                 return RedirectToAction("Index", "Home");
             }
+
+
+            // --------------------------------------------------------
+            // Get Rural / Urban field types
+            // --------------------------------------------------------
+
+            var fieldTypes =
+                await _context.MstFieldTypeChps
+                    .Where(x =>
+                        x.FacultyCode == int.Parse(facultyCode))
+                    .OrderBy(x => x.Id)
+                    .Select(x => new DropdownItem
+                    {
+                        Value = x.Id.ToString(),
+                        Text = x.FieldType
+                    })
+                    .ToListAsync();
 
 
             // --------------------------------------------------------
@@ -97,12 +145,13 @@ namespace Medical_Affiliation.Controllers
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.IsActive)
-                    .OrderBy(x => x.DentalFieldPracticeAreaId)
+                    .OrderBy(x => x.FieldTypeId)
+                    .ThenBy(x => x.DentalFieldPracticeAreaId)
                     .ToListAsync();
 
 
             // --------------------------------------------------------
-            // Prepare ViewModel
+            // Prepare model
             // --------------------------------------------------------
 
             var model = new DentalFieldPracticeAreaViewModel
@@ -114,6 +163,8 @@ namespace Medical_Affiliation.Controllers
                 TypeId = typeId.Value,
 
                 CourseLevel = courseLevel,
+
+                FieldTypes = fieldTypes,
 
                 DentalFieldPracticeRecords = records
             };
@@ -130,14 +181,21 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
+            int? fieldTypeId,
             string? location,
             string? address,
             string? managedBy,
             IFormFile? staffListFile,
-            int? populationServed)
+            int? populationServed,
+            string? activitiesAndServices,
+            string? recordsMaintained,
+            string? equipmentsAvailable,
+            string? trainingActivities,
+            string? supervisionMethod,
+            string? traineeSupervisorAccommodation)
         {
             // --------------------------------------------------------
-            // Get session values
+            // Session values
             // --------------------------------------------------------
 
             var collegeCode =
@@ -165,6 +223,39 @@ namespace Medical_Affiliation.Controllers
             {
                 TempData["ErrorMessage"] =
                     "Session information is missing. Please select the affiliation details again.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // --------------------------------------------------------
+            // Validate Field Type
+            // --------------------------------------------------------
+
+            if (!fieldTypeId.HasValue || fieldTypeId <= 0)
+            {
+                TempData["ErrorMessage"] =
+                    "Please select Field Type.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // --------------------------------------------------------
+            // Validate Field Type belongs to faculty
+            // --------------------------------------------------------
+
+            var fieldTypeExists =
+                await _context.MstFieldTypeChps
+                    .AnyAsync(x =>
+                        x.Id == fieldTypeId.Value &&
+                        x.FacultyCode == int.Parse(facultyCode));
+
+
+            if (!fieldTypeExists)
+            {
+                TempData["ErrorMessage"] =
+                    "Invalid Field Type selected.";
 
                 return RedirectToAction(nameof(Index));
             }
@@ -210,7 +301,7 @@ namespace Medical_Affiliation.Controllers
 
 
             // --------------------------------------------------------
-            // Validate Population Served
+            // Validate Population
             // --------------------------------------------------------
 
             if (!populationServed.HasValue ||
@@ -218,6 +309,84 @@ namespace Medical_Affiliation.Controllers
             {
                 TempData["ErrorMessage"] =
                     "Please enter a valid Population Served.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // --------------------------------------------------------
+            // Validate Activities
+            // --------------------------------------------------------
+
+            if (string.IsNullOrWhiteSpace(activitiesAndServices))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Activities and Services provided.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // --------------------------------------------------------
+            // Validate Records
+            // --------------------------------------------------------
+
+            if (string.IsNullOrWhiteSpace(recordsMaintained))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Records Maintained.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // --------------------------------------------------------
+            // Validate Equipment
+            // --------------------------------------------------------
+
+            if (string.IsNullOrWhiteSpace(equipmentsAvailable))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Equipments Available.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // --------------------------------------------------------
+            // Validate Training
+            // --------------------------------------------------------
+
+            if (string.IsNullOrWhiteSpace(trainingActivities))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Training Activities.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // --------------------------------------------------------
+            // Validate Supervision
+            // --------------------------------------------------------
+
+            if (string.IsNullOrWhiteSpace(supervisionMethod))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Supervision details.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            // --------------------------------------------------------
+            // Validate Accommodation
+            // --------------------------------------------------------
+
+            if (string.IsNullOrWhiteSpace(traineeSupervisorAccommodation))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Accommodation details.";
 
                 return RedirectToAction(nameof(Index));
             }
@@ -243,7 +412,7 @@ namespace Medical_Affiliation.Controllers
 
 
             // --------------------------------------------------------
-            // Validate Faculty against College
+            // Validate Faculty
             // --------------------------------------------------------
 
             if (!string.Equals(
@@ -262,14 +431,15 @@ namespace Medical_Affiliation.Controllers
             // Get FacultyId
             // --------------------------------------------------------
 
-            var facultyId = await _context.Faculties
-                .Where(f =>
-                    f.Status == "Active" &&
-                    _context.AffiliationCollegeMasters.Any(c =>
-                        c.CollegeCode == collegeCode &&
-                        c.FacultyCode == facultyCode))
-                .Select(f => (int?)f.FacultyId)
-                .FirstOrDefaultAsync();
+            var facultyId =
+                await _context.Faculties
+                    .Where(f =>
+                        f.Status == "Active" &&
+                        _context.AffiliationCollegeMasters.Any(c =>
+                            c.CollegeCode == collegeCode &&
+                            c.FacultyCode == facultyCode))
+                    .Select(f => (int?)f.FacultyId)
+                    .FirstOrDefaultAsync();
 
 
             if (!facultyId.HasValue)
@@ -287,7 +457,8 @@ namespace Medical_Affiliation.Controllers
 
             var affiliationTypeExists =
                 await _context.TypeOfAffiliations
-                    .AnyAsync(t => t.TypeId == typeId.Value);
+                    .AnyAsync(t =>
+                        t.TypeId == typeId.Value);
 
 
             if (!affiliationTypeExists)
@@ -301,6 +472,8 @@ namespace Medical_Affiliation.Controllers
 
             // --------------------------------------------------------
             // Check duplicate
+            //
+            // One Rural + one Urban record is allowed.
             // --------------------------------------------------------
 
             var duplicateExists =
@@ -310,13 +483,14 @@ namespace Medical_Affiliation.Controllers
                         x.FacultyId == facultyId.Value &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
+                        x.FieldTypeId == fieldTypeId.Value &&
                         x.IsActive);
 
 
             if (duplicateExists)
             {
                 TempData["ErrorMessage"] =
-                    "Dental Field Practice Area details already exist for the current selection.";
+                    "Details already exist for the selected Field Type.";
 
                 return RedirectToAction(nameof(Index));
             }
@@ -328,14 +502,19 @@ namespace Medical_Affiliation.Controllers
 
             string? staffListPath = null;
 
-            if (staffListFile != null && staffListFile.Length > 0)
+            if (staffListFile != null &&
+                staffListFile.Length > 0)
             {
-                const long maxFileSize = 2 * 1024 * 1024; // 2 MB
+                const long maxFileSize =
+                    2 * 1024 * 1024;
 
-                var extension = Path.GetExtension(staffListFile.FileName)
-                    .ToLowerInvariant();
 
-                // PDF only
+                var extension =
+                    Path.GetExtension(
+                        staffListFile.FileName)
+                        .ToLowerInvariant();
+
+
                 if (extension != ".pdf")
                 {
                     TempData["ErrorMessage"] =
@@ -344,7 +523,7 @@ namespace Medical_Affiliation.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Maximum 2 MB
+
                 if (staffListFile.Length > maxFileSize)
                 {
                     TempData["ErrorMessage"] =
@@ -353,101 +532,135 @@ namespace Medical_Affiliation.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
+
                 // ----------------------------------------------------
-                // Base path - same paths used by BaseController
+                // Base path
                 // ----------------------------------------------------
 
-                string basePath = facultyCode == "2"
-                    ? (Directory.Exists(@"E:\")
-                        ? @"E:\Affiliation_Dental"
-                        : @"D:\Affiliation_Dental")
-                    : (Directory.Exists(@"E:\")
-                        ? @"E:\Affiliation_Medical"
-                        : @"D:\Affiliation_Medical");
+                string basePath =
+                    facultyCode == "2"
+                        ? (Directory.Exists(@"E:\")
+                            ? @"E:\Affiliation_Dental"
+                            : @"D:\Affiliation_Dental")
+                        : (Directory.Exists(@"E:\")
+                            ? @"E:\Affiliation_Medical"
+                            : @"D:\Affiliation_Medical");
 
-                // DentalFieldPracticeArea folder
-                string uploadFolder = Path.Combine(
-                    basePath,
-                    "DentalFieldPracticeArea"
-                );
+
+                string uploadFolder =
+                    Path.Combine(
+                        basePath,
+                        "DentalFieldPracticeArea");
+
 
                 if (!Directory.Exists(uploadFolder))
                 {
-                    Directory.CreateDirectory(uploadFolder);
+                    Directory.CreateDirectory(
+                        uploadFolder);
                 }
 
-                // Always save as PDF
-                var fileName = $"{Guid.NewGuid():N}.pdf";
 
-                var filePath = Path.Combine(
-                    uploadFolder,
-                    fileName
-                );
+                var fileName =
+                    $"{Guid.NewGuid():N}.pdf";
 
-                using (var stream = new FileStream(
-                    filePath,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.None))
+
+                var filePath =
+                    Path.Combine(
+                        uploadFolder,
+                        fileName);
+
+
+                using (var stream =
+                    new FileStream(
+                        filePath,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None))
                 {
                     await staffListFile.CopyToAsync(stream);
                 }
 
-                // Store ONLY the physical file path
-                staffListPath = filePath;
+
+                staffListPath =
+                    filePath;
             }
+
 
             // --------------------------------------------------------
             // Create entity
             // --------------------------------------------------------
 
-            var entity = new DentalFieldPracticeArea
-            {
-                FacultyId =
-                    facultyId.Value,
+            var entity =
+                new DentalFieldPracticeArea
+                {
+                    FacultyId =
+                        facultyId.Value,
 
-                CollegeCode =
-                    collegeCode,
+                    CollegeCode =
+                        collegeCode,
 
-                TypeId =
-                    typeId.Value,
+                    TypeId =
+                        typeId.Value,
 
-                CourseLevel =
-                    courseLevel.ToUpperInvariant(),
+                    CourseLevel =
+                        courseLevel.ToUpperInvariant(),
 
-                Location =
-                    location.Trim(),
+                    FieldTypeId =
+                        fieldTypeId.Value,
 
-                Address =
-                    address.Trim(),
+                    Location =
+                        location.Trim(),
 
-                ManagedBy =
-                    managedBy.Trim(),
+                    Address =
+                        address.Trim(),
 
-                StaffList =
-                    staffListPath,
+                    ManagedBy =
+                        managedBy.Trim(),
 
-                PopulationServed =
-                    populationServed.Value,
+                    StaffList =
+                        staffListPath,
 
-                IsActive =
-                    true,
+                    PopulationServed =
+                        populationServed.Value,
 
-                CreatedBy =
-                    HttpContext.Session.GetString("LoginID"),
+                    ActivitiesAndServices =
+                        activitiesAndServices.Trim(),
 
-                CreatedDate =
-                    DateTime.Now
-            };
+                    RecordsMaintained =
+                        recordsMaintained.Trim(),
+
+                    EquipmentsAvailable =
+                        equipmentsAvailable.Trim(),
+
+                    TrainingActivities =
+                        trainingActivities.Trim(),
+
+                    SupervisionMethod =
+                        supervisionMethod.Trim(),
+
+                    TraineeSupervisorAccommodation =
+                        traineeSupervisorAccommodation.Trim(),
+
+                    IsActive =
+                        true,
+
+                    CreatedBy =
+                        HttpContext.Session
+                            .GetString("LoginID"),
+
+                    CreatedDate =
+                        DateTime.Now
+                };
 
 
-            _context.DentalFieldPracticeAreas.Add(entity);
+            _context.DentalFieldPracticeAreas
+                .Add(entity);
 
             await _context.SaveChangesAsync();
 
 
             TempData["SuccessMessage"] =
-                "Dental Field Practice Area details saved successfully.";
+                "Field Practice Area details saved successfully.";
 
 
             return RedirectToAction(nameof(Index));
@@ -461,10 +674,6 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            // --------------------------------------------------------
-            // Get session values
-            // --------------------------------------------------------
-
             var collegeCode =
                 HttpContext.Session.GetString("CollegeCode");
 
@@ -478,13 +687,10 @@ namespace Medical_Affiliation.Controllers
                 HttpContext.Session.GetString("CourseLevel");
 
 
-            // --------------------------------------------------------
-            // Validate session
-            // --------------------------------------------------------
-
             if (string.IsNullOrWhiteSpace(collegeCode) ||
                 string.IsNullOrWhiteSpace(facultyCode) ||
                 !typeId.HasValue ||
+                typeId <= 0 ||
                 string.IsNullOrWhiteSpace(courseLevel))
             {
                 TempData["ErrorMessage"] =
@@ -498,14 +704,15 @@ namespace Medical_Affiliation.Controllers
             // Get FacultyId
             // --------------------------------------------------------
 
-            var facultyId = await _context.Faculties
-                .Where(f =>
-                    f.Status == "Active" &&
-                    _context.AffiliationCollegeMasters.Any(c =>
-                        c.CollegeCode == collegeCode &&
-                        c.FacultyCode == facultyCode))
-                .Select(f => (int?)f.FacultyId)
-                .FirstOrDefaultAsync();
+            var facultyId =
+                await _context.Faculties
+                    .Where(f =>
+                        f.Status == "Active" &&
+                        _context.AffiliationCollegeMasters.Any(c =>
+                            c.CollegeCode == collegeCode &&
+                            c.FacultyCode == facultyCode))
+                    .Select(f => (int?)f.FacultyId)
+                    .FirstOrDefaultAsync();
 
 
             if (!facultyId.HasValue)
@@ -535,14 +742,14 @@ namespace Medical_Affiliation.Controllers
             if (entity == null)
             {
                 TempData["ErrorMessage"] =
-                    "Dental Field Practice Area record not found.";
+                    "Field Practice Area record not found.";
 
                 return RedirectToAction(nameof(Index));
             }
 
 
             // --------------------------------------------------------
-            // Prepare ViewModel
+            // Get all records
             // --------------------------------------------------------
 
             var records =
@@ -555,45 +762,93 @@ namespace Medical_Affiliation.Controllers
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.IsActive)
-                    .OrderBy(x => x.DentalFieldPracticeAreaId)
+                    .OrderBy(x => x.FieldTypeId)
+                    .ThenBy(x => x.DentalFieldPracticeAreaId)
                     .ToListAsync();
 
 
-            var model = new DentalFieldPracticeAreaViewModel
-            {
-                DentalFieldPracticeAreaId =
-                    entity.DentalFieldPracticeAreaId,
+            // --------------------------------------------------------
+            // Field Types
+            // --------------------------------------------------------
 
-                FacultyId =
-                    entity.FacultyId,
+            var fieldTypes =
+                await _context.MstFieldTypeChps
+                    .Where(x =>
+                        x.FacultyCode ==
+                        int.Parse(facultyCode))
+                    .OrderBy(x => x.Id)
+                    .Select(x => new DropdownItem
+                    {
+                        Value = x.Id.ToString(),
+                        Text = x.FieldType
+                    })
+                    .ToListAsync();
 
-                CollegeCode =
-                    entity.CollegeCode,
 
-                TypeId =
-                    entity.TypeId,
+            // --------------------------------------------------------
+            // Prepare model
+            // --------------------------------------------------------
 
-                CourseLevel =
-                    entity.CourseLevel,
+            var model =
+                new DentalFieldPracticeAreaViewModel
+                {
+                    DentalFieldPracticeAreaId =
+                        entity.DentalFieldPracticeAreaId,
 
-                Location =
-                    entity.Location,
+                    FacultyId =
+                        entity.FacultyId,
 
-                Address =
-                    entity.Address,
+                    CollegeCode =
+                        entity.CollegeCode,
 
-                ManagedBy =
-                    entity.ManagedBy,
+                    TypeId =
+                        entity.TypeId,
 
-                StaffList =
-                    entity.StaffList,
+                    CourseLevel =
+                        entity.CourseLevel,
 
-                PopulationServed =
-                    entity.PopulationServed,
+                    FieldTypeId =
+                        entity.FieldTypeId,
 
-                DentalFieldPracticeRecords =
-                    records
-            };
+                    FieldTypes =
+                        fieldTypes,
+
+                    Location =
+                        entity.Location,
+
+                    Address =
+                        entity.Address,
+
+                    ManagedBy =
+                        entity.ManagedBy,
+
+                    StaffList =
+                        entity.StaffList,
+
+                    PopulationServed =
+                        entity.PopulationServed,
+
+                    ActivitiesAndServices =
+                        entity.ActivitiesAndServices,
+
+                    RecordsMaintained =
+                        entity.RecordsMaintained,
+
+                    EquipmentsAvailable =
+                        entity.EquipmentsAvailable,
+
+                    TrainingActivities =
+                        entity.TrainingActivities,
+
+                    SupervisionMethod =
+                        entity.SupervisionMethod,
+
+                    TraineeSupervisorAccommodation =
+                        entity.TraineeSupervisorAccommodation,
+
+                    DentalFieldPracticeRecords =
+                        records
+                };
 
 
             return View("Index", model);
@@ -608,16 +863,19 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
+            int? fieldTypeId,
             string? location,
             string? address,
             string? managedBy,
             IFormFile? staffListFile,
-            int? populationServed)
+            int? populationServed,
+            string? activitiesAndServices,
+            string? recordsMaintained,
+            string? equipmentsAvailable,
+            string? trainingActivities,
+            string? supervisionMethod,
+            string? traineeSupervisorAccommodation)
         {
-            // --------------------------------------------------------
-            // Get session values
-            // --------------------------------------------------------
-
             var collegeCode =
                 HttpContext.Session.GetString("CollegeCode");
 
@@ -632,7 +890,7 @@ namespace Medical_Affiliation.Controllers
 
 
             // --------------------------------------------------------
-            // Validate session
+            // Session validation
             // --------------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(collegeCode) ||
@@ -649,15 +907,29 @@ namespace Medical_Affiliation.Controllers
 
 
             // --------------------------------------------------------
-            // Validate input
+            // Basic validation
             // --------------------------------------------------------
+
+            if (!fieldTypeId.HasValue ||
+                fieldTypeId <= 0)
+            {
+                TempData["ErrorMessage"] =
+                    "Please select Field Type.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
 
             if (string.IsNullOrWhiteSpace(location))
             {
                 TempData["ErrorMessage"] =
                     "Please enter Location.";
 
-                return RedirectToAction(nameof(Edit), new { id });
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
             }
 
 
@@ -666,7 +938,9 @@ namespace Medical_Affiliation.Controllers
                 TempData["ErrorMessage"] =
                     "Please enter Address.";
 
-                return RedirectToAction(nameof(Edit), new { id });
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
             }
 
 
@@ -675,7 +949,9 @@ namespace Medical_Affiliation.Controllers
                 TempData["ErrorMessage"] =
                     "Please enter Managed By.";
 
-                return RedirectToAction(nameof(Edit), new { id });
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
             }
 
 
@@ -685,7 +961,99 @@ namespace Medical_Affiliation.Controllers
                 TempData["ErrorMessage"] =
                     "Please enter a valid Population Served.";
 
-                return RedirectToAction(nameof(Edit), new { id });
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
+
+            if (string.IsNullOrWhiteSpace(activitiesAndServices))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Activities and Services provided.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
+
+            if (string.IsNullOrWhiteSpace(recordsMaintained))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Records Maintained.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
+
+            if (string.IsNullOrWhiteSpace(equipmentsAvailable))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Equipments Available.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
+
+            if (string.IsNullOrWhiteSpace(trainingActivities))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Training Activities.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
+
+            if (string.IsNullOrWhiteSpace(supervisionMethod))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Supervision details.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
+
+            if (string.IsNullOrWhiteSpace(
+                    traineeSupervisorAccommodation))
+            {
+                TempData["ErrorMessage"] =
+                    "Please enter Accommodation details.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
+
+            // --------------------------------------------------------
+            // Validate field type
+            // --------------------------------------------------------
+
+            var fieldTypeExists =
+                await _context.MstFieldTypeChps
+                    .AnyAsync(x =>
+                        x.Id == fieldTypeId.Value &&
+                        x.FacultyCode ==
+                            int.Parse(facultyCode));
+
+
+            if (!fieldTypeExists)
+            {
+                TempData["ErrorMessage"] =
+                    "Invalid Field Type selected.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
             }
 
 
@@ -693,14 +1061,15 @@ namespace Medical_Affiliation.Controllers
             // Get FacultyId
             // --------------------------------------------------------
 
-            var facultyId = await _context.Faculties
-                .Where(f =>
-                    f.Status == "Active" &&
-                    _context.AffiliationCollegeMasters.Any(c =>
-                        c.CollegeCode == collegeCode &&
-                        c.FacultyCode == facultyCode))
-                .Select(f => (int?)f.FacultyId)
-                .FirstOrDefaultAsync();
+            var facultyId =
+                await _context.Faculties
+                    .Where(f =>
+                        f.Status == "Active" &&
+                        _context.AffiliationCollegeMasters.Any(c =>
+                            c.CollegeCode == collegeCode &&
+                            c.FacultyCode == facultyCode))
+                    .Select(f => (int?)f.FacultyId)
+                    .FirstOrDefaultAsync();
 
 
             if (!facultyId.HasValue)
@@ -713,7 +1082,7 @@ namespace Medical_Affiliation.Controllers
 
 
             // --------------------------------------------------------
-            // Get existing record within current session
+            // Get existing entity
             // --------------------------------------------------------
 
             var entity =
@@ -730,15 +1099,47 @@ namespace Medical_Affiliation.Controllers
             if (entity == null)
             {
                 TempData["ErrorMessage"] =
-                    "Dental Field Practice Area record not found or does not belong to the current selection.";
+                    "Field Practice Area record not found or does not belong to the current selection.";
 
                 return RedirectToAction(nameof(Index));
             }
 
 
             // --------------------------------------------------------
-            // Update details
+            // Check duplicate Rural / Urban
+            //
+            // Exclude current record.
             // --------------------------------------------------------
+
+            var duplicateExists =
+                await _context.DentalFieldPracticeAreas
+                    .AnyAsync(x =>
+                        x.DentalFieldPracticeAreaId != id &&
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyId == facultyId.Value &&
+                        x.TypeId == typeId.Value &&
+                        x.CourseLevel == courseLevel &&
+                        x.FieldTypeId == fieldTypeId.Value &&
+                        x.IsActive);
+
+
+            if (duplicateExists)
+            {
+                TempData["ErrorMessage"] =
+                    "Details already exist for the selected Field Type.";
+
+                return RedirectToAction(
+                    nameof(Edit),
+                    new { id });
+            }
+
+
+            // --------------------------------------------------------
+            // Update fields
+            // --------------------------------------------------------
+
+            entity.FieldTypeId =
+                fieldTypeId.Value;
 
             entity.Location =
                 location.Trim();
@@ -752,92 +1153,131 @@ namespace Medical_Affiliation.Controllers
             entity.PopulationServed =
                 populationServed.Value;
 
+            entity.ActivitiesAndServices =
+                activitiesAndServices.Trim();
+
+            entity.RecordsMaintained =
+                recordsMaintained.Trim();
+
+            entity.EquipmentsAvailable =
+                equipmentsAvailable.Trim();
+
+            entity.TrainingActivities =
+                trainingActivities.Trim();
+
+            entity.SupervisionMethod =
+                supervisionMethod.Trim();
+
+            entity.TraineeSupervisorAccommodation =
+                traineeSupervisorAccommodation.Trim();
+
 
             // --------------------------------------------------------
-            // Replace Staff List if new file uploaded
+            // Replace Staff List
             // --------------------------------------------------------
 
-            if (staffListFile != null && staffListFile.Length > 0)
+            if (staffListFile != null &&
+                staffListFile.Length > 0)
             {
-                const long maxFileSize = 2 * 1024 * 1024; // 2 MB
+                const long maxFileSize =
+                    2 * 1024 * 1024;
 
-                var extension = Path.GetExtension(staffListFile.FileName)
-                    .ToLowerInvariant();
 
-                // PDF only
+                var extension =
+                    Path.GetExtension(
+                        staffListFile.FileName)
+                        .ToLowerInvariant();
+
+
                 if (extension != ".pdf")
                 {
                     TempData["ErrorMessage"] =
                         "Only PDF files are allowed for Staff List.";
 
-                    return RedirectToAction(nameof(Edit), new { id });
+                    return RedirectToAction(
+                        nameof(Edit),
+                        new { id });
                 }
 
-                // Maximum 2 MB
+
                 if (staffListFile.Length > maxFileSize)
                 {
                     TempData["ErrorMessage"] =
                         "Staff List PDF size must not exceed 2 MB.";
 
-                    return RedirectToAction(nameof(Edit), new { id });
+                    return RedirectToAction(
+                        nameof(Edit),
+                        new { id });
                 }
 
-                // ----------------------------------------------------
-                // Base path - same paths used by BaseController
-                // ----------------------------------------------------
 
-                string basePath = facultyCode == "2"
-                    ? (Directory.Exists(@"E:\")
-                        ? @"E:\Affiliation_Dental"
-                        : @"D:\Affiliation_Dental")
-                    : (Directory.Exists(@"E:\")
-                        ? @"E:\Affiliation_Medical"
-                        : @"D:\Affiliation_Medical");
+                string basePath =
+                    facultyCode == "2"
+                        ? (Directory.Exists(@"E:\")
+                            ? @"E:\Affiliation_Dental"
+                            : @"D:\Affiliation_Dental")
+                        : (Directory.Exists(@"E:\")
+                            ? @"E:\Affiliation_Medical"
+                            : @"D:\Affiliation_Medical");
 
-                string uploadFolder = Path.Combine(
-                    basePath,
-                    "DentalFieldPracticeArea"
-                );
+
+                string uploadFolder =
+                    Path.Combine(
+                        basePath,
+                        "DentalFieldPracticeArea");
+
 
                 if (!Directory.Exists(uploadFolder))
                 {
-                    Directory.CreateDirectory(uploadFolder);
+                    Directory.CreateDirectory(
+                        uploadFolder);
                 }
 
+
                 // ----------------------------------------------------
-                // Delete old physical file
+                // Delete old file
                 // ----------------------------------------------------
 
-                if (!string.IsNullOrWhiteSpace(entity.StaffList))
+                if (!string.IsNullOrWhiteSpace(
+                        entity.StaffList))
                 {
-                    if (System.IO.File.Exists(entity.StaffList))
+                    if (System.IO.File.Exists(
+                            entity.StaffList))
                     {
-                        System.IO.File.Delete(entity.StaffList);
+                        System.IO.File.Delete(
+                            entity.StaffList);
                     }
                 }
+
 
                 // ----------------------------------------------------
                 // Save new file
                 // ----------------------------------------------------
 
-                var fileName = $"{Guid.NewGuid():N}.pdf";
+                var fileName =
+                    $"{Guid.NewGuid():N}.pdf";
 
-                var filePath = Path.Combine(
-                    uploadFolder,
-                    fileName
-                );
 
-                using (var stream = new FileStream(
-                    filePath,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.None))
+                var filePath =
+                    Path.Combine(
+                        uploadFolder,
+                        fileName);
+
+
+                using (var stream =
+                    new FileStream(
+                        filePath,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None))
                 {
-                    await staffListFile.CopyToAsync(stream);
+                    await staffListFile.CopyToAsync(
+                        stream);
                 }
 
-                // Store ONLY physical file path
-                entity.StaffList = filePath;
+
+                entity.StaffList =
+                    filePath;
             }
 
 
@@ -846,7 +1286,8 @@ namespace Medical_Affiliation.Controllers
             // --------------------------------------------------------
 
             entity.ModifiedBy =
-                HttpContext.Session.GetString("LoginID");
+                HttpContext.Session
+                    .GetString("LoginID");
 
             entity.ModifiedDate =
                 DateTime.Now;
@@ -856,7 +1297,7 @@ namespace Medical_Affiliation.Controllers
 
 
             TempData["SuccessMessage"] =
-                "Dental Field Practice Area details updated successfully.";
+                "Field Practice Area details updated successfully.";
 
 
             return RedirectToAction(nameof(Index));
@@ -882,6 +1323,7 @@ namespace Medical_Affiliation.Controllers
             var courseLevel =
                 HttpContext.Session.GetString("CourseLevel");
 
+
             // --------------------------------------------------------
             // Validate session
             // --------------------------------------------------------
@@ -895,26 +1337,30 @@ namespace Medical_Affiliation.Controllers
                 return NotFound();
             }
 
+
             // --------------------------------------------------------
-            // Get FacultyId
+            // FacultyId
             // --------------------------------------------------------
 
-            var facultyId = await _context.Faculties
-                .Where(f =>
-                    f.Status == "Active" &&
-                    _context.AffiliationCollegeMasters.Any(c =>
-                        c.CollegeCode == collegeCode &&
-                        c.FacultyCode == facultyCode))
-                .Select(f => (int?)f.FacultyId)
-                .FirstOrDefaultAsync();
+            var facultyId =
+                await _context.Faculties
+                    .Where(f =>
+                        f.Status == "Active" &&
+                        _context.AffiliationCollegeMasters.Any(c =>
+                            c.CollegeCode == collegeCode &&
+                            c.FacultyCode == facultyCode))
+                    .Select(f => (int?)f.FacultyId)
+                    .FirstOrDefaultAsync();
+
 
             if (!facultyId.HasValue)
             {
                 return NotFound();
             }
 
+
             // --------------------------------------------------------
-            // Get record
+            // Get entity
             // --------------------------------------------------------
 
             var entity =
@@ -927,35 +1373,43 @@ namespace Medical_Affiliation.Controllers
                         x.CourseLevel == courseLevel &&
                         x.IsActive);
 
+
             if (entity == null ||
-                string.IsNullOrWhiteSpace(entity.StaffList))
+                string.IsNullOrWhiteSpace(
+                    entity.StaffList))
             {
                 return NotFound();
             }
 
+
+            var filePath =
+                entity.StaffList;
+
+
             // --------------------------------------------------------
-            // Physical file path stored in database
+            // Allowed folder
             // --------------------------------------------------------
 
-            var filePath = entity.StaffList;
+            var dentalBasePath =
+                Directory.Exists(@"E:\")
+                    ? @"E:\Affiliation_Dental"
+                    : @"D:\Affiliation_Dental";
+
+
+            var allowedFolder =
+                Path.GetFullPath(
+                    Path.Combine(
+                        dentalBasePath,
+                        "DentalFieldPracticeArea"));
+
+
+            var fullFilePath =
+                Path.GetFullPath(filePath);
+
 
             // --------------------------------------------------------
             // Security check
-            // Ensure file belongs to DentalFieldPracticeArea folder
             // --------------------------------------------------------
-
-            var dentalBasePath = Directory.Exists(@"E:\")
-                ? @"E:\Affiliation_Dental"
-                : @"D:\Affiliation_Dental";
-
-            var allowedFolder = Path.GetFullPath(
-                Path.Combine(
-                    dentalBasePath,
-                    "DentalFieldPracticeArea"
-                )
-            );
-
-            var fullFilePath = Path.GetFullPath(filePath);
 
             if (!fullFilePath.StartsWith(
                     allowedFolder,
@@ -964,26 +1418,26 @@ namespace Medical_Affiliation.Controllers
                 return Forbid();
             }
 
+
             // --------------------------------------------------------
-            // Check file exists
+            // File exists
             // --------------------------------------------------------
 
-            if (!System.IO.File.Exists(fullFilePath))
+            if (!System.IO.File.Exists(
+                    fullFilePath))
             {
                 return NotFound();
             }
 
-            // --------------------------------------------------------
-            // Return PDF inline
-            // --------------------------------------------------------
 
             var fileBytes =
-                await System.IO.File.ReadAllBytesAsync(fullFilePath);
+                await System.IO.File.ReadAllBytesAsync(
+                    fullFilePath);
+
 
             return File(
                 fileBytes,
-                "application/pdf"
-            );
+                "application/pdf");
         }
 
 
@@ -995,10 +1449,6 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            // --------------------------------------------------------
-            // Get session values
-            // --------------------------------------------------------
-
             var collegeCode =
                 HttpContext.Session.GetString("CollegeCode");
 
@@ -1019,6 +1469,7 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrWhiteSpace(collegeCode) ||
                 string.IsNullOrWhiteSpace(facultyCode) ||
                 !typeId.HasValue ||
+                typeId <= 0 ||
                 string.IsNullOrWhiteSpace(courseLevel))
             {
                 TempData["ErrorMessage"] =
@@ -1029,17 +1480,18 @@ namespace Medical_Affiliation.Controllers
 
 
             // --------------------------------------------------------
-            // Get FacultyId
+            // FacultyId
             // --------------------------------------------------------
 
-            var facultyId = await _context.Faculties
-                .Where(f =>
-                    f.Status == "Active" &&
-                    _context.AffiliationCollegeMasters.Any(c =>
-                        c.CollegeCode == collegeCode &&
-                        c.FacultyCode == facultyCode))
-                .Select(f => (int?)f.FacultyId)
-                .FirstOrDefaultAsync();
+            var facultyId =
+                await _context.Faculties
+                    .Where(f =>
+                        f.Status == "Active" &&
+                        _context.AffiliationCollegeMasters.Any(c =>
+                            c.CollegeCode == collegeCode &&
+                            c.FacultyCode == facultyCode))
+                    .Select(f => (int?)f.FacultyId)
+                    .FirstOrDefaultAsync();
 
 
             if (!facultyId.HasValue)
@@ -1052,7 +1504,7 @@ namespace Medical_Affiliation.Controllers
 
 
             // --------------------------------------------------------
-            // Find record
+            // Get entity
             // --------------------------------------------------------
 
             var entity =
@@ -1069,7 +1521,7 @@ namespace Medical_Affiliation.Controllers
             if (entity == null)
             {
                 TempData["ErrorMessage"] =
-                    "Dental Field Practice Area record not found.";
+                    "Field Practice Area record not found.";
 
                 return RedirectToAction(nameof(Index));
             }
@@ -1079,10 +1531,12 @@ namespace Medical_Affiliation.Controllers
             // Soft delete
             // --------------------------------------------------------
 
-            entity.IsActive = false;
+            entity.IsActive =
+                false;
 
             entity.ModifiedBy =
-                HttpContext.Session.GetString("LoginID");
+                HttpContext.Session
+                    .GetString("LoginID");
 
             entity.ModifiedDate =
                 DateTime.Now;
@@ -1092,7 +1546,7 @@ namespace Medical_Affiliation.Controllers
 
 
             TempData["SuccessMessage"] =
-                "Dental Field Practice Area record removed successfully.";
+                "Field Practice Area record removed successfully.";
 
 
             return RedirectToAction(nameof(Index));

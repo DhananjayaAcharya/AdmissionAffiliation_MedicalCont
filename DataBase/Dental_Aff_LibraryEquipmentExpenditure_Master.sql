@@ -398,6 +398,17 @@ CREATE TABLE AnimalHouseDetails
 
 ---------------------------------------------------
 
+INSERT INTO [dbo].[MST_FieldType_CHP]
+(
+    [FacultyCode],
+    [FieldType]
+)
+VALUES
+(2, 'Rural Field'),
+(2, 'Urban Field');
+
+----------------------------------------------------------------------
+
 -- ============================================================
 -- Table Name : DentalFieldPracticeArea
 -- Purpose    : Stores dental field practice area details
@@ -417,16 +428,41 @@ CREATE TABLE DentalFieldPracticeArea
 
     CourseLevel NVARCHAR(50) NOT NULL,
 
-    Location NVARCHAR(250) NOT NULL,
+    -- Rural / Urban
+    FieldTypeId INT NOT NULL,
 
+    -- a. Location and address
+    Location NVARCHAR(250) NOT NULL,
     Address NVARCHAR(500) NOT NULL,
 
+    -- b. Managed by
     ManagedBy NVARCHAR(250) NOT NULL,
 
-    StaffList NVARCHAR(500) NULL,
+    -- c. Staff
+    StaffList NVARCHAR(1000) NULL,
 
+    -- d. Population served
     PopulationServed INT NULL,
 
+    -- e. Activities and services provided
+    ActivitiesAndServices NVARCHAR(2000) NULL,
+
+    -- f. Records maintained
+    RecordsMaintained NVARCHAR(2000) NULL,
+
+    -- g. Equipments available
+    EquipmentsAvailable NVARCHAR(2000) NULL,
+
+    -- h(i). Residential / Non-Residential training activities
+    TrainingActivities NVARCHAR(2000) NULL,
+
+    -- h(ii). How supervision is done
+    SupervisionMethod NVARCHAR(2000) NULL,
+
+    -- h(iii). Accommodation for trainees and supervisors
+    TraineeSupervisorAccommodation NVARCHAR(2000) NULL,
+
+    -- Audit fields
     IsActive BIT NOT NULL DEFAULT 1,
 
     CreatedBy NVARCHAR(100) NULL,
@@ -450,10 +486,15 @@ CREATE TABLE DentalFieldPracticeArea
 
     CONSTRAINT FK_DentalFieldPracticeArea_AffiliationType
         FOREIGN KEY (TypeId)
-        REFERENCES TypeOfAffiliation(TypeId)
-);
+        REFERENCES TypeOfAffiliation(TypeId),
 
+    CONSTRAINT FK_DentalFieldPracticeArea_FieldType
+        FOREIGN KEY (FieldTypeId)
+        REFERENCES MST_FieldType_CHP(Id)
+);
 --------------------------------
+
+select * from DentalFieldPracticeArea
 
 
 ----If a college should have only one Dental Field Practice Area record 
@@ -521,3 +562,95 @@ CREATE TABLE ActionTakenDeficiencyReport
         REFERENCES TypeOfAffiliation(TypeId)
 );
 --------------------------------------------------
+
+--select * from CA_MST_RegisterRecord
+
+
+INSERT INTO [CA_MST_RegisterRecord]
+(
+    RegisterName,
+    FacultyId,
+    CourseLevel,
+    AffiliationType
+)
+VALUES
+(
+    'Do you maintain the counterfoil of the receipt book?',
+    1,
+    'UG',
+    2
+),
+(
+    'Do you maintain the counterfoil of transfer certificates?',
+    1,
+    'UG',
+    2
+),
+(
+    'Do you maintain a register of address of students?',
+    1,
+    'UG',
+    2
+);
+
+-----------------------------------------
+
+--select * from CA_MST_Med_LibraryItems
+
+INSERT INTO [Admission_Affiliation].[dbo].[CA_MST_Med_LibraryItems]
+(
+    FacultyCode,
+    ItemName
+)
+VALUES
+(2, 'Reports / Pamphlets'),
+(2, 'Microfilms / Microfiche'),
+(2, 'Slides'),
+(2, 'Audio Cassettes'),
+(2, 'Video Cassettes');
+
+-----------------------------------------
+
+--select * from [dbo].[CA_MST_Med_LibraryEquipments]
+
+INSERT INTO [dbo].[CA_MST_Med_LibraryEquipments]
+    ([FacultyCode], [EquipmentName])
+VALUES
+    (2, 'Connected to any network'),
+    (2, 'Microfilm reader'),
+    (2, 'Telephone'),
+    (2, 'Telex'),
+    (2, 'Fax');
+
+-------------------------------------------------
+
+INSERT INTO [Admission_Affiliation].[dbo].[HospitalFacilitiesMaster]
+(
+    [AffiliationTypeId],
+    [FacultyCode],
+    [FacilityName],
+    [IsActive],
+    [CreatedDate]
+)
+VALUES
+(2, 2, 'Radiology', 1, GETDATE()),
+(2, 2, 'Ultra Sound', 1, GETDATE()),
+(2, 2, 'Clinical Laboratory', 1, GETDATE()),
+(2, 2, 'Blood Bank', 1, GETDATE()),
+(2, 2, 'Operation Theatre', 1, GETDATE()),
+(2, 2, 'Casualty / Emergency Service', 1, GETDATE()),
+(2, 2, 'Disposal of Hospital Waste', 1, GETDATE()),
+(2, 2, 'Central Sterile Service', 1, GETDATE()),
+(2, 2, 'Kitchen', 1, GETDATE()),
+(2, 2, 'Laundry', 1, GETDATE()),
+(2, 2, 'Canteen', 1, GETDATE()),
+(2, 2, 'Pharmacy', 1, GETDATE()),
+(2, 2, 'Workshop', 1, GETDATE()),
+(2, 2, 'Stores', 1, GETDATE()),
+(2, 2, 'Medical Records Keeping', 1, GETDATE()),
+(2, 2, 'Mortuary and Central Cold Storage', 1, GETDATE()),
+(2, 2, 'Any Other Special Services and Special Clinics', 1, GETDATE());
+
+
+----------------------------------------------------------------------
+

@@ -905,7 +905,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     "Discipline",
                     "NPTAservices",
                     "EngAlliedservices",
-                    "WardWiseBedDistribution"
+                    "WardWiseBedDistribution",
                     //"AffiliatedDocuments",
                     //"CasualityRequirements",
                     //"CSSDandLaundryRequirements",
@@ -920,7 +920,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     //"SuperVisionInFieldPracticeArea",
                     //"OutPatientArea",
                     //"FieldPracticeArea",
-                    //"Facilities",
+                    "Facilities",
                     //"IndoorBedsOccupancy",
                     //"IndoorBedsUnits",
                     //"IndoorDepartment",

@@ -1,765 +1,842 @@
-﻿@model Medical_Affiliation.Models.DentalFieldPracticeAreaViewModel
+﻿
+@model DentalFieldPracticeAreaViewModel
 
 @{
-    ViewData["Title"] = "Dental Field Practice Area";
+    ViewData["Title"] = "Field Practice Area";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
 
-    var isEditing = Model.DentalFieldPracticeAreaId > 0;
+    // Faculty-specific Field Types
+    var ruralField = Model.FieldTypes
+        .FirstOrDefault(x => x.Value == "3");
+
+    var urbanField = Model.FieldTypes
+        .FirstOrDefault(x => x.Value == "4");
+
+    // Saved records
+    var ruralRecord = Model.DentalFieldPracticeRecords
+        .FirstOrDefault(x => x.FieldTypeId == 3);
+
+    var urbanRecord = Model.DentalFieldPracticeRecords
+        .FirstOrDefault(x => x.FieldTypeId == 4);
 }
 
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
-
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
 <style>
-    .dental-field-practice-page {
-        min-height: calc(100vh - 8rem);
-        padding: 1.5rem 0 3rem;
-        background: #f4f8fb;
-        color: #18324b;
+
+    .page-wrapper {
+        padding-top: 0
+    }
+    /* ============================================================
+           PAGE WRAPPER
+           Keeps content below the fixed layout/header
+           ============================================================ */
+
+    .field-practice-page {
+        min-height: calc(100vh - 80px);
     }
 
-    .dental-field-practice-page .page-heading {
-        display: flex;
-        align-items: end;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 1.25rem;
-        padding: 1.5rem 1.75rem;
-        color: #fff;
-        border-radius: .75rem;
-        background: linear-gradient(120deg, #0e4d80, #1769aa);
+    /* ============================================================
+           MAIN CARD
+           ============================================================ */
+
+    .practice-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        margin-bottom: 30px;
     }
 
-    .dental-field-practice-page .page-heading h1 {
-        margin: 0;
-        font-size: 1.8rem;
-        font-weight: 600;
+    /* ============================================================
+           PAGE TITLE
+           ============================================================ */
+
+    .practice-header {
+        padding: 20px 24px;
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        border-bottom: 1px solid #e5e7eb;
     }
 
-    .dental-field-practice-page .page-heading p {
-        margin: .35rem 0 0;
-        color: rgba(255, 255, 255, .78);
-    }
+        .practice-header h4 {
+            margin: 0;
+            font-weight: 700;
+            color: #1f2937;
+        }
 
-    .dental-field-practice-page .panel {
-        border: 1px solid #dce7f0;
-        border-radius: .7rem;
+        .practice-header p {
+            margin: 5px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+    /* ============================================================
+           RURAL / URBAN SECTION
+           ============================================================ */
+
+    .field-section {
+        margin-bottom: 28px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
         background: #fff;
-        box-shadow: 0 .5rem 1.5rem rgba(34, 67, 96, .07);
     }
 
-    .dental-field-practice-page .section-title {
-        font-size: 1rem;
+    .field-section-header {
+        padding: 14px 18px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .field-section-header h5 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+    .field-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
         font-weight: 600;
-        color: #18324b;
+        background: #e0e7ff;
+        color: #3730a3;
     }
 
-    .dental-field-practice-page .form-label {
-        color: #526b80;
-        font-size: .75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .05em;
+    .field-section-body {
+        padding: 22px;
     }
 
-    .dental-field-practice-page .required::after {
-        content: " *";
-        color: #dc3545;
+    /* ============================================================
+           FORM LABELS
+           ============================================================ */
+
+    .field-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+        font-size: 14px;
     }
 
-    .dental-field-practice-page .form-control:focus {
-        border-color: #1769aa;
-        box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .12);
+    .required-star {
+        color: #dc2626;
+        margin-left: 2px;
     }
 
-    .dental-field-practice-page textarea {
-        min-height: 120px;
+    /* ============================================================
+           INPUTS
+           ============================================================ */
+
+    .field-input,
+    .field-textarea {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        background: #fff;
+    }
+
+        .field-input:focus,
+        .field-textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+    .field-textarea {
+        min-height: 100px;
         resize: vertical;
     }
 
-    .dental-field-practice-page .file-help {
-        font-size: .75rem;
-        color: #71869a;
-        margin-top: .35rem;
+    /* ============================================================
+           FILE AREA
+           ============================================================ */
+
+    .file-box {
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 12px;
     }
 
-    .dental-field-practice-page .existing-file {
-        margin-top: .5rem;
-        padding: .55rem .75rem;
-        border: 1px solid #dce7f0;
-        border-radius: .45rem;
-        background: #f7fafc;
+    .existing-file {
+        margin-top: 8px;
+        font-size: 13px;
     }
 
-    .dental-field-practice-page .existing-file a {
-        color: #1769aa;
-        font-size: .85rem;
+        .existing-file a {
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+    /* ============================================================
+           SAVE / UPDATE BUTTON
+           ============================================================ */
+
+    .save-button-wrapper {
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .save-field-btn {
+        min-width: 130px;
+        border-radius: 8px;
         font-weight: 600;
-        text-decoration: none;
+        padding: 10px 22px;
     }
 
-    .dental-field-practice-page .existing-file a:hover {
-        text-decoration: underline;
+    /* ============================================================
+           VALIDATION
+           ============================================================ */
+
+    .validation-message {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 4px;
     }
 
-    .dental-field-practice-page .table th {
-        color: #62798d;
-        background: #f1f6fa;
-        font-size: .72rem;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-        white-space: nowrap;
-    }
+    /* ============================================================
+           RESPONSIVE
+           ============================================================ */
 
-    .dental-field-practice-page .table td {
-        vertical-align: middle;
-    }
+    @@media (max-width: 768px) {
 
-    .dental-field-practice-page .table tbody tr:hover {
-        background: #f8fbfd;
-    }
-
-    .dental-field-practice-page .record-text {
-        max-width: 260px;
-        white-space: normal;
-        word-break: break-word;
-    }
-
-    .dental-field-practice-page .action-btn {
-        width: 34px;
-        height: 34px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .dental-field-practice-page .btn-primary {
-        background-color: #1769aa;
-        border-color: #1769aa;
-    }
-
-    .dental-field-practice-page .btn-primary:hover {
-        background-color: #0e4d80;
-        border-color: #0e4d80;
-    }
-
-    .dental-field-practice-page .file-icon {
-        color: #dc3545;
-    }
-
-    @@media (max-width: 767.98px) {
-
-        .dental-field-practice-page .page-heading {
-            align-items: start;
-            flex-direction: column;
-            padding: 1.25rem;
+        .field-practice-page {
+            padding-top: 70px;
         }
 
-        .dental-field-practice-page .page-heading h1 {
-            font-size: 1.5rem;
+        .field-section-body {
+            padding: 15px;
         }
 
-        .dental-field-practice-page .record-text {
-            max-width: 180px;
+        .practice-header {
+            padding: 16px;
         }
-    }
 
+        .field-section-header {
+            padding: 12px 15px;
+        }
 
-    .dental-field-practice-page .pdf-viewer-modal .modal-content {
-        border: 0;
-        border-radius: .75rem;
-        overflow: hidden;
-    }
+        .save-button-wrapper {
+            text-align: center;
+        }
 
-    #staffPdfViewerModal .modal-content {
-        border-radius: .75rem;
-        overflow: hidden;
-    }
-
-    #staffPdfViewerModal .modal-header {
-        background: #f7fafc;
-        border-bottom: 1px solid #dce7f0;
-    }
-
-    #staffPdfViewerModal .modal-footer {
-        background: #f7fafc;
-        border-top: 1px solid #dce7f0;
-    }
-
-    #staffPdfViewer {
-        background: #525659;
+        .save-field-btn {
+            width: 100%;
+        }
     }
 </style>
 
 
-<div class="dental-field-practice-page">
+<div class="field-practice-page">
 
     <div class="container-fluid">
 
-        <!-- ========================================================= -->
-        <!-- PAGE HEADER -->
-        <!-- ========================================================= -->
+        <!-- ========================================================
+             PAGE HEADER
+             ======================================================== -->
 
-        <div class="page-heading">
+        <div class="practice-card">
 
-            <div>
+            <div class="practice-header">
 
-                <h1>
+                <h4>
                     <i class="bi bi-hospital me-2"></i>
-                    Dental Field Practice Area
-                </h1>
+                    Field Practice Area
+                </h4>
 
                 <p>
-                    Maintain details of dental field practice areas,
-                    staff and population served.
+                    Field Practice Area (Health Centres) for Community Health Planning
                 </p>
 
             </div>
 
-        </div>
 
+            <div class="p-4">
 
-        <!-- ========================================================= -->
-        <!-- ADD / EDIT FORM -->
-        <!-- ========================================================= -->
+                <!-- ====================================================
+                     RURAL FIELD
+                     ==================================================== -->
 
-        <div class="panel border-0 mb-4">
+                <div class="field-section">
 
-            <div class="card-body p-4">
+                    <div class="field-section-header">
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-
-                    <div>
-
-                        <h5 class="section-title mb-1">
-
-                            <i class="bi bi-pencil-square me-1"></i>
-
-                            @(isEditing
-                                ? "Edit Field Practice Area"
-                                : "Add Field Practice Area")
-
+                        <h5>
+                            <i class="bi bi-tree me-2"></i>
+                            Rural Field Practice Area
                         </h5>
 
-                        <small class="text-muted">
-                            Enter the particulars of the dental field practice area.
-                        </small>
-
-                    </div>
-
-
-                    @if (isEditing)
-                    {
-                        <a asp-action="Index"
-                           class="btn btn-sm btn-outline-secondary">
-
-                            <i class="bi bi-x-circle me-1"></i>
-                            Cancel
-
-                        </a>
-                    }
-
-                </div>
-
-
-                <form id="dentalFieldPracticeForm"
-                      asp-action="@(isEditing ? "Edit" : "Create")"
-                      method="post"
-                      enctype="multipart/form-data">
-
-                    @Html.AntiForgeryToken()
-
-
-                    @if (isEditing)
-                    {
-                        <input asp-for="DentalFieldPracticeAreaId"
-                               type="hidden" />
-                    }
-
-
-                    <div asp-validation-summary="ModelOnly"
-                         class="text-danger small mb-3">
-                    </div>
-
-
-                    <div class="row g-4">
-
-                        <!-- ================================================= -->
-                        <!-- LOCATION -->
-                        <!-- ================================================= -->
-
-                        <div class="col-md-6">
-
-                            <label asp-for="Location"
-                                   class="form-label required">
-
-                                <i class="bi bi-geo-alt me-1"></i>
-                                Location
-
-                            </label>
-
-                            <input asp-for="Location"
-                                   class="form-control"
-                                   placeholder="Enter field practice area location" />
-
-                            <span asp-validation-for="Location"
-                                  class="text-danger small">
-                            </span>
-
-                        </div>
-
-
-                        <!-- ================================================= -->
-                        <!-- MANAGED BY -->
-                        <!-- ================================================= -->
-
-                        <div class="col-md-6">
-
-                            <label asp-for="ManagedBy"
-                                   class="form-label required">
-
-                                <i class="bi bi-building me-1"></i>
-                                Managed By
-
-                            </label>
-
-                            <input asp-for="ManagedBy"
-                                   class="form-control"
-                                   placeholder="Enter managing organization / authority" />
-
-                            <span asp-validation-for="ManagedBy"
-                                  class="text-danger small">
-                            </span>
-
-                        </div>
-
-
-                        <!-- ================================================= -->
-                        <!-- ADDRESS -->
-                        <!-- ================================================= -->
-
-                        <div class="col-md-12">
-
-                            <label asp-for="Address"
-                                   class="form-label required">
-
-                                <i class="bi bi-pin-map me-1"></i>
-                                Address
-
-                            </label>
-
-                            <textarea asp-for="Address"
-                                      class="form-control"
-                                      rows="4"
-                                      placeholder="Enter complete address of the field practice area"></textarea>
-
-                            <span asp-validation-for="Address"
-                                  class="text-danger small">
-                            </span>
-
-                        </div>
-
-
-                        <!-- ================================================= -->
-                        <!-- STAFF LIST -->
-                        <!-- ================================================= -->
-
-                        <div class="col-md-6">
-
-                            <label asp-for="StaffListFile"
-                                   class="form-label">
-
-                                <i class="bi bi-file-earmark-pdf me-1 file-icon"></i>
-                                Staff List
-
-                            </label>
-
-                            <input asp-for="StaffListFile"
-                                   type="file"
-                                   class="form-control"
-                                   accept=".pdf,application/pdf" />
-
-                            <div class="file-help">
-                                <i class="bi bi-info-circle me-1"></i>
-                                PDF only. Maximum file size: 2 MB.
-                            </div>
-
-
-                            @if (isEditing &&
-                                 !string.IsNullOrWhiteSpace(Model.StaffList))
-                            {
-                                <div class="existing-file">
-
-                                    <i class="bi bi-file-earmark-pdf me-1 file-icon"></i>
-
-                                    <a href="@Model.StaffList"
-                                       target="_blank">
-
-                                        View Existing Staff List
-
-                                    </a>
-
-                                </div>
-                            }
-
-                            <span asp-validation-for="StaffListFile"
-                                  class="text-danger small">
-                            </span>
-
-                        </div>
-
-
-                        <!-- ================================================= -->
-                        <!-- POPULATION SERVED -->
-                        <!-- ================================================= -->
-
-                        <div class="col-md-6">
-
-                            <label asp-for="PopulationServed"
-                                   class="form-label required">
-
-                                <i class="bi bi-people me-1"></i>
-                                Population Served
-
-                            </label>
-
-                            <input asp-for="PopulationServed"
-                                   type="number"
-                                   class="form-control"
-                                   min="1"
-                                   step="1"
-                                   placeholder="Enter population served" />
-
-                            <span asp-validation-for="PopulationServed"
-                                  class="text-danger small">
-                            </span>
-
-                        </div>
-
-
-                        <!-- ================================================= -->
-                        <!-- SAVE BUTTON -->
-                        <!-- ================================================= -->
-
-                        <div class="col-md-4 ms-auto">
-
-                            <button type="submit"
-                                    class="btn btn-primary w-100"
-                                    id="saveDentalFieldPracticeBtn">
-
-                                <i class="bi bi-save me-1"></i>
-
-                                @(isEditing
-                                    ? "Update Field Practice Area"
-                                    : "Save Field Practice Area")
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-        </div>
-
-
-        <!-- ========================================================= -->
-        <!-- EXISTING RECORDS -->
-        <!-- ========================================================= -->
-
-        <div class="panel border-0">
-
-            <div class="card-body p-0">
-
-                <div class="p-4 border-bottom">
-
-                    <h5 class="section-title mb-1">
-
-                        <i class="bi bi-table me-1"></i>
-                        Field Practice Area Records
-
-                    </h5>
-
-                    <small class="text-muted">
-                        Existing dental field practice area details.
-                    </small>
-
-                </div>
-
-
-                <div class="table-responsive">
-
-                    <table class="table table-hover align-middle mb-0">
-
-                        <thead>
-
-                            <tr>
-
-                                <th class="ps-4">
-                                    Location
-                                </th>
-
-                                <th>
-                                    Address
-                                </th>
-
-                                <th>
-                                    Managed By
-                                </th>
-
-                                <th>
-                                    Staff List
-                                </th>
-
-                                <th>
-                                    Population Served
-                                </th>
-
-                                <th class="text-end pe-4">
-                                    Actions
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            @if (Model.DentalFieldPracticeRecords == null ||
-                                 !Model.DentalFieldPracticeRecords.Any())
-                            {
-                                <tr>
-
-                                    <td colspan="6"
-                                        class="text-center text-muted py-5">
-
-                                        <div class="mb-2">
-
-                                            <i class="bi bi-inbox fs-2"></i>
-
-                                        </div>
-
-                                        No field practice area records found.
-
-                                    </td>
-
-                                </tr>
-                            }
-                            else
-                            {
-                                foreach (var item in Model.DentalFieldPracticeRecords)
-                                {
-                                    <tr>
-
-                                        <!-- Location -->
-
-                                        <td class="ps-4 fw-semibold">
-
-                                            @item.Location
-
-                                        </td>
-
-
-                                        <!-- Address -->
-
-                                        <td>
-
-                                            <div class="record-text">
-
-                                                @item.Address
-
-                                            </div>
-
-                                        </td>
-
-
-                                        <!-- Managed By -->
-
-                                        <td>
-
-                                            <div class="record-text">
-
-                                                @item.ManagedBy
-
-                                            </div>
-
-                                        </td>
-
-
-                                        <!-- Staff List -->
-
-                                        <td>
-
-                                            @if (!string.IsNullOrWhiteSpace(item.StaffList))
-                                            {
-                                                <button type="button"
-                                                        class="btn btn-sm btn-outline-danger view-staff-pdf-btn"
-                                                        data-id="@item.DentalFieldPracticeAreaId">
-
-                                                    <i class="bi bi-file-earmark-pdf me-1"></i>
-                                                    View PDF
-
-                                                </button>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted">
-                                                    Not uploaded
-                                                </span>
-                                            }
-
-                                        </td>
-
-
-                                        <!-- Population Served -->
-
-                                        <td class="fw-semibold">
-
-                                            @item.PopulationServed
-
-                                        </td>
-
-
-                                        <!-- Actions -->
-
-                                        <td class="text-end pe-4">
-
-                                            <a asp-action="Edit"
-                                               asp-route-id="@item.DentalFieldPracticeAreaId"
-                                               class="btn btn-sm btn-outline-primary action-btn me-1"
-                                               title="Edit">
-
-                                                <i class="bi bi-pencil"></i>
-
-                                            </a>
-
-
-                                            <form asp-action="Delete"
-                                                  asp-route-id="@item.DentalFieldPracticeAreaId"
-                                                  method="post"
-                                                  class="d-inline delete-dental-field-practice-form">
-
-                                                @Html.AntiForgeryToken()
-
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-outline-danger action-btn"
-                                                        title="Remove">
-
-                                                    <i class="bi bi-trash"></i>
-
-                                                </button>
-
-                                            </form>
-
-                                        </td>
-
-                                    </tr>
-                                }
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ========================================================= -->
-<!-- PDF VIEWER MODAL -->
-<!-- ========================================================= -->
-
-<div class="modal fade"
-     id="staffPdfViewerModal"
-     tabindex="-1"
-     aria-labelledby="staffPdfViewerModalLabel"
-     aria-hidden="true">
-
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-
-        <div class="modal-content">
-
-            <!-- Header -->
-
-            <div class="modal-header">
-
-                <h5 class="modal-title"
-                    id="staffPdfViewerModalLabel">
-
-                    <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
-
-                    Staff List PDF
-
-                </h5>
-
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close">
-                </button>
-
-            </div>
-
-            <!-- Body -->
-
-            <div class="modal-body p-0">
-
-                <div id="staffPdfViewerLoading"
-                     class="text-center py-5">
-
-                    <div class="spinner-border text-primary"
-                         role="status">
-
-                        <span class="visually-hidden">
-                            Loading...
+                        <span class="field-badge">
+                            Rural
                         </span>
 
                     </div>
 
-                    <div class="mt-2 text-muted">
-                        Loading PDF...
+
+                    <div class="field-section-body">
+
+                        <form id="ruralFieldForm"
+                              asp-controller="DentalFieldPracticeArea"
+                              asp-action="@(ruralRecord != null ? "Edit" : "Create")"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <!-- Hidden values -->
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@(ruralRecord?.DentalFieldPracticeAreaId ?? 0)" />
+
+                            <input type="hidden"
+                                   name="fieldTypeId"
+                                   value="3" />
+
+
+                            <!-- a. Location -->
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        a. Location
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="location"
+                                           class="field-input"
+                                           maxlength="250"
+                                           value="@ruralRecord?.Location"
+                                           placeholder="Enter location" />
+
+                                </div>
+
+
+                                <!-- Address -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        Address
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="address"
+                                           class="field-input"
+                                           maxlength="500"
+                                           value="@ruralRecord?.Address"
+                                           placeholder="Enter complete address" />
+
+                                </div>
+
+
+                                <!-- b. Managed By -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        b. Managed By
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="managedBy"
+                                           class="field-input"
+                                           maxlength="250"
+                                           value="@ruralRecord?.ManagedBy"
+                                           placeholder="Enter managing authority/person" />
+
+                                </div>
+
+
+                                <!-- c. Staff -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        c. Staff – List of Personnel Working
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <div class="file-box">
+
+                                        <input type="file"
+                                               name="staffListFile"
+                                               class="form-control"
+                                               accept=".pdf" />
+
+                                        @if (ruralRecord != null &&
+                                             !string.IsNullOrWhiteSpace(ruralRecord.StaffList))
+                                        {
+                                            <div class="existing-file">
+
+                                                <a href="@Url.Action(
+                                                                                                       "ViewStaffList",
+                                                                                                       "DentalFieldPracticeArea",
+                                                                                                       new { id = ruralRecord.DentalFieldPracticeAreaId }
+                                                                                                   )"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-outline-primary">
+
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                    View Saved Staff List
+                                                </a>
+
+                                                <span class="text-muted ms-2">
+                                                    Upload a new PDF to replace it.
+                                                </span>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- d. Population -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        d. Population Served
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="number"
+                                           name="populationServed"
+                                           class="field-input"
+                                           min="1"
+                                           value="@ruralRecord?.PopulationServed"
+                                           placeholder="Enter population served" />
+
+                                </div>
+
+
+                                <!-- e. Activities -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        e. Activities and Services Provided
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="activitiesAndServices"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Outdoor, Indoor, Outreach, Domiciliary, Emergency">@ruralRecord?.ActivitiesAndServices</textarea>
+
+                                </div>
+
+
+                                <!-- f. Records -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        f. Records Maintained by the Centres
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="recordsMaintained"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Family folders, types of registers, etc.">@ruralRecord?.RecordsMaintained</textarea>
+
+                                </div>
+
+
+                                <!-- g. Equipment -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        g. Equipment Available
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="equipmentsAvailable"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter equipment available">@ruralRecord?.EquipmentsAvailable</textarea>
+
+                                </div>
+
+
+                                <!-- h(i) Training -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(i). Residential / Non-Residential Training Activities
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="trainingActivities"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter details of training activities">@ruralRecord?.TrainingActivities</textarea>
+
+                                </div>
+
+
+                                <!-- h(ii) Supervision -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(ii). How Supervision is Done
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="supervisionMethod"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter supervision method">@ruralRecord?.SupervisionMethod</textarea>
+
+                                </div>
+
+
+                                <!-- h(iii) Accommodation -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(iii). Accommodation Available for Trainees and Supervisors
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="traineeSupervisorAccommodation"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter accommodation details">@ruralRecord?.TraineeSupervisorAccommodation</textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Button -->
+
+                            <div class="save-button-wrapper">
+
+                                <button type="submit"
+                                        class="btn btn-primary save-field-btn">
+
+                                    <i class="bi @(ruralRecord != null ? "bi-pencil-square" : "bi-save") me-1"></i>
+
+                                    @(ruralRecord != null ? "Update Rural Details" : "Save Rural Details")
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
                     </div>
 
                 </div>
 
-                <iframe id="staffPdfViewer"
-                        src=""
-                        title="Staff List PDF Viewer"
-                        style="
-                    width: 100%;
-                    height: 75vh;
-                    border: 0;
-                    display: none;
-                    ">
-                </iframe>
 
-            </div>
+                <!-- ====================================================
+                     URBAN FIELD
+                     ==================================================== -->
 
-            <!-- Footer -->
+                <div class="field-section">
 
-            <div class="modal-footer">
+                    <div class="field-section-header">
 
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
+                        <h5>
+                            <i class="bi bi-building me-2"></i>
+                            Urban Field Practice Area
+                        </h5>
 
-                    <i class="bi bi-x-circle me-1"></i>
-                    Close
+                        <span class="field-badge">
+                            Urban
+                        </span>
 
-                </button>
+                    </div>
+
+
+                    <div class="field-section-body">
+
+                        <form id="urbanFieldForm"
+                              asp-controller="DentalFieldPracticeArea"
+                              asp-action="@(urbanRecord != null ? "Edit" : "Create")"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <!-- Hidden values -->
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@(urbanRecord?.DentalFieldPracticeAreaId ?? 0)" />
+
+                            <input type="hidden"
+                                   name="fieldTypeId"
+                                   value="4" />
+
+
+                            <div class="row g-3">
+
+                                <!-- a. Location -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        a. Location
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="location"
+                                           class="field-input"
+                                           maxlength="250"
+                                           value="@urbanRecord?.Location"
+                                           placeholder="Enter location" />
+
+                                </div>
+
+
+                                <!-- Address -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        Address
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="address"
+                                           class="field-input"
+                                           maxlength="500"
+                                           value="@urbanRecord?.Address"
+                                           placeholder="Enter complete address" />
+
+                                </div>
+
+
+                                <!-- b. Managed By -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        b. Managed By
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="managedBy"
+                                           class="field-input"
+                                           maxlength="250"
+                                           value="@urbanRecord?.ManagedBy"
+                                           placeholder="Enter managing authority/person" />
+
+                                </div>
+
+
+                                <!-- c. Staff -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        c. Staff – List of Personnel Working
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <div class="file-box">
+
+                                        <input type="file"
+                                               name="staffListFile"
+                                               class="form-control"
+                                               accept=".pdf" />
+
+                                        @if (urbanRecord != null &&
+                                             !string.IsNullOrWhiteSpace(urbanRecord.StaffList))
+                                        {
+                                            <div class="existing-file">
+
+                                                <a href="@Url.Action(
+                                                                                                       "ViewStaffList",
+                                                                                                       "DentalFieldPracticeArea",
+                                                                                                       new { id = urbanRecord.DentalFieldPracticeAreaId }
+                                                                                                   )"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-outline-primary">
+
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                    View Saved Staff List
+                                                </a>
+
+                                                <span class="text-muted ms-2">
+                                                    Upload a new PDF to replace it.
+                                                </span>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- d. Population -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        d. Population Served
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="number"
+                                           name="populationServed"
+                                           class="field-input"
+                                           min="1"
+                                           value="@urbanRecord?.PopulationServed"
+                                           placeholder="Enter population served" />
+
+                                </div>
+
+
+                                <!-- e. Activities -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        e. Activities and Services Provided
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="activitiesAndServices"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Outdoor, Indoor, Outreach, Domiciliary, Emergency">@urbanRecord?.ActivitiesAndServices</textarea>
+
+                                </div>
+
+
+                                <!-- f. Records -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        f. Records Maintained by the Centres
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="recordsMaintained"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Family folders, types of registers, etc.">@urbanRecord?.RecordsMaintained</textarea>
+
+                                </div>
+
+
+                                <!-- g. Equipment -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        g. Equipment Available
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="equipmentsAvailable"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter equipment available">@urbanRecord?.EquipmentsAvailable</textarea>
+
+                                </div>
+
+
+                                <!-- h(i) Training -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(i). Residential / Non-Residential Training Activities
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="trainingActivities"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter details of training activities">@urbanRecord?.TrainingActivities</textarea>
+
+                                </div>
+
+
+                                <!-- h(ii) Supervision -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(ii). How Supervision is Done
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="supervisionMethod"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter supervision method">@urbanRecord?.SupervisionMethod</textarea>
+
+                                </div>
+
+
+                                <!-- h(iii) Accommodation -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(iii). Accommodation Available for Trainees and Supervisors
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="traineeSupervisorAccommodation"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter accommodation details">@urbanRecord?.TraineeSupervisorAccommodation</textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Button -->
+
+                            <div class="save-button-wrapper">
+
+                                <button type="submit"
+                                        class="btn btn-primary save-field-btn">
+
+                                    <i class="bi @(urbanRecord != null ? "bi-pencil-square" : "bi-save") me-1"></i>
+
+                                    @(urbanRecord != null ? "Update Urban Details" : "Save Urban Details")
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -768,576 +845,3 @@
     </div>
 
 </div>
-
-
-@section Scripts {
-
-    <partial name="_ValidationScriptsPartial" />
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-
-    <script>
-
-        document.addEventListener("DOMContentLoaded", function() {
-
-            const form =
-                document.getElementById(
-                    "dentalFieldPracticeForm"
-                );
-
-            const isEditing =
-                        @isEditing.ToString().ToLower();
-
-
-            // ============================================================
-            // SAVE / UPDATE
-            // ============================================================
-
-            if (form) {
-
-                form.addEventListener(
-                    "submit",
-                    function(event) {
-
-                        let errors = [];
-
-
-                        const location =
-                            document.getElementById("Location");
-
-                        const address =
-                            document.getElementById("Address");
-
-                        const managedBy =
-                            document.getElementById("ManagedBy");
-
-                        const staffListFile =
-                            document.getElementById("StaffListFile");
-
-                        const populationServed =
-                            document.getElementById(
-                                "PopulationServed"
-                            );
-
-
-                        // ------------------------------------------------
-                        // Location
-                        // ------------------------------------------------
-
-                        if (!location ||
-                            !location.value.trim()) {
-
-                            errors.push(
-                                "Please enter Location."
-                            );
-
-                        }
-
-
-                        // ------------------------------------------------
-                        // Address
-                        // ------------------------------------------------
-
-                        if (!address ||
-                            !address.value.trim()) {
-
-                            errors.push(
-                                "Please enter Address."
-                            );
-
-                        }
-
-
-                        // ------------------------------------------------
-                        // Managed By
-                        // ------------------------------------------------
-
-                        if (!managedBy ||
-                            !managedBy.value.trim()) {
-
-                            errors.push(
-                                "Please enter Managed By."
-                            );
-
-                        }
-
-
-                        // ------------------------------------------------
-                        // Staff List
-                        // ------------------------------------------------
-
-                        if (staffListFile &&
-                            staffListFile.files.length > 0) {
-
-                            const file =
-                                staffListFile.files[0];
-
-                            const extension =
-                                file.name
-                                    .split(".")
-                                    .pop()
-                                    .toLowerCase();
-
-
-                            if (extension !== "pdf") {
-
-                                errors.push(
-                                    "Staff List must be a PDF file."
-                                );
-
-                            }
-
-
-                            const maxFileSize = 2 * 1024 * 1024; // 2 MB
-
-                            if (file.size > maxFileSize) {
-
-                                errors.push(
-                                    "Staff List file size must not exceed 2 MB."
-                                );
-
-                            }
-
-                        }
-
-
-                        // ------------------------------------------------
-                        // Population
-                        // ------------------------------------------------
-
-                        if (!populationServed ||
-                            !populationServed.value ||
-                            parseInt(
-                                populationServed.value
-                            ) <= 0) {
-
-                            errors.push(
-                                "Please enter a valid Population Served."
-                            );
-
-                        }
-
-
-                        // =================================================
-                        // VALIDATION ERROR
-                        // =================================================
-
-                        if (errors.length > 0) {
-
-                            event.preventDefault();
-
-
-                            Swal.fire({
-
-                                icon: "warning",
-
-                                title: "Validation Required",
-
-                                html: errors.map(function(error) {
-
-                                    return '<div class="text-start mb-1">• '
-                                        + error +
-                                        '</div>';
-
-                                }).join(""),
-
-                                confirmButtonText: "OK",
-
-                                confirmButtonColor: "#1769aa"
-
-                            });
-
-                            return;
-
-                        }
-
-
-                        // =================================================
-                        // CONFIRM SAVE / UPDATE
-                        // =================================================
-
-                        event.preventDefault();
-
-
-                        Swal.fire({
-
-                            icon: "question",
-
-                            title: isEditing
-                                ? "Update Field Practice Area?"
-                                : "Save Field Practice Area?",
-
-                            text: isEditing
-                                ? "Are you sure you want to update this record?"
-                                : "Are you sure you want to save this record?",
-
-                            showCancelButton: true,
-
-                            confirmButtonText: isEditing
-                                ? "Yes, Update"
-                                : "Yes, Save",
-
-                            cancelButtonText: "Cancel",
-
-                            reverseButtons: true,
-
-                            confirmButtonColor: "#1769aa"
-
-                        }).then(function(result) {
-
-                            if (result.isConfirmed) {
-
-                                const button =
-                                    document.getElementById(
-                                        "saveDentalFieldPracticeBtn"
-                                    );
-
-
-                                button.disabled = true;
-
-
-                                button.innerHTML =
-                                    '<span class="spinner-border spinner-border-sm me-1"></span>' +
-                                    (
-                                        isEditing
-                                            ? "Updating..."
-                                            : "Saving..."
-                                    );
-
-
-                                form.submit();
-
-                            }
-
-                        });
-
-                    });
-
-            }
-
-            // ============================================================
-            // STAFF LIST FILE VALIDATION
-            // ============================================================
-
-            const staffListInput =
-                document.getElementById("StaffListFile");
-
-            if (staffListInput) {
-
-                staffListInput.addEventListener("change", function() {
-
-                    const file = this.files[0];
-
-                    if (!file) {
-                        return;
-                    }
-
-                    const maxFileSize = 2 * 1024 * 1024; // 2 MB
-
-                    const extension =
-                        file.name
-                            .split(".")
-                            .pop()
-                            .toLowerCase();
-
-                    // ----------------------------------------------------
-                    // PDF validation
-                    // ----------------------------------------------------
-
-                    if (extension !== "pdf") {
-
-                        Swal.fire({
-                            icon: "error",
-                            title: "Invalid File",
-                            text: "Only PDF files are allowed for Staff List.",
-                            confirmButtonText: "OK",
-                            confirmButtonColor: "#1769aa"
-                        });
-
-                        this.value = "";
-                        return;
-                    }
-
-                    // ----------------------------------------------------
-                    // File size validation
-                    // ----------------------------------------------------
-
-                    if (file.size > maxFileSize) {
-
-                        Swal.fire({
-                            icon: "error",
-                            title: "File Too Large",
-                            text: "Staff List PDF size must not exceed 2 MB.",
-                            confirmButtonText: "OK",
-                            confirmButtonColor: "#1769aa"
-                        });
-
-                        this.value = "";
-                        return;
-                    }
-
-                });
-            }
-
-
-            // ============================================================
-            // STAFF LIST PDF VIEWER
-            // ============================================================
-
-            const pdfModalElement =
-                document.getElementById("staffPdfViewerModal");
-
-            const pdfViewer =
-                document.getElementById("staffPdfViewer");
-
-            const pdfLoading =
-                document.getElementById("staffPdfViewerLoading");
-
-            const pdfModal =
-                pdfModalElement
-                    ? new bootstrap.Modal(pdfModalElement)
-                    : null;
-
-            document
-                .querySelectorAll(".view-staff-pdf-btn")
-                .forEach(function(button) {
-
-                    button.addEventListener("click", function() {
-
-                        const id = this.dataset.id;
-
-                        if (!id || !pdfModal) {
-                            return;
-                        }
-
-                        // Reset viewer
-                        pdfViewer.style.display = "none";
-                        pdfLoading.style.display = "block";
-                        pdfViewer.src = "";
-
-                        // Show modal
-                        pdfModal.show();
-
-                        // Load PDF
-                        pdfViewer.src =
-                            '@Url.Action("ViewStaffList", "DentalFieldPracticeArea")'
-                            + '?id='
-                            + encodeURIComponent(id);
-
-                        pdfViewer.onload = function() {
-
-                            pdfLoading.style.display = "none";
-                            pdfViewer.style.display = "block";
-
-                        };
-
-                    });
-
-                });
-
-
-            // ------------------------------------------------------------
-            // Clear PDF when modal closes
-            // ------------------------------------------------------------
-
-            if (pdfModalElement) {
-
-                pdfModalElement.addEventListener(
-                    "hidden.bs.modal",
-                    function() {
-
-                        pdfViewer.src = "";
-
-                        pdfViewer.style.display = "none";
-
-                        pdfLoading.style.display = "block";
-
-                    }
-                );
-
-            }
-
-            // ============================================================
-            // DELETE CONFIRMATION
-            // ============================================================
-
-            document
-                .querySelectorAll(
-                    ".delete-dental-field-practice-form"
-                )
-                .forEach(function(deleteForm) {
-
-                    deleteForm.addEventListener(
-                        "submit",
-                        function(event) {
-
-                            event.preventDefault();
-
-
-                            Swal.fire({
-
-                                icon: "warning",
-
-                                title:
-                                    "Remove Field Practice Area?",
-
-                                text:
-                                    "Are you sure you want to remove this field practice area record?",
-
-                                showCancelButton: true,
-
-                                confirmButtonText:
-                                    "Yes, Remove",
-
-                                cancelButtonText:
-                                    "Cancel",
-
-                                reverseButtons: true,
-
-                                confirmButtonColor:
-                                    "#dc3545"
-
-                            }).then(function(result) {
-
-                                if (result.isConfirmed) {
-
-                                    deleteForm.submit();
-
-                                }
-
-                            });
-
-                        });
-
-                });
-
-
-            // ============================================================
-            // SERVER VALIDATION SUMMARY
-            // ============================================================
-
-            const validationSummary =
-                document.querySelector(
-                    "[data-valmsg-summary='true']"
-                );
-
-
-            if (validationSummary) {
-
-                const errorItems =
-                    validationSummary.querySelectorAll("li");
-
-
-                if (errorItems.length > 0) {
-
-                    let messages = [];
-
-
-                    errorItems.forEach(function(item) {
-
-                        const message =
-                            item.textContent.trim();
-
-
-                        if (message) {
-
-                            messages.push(message);
-
-                        }
-
-                    });
-
-
-                    if (messages.length > 0) {
-
-                        Swal.fire({
-
-                            icon: "error",
-
-                            title: "Unable to Save",
-
-                            html: messages.map(function(message) {
-
-                                return '<div class="text-start mb-1">• '
-                                    + message +
-                                    '</div>';
-
-                            }).join(""),
-
-                            confirmButtonText: "OK",
-
-                            confirmButtonColor: "#1769aa"
-
-                        });
-
-                    }
-
-                }
-
-            }
-
-        });
-
-    </script>
-
-
-    <!-- ============================================================= -->
-    <!-- SUCCESS MESSAGE -->
-    <!-- ============================================================= -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <script>
-
-            Swal.fire({
-
-                icon: "success",
-
-                title: "Success",
-
-                text: @Html.Raw(
-                                System.Text.Json.JsonSerializer.Serialize(
-                                TempData["SuccessMessage"]?.ToString()
-                                )
-                                ),
-
-                confirmButtonText: "OK",
-
-                confirmButtonColor: "#1769aa"
-
-            });
-
-        </script>
-    }
-
-
-    <!-- ============================================================= -->
-    <!-- ERROR MESSAGE -->
-    <!-- ============================================================= -->
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <script>
-
-            Swal.fire({
-
-                icon: "error",
-
-                title: "Error",
-
-                text: @Html.Raw(
-                                System.Text.Json.JsonSerializer.Serialize(
-                                TempData["ErrorMessage"]?.ToString()
-                                )
-                                ),
-
-                confirmButtonText: "OK",
-
-                confirmButtonColor: "#dc3545"
-
-            });
-
-        </script>
-    }
-
-}
