@@ -89,6 +89,18 @@ public class AutoProgressFilter : IAsyncActionFilter
             .ToListAsync();
         }
 
+        if (!levels.Any())
+        {
+            var sessionLevel = courseLevel
+                ?? http.Session.GetString("SelectedCourseLevel")
+                ?? http.Session.GetString("SelectedLevel");
+
+            if (!string.IsNullOrWhiteSpace(sessionLevel))
+            {
+                levels.Add(sessionLevel);
+            }
+        }
+
         // Final cleanup
         levels = levels
             .Select(l => l.Trim().ToUpper())
@@ -218,6 +230,16 @@ public class AutoProgressFilter : IAsyncActionFilter
                     IsCompleted = true,
                     UpdatedAt = DateTime.Now
                 });
+            }
+            else
+            {
+                var progress = await _db.CaProgresses.FirstAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.CourseLevel == level &&
+                    x.StepKey == stepKey);
+
+                progress.IsCompleted = true;
+                progress.UpdatedAt = DateTime.Now;
             }
         }
 

@@ -79,6 +79,18 @@
         ).Distinct().ToListAsync();
     }
 
+    if (!levels.Any())
+    {
+        var sessionLevel = Context.Session.GetString("CourseLevel")
+            ?? Context.Session.GetString("SelectedCourseLevel")
+            ?? Context.Session.GetString("SelectedLevel");
+
+        if (!string.IsNullOrWhiteSpace(sessionLevel))
+        {
+            levels.Add(sessionLevel);
+        }
+    }
+
     levels = levels
         .Where(l => !string.IsNullOrWhiteSpace(l))
         .Select(l => l.Trim().ToUpperInvariant())
@@ -115,12 +127,13 @@
         showTrustSteps = string.Equals(organizationCategory.Trim(), "P", StringComparison.OrdinalIgnoreCase);
     }
 
-    var doneSteps = _context.CaProgresses
+    var doneSteps = await _context.CaProgresses
         .Where(x => x.CollegeCode == collegeCode
                     && levels.Contains(x.CourseLevel.Trim().ToUpper())
                     && x.IsCompleted == true)
         .Select(x => x.StepKey)
-        .ToList();
+        .Distinct()
+        .ToListAsync();
 
     // Faculty details are optional for continuous affiliation and should not
     // block completion when the page has not been submitted.
