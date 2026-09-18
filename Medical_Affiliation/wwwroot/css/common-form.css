@@ -1,18 +1,18 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --page-bg: #f8fafc;
+    --page-bg: #eef3f8;
     --surface: #ffffff;
-    --surface-soft: #f1f5f9;
-    --text: #1f2937;
-    --text-muted: #64748b;
-    --border: #d1d5db;
-    --accent: #0d47a1;
-    --accent-soft: #dbeafe;
+    --surface-soft: #f4f7fb;
+    --text: #1d2b3a;
+    --text-muted: #647386;
+    --border: #d6e0ea;
+    --accent: #176b87;
+    --accent-soft: #dff1f4;
     --danger: #c53030;
-    --success: #047857;
-    --radius: 12px;
-    --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    --success: #197a68;
+    --radius: 8px;
+    --shadow: 0 8px 24px rgba(29, 55, 79, 0.08);
 }
 
 /* Reset */
@@ -219,6 +219,101 @@ body {
     text-align: center;
     padding: 28px;
     color: var(--text-muted);
+}
+
+/* Shared continuous-affiliation surface: page-specific forms inherit one visual language. */
+.ca-body {
+    --form-accent: #176b87;
+    --form-accent-dark: #12566d;
+    --form-accent-soft: #e7f3f5;
+    --form-border: #d6e0ea;
+    --form-muted: #647386;
+    color: #1d2b3a;
+    background: #ffffff;
+}
+
+.ca-body .page-header,
+.ca-body .form-card,
+.ca-body .section-card,
+.ca-body .main-box,
+.ca-body .table-wrap,
+.ca-body .payment-panel {
+    border-color: var(--form-border);
+    box-shadow: 0 8px 24px rgba(29, 55, 79, 0.07);
+}
+
+.ca-body .page-header {
+    background: linear-gradient(135deg, #173d56 0%, #176b87 100%);
+    color: #ffffff;
+    border-bottom: 3px solid #e2b84d;
+}
+
+.ca-body .page-header h1,
+.ca-body .page-header h2,
+.ca-body .page-header h3,
+.ca-body .page-header h4,
+.ca-body .page-header p,
+.ca-body .page-header-text h1,
+.ca-body .page-header-text p {
+    color: inherit;
+}
+
+.ca-body .section-title,
+.ca-body .card-title,
+.ca-body .payment-panel-header,
+.ca-body .table-title {
+    color: var(--form-accent-dark);
+}
+
+.ca-body .section-title,
+.ca-body .payment-panel-header {
+    background: var(--form-accent-soft);
+    border-color: var(--form-border);
+}
+
+.ca-body .form-control,
+.ca-body .form-select,
+.ca-body input,
+.ca-body select,
+.ca-body textarea {
+    border-color: var(--form-border);
+    color: #1d2b3a;
+}
+
+.ca-body .form-control:focus,
+.ca-body .form-select:focus,
+.ca-body input:focus,
+.ca-body select:focus,
+.ca-body textarea:focus {
+    border-color: var(--form-accent);
+    box-shadow: 0 0 0 0.2rem rgba(23, 107, 135, 0.14);
+}
+
+.ca-body .btn-primary,
+.ca-body .btn-save,
+.ca-body .btn-next,
+.ca-body button[type="submit"] {
+    background: var(--form-accent);
+    border-color: var(--form-accent);
+    color: #ffffff;
+}
+
+.ca-body .btn-primary:hover,
+.ca-body .btn-save:hover,
+.ca-body .btn-next:hover,
+.ca-body button[type="submit"]:hover {
+    background: var(--form-accent-dark);
+    border-color: var(--form-accent-dark);
+}
+
+.ca-body .table thead,
+.ca-body .data-table thead {
+    background: var(--form-accent-soft);
+}
+
+.ca-body .table th,
+.ca-body .data-table th {
+    color: var(--form-accent-dark);
 }
 
 .page-container {

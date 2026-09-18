@@ -1,14 +1,17 @@
-﻿using Medical_Affiliation.Models;
+﻿//using DocumentFormat.OpenXml.Spreadsheet;
+//using DocumentFormat.OpenXml.Spreadsheet; // (if you decided to keep this)
+using Medical_Affiliation.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-
+using SkiaSharp;
 public class PreviewReportPdf : IDocument
 {
     private readonly CApreviewViewModel _model;
     private readonly byte[] _logo;
     private readonly byte[] _collegeLogoBytes;
     private int _sectionNumber;
+    private byte[]? _watermarkLogoBytes;
 
     public PreviewReportPdf(CApreviewViewModel model, byte[] logo, byte[] clgLogoBytes)
     {
@@ -16,6 +19,25 @@ public class PreviewReportPdf : IDocument
         _logo = logo;
         _collegeLogoBytes = clgLogoBytes;
     }
+
+    private byte[] GetWatermarkLogo()
+    {
+        if (_watermarkLogoBytes != null)
+            return _watermarkLogoBytes;
+
+        using var original = SKBitmap.Decode(_collegeLogoBytes);
+        using var surface = SKSurface.Create(new SKImageInfo(original.Width, original.Height, SKColorType.Rgba8888, SKAlphaType.Premul));
+        using var paint = new SKPaint { Color = SKColors.White.WithAlpha(32) };
+
+        surface.Canvas.Clear(SKColors.Transparent);
+        surface.Canvas.DrawBitmap(original, 0, 0, paint);
+
+        using var image = surface.Snapshot();
+        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+        _watermarkLogoBytes = data.ToArray();
+        return _watermarkLogoBytes;
+    }
+
 
     public void Compose(IDocumentContainer container)
     {
@@ -26,9 +48,25 @@ public class PreviewReportPdf : IDocument
             page.Size(PageSizes.A4);
             page.Margin(22);
             page.DefaultTextStyle(text => text.FontFamily("Arial").FontSize(9).FontColor("#243B53"));
-            page.Background(Colors.White);
 
-            page.Content().Border(1.2f).BorderColor("#123A63").Background("#FFFFFF").Padding(10).Column(col =>
+            // Watermark lives in the page.Background() slot, which QuestPDF always
+            // renders at full page size behind the content on EVERY page,
+            // regardless of how much content is on that page. This avoids the
+            // clipping / "half showing" bug that happened when the watermark
+            // was inside page.Content().Layers(), whose layer box height was
+            // tied to the remaining content height on each page.
+            page.Background()
+                .Background(Colors.White)
+                .Extend()
+                .Element(background => background
+                    .AlignCenter()
+                    .AlignMiddle()
+                    .Width(360)
+                    .Height(360)
+                    .Image(GetWatermarkLogo())
+                    .FitArea());
+
+            page.Content().Border(1.2f).BorderColor("#123A63").Padding(10).Column(col =>
             {
                 // --- REPORT HEADER ---
                 AddReportHeader(col);
@@ -108,9 +146,7 @@ public class PreviewReportPdf : IDocument
                 });
             });
         });
-
     }
-
     private void AddReportHeader(ColumnDescriptor col)
     {
         col.Item().Background("#123A63").Padding(14).Row(row =>
@@ -710,7 +746,7 @@ public class PreviewReportPdf : IDocument
             });
         });
 
-      
+
 
         col.Item().PaddingTop(5).Table(table =>
         {
@@ -915,7 +951,7 @@ public class PreviewReportPdf : IDocument
                 .Text("Supervision in Field Practice Area")
                 .FontSize(14)
                 .Bold();
-       
+
 
         // ---- TABLE ----
         col.Item().PaddingTop(15).Table(table =>
