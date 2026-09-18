@@ -28,6 +28,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AcademicYearMaster> AcademicYearMasters { get; set; }
 
+    public virtual DbSet<ActionTakenDeficiencyReport> ActionTakenDeficiencyReports { get; set; }
+
     public virtual DbSet<AddCoursedetail> AddCoursedetails { get; set; }
 
     public virtual DbSet<AdministrativeFacilityType> AdministrativeFacilityTypes { get; set; }
@@ -814,6 +816,34 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.AcademicYear).HasMaxLength(20);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<ActionTakenDeficiencyReport>(entity =>
+        {
+            entity.ToTable("ActionTakenDeficiencyReport");
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel).HasMaxLength(50);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.RelevantReportPath).HasMaxLength(500);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.ActionTakenDeficiencyReports)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ActionTakenDeficiencyReport_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.ActionTakenDeficiencyReports)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ActionTakenDeficiencyReport_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.ActionTakenDeficiencyReports)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ActionTakenDeficiencyReport_AffiliationType");
         });
 
         modelBuilder.Entity<AddCoursedetail>(entity =>

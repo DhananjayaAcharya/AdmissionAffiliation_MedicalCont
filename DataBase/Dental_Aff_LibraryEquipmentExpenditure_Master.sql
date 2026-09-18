@@ -468,3 +468,56 @@ CREATE TABLE DentalFieldPracticeArea
 --    TypeId,
 --    CourseLevel
 --);
+
+---------------------------------------------
+
+-- ============================================================
+-- Table Name : ActionTakenDeficiencyReport
+-- Purpose    : Stores action taken details against deficiencies
+--              pointed out during the previous inspection.
+-- ============================================================
+
+CREATE TABLE ActionTakenDeficiencyReport
+(
+    ActionTakenDeficiencyReportId INT IDENTITY(1,1) NOT NULL,
+
+    FacultyId INT NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+
+    TypeId INT NOT NULL,
+
+    CourseLevel NVARCHAR(50) NOT NULL,
+
+    DeficiencyPointedOut NVARCHAR(MAX) NOT NULL,
+
+    ExtentRemedied NVARCHAR(MAX) NOT NULL,
+
+    RelevantReportPath NVARCHAR(500) NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+
+    CreatedDate DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy NVARCHAR(100) NULL,
+
+    ModifiedDate DATETIME2 NULL,
+
+    CONSTRAINT PK_ActionTakenDeficiencyReport
+        PRIMARY KEY (ActionTakenDeficiencyReportId),
+
+    CONSTRAINT FK_ActionTakenDeficiencyReport_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_ActionTakenDeficiencyReport_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_ActionTakenDeficiencyReport_AffiliationType
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
+);
+--------------------------------------------------

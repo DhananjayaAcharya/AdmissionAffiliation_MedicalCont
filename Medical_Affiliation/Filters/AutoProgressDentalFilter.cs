@@ -190,6 +190,7 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
             new (){ Key = "SsCoursesOffered",  Ctrl = "AffiliationSS", Acts=new() {"CoursesOffered" } },
             new (){ Key = "AssociatedInstitutions", Ctrl = "AffiliationSS", Acts=new() {"AssociatedInstitutions" } },
             new () { Key = "PaymentDetails", Ctrl="DentalPayment", Acts=new() {"Index" } },
+            new () { Key = "ActionTakenReport", Ctrl="ActionTakenDeficiencyReport", Acts=new() { "Create", "Edit" } },
             //new CAStep { Key="Declaration", Ctrl="AffiliationDeclaration", Act="Declaration" }
         };
 
@@ -200,7 +201,9 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
         // 🔥 Find matching step dynamically
         var step = allSteps.FirstOrDefault(s =>
             string.Equals(s.Ctrl, ctrl, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(s.Act, act, StringComparison.OrdinalIgnoreCase)
+            s.Acts.Any(a =>
+                string.Equals(a, act, StringComparison.OrdinalIgnoreCase)
+            )
         );
 
         if (step == null)
