@@ -40,7 +40,18 @@ ADD
     TeachingAncillaryStaffResidentialQuarter BIT NULL,
     TeachingAncillaryStaffResidentialQuarterAreaSqFt DECIMAL(10,2) NULL;
 
--------------------------------------------------------
+------------------------------------------------------------------
+
+
+ALTER TABLE [dbo].[HospitalDetailsForAffiliation]
+ADD
+    KPMECertificatePdfPath NVARCHAR(500) NULL,
+    PollutionControlBoardCertificatePdfPath NVARCHAR(500) NULL,
+    BioMedicalCertificatePdfPath NVARCHAR(500) NULL,
+    DrugFreeCampusCertificationPdfPath NVARCHAR(500) NULL,
+    ProposedPlansForFutureDevelopmentsPdfPath NVARCHAR(500) NULL;
+
+----------------------------------------------------------------
 
 select * from [AFF_HostelDetails]
 where collegecode = 'd038'

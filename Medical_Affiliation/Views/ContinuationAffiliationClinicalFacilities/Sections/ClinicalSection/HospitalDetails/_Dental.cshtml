@@ -152,6 +152,211 @@
                     </a>
                 </div>
             }
+
+
+
+            @* ============================================================
+               CERTIFICATES & FUTURE DEVELOPMENT DOCUMENTS
+               ============================================================ *@
+
+            <div class="col-12 mt-4">
+
+                <div class="section-title">
+                    Hospital Certificates & Future Development
+                </div>
+
+            </div>
+
+
+            @* ============================================================
+               1. KPME CERTIFICATE
+               ============================================================ *@
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    KPME Certificate
+                </label>
+
+                <input asp-for="Form.KPMECertificateFile"
+                       type="file"
+                       class="form-control"
+                       accept=".pdf" />
+
+                <small class="text-muted">
+                    Upload KPME Certificate PDF
+                </small>
+
+                @if (!string.IsNullOrEmpty(Model.Form.KPMECertificatePath))
+                {
+                    <div class="mt-2">
+
+                        <a href="@Url.Content(Model.Form.KPMECertificatePath)"
+                           target="_blank"
+                           class="btn btn-sm btn-outline-success">
+
+                            <i class="fas fa-file-pdf"></i>
+                            View Existing KPME Certificate
+
+                        </a>
+
+                    </div>
+                }
+
+            </div>
+
+
+            @* ============================================================
+               2. POLLUTION CONTROL BOARD CERTIFICATE
+               ============================================================ *@
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Pollution Control Board Certificate
+                </label>
+
+                <input asp-for="Form.PollutionControlBoardCertificateFile"
+                       type="file"
+                       class="form-control"
+                       accept=".pdf" />
+
+                <small class="text-muted">
+                    Upload Pollution Control Board Certificate PDF
+                </small>
+
+                @if (!string.IsNullOrEmpty(Model.Form.PollutionControlBoardCertificatePath))
+                {
+                    <div class="mt-2">
+
+                        <a href="@Url.Content(Model.Form.PollutionControlBoardCertificatePath)"
+                           target="_blank"
+                           class="btn btn-sm btn-outline-success">
+
+                            <i class="fas fa-file-pdf"></i>
+                            View Existing Certificate
+
+                        </a>
+
+                    </div>
+                }
+
+            </div>
+
+
+            @* ============================================================
+               3. BIO-MEDICAL WASTE CERTIFICATE
+               ============================================================ *@
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Bio-Medical Certificate
+                </label>
+
+                <input asp-for="Form.BioMedicalCertificateFile"
+                       type="file"
+                       class="form-control"
+                       accept=".pdf" />
+
+                <small class="text-muted">
+                    Upload Bio-Medical Certificate PDF
+                </small>
+
+                @if (!string.IsNullOrEmpty(Model.Form.BioMedicalCertificatePath))
+                {
+                    <div class="mt-2">
+
+                        <a href="@Url.Content(Model.Form.BioMedicalCertificatePath)"
+                           target="_blank"
+                           class="btn btn-sm btn-outline-success">
+
+                            <i class="fas fa-file-pdf"></i>
+                            View Existing Certificate
+
+                        </a>
+
+                    </div>
+                }
+
+            </div>
+
+
+            @* ============================================================
+               4. DRUG FREE CAMPUS CERTIFICATION
+               ============================================================ *@
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Drug Free Campus Certification
+                </label>
+
+                <input asp-for="Form.DrugFreeCampusCertificationFile"
+                       type="file"
+                       class="form-control"
+                       accept=".pdf" />
+
+                <small class="text-muted">
+                    Upload Drug Free Campus Certification PDF
+                </small>
+
+                @if (!string.IsNullOrEmpty(Model.Form.DrugFreeCampusCertificationPath))
+                {
+                    <div class="mt-2">
+
+                        <a href="@Url.Content(Model.Form.DrugFreeCampusCertificationPath)"
+                           target="_blank"
+                           class="btn btn-sm btn-outline-success">
+
+                            <i class="fas fa-file-pdf"></i>
+                            View Existing Certification
+
+                        </a>
+
+                    </div>
+                }
+
+            </div>
+
+
+            @* ============================================================
+               5. PROPOSED PLANS FOR FUTURE DEVELOPMENTS
+               ============================================================ *@
+
+            <div class="col-md-6">
+
+                <label class="form-label">
+                    Proposed Plans for Future Developments
+                </label>
+
+                <input asp-for="Form.ProposedPlansForFutureDevelopmentsFile"
+                       type="file"
+                       class="form-control"
+                       accept=".pdf" />
+
+                <small class="text-muted">
+                    Upload Proposed Plans for Future Developments PDF
+                </small>
+
+                @if (!string.IsNullOrEmpty(Model.Form.ProposedPlansForFutureDevelopmentsPath))
+                {
+                    <div class="mt-2">
+
+                        <a href="@Url.Content(Model.Form.ProposedPlansForFutureDevelopmentsPath)"
+                           target="_blank"
+                           class="btn btn-sm btn-outline-success">
+
+                            <i class="fas fa-file-pdf"></i>
+                            View Existing Future Development Plan
+
+                        </a>
+
+                    </div>
+                }
+
+            </div>
+
         </div>
 
         <div class="text-center mt-3">
@@ -238,4 +443,40 @@
         });
     });
 
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        document.querySelectorAll('input[type="file"]').forEach(function(input) {
+
+            input.addEventListener("change", function() {
+
+                const file = this.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                const maxSize = 2 * 1024 * 1024; // 2 MB
+
+                // PDF validation
+                // if (file.type !== "application/pdf") {
+                //     alert("Only PDF files are allowed.");
+                //     this.value = "";
+                //     return;
+                // }
+
+                // 2 MB size validation
+                if (file.size > maxSize) {
+                    alert("File size must not exceed 2 MB.");
+                    this.value = "";
+                    return;
+                }
+
+            });
+
+        });
+
+    });
 </script>

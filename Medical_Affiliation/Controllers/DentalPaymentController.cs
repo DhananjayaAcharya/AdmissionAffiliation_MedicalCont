@@ -37,21 +37,17 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> Index()
         {
 
-            if (AffTypeId <= 0)
-            {
-                return BadRequest("Invalid Affiliation Type.");
-            }
-
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var affTypeId = HttpContext.Session.GetString("TypeOfAffiliationId");
 
             var affiliationType = await _context.MstDentalAffiliationTypes
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e =>
-                    e.DentalAffiliationTypeId == AffTypeId &&
+                    e.DentalAffiliationTypeId.ToString() == affTypeId &&
                     e.FacultyCode == _facultyCode
                 );
 
-            if (affiliationType == null) return NotFound("Affiliation Type Not found.");
+             if (affiliationType == null) return NotFound("Affiliation Type Not found.");
 
             //var requiredCourseLevel =  NormalizeCourseLevel(affiliationType.CourseLevelGroup);
             var requiredCourseLevel = HttpContext.Session.GetString("CourseLevel");
@@ -129,7 +125,7 @@ namespace Medical_Affiliation.Controllers
                 .AsNoTracking()
                 .Where(e =>
                     e.FacultyCode == _facultyCode &&
-                    e.AffiliationTypeId == AffTypeId &&
+                    e.AffiliationTypeId.ToString() == affTypeId &&
                     e.IsActive
                 )
                 .OrderBy(e=> e.DisplayOrder)
@@ -143,7 +139,7 @@ namespace Medical_Affiliation.Controllers
                 .AsNoTracking()
                 .Where(e =>
                     e.FacultyCode == _facultyCode &&
-                    e.AffiliationTypeId == AffTypeId &&
+                    e.AffiliationTypeId.ToString() == affTypeId &&
                     e.IsActive
                 )
                 .ToListAsync();
@@ -157,7 +153,7 @@ namespace Medical_Affiliation.Controllers
                 .Where(e =>
                     e.CollegeCode == collegeCode &&
                     e.FacultyCode == _facultyCode &&
-                    e.AffiliationTypeId == AffTypeId &&
+                    e.AffiliationTypeId.ToString() == affTypeId &&
                     e.IsActive
                 ).ToListAsync();
 
@@ -170,7 +166,7 @@ namespace Medical_Affiliation.Controllers
                 .FirstOrDefaultAsync(e =>
                     e.CollegeCode == collegeCode && 
                     e.FacultyCode == _facultyCode && 
-                    e.AffiliationTypeId == AffTypeId &&
+                    e.AffiliationTypeId.ToString() == affTypeId &&
                     e.CourseLevel == requiredCourseLevel &&
                     e.IsActive
                 );
@@ -179,7 +175,7 @@ namespace Medical_Affiliation.Controllers
             {
                 CollegeCode = collegeCode,
                 FacultyCode = _facultyCode,
-                AffiliationTypeId = AffTypeId,
+                AffiliationTypeId = int.Parse(affTypeId),
                 AffiliationCategory = affiliationType.AffiliationCategory,
 
                 // =================================================
@@ -595,7 +591,7 @@ namespace Medical_Affiliation.Controllers
             {
                 TempData["ErrorMessage"] = "Please enter Transaction ID.";
 
-                return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId });
+                return RedirectToAction(nameof(Index), new { affTypeId = model.AffiliationTypeId });
             }
 
 
@@ -622,7 +618,7 @@ namespace Medical_Affiliation.Controllers
             if (existingPayment == null && (model.TransactionReceipt == null || model.TransactionReceipt.Length == 0))
             {
                 TempData["ErrorMessage"] = "Please upload the transaction receipt.";
-                return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId });
+                return RedirectToAction(nameof(Index), new { affTypeId = model.AffiliationTypeId });
             }
 
             // =====================================================

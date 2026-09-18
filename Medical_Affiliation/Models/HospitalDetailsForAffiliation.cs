@@ -55,6 +55,16 @@ public partial class HospitalDetailsForAffiliation
 
     public bool? HasCriticalCareServices { get; set; }
 
+    public string? KpmecertificatePdfPath { get; set; }
+
+    public string? PollutionControlBoardCertificatePdfPath { get; set; }
+
+    public string? BioMedicalCertificatePdfPath { get; set; }
+
+    public string? DrugFreeCampusCertificationPdfPath { get; set; }
+
+    public string? ProposedPlansForFutureDevelopmentsPdfPath { get; set; }
+
     public virtual TypeOfAffiliation AffiliationType { get; set; } = null!;
 
     public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();

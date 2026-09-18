@@ -317,6 +317,22 @@ CREATE TABLE TxnDentalFeeStructure
 );
 
 
+/* ============================================================
+   FOREIGN KEY RELATIONSHIP
+
+   Links TxnDentalFeeStructures.DentalPaymentId with
+   TxnDentalPayment.Id.
+   ============================================================ */
+
+
+ALTER TABLE [dbo].[TxnDentalFeeStructure]
+ADD DentalPaymentId INT NULL;
+
+ALTER TABLE [dbo].[TxnDentalFeeStructure]
+ADD CONSTRAINT FK_TxnDentalFeeStructures_TxnDentalPayment
+FOREIGN KEY (DentalPaymentId)
+REFERENCES dbo.TxnDentalPayment(Id);
+
 
 /* ============================================================
    TABLE: TxnDentalOtherFeeStructure
@@ -445,137 +461,22 @@ VALUES
 (2, 'Administrative Fee & Service Charges', 'PG', 4, 7, 1, 'Admin', GETDATE()),
 (2, 'Institutional Helinet Fee', 'PG', 5, 7, 1, 'Admin', GETDATE()),
 (2, 'Course Identification Fee', 'PG', 6, 7, 1, 'Admin', GETDATE());
+-------------------------------------------------------------
 
-DECLARE @AffiliationTypeId INT = 1; -- Change this to the required AffiliationTypeId
-DECLARE @FacultyCode INT = 2;       -- Dental
-
-DECLARE @ApplicationFeeTypeId INT =
-(
-    SELECT Id
-    FROM MstDentalFeeTypes
-    WHERE FacultyCode = 2
-      AND FeeType = 'Application Fee'
-      AND AffiliationTypeId = 2
-);
-
-DECLARE @AnnualFeeTypeId INT =
-(
-    SELECT Id
-    FROM MstDentalFeeTypes
-    WHERE FacultyCode = 2
-      AND FeeType = 'Annual Fee'
-      AND AffiliationTypeId = 2
-);
-
-DECLARE @RenewalFeeTypeId INT =
-(
-    SELECT Id
-    FROM MstDentalFeeTypes
-    WHERE FacultyCode = 2
-      AND FeeType = 'Continuation of Affiliation / Renewal Fee of Affiliation'
-      AND AffiliationTypeId = 2
-);
-
-DECLARE @AdministrativeFeeTypeId INT =
-(
-    SELECT Id
-    FROM MstDentalFeeTypes
-    WHERE FacultyCode = 2
-      AND FeeType = 'Administrative Fee & Service Charges'
-      AND AffiliationTypeId = 2
-);
-
-DECLARE @HelinetFeeTypeId INT =
-(
-    SELECT Id
-    FROM MstDentalFeeTypes
-    WHERE FacultyCode = 2
-      AND FeeType = 'Institutional Helinet Fee'
-      AND AffiliationTypeId = 2
-);
-
-DECLARE @CourseIdentificationFeeTypeId INT =
-(
-    SELECT Id
-    FROM MstDentalFeeTypes
-    WHERE FacultyCode = 2
-      AND FeeType = 'Course Identification Fee'
-      AND AffiliationTypeId = 2
-);
-
-
-INSERT INTO MstDentalFeeStructure
-(
-    FacultyCode,
-    FeeTypeId,
-    CourseName,
-    CourseCode,
-    CourseLevel,
-    AmountToBePaid,
-    CalculationType,
-    AffiliationTypeId,
-    IsActive,
-    CreatedBy,
-    CreatedDate
-)
+INSERT INTO MstDentalFeeStructure (FacultyCode, FeeTypeId, CourseName, CourseCode, CourseLevel, AmountToBePaid, CalculationType, AffiliationTypeId, IsActive, CreatedBy, CreatedDate)
 VALUES
+(2, 1, 'BDS', NULL, 'UG', 3000, 'Fixed', 2, 1, 'Admin', GETDATE()),
+(2, 1, 'MDS', NULL, 'PG', 3000, 'Fixed', 2, 1, 'Admin', GETDATE()),
+(2, 2, 'BDS', NULL, 'UG', 80000, 'Fixed', 2, 1, 'Admin', GETDATE()),
+(2, 3, 'BDS', NULL, 'UG', 250000, 'Per Course', 2, 1, 'Admin', GETDATE()),
+(2, 3, 'MDS', NULL, 'PG', 4500, 'Per Seat', 2, 1, 'Admin', GETDATE()),
+(2, 4, 'BDS', NULL, 'UG', 1500, 'Per Seat', 2, 1, 'Admin', GETDATE()),
+(2, 5, 'BDS', NULL, 'UG', 100000, 'Fixed', 2, 1, 'Admin', GETDATE()),
+(2, 5, 'MDS', NULL, 'PG', 30000, 'Fixed', 2, 1, 'Admin', GETDATE()),
+(2, 6, 'BDS', NULL, 'UG', 20, 'Fixed', 2, 1, 'Admin', GETDATE()),
+(2, 6, 'MDS', NULL, 'PG', 20, 'Fixed', 2, 1, 'Admin', GETDATE());
 
--- =========================================================
--- 1. Application Fee
--- BDS: Rs. 3,000
--- MDS: Rs. 3,000
--- =========================================================
-
-( @FacultyCode, @ApplicationFeeTypeId, 'BDS', NULL, 'UG', 3000, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
-( @FacultyCode, @ApplicationFeeTypeId, 'MDS', NULL, 'PG', 3000, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
-
--- =========================================================
--- 2. Annual Fee
--- BDS: Rs. 80,000
--- =========================================================
-
-( @FacultyCode, @AnnualFeeTypeId, 'BDS', NULL, 'UG', 80000, 'Fixed',  @AffiliationTypeId, 1, 'Admin', GETDATE()),
-
--- =========================================================
--- 3. Continuation / Renewal Fee
--- BDS: Rs. 2,50,000 Per Course
--- MDS: Rs. 4,500 Per Seat
--- =========================================================
-
-( @FacultyCode, @RenewalFeeTypeId, 'BDS', NULL, 'UG', 250000, 'Per Course', @AffiliationTypeId, 1, 'Admin', GETDATE()),
-( @FacultyCode, @RenewalFeeTypeId, 'MDS', NULL, 'PG',  4500, 'Per Seat', @AffiliationTypeId, 1, 'Admin', GETDATE()),
-
--- =========================================================
--- 4. Administrative Fee & Service Charges
--- BDS: Rs. 2,000 Per Seat
--- =========================================================
-
-( @FacultyCode, @AdministrativeFeeTypeId, 'BDS', NULL, 'UG', 2000, 'Per Seat', @AffiliationTypeId, 1, 'Admin', GETDATE()),
-
--- =========================================================
--- 5. Institutional Helinet Fee
--- BDS: Rs. 1,00,000
--- MDS: Rs. 30,000
--- =========================================================
-
-( @FacultyCode, @HelinetFeeTypeId, 'BDS', NULL, 'UG', 100000, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
-( @FacultyCode, @HelinetFeeTypeId, 'MDS', NULL, 'PG', 30000, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
-
--- =========================================================
--- 6. Course Identification Fee
--- BDS: Rs. 20
--- MDS: Rs. 20
--- =========================================================
-
-( @FacultyCode, @CourseIdentificationFeeTypeId, 'BDS', NULL, 'UG', 20, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE()),
-( @FacultyCode,  @CourseIdentificationFeeTypeId, 'MDS', NULL, 'PG',  20, 'Fixed', @AffiliationTypeId, 1, 'Admin', GETDATE());
-
-
---------------------------------
-
-DECLARE @AffiliationTypeId INT = 2; -- Change this to the required AffiliationTypeId
-DECLARE @FacultyCode INT = 2;       -- Dental
-
+-------------------------------------------------------
 INSERT INTO MstDentalOtherFeeStructure
 (
     FacultyCode,
@@ -589,12 +490,12 @@ INSERT INTO MstDentalOtherFeeStructure
 )
 VALUES
 
-( @FacultyCode, 'Application Fee', 3000, @AffiliationTypeId, 1, 1, 'Admin', GETDATE()),
+( 2, 'Application Fee', 3000, 2, 1, 1, 'Admin', GETDATE()),
 
-( @FacultyCode, 'Fee for Change of Name of the Institution', 300000, @AffiliationTypeId, 2, 1, 'Admin', GETDATE()),
+( 2, 'Fee for Change of Name of the Institution', 300000, 2, 2, 1, 'Admin', GETDATE()),
 
-( @FacultyCode, 'Fee for Change of Address of the Institution', 500000, @AffiliationTypeId,  3, 1, 'Admin', GETDATE()),
-( @FacultyCode, 'Re-Inspection Fee', 100000, @AffiliationTypeId, 4, 1, 'Admin', GETDATE());
+( 2, 'Fee for Change of Address of the Institution', 500000, 2,  3, 1, 'Admin', GETDATE()),
+( 2, 'Re-Inspection Fee', 100000, 2, 4, 1, 'Admin', GETDATE());
 
 
 
@@ -740,11 +641,11 @@ CREATE TABLE dbo.TxnDentalPayment
     ModifiedDate DATETIME NULL
 );
 
-select *  from [dbo].TxnDentalFeeStructure
-where CollegeCode = 'd038' and @AffiliationTypeId = 2 and FacultyCode = 2 and CourseLevel
+--select *  from [dbo].TxnDentalFeeStructure
+--where CollegeCode = 'd038' and @AffiliationTypeId = 2 and FacultyCode = 2 and CourseLevel
 
-select * from CA_Progress
-where CollegeCode = 'd038';
+--select * from CA_Progress
+--where CollegeCode = 'd038';
 
 --delete from CA_Progress
 --where Id in (1395, 1396)
@@ -752,28 +653,13 @@ where CollegeCode = 'd038';
 --ALTER TABLE TxnDentalPayment
 --ADD CourseLevel VARCHAR(50) NULL;
 
-/* ============================================================
-   FOREIGN KEY RELATIONSHIP
 
-   Links TxnDentalFeeStructures.DentalPaymentId with
-   TxnDentalPayment.Id.
-   ============================================================ */
-
-
-ALTER TABLE [dbo].[TxnDentalFeeStructure]
-ADD DentalPaymentId INT NULL;
-
-ALTER TABLE [dbo].[TxnDentalFeeStructure]
-ADD CONSTRAINT FK_TxnDentalFeeStructures_TxnDentalPayment
-FOREIGN KEY (DentalPaymentId)
-REFERENCES dbo.TxnDentalPayment(Id);
-
-select * from mstdentalfeestructure;
+--select * from mstdentalfeestructure;
 
 --DELETE FROM MstDentalFeeStructure;
 
-delete from TxnDentalFeeStructure
+--delete from TxnDentalFeeStructure
 
-select * from mstdentalfeetypes;
+--select * from mstdentalfeetypes;
 
-select * from mstdentalotherfeestructure
+--select * from mstdentalotherfeestructure

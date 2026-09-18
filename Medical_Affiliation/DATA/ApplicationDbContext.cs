@@ -4483,6 +4483,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.HospitalDetailsId).HasColumnName("HospitalDetailsID");
             entity.Property(e => e.AnnualIpdprevYear).HasColumnName("AnnualIPDPrevYear");
             entity.Property(e => e.AnnualOpdprevYear).HasColumnName("AnnualOPDPrevYear");
+            entity.Property(e => e.BioMedicalCertificatePdfPath).HasMaxLength(500);
             entity.Property(e => e.CollegeCode)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -4490,6 +4491,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.DistanceBetweenCollegeAndHospitalKm)
                 .HasColumnType("decimal(6, 2)")
                 .HasColumnName("DistanceBetweenCollegeAndHospitalKM");
+            entity.Property(e => e.DrugFreeCampusCertificationPdfPath).HasMaxLength(500);
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -4516,10 +4518,15 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IpdbedOccupancyPercent)
                 .HasColumnType("decimal(5, 2)")
                 .HasColumnName("IPDBedOccupancyPercent");
+            entity.Property(e => e.KpmecertificatePdfPath)
+                .HasMaxLength(500)
+                .HasColumnName("KPMECertificatePdfPath");
             entity.Property(e => e.Location)
                 .HasMaxLength(200)
                 .IsUnicode(false);
             entity.Property(e => e.OpdperDay).HasColumnName("OPDPerDay");
+            entity.Property(e => e.PollutionControlBoardCertificatePdfPath).HasMaxLength(500);
+            entity.Property(e => e.ProposedPlansForFutureDevelopmentsPdfPath).HasMaxLength(500);
 
             entity.HasOne(d => d.AffiliationType).WithMany(p => p.HospitalDetailsForAffiliations)
                 .HasForeignKey(d => d.AffiliationTypeId)

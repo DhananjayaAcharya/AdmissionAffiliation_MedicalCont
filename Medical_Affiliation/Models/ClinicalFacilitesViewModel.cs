@@ -286,6 +286,40 @@ namespace Medical_Affiliation.Models
         //public List<SelectListItem> HospitalOwnedByList { get; set; }
         public string? HospitalTypeId { get; set; }
         public string? HospitalOwnedById { get; set; }
+
+        // KPME Certificate
+
+        public IFormFile? KPMECertificateFile { get; set; }
+
+        public string? KPMECertificatePath { get; set; }
+
+
+        // Pollution Control Board Certificate
+
+        public IFormFile? PollutionControlBoardCertificateFile { get; set; }
+
+        public string? PollutionControlBoardCertificatePath { get; set; }
+
+
+        // Bio-Medical Waste Certificate
+
+        public IFormFile? BioMedicalCertificateFile { get; set; }
+
+        public string? BioMedicalCertificatePath { get; set; }
+
+
+        // Drug Free Campus Certification
+
+        public IFormFile? DrugFreeCampusCertificationFile { get; set; }
+
+        public string? DrugFreeCampusCertificationPath { get; set; }
+
+
+        // Proposed Plans for Future Developments
+
+        public IFormFile? ProposedPlansForFutureDevelopmentsFile { get; set; }
+
+        public string? ProposedPlansForFutureDevelopmentsPath { get; set; }
     }
 
 
