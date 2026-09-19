@@ -49,6 +49,8 @@
 
     /* ── Page Shell ── */
     .page-shell {
+        display: block !important;
+        margin: 1rem 0;
         background-color: var(--cream);
         min-height: 100vh;
         /* padding: 36px 0 56px; */
@@ -508,7 +510,7 @@
     /* ── Footer ── */
     .form-footer {
         display: flex;
-        justify-content: space-between;
+        justify-content: center !important;
         align-items: center;
         padding-top: 20px;
         border-top: 1px solid var(--border);
@@ -619,6 +621,236 @@
     #otherCollegeList button{
         /* padding: 5px; */
         color: lightseagreen;
+    }
+
+    /* =========================================================
+       STAFF SHORTAGE
+       ========================================================= */
+
+    .staff-shortage-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--white);
+        overflow: hidden;
+        margin-bottom: 25px;
+        min-width: 65vw;
+    }
+
+
+    /* HEADER */
+
+    .staff-shortage-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 18px 20px;
+        background: linear-gradient( 135deg, #f8f6f0, #f0ece3 );
+        border-bottom: 1px solid var(--border);
+    }
+
+
+    .staff-shortage-title {
+        color: var(--navy);
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+
+
+        .staff-shortage-title i {
+            color: var(--gold);
+            margin-right: 8px;
+        }
+
+
+    .staff-shortage-subtitle {
+        margin-top: 4px;
+        color: var(--text-muted);
+        font-size: 0.72rem;
+    }
+
+
+    /* ADD BUTTON */
+
+    .btn-add-shortage {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        background: linear-gradient( 135deg, var(--navy), var(--navy-mid) );
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+    }
+
+
+        .btn-add-shortage:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 12px rgba(15,37,69,0.2);
+        }
+
+
+    /* BODY */
+
+    .staff-shortage-body {
+        padding: 18px;
+    }
+
+
+    /* ROW */
+
+    .staff-shortage-row {
+        display: grid;
+        grid-template-columns: 1.1fr 1.5fr 1.5fr 45px;
+        gap: 14px;
+        align-items: end;
+        padding: 16px;
+        margin-bottom: 12px;
+        background: #faf9f6;
+        border: 1px solid #e2ddd3;
+        border-radius: 6px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+
+        .staff-shortage-row:hover {
+            border-color: #cfc7b8;
+            box-shadow: 0 2px 8px rgba(15,37,69,0.05);
+        }
+
+
+    /* FIELD */
+
+    .shortage-field {
+        min-width: 0;
+    }
+
+
+        .shortage-field label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--navy);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+
+        .shortage-field textarea {
+            resize: vertical;
+            min-height: 64px;
+        }
+
+
+        .shortage-field input,
+        .shortage-field textarea {
+            font-size: 0.78rem;
+            border-color: #d9d3c8;
+            border-radius: 4px;
+        }
+
+
+            .shortage-field input:focus,
+            .shortage-field textarea:focus {
+                border-color: var(--navy-mid);
+                box-shadow: 0 0 0 2px rgba(26,58,107,0.1);
+            }
+
+
+    /* REMOVE */
+
+    .shortage-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .btn-remove-shortage {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e0b7b2;
+        border-radius: 5px;
+        background: #fff5f4;
+        color: var(--danger);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+
+        .btn-remove-shortage:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+
+    /* EMPTY */
+
+    .shortage-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 25px;
+        color: var(--text-muted);
+        border: 1px dashed #d8d1c5;
+        border-radius: 6px;
+        background: #fcfbf8;
+    }
+
+
+    .shortage-empty-icon {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #eaf7ef;
+        color: var(--success);
+    }
+
+
+    .shortage-empty strong {
+        display: block;
+        color: var(--navy);
+        font-size: 0.76rem;
+    }
+
+
+    .shortage-empty span {
+        display: block;
+        margin-top: 2px;
+        font-size: 0.68rem;
+    }
+
+
+    /* MOBILE */
+
+    @@media (max-width: 900px) {
+
+        .staff-shortage-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .staff-shortage-row {
+            grid-template-columns: 1fr;
+        }
+
+        .shortage-action {
+            justify-content: flex-end;
+        }
     }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
@@ -776,6 +1008,175 @@
             </form>
         </div><!-- /.form-card -->
     </div>
+    <!-- ========================================================= -->
+    <!-- STAFF SHORTAGE FORM -->
+    <!-- ========================================================= -->
+
+    <div class="section-label my-4">
+        <span class="section-label-text">Staff Shortage Details</span>
+        <span class="section-label-line"></span>
+    </div>
+
+    <form asp-action="SaveStaffShortage"
+          asp-controller="Dental"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <!-- YOUR EXISTING TEACHING STAFF TABLE -->
+        <!-- STAFF SHORTAGE -->
+        <div class="staff-shortage-card">
+
+            <div class="staff-shortage-header">
+
+                <div>
+                    <div class="staff-shortage-title">
+                        <i class="fas fa-user-clock"></i>
+                        Staff Shortage
+                    </div>
+
+                    <div class="staff-shortage-subtitle">
+                        Provide details of posts that are currently vacant or
+                        insufficient, along with the reason and temporary
+                        arrangement made.
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="btn-add-shortage"
+                        id="btnAddStaffShortage">
+
+                    <i class="fas fa-plus"></i>
+                    Add Staff Shortage
+
+                </button>
+
+            </div>
+
+
+            <div class="staff-shortage-body">
+
+                <div id="staffShortageRows">
+
+                    @if (Model.StaffShortages != null &&
+                         Model.StaffShortages.Any())
+                    {
+                        @for (int i = 0;
+                              i < Model.StaffShortages.Count;
+                              i++)
+                        {
+                            <div class="staff-shortage-row">
+
+                                <input type="hidden"
+                                       class="shortage-id"
+                                       name="StaffShortages[@i].Id"
+                                       value="@Model.StaffShortages[i].Id" />
+
+                                <div class="shortage-field post-field">
+
+                                    <label>
+                                        Post Name
+                                        <span class="req">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           class="form-control shortage-post"
+                                           name="StaffShortages[@i].PostName"
+                                           value="@Model.StaffShortages[i].PostName"
+                                           placeholder="e.g. Professor, Assistant Professor" />
+
+                                </div>
+
+
+                                <div class="shortage-field">
+
+                                    <label>
+                                        Reason for Shortage
+                                        <span class="req">*</span>
+                                    </label>
+
+                                    <textarea class="form-control shortage-reason"
+                                              name="StaffShortages[@i].Reason"
+                                              rows="2"
+                                              placeholder="Enter reason for shortage">@Model.StaffShortages[i].Reason</textarea>
+
+                                </div>
+
+
+                                <div class="shortage-field">
+
+                                    <label>
+                                        Arrangement Made
+                                        <span class="req">*</span>
+                                    </label>
+
+                                    <textarea class="form-control shortage-arrangement"
+                                              name="StaffShortages[@i].Arrangements"
+                                              rows="2"
+                                              placeholder="Enter arrangement made">@Model.StaffShortages[i].Arrangements</textarea>
+
+                                </div>
+
+
+                                <div class="shortage-action">
+
+                                    <button type="button"
+                                            class="btn-remove-shortage remove-staff-shortage"
+                                            title="Remove">
+
+                                        <i class="fas fa-trash"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        }
+                    }
+
+                </div>
+
+
+                <div id="noStaffShortageMessage"
+                     class="shortage-empty"
+                     style="@(Model.StaffShortages != null &&
+                                              Model.StaffShortages.Any()
+                                              ? "display:none;"
+                                              : "")">
+
+                    <div class="shortage-empty-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+
+                    <div>
+                        <strong>No staff shortage added</strong>
+
+                        <span>
+                            Click <b>Add Staff Shortage</b> to enter shortage details.
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SAVE -->
+        <div class="form-footer shortage-form" style="display: none;">
+
+            <button type="submit"
+                    class="btn-save">
+
+                <i class="fas fa-save"></i>
+                Save & Continue
+
+            </button>
+
+        </div>
+
+    </form>
     <div class="modal fade"
          id="otherCollegeModal"
          tabindex="-1">
@@ -1794,4 +2195,193 @@
             }
         });
     });
+</script>
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const container =
+            document.getElementById("staffShortageRows");
+
+        const shortageForm = document.querySelector(".shortage-form");
+
+        const addButton =
+            document.getElementById("btnAddStaffShortage");
+
+        const emptyMessage =
+            document.getElementById("noStaffShortageMessage");
+
+
+        function updateEmptyMessage() {
+
+            const rows =
+                container.querySelectorAll(".staff-shortage-row");
+
+            if (rows.length === 0) {
+                emptyMessage.style.display = "flex";
+                shortageForm.style.display = "none";
+            }
+            else {
+                emptyMessage.style.display = "none";
+                shortageForm.style.display = "flex";
+            }
+        }
+
+
+        function reindexRows() {
+
+            const rows =
+                container.querySelectorAll(".staff-shortage-row");
+
+            rows.forEach(function(row, index) {
+
+                const id =
+                    row.querySelector(".shortage-id");
+
+                const post =
+                    row.querySelector(".shortage-post");
+
+                const reason =
+                    row.querySelector(".shortage-reason");
+
+                const arrangement =
+                    row.querySelector(".shortage-arrangement");
+
+
+                if (id)
+                    id.name = `StaffShortages[${index}].Id`;
+
+                if (post)
+                    post.name = `StaffShortages[${index}].PostName`;
+
+                if (reason)
+                    reason.name = `StaffShortages[${index}].Reason`;
+
+                if (arrangement)
+                    arrangement.name =
+                        `StaffShortages[${index}].Arrangements`;
+            });
+        }
+
+
+        addButton?.addEventListener("click", function() {
+
+            const index =
+                container.querySelectorAll(".staff-shortage-row").length;
+
+
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "staff-shortage-row";
+
+
+            row.innerHTML = `
+
+                <input type="hidden"
+                       class="shortage-id"
+                       name="StaffShortages[${index}].Id"
+                       value="0" />
+
+
+                <div class="shortage-field post-field">
+
+                    <label>
+                        Post Name
+                        <span class="req">*</span>
+                    </label>
+
+                    <input type="text"
+                           class="form-control shortage-post"
+                           name="StaffShortages[${index}].PostName"
+                           placeholder="e.g. Professor, Assistant Professor" />
+
+                </div>
+
+
+                <div class="shortage-field">
+
+                    <label>
+                        Reason for Shortage
+                        <span class="req">*</span>
+                    </label>
+
+                    <textarea
+                        class="form-control shortage-reason"
+                        name="StaffShortages[${index}].Reason"
+                        rows="2"
+                        placeholder="Enter reason for shortage"></textarea>
+
+                </div>
+
+
+                <div class="shortage-field">
+
+                    <label>
+                        Arrangement Made
+                        <span class="req">*</span>
+                    </label>
+
+                    <textarea
+                        class="form-control shortage-arrangement"
+                        name="StaffShortages[${index}].Arrangements"
+                        rows="2"
+                        placeholder="Enter arrangement made"></textarea>
+
+                </div>
+
+
+                <div class="shortage-action">
+
+                    <button type="button"
+                            class="btn-remove-shortage remove-staff-shortage"
+                            title="Remove">
+
+                        <i class="fas fa-trash"></i>
+
+                    </button>
+
+                </div>
+            `;
+
+
+            container.appendChild(row);
+
+            updateEmptyMessage();
+
+            row.querySelector(".shortage-post")?.focus();
+
+        });
+
+
+        container.addEventListener("click", function(e) {
+
+            const removeButton =
+                e.target.closest(".remove-staff-shortage");
+
+            if (!removeButton)
+                return;
+
+
+            const row =
+                removeButton.closest(".staff-shortage-row");
+
+            if (!row)
+                return;
+
+
+            row.remove();
+
+            reindexRows();
+
+            updateEmptyMessage();
+
+        });
+
+
+        updateEmptyMessage();
+
+    });
+
 </script>

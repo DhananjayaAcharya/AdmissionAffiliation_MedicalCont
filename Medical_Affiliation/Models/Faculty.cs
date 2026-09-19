@@ -101,6 +101,8 @@ public partial class Faculty
 
     public virtual ICollection<OtherHealthScienceCollege> OtherHealthScienceColleges { get; set; } = new List<OtherHealthScienceCollege>();
 
+    public virtual ICollection<StaffShortageDetail> StaffShortageDetails { get; set; } = new List<StaffShortageDetail>();
+
     public virtual ICollection<SuperVisionInFieldPracticeArea> SuperVisionInFieldPracticeAreas { get; set; } = new List<SuperVisionInFieldPracticeArea>();
 
     public virtual ICollection<TxnDentalFeeStructure> TxnDentalFeeStructures { get; set; } = new List<TxnDentalFeeStructure>();

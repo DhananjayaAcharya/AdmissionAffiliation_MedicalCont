@@ -758,3 +758,27 @@ VALUES
 
 ----------------------------------------------------------------------
 
+CREATE TABLE StaffShortageDetails
+(
+    StaffShortageId INT IDENTITY(1,1) PRIMARY KEY,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+    FacultyId INT NOT NULL,
+
+    PostName NVARCHAR(200) NOT NULL,
+    ReasonForShortage NVARCHAR(1000) NULL,
+    ArrangementMade NVARCHAR(1000) NULL,
+
+    CreatedOn DATETIME NOT NULL DEFAULT GETDATE(),
+    ModifiedOn DATETIME NULL,
+
+    CONSTRAINT FK_StaffShortageDetails_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_StaffShortageDetails_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId)
+);
+
+-----------------------------------------------------

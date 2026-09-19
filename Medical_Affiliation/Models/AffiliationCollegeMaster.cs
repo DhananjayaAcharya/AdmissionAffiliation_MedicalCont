@@ -73,6 +73,8 @@ public partial class AffiliationCollegeMaster
 
     public virtual ICollection<OtherHealthScienceCollege> OtherHealthScienceCollegeOtherCollegeCodeNavigations { get; set; } = new List<OtherHealthScienceCollege>();
 
+    public virtual ICollection<StaffShortageDetail> StaffShortageDetails { get; set; } = new List<StaffShortageDetail>();
+
     public virtual ICollection<UserDetail> UserDetails { get; set; } = new List<UserDetail>();
 
     public virtual ICollection<WorkShopDetail> WorkShopDetails { get; set; } = new List<WorkShopDetail>();

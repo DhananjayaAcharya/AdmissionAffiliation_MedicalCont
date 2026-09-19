@@ -556,6 +556,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<SpecialtyClinicDetail> SpecialtyClinicDetails { get; set; }
 
+    public virtual DbSet<StaffShortageDetail> StaffShortageDetails { get; set; }
+
     public virtual DbSet<StaffUnitWiseDetail> StaffUnitWiseDetails { get; set; }
 
     public virtual DbSet<StateMaster> StateMasters { get; set; }
@@ -7569,6 +7571,30 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.Weekdays).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<StaffShortageDetail>(entity =>
+        {
+            entity.HasKey(e => e.StaffShortageId).HasName("PK__StaffSho__CD324635CB29B2E7");
+
+            entity.Property(e => e.ArrangementMade).HasMaxLength(1000);
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
+            entity.Property(e => e.PostName).HasMaxLength(200);
+            entity.Property(e => e.ReasonForShortage).HasMaxLength(1000);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.StaffShortageDetails)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_StaffShortageDetails_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.StaffShortageDetails)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_StaffShortageDetails_Faculty");
         });
 
         modelBuilder.Entity<StaffUnitWiseDetail>(entity =>
