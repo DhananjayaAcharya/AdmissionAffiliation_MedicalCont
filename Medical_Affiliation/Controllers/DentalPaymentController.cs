@@ -57,6 +57,17 @@ namespace Medical_Affiliation.Controllers
                 return BadRequest("Course level is not configured for this affiliation type.");
             }
 
+
+            var institution = await _context.AffInstitutionsDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.CollegeCode == collegeCode);
+
+            var isGovernment = string.Equals(
+                institution?.TypeOfInstitution?.Trim(),
+                "11",
+                StringComparison.OrdinalIgnoreCase
+            );
+
             // ===========================================
             // FETCH ACADEMIC INTAKE FOR DENTAL FACULTY 
             // ===========================================
@@ -126,9 +137,14 @@ namespace Medical_Affiliation.Controllers
                 .Where(e =>
                     e.FacultyCode == _facultyCode &&
                     e.AffiliationTypeId.ToString() == affTypeId &&
-                    e.IsActive
+                    e.IsActive &&
+                    (
+                        !isGovernment ||
+                        e.FeeType == "Application Fee" ||
+                        e.FeeType == "Course Identification Fee"
+                    )
                 )
-                .OrderBy(e=> e.DisplayOrder)
+                .OrderBy(e => e.DisplayOrder)
                 .ToListAsync();
 
             // =========================================================
