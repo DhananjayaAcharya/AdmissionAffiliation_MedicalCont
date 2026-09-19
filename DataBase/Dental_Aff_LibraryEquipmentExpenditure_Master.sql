@@ -18,6 +18,13 @@ ADD
     DEUYearOfStarting NVARCHAR(50) NULL,
     NatureOfActivities NVARCHAR(2000) NULL;
 
+-----------------------------------------------
+
+ALTER TABLE [dbo].[AFF_InstitutionsDetails]
+ADD NameOfAdministrativeAuthority VARCHAR(250) NULL,
+    AddressOfAdministrativeAuthority VARCHAR (MAX) NULL,
+    MembersOfGoverningBodyOrCouncilFilePath VARCHAR (500) NULL;
+
 
 ----------------------------------------------------
 
@@ -53,8 +60,8 @@ ADD
 
 ----------------------------------------------------------------
 
-select * from [AFF_HostelDetails]
-where collegecode = 'd038'
+--select * from [AFF_HostelDetails]
+--where collegecode = 'd038'
 -- ============================================================
 -- Table Name : Mst_LibraryExpenditure
 -- Purpose    : Stores master data for library expenditure items
@@ -556,7 +563,43 @@ where FacultyCode=2
 
 
 
+----------------------------------------------------------------
 
+
+CREATE TABLE OtherHealthScienceColleges
+(
+    Id INT IDENTITY(1,1) NOT NULL
+        CONSTRAINT PK_OtherHealthScienceColleges PRIMARY KEY,
+
+    FacultyId INT NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+
+    OtherCollegeCode NVARCHAR(100) NOT NULL,
+
+    CourseCode INT NOT NULL,
+
+    CreatedOn DATETIME2 NOT NULL
+        CONSTRAINT DF_OtherHealthScienceColleges_CreatedOn
+        DEFAULT GETDATE(),
+
+    ModifiedOn DATETIME2 NULL,
+
+    CONSTRAINT FK_OtherHealthScienceColleges_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_OtherHealthScienceColleges_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_OtherHealthScienceColleges_OtherCollege
+        FOREIGN KEY (OtherCollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+);
+
+------------------------------------------------------------
 
 ----If a college should have only one Dental Field Practice Area record 
 ----for the current affiliation/course-level selection:

@@ -3000,6 +3000,81 @@ namespace Medical_Affiliation.Controllers
             return PhysicalFile(doc.DocumentDataPath, contentType);
         }
 
+        public IActionResult ViewGoverningBodyDocument(string id)
+        {
+            var doc = _context.AffInstitutionsDetails
+                .FirstOrDefault(x => x.CollegeCode == id);
+
+            if (doc == null ||
+                string.IsNullOrEmpty(doc.MembersOfGoverningBodyOrCouncilFilePath) ||
+                !System.IO.File.Exists(doc.MembersOfGoverningBodyOrCouncilFilePath))
+                return NotFound("File not found");
+
+            var fileName = Path.GetFileName(doc.MembersOfGoverningBodyOrCouncilFilePath);
+
+            // 🔥 Detect content type
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(doc.MembersOfGoverningBodyOrCouncilFilePath, out string contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            // 👀 IMPORTANT: INLINE VIEW (NOT DOWNLOAD)
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+            return PhysicalFile(doc.MembersOfGoverningBodyOrCouncilFilePath, contentType);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetOtherHealthScienceColleges(int facultyId)
+        {
+            var colleges = await _context.AffiliationCollegeMasters
+                .Where(x =>
+                    x.FacultyCode == facultyId.ToString())
+                .OrderBy(x => x.CollegeName)
+                .Select(x => new
+                {
+                    value = x.CollegeCode,
+                    text = x.CollegeName
+                })
+                .ToListAsync();
+
+            return Json(colleges);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFacultiesForOtherHealthScienceColleges()
+        {
+            var faculties = await _context.Faculties
+                .Where(x => x.Status == "Active")
+                .OrderBy(x => x.FacultyName)
+                .Select(x => new
+                {
+                    value = x.FacultyId,
+                    text = x.FacultyName
+                })
+                .ToListAsync();
+
+            return Json(faculties);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOtherHealthScienceCourses(int facultyId)
+        {
+            var courses = await _context.MstCourses
+                .Where(x => x.FacultyCode == facultyId)
+                .OrderBy(x => x.CourseName)
+                .Select(x => new
+                {
+                    value = x.CourseCode,
+                    text = x.CourseName
+                })
+                .Distinct()
+                .ToListAsync();
+
+            return Json(courses);
+        }
 
 
         [HttpGet]
@@ -3064,6 +3139,80 @@ namespace Medical_Affiliation.Controllers
                 vm = MapEntityToViewModel(entity);
             }
 
+            // ============================================================
+            // LOAD OTHER HEALTH SCIENCE COLLEGES
+            // ============================================================
+
+            var otherHealthColleges = _context.OtherHealthScienceColleges
+                .Where(x => x.CollegeCode == collegeCode)
+                .ToList();
+
+            if (otherHealthColleges.Any())
+            {
+                vm.HasOtherHealthScienceColleges = true;
+
+                vm.OtherHealthScienceColleges = new List<OtherHealthScienceCollegeVM>();
+
+                foreach (var item in otherHealthColleges)
+                {
+                    var row = new OtherHealthScienceCollegeVM
+                    {
+                        Id = item.Id,
+                        CollegeCode = item.CollegeCode,
+                        OtherFacultyId = item.FacultyId,
+                        OtherCollegeCode = item.OtherCollegeCode,
+                        OtherCourseCode = item.CourseCode
+                    };
+
+                    // -----------------------------
+                    // Faculty dropdown
+                    // -----------------------------
+                    row.FacultyList = _context.Faculties
+                        .Where(f => f.Status == "Active")
+                        .Select(f => new SelectListItem
+                        {
+                            Value = f.FacultyId.ToString(),
+                            Text = f.FacultyName
+                        })
+                        .ToList();
+
+                    // -----------------------------
+                    // College dropdown
+                    // Based on selected Faculty
+                    // -----------------------------
+                    row.CollegeList = _context.AffiliationCollegeMasters
+                        .Where(c => c.FacultyCode == item.FacultyId.ToString())
+                        .Select(c => new SelectListItem
+                        {
+                            Value = c.CollegeCode,
+                            Text = c.CollegeName
+                        })
+                        .ToList();
+
+                    // -----------------------------
+                    // Course dropdown
+                    // Based on selected Faculty
+                    // -----------------------------
+                    row.CourseList = _context.MstCourses
+                        .Where(c => c.FacultyCode == item.FacultyId)
+                        .Select(c => new SelectListItem
+                        {
+                            Value = c.CourseCode.ToString(),
+                            Text = c.CourseName
+                        })
+                        .ToList();
+
+                    vm.OtherHealthScienceColleges.Add(row);
+                }
+            }
+            else
+            {
+                vm.HasOtherHealthScienceColleges = false;
+
+                vm.OtherHealthScienceColleges =
+                    new List<OtherHealthScienceCollegeVM>();
+            }
+
             FillDropDowns(vm);
 
             var existingLevels = (from intake in _context.CollegeCourseIntakeDetails
@@ -3088,7 +3237,7 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueCountLimit = 100000)]
-        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile, IFormFile? GovAutonomousCertFile)
+        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile, IFormFile? GovAutonomousCertFile, IFormFile? MembersOfGoverningBodyOrCouncilFile)
         {
             // 1. Re-apply session codes (never trust hidden fields for security)
             var courseLevel = CourseLevel;
@@ -3122,6 +3271,7 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove(nameof(vm.MinorityInstitute));
             ModelState.Remove(nameof(vm.AttachedToMedicalClg));
             ModelState.Remove(nameof(vm.RuralInstitute));
+            ModelState.Remove(nameof(vm.Courses));
             ModelState.Remove(nameof(vm.GovAutonomousCertNumber));
 
             if (vm.TypeOfInstitution == "1" || vm.TypeOfInstitution == "11")
@@ -3233,6 +3383,37 @@ namespace Medical_Affiliation.Controllers
                 entity.GovAutonomousCertPath = fullPath;
             }
 
+            // ================================
+            // Governing Council pdf
+            // ================================
+            if (MembersOfGoverningBodyOrCouncilFile != null && MembersOfGoverningBodyOrCouncilFile.Length > 0)
+            {
+                string rootPath = entity.FacultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
+
+                string basePath = Path.Combine(rootPath, "InstitutionDetails", "MembersOfGoverningBodyOrCouncil");
+
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+
+                if (!string.IsNullOrWhiteSpace(entity.MembersOfGoverningBodyOrCouncilFilePath) &&
+                    System.IO.File.Exists(entity.MembersOfGoverningBodyOrCouncilFilePath))
+                {
+                    System.IO.File.Delete(entity.MembersOfGoverningBodyOrCouncilFilePath);
+                }
+
+                string fileName = Guid.NewGuid() + Path.GetExtension(MembersOfGoverningBodyOrCouncilFile.FileName);
+                string fullPath = Path.Combine(basePath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await MembersOfGoverningBodyOrCouncilFile.CopyToAsync(stream);
+                }
+
+                entity.MembersOfGoverningBodyOrCouncilFilePath = fullPath;
+            }
+
             // 6. Map all ViewModel fields → Entity
             MapViewModelToEntity(vm, entity);
 
@@ -3241,6 +3422,50 @@ namespace Medical_Affiliation.Controllers
             entity.MinorityInstitute = Request.Form["MinorityInstitute"].Contains("true");
             entity.AttachedToMedicalClg = Request.Form["AttachedToMedicalClg"].Contains("true");
             entity.RuralInstitute = Request.Form["RuralInstitute"].Contains("true");
+
+            // ============================================================
+            // SAVE OTHER HEALTH SCIENCE COLLEGES
+            // ============================================================
+
+            // First remove existing records for this institution
+            var existingOtherColleges = await _context.OtherHealthScienceColleges
+                .Where(x =>
+                    x.CollegeCode == collegeCode)
+                .ToListAsync();
+
+            if (existingOtherColleges.Any())
+            {
+                _context.OtherHealthScienceColleges.RemoveRange(existingOtherColleges);
+            }
+
+
+            // Save new records only when YES is selected
+            if (vm.HasOtherHealthScienceColleges == true &&
+                vm.OtherHealthScienceColleges != null &&
+                vm.OtherHealthScienceColleges.Any())
+            {
+                foreach (var item in vm.OtherHealthScienceColleges)
+                {
+                    // Ignore incomplete rows
+                    if (item.OtherFacultyId <= 0 ||
+                        string.IsNullOrWhiteSpace(item.OtherCollegeCode) ||
+                        item.OtherCourseCode <= 0)
+                    {
+                        continue;
+                    }
+
+                    var otherCollege = new OtherHealthScienceCollege
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyId = item.OtherFacultyId.Value,
+                        OtherCollegeCode = item.OtherCollegeCode,
+                        CourseCode = item.OtherCourseCode.Value,
+                        CreatedOn = DateTime.Now
+                    };
+
+                    _context.OtherHealthScienceColleges.Add(otherCollege);
+                }
+            }
 
             // 7. Save with error handling
             try
@@ -3342,6 +3567,9 @@ namespace Medical_Affiliation.Controllers
                 MinorityCategory = e.MinorityCategory,
                 RunningCourse = e.RunningCourse,
                 GovAutonomousCertNumber = e.GovAutonomousCertNumber,
+                AddressOfAdministrativeAuthority = e.AddressOfAdministrativeAuthority,
+                NameOfAdministrativeAuthority = e.NameOfAdministrativeAuthority,
+                hasGoverningBodyFile = !string.IsNullOrWhiteSpace(e.MembersOfGoverningBodyOrCouncilFilePath),
                 hasGovAutoCertFile = !string.IsNullOrWhiteSpace(e.GovAutonomousCertPath)
             };
         }
@@ -3364,6 +3592,8 @@ namespace Medical_Affiliation.Controllers
             // NOT mapped here — they are written directly to entity after this call
             // using Request.Form to bypass model binder issues with multipart/form-data
             e.YearOfEstablishment = vm.YearOfEstablishment;
+            e.AddressOfAdministrativeAuthority = vm.AddressOfAdministrativeAuthority;
+            e.NameOfAdministrativeAuthority = vm.NameOfAdministrativeAuthority;
             e.EmailId = vm.EmailId;
             e.AltLandlineMobile = vm.AltLandlineMobile;
             e.AltEmailId = vm.AltEmailId;

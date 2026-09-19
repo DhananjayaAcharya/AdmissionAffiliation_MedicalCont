@@ -457,6 +457,14 @@ public class InstitutionViewModel
     public List<SelectListItem> CourseList { get; set; }
     public List<SelectListItem> institutetypelist { get; set; }
     public List<SelectListItem> Institutestatuslist { get; set; }
+    public bool? HasOtherHealthScienceColleges { get; set; }
+
+    public List<OtherHealthScienceCollegeVM> OtherHealthScienceColleges { get; set; }
+        = new();
+
+    public List<Faculty> Faculties { get; set; }
+        = new();
+    public List<SelectListItem> Courses { get; set; }
 
     public string? GovAutonomousCertNumber { get; set; }
 
@@ -464,11 +472,67 @@ public class InstitutionViewModel
     public IFormFile? GovAutonomousCertFile { get; set; }
 
     public bool hasGovAutoCertFile { get; set; }
+    public bool hasGoverningBodyFile { get; set; }
+
+
+    [StringLength(250)]
+    public string? NameOfAdministrativeAuthority { get; set; }
+
+    public string? AddressOfAdministrativeAuthority { get; set; }
+
+    [StringLength(500)]
+    public string? MembersOfGoverningBodyOrCouncilFilePath { get; set; }
+
+    [NotMapped]
+    public IFormFile? MembersOfGoverningBodyOrCouncilFile { get; set; }
 
     // public string GovernmentCertifiedNumber { get; set; }
 
 
 
+}
+
+
+public class OtherHealthScienceCollegeVM
+{
+    public int Id { get; set; }
+
+    // Parent college
+    public string? CollegeCode { get; set; }
+
+    // Faculty selected from Faculty master
+    public int? OtherFacultyId { get; set; }
+
+    // Other Health Science College
+    public string? OtherCollegeCode { get; set; }
+
+    // Course selected from MstCourse
+    public int? OtherCourseCode { get; set; }
+
+    // Dropdown data
+    public List<SelectListItem> FacultyList { get; set; }
+        = new();
+
+    public List<SelectListItem> CollegeList { get; set; }
+        = new();
+
+    public List<SelectListItem> CourseList { get; set; }
+        = new();
+}
+
+public class OtherHealthScienceCollegeRowVM
+{
+    public int Id { get; set; }
+
+    public int? OtherFacultyId { get; set; }
+
+    public string? OtherCollegeCode { get; set; }
+
+    public int? OtherCourseCode { get; set; }
+
+    public List<SelectListItem> CollegeList { get; set; } = new();
+
+    public List<SelectListItem> CourseList { get; set; } = new();
 }
 //public class InstitutionViewModel
 //{

@@ -538,6 +538,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<OtherCourseObservership> OtherCourseObserverships { get; set; }
 
+    public virtual DbSet<OtherHealthScienceCollege> OtherHealthScienceColleges { get; set; }
+
     public virtual DbSet<PaymentAffiliationDocument> PaymentAffiliationDocuments { get; set; }
 
     public virtual DbSet<PaymentReceipt> PaymentReceipts { get; set; }
@@ -1128,6 +1130,7 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("AFF_InstitutionsDetails");
 
             entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.AddressOfAdministrativeAuthority).IsUnicode(false);
             entity.Property(e => e.AltEmailId).HasMaxLength(500);
             entity.Property(e => e.AltLandlineMobile).HasMaxLength(500);
             entity.Property(e => e.Browser)
@@ -1172,8 +1175,14 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("IPAddress");
+            entity.Property(e => e.MembersOfGoverningBodyOrCouncilFilePath)
+                .HasMaxLength(500)
+                .IsUnicode(false);
             entity.Property(e => e.MinorityCategory).HasMaxLength(100);
             entity.Property(e => e.MobileNumber).HasMaxLength(500);
+            entity.Property(e => e.NameOfAdministrativeAuthority)
+                .HasMaxLength(250)
+                .IsUnicode(false);
             entity.Property(e => e.NameOfInstitution).HasMaxLength(500);
             entity.Property(e => e.NodalOfficerEmail)
                 .HasMaxLength(250)
@@ -7356,6 +7365,28 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<OtherHealthScienceCollege>(entity =>
+        {
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.OtherCollegeCode).HasMaxLength(100);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.OtherHealthScienceCollegeCollegeCodeNavigations)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OtherHealthScienceColleges_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.OtherHealthScienceColleges)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OtherHealthScienceColleges_Faculty");
+
+            entity.HasOne(d => d.OtherCollegeCodeNavigation).WithMany(p => p.OtherHealthScienceCollegeOtherCollegeCodeNavigations)
+                .HasForeignKey(d => d.OtherCollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OtherHealthScienceColleges_OtherCollege");
         });
 
         modelBuilder.Entity<PaymentAffiliationDocument>(entity =>
