@@ -36,8 +36,4 @@ public partial class AffDeanOrDirectorDetail
     public byte[] RowTimestamp { get; set; } = null!;
 
     public bool? RecognizedByDci { get; set; }
-
-    public virtual ICollection<AffDeanAdministrativeExperience> AffDeanAdministrativeExperiences { get; set; } = new List<AffDeanAdministrativeExperience>();
-
-    public virtual ICollection<AffDeanTeachingExperience> AffDeanTeachingExperiences { get; set; } = new List<AffDeanTeachingExperience>();
 }

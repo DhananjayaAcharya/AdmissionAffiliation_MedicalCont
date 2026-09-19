@@ -19,7 +19,7 @@ namespace Medical_Affiliation.Models
         public string CourseName { get; set; } = string.Empty;
         public int Intake2627 { get; set; }
 
-        public int? IncreasedIntake { get; set; }
+        public string? IncreasedIntake { get; set; }
         public string? AcademicYear { get; set; }
     }
 }

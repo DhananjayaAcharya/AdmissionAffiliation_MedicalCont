@@ -1044,7 +1044,8 @@ namespace Medical_Affiliation.Controllers
                 // on the Increased_Intake column (the seats being added),
                 // never on Intake_26_27 (the existing sanctioned intake).
                 courseCount = vm.MatchedCourses.Count;
-                seatCount = vm.MatchedCourses.Sum(c => c.IncreasedIntake ?? 0);
+                seatCount = vm.MatchedCourses.Sum(c =>
+    int.TryParse(c.IncreasedIntake, out var v) ? v : 0);
             }
             else
             {
@@ -1106,11 +1107,11 @@ namespace Medical_Affiliation.Controllers
 
         private static int GetEffectiveSeatCount(MatchedCourseVM course, bool useIncreasedIntakeSeats)
         {
-            // For Enhancement receipts, show the Increased_Intake figure that
-            // was actually billed - not the pre-existing base intake.
-            return useIncreasedIntakeSeats
-                ? course.IncreasedIntake ?? 0
-                : course.Intake_26_27 ?? 0;
+            int? value = useIncreasedIntakeSeats
+                ? (int.TryParse(course.IncreasedIntake, out var inc) ? inc : (int?)null)
+                : course.Intake_26_27;
+
+            return value ?? 0;
         }
 
         private static int ReadInt32(SqlDataReader reader, string columnName)

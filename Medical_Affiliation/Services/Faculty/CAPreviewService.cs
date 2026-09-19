@@ -319,7 +319,7 @@ namespace Medical_Affiliation.Services.Faculty
                 CourseLevel = x.UgPg ?? string.Empty,
                 Intake = x.Intake2627,
                 CourseCode = x.CourseCode,
-                MatchNote = x.MatchNote ?? string.Empty
+                //MatchNote = x.MatchNote ?? string.Empty
             }).ToList();
         }
 

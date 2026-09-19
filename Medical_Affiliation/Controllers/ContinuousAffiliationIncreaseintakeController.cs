@@ -3,6 +3,7 @@ using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -176,7 +177,7 @@ namespace Medical_Affiliation.Controllers
                 if (!entityMap.TryGetValue(row.Slno, out var entity))
                     continue; // skip rows that don't belong to this college/faculty
 
-                entity.IncreasedIntake = row.IncreasedIntake;
+                entity.IncreasedIntake = row.IncreasedIntake.ToString();
 
                 // AcademicYear is server-enforced, never trusted from the client
                 entity.AcademicYear = FixedAcademicYear;

@@ -147,7 +147,7 @@
                 && applicationTypeName.Contains("Intake", StringComparison.OrdinalIgnoreCase));
 
         var showIncreasedIntakeColumns = isEnhancementApplication
-            && Model.MatchedCourses.Any(c => c.IncreasedIntake.HasValue || !string.IsNullOrWhiteSpace(c.AcademicYear));
+    && Model.MatchedCourses.Any(c => !string.IsNullOrWhiteSpace(c.IncreasedIntake) || !string.IsNullOrWhiteSpace(c.AcademicYear));
 
         var activeCollegeCode = Context.Session.GetString("CollegeCode") ?? Model.CollegeCode ?? payCollegeCode;
         var activeFacultyCode = Context.Session.GetString("FacultyCode") ?? payFacultyCode;
@@ -192,7 +192,7 @@
                                 <td>@c.Intake_26_27</td>
                                 @if (showIncreasedIntakeColumns)
                                 {
-                                    <td>@(c.IncreasedIntake.HasValue ? c.IncreasedIntake.Value.ToString() : "-")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(c.IncreasedIntake) ? c.IncreasedIntake : "-")</td>
                                     <td>@(!string.IsNullOrWhiteSpace(c.AcademicYear) ? c.AcademicYear : "-")</td>
                                 }
                             </tr>
