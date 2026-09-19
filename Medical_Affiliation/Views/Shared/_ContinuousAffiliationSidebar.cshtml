@@ -98,10 +98,18 @@
         .ToList();
 
     var selectedCourseLevel = HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel")?.Trim().ToUpperInvariant();
-    var applicationReadOnly = string.Equals(
-        HttpContextAccessor.HttpContext?.Session?.GetString("CAApplicationReadOnly"),
-        "true",
-        StringComparison.OrdinalIgnoreCase);
+    var applicationReadOnly = false;
+    if (!string.IsNullOrWhiteSpace(collegeCode)
+        && !string.IsNullOrWhiteSpace(typeOfAffiliation)
+        && !string.IsNullOrWhiteSpace(selectedCourseLevel))
+    {
+        applicationReadOnly = await _context.Database.SqlQuery<int>($@"
+            SELECT COUNT(*) AS [Value]
+            FROM dbo.ApplicationSubmission
+            WHERE CollegeCode = {collegeCode}
+              AND LTRIM(RTRIM(TypeOfAffiliation)) = LTRIM(RTRIM({typeOfAffiliation}))
+              AND UPPER(LTRIM(RTRIM(CourseLevel))) = {selectedCourseLevel}").FirstOrDefaultAsync() > 0;
+    }
 
 
     var institutionRecord = await _context.AffInstitutionsDetails
@@ -140,6 +148,13 @@
     if (!doneSteps.Contains("FacultyDetails"))
     {
         doneSteps.Add("FacultyDetails");
+    }
+
+    // These pages are optional for continuous affiliation. IntakeDetails is
+    // marked complete only after the user saves data on the intake page.
+    if (!doneSteps.Contains("AssociatedInstitutions"))
+    {
+        doneSteps.Add("AssociatedInstitutions");
     }
 
     var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
@@ -369,7 +384,6 @@
     // must not affect the completion percentage.
     var excludedProgressKeys = new HashSet<string>
     {
-        "IntakeDetails",
         "AssociatedInstitutions",
         "GeoPhoto",
         "PreviewMode",

@@ -376,7 +376,10 @@
                                 {
                                     <tr>
                                         <td>@item.AssociatedFacultyName</td>
-                                        <td>@item.AssociatedCollegeName</td>
+                                        <td>
+                                            <strong>@(string.IsNullOrWhiteSpace(item.AssociatedCollegeName) ? item.AssociatedCollegeCode : item.AssociatedCollegeName)</strong>
+                                            <small class="d-block text-muted">@item.AssociatedCollegeCode</small>
+                                        </td>
                                         <td>@item.CourseName</td>
                                         <td class="text-center">
                                             <span class="badge">@item.AnnualIntake</span>

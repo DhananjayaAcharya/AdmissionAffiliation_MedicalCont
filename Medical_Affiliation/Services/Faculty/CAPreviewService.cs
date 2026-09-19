@@ -320,12 +320,15 @@ namespace Medical_Affiliation.Services.Faculty
                 "Institution", "DeanDetails", "PrincipalDetails", "ClinicalFacilities",
                 "DepartmentUnits", "Hostel", "Finance", "StaffDetails", "LibraryServices",
                 "Research", "Library", "FacultyDetails", "NonTeachingStaff", "LandBuilding",
-                "EquipmentDetails", "Vehicle", "SkillsLab"
+                "EquipmentDetails", "Vehicle", "SkillsLab", "IntakeDetails"
             };
 
             var institutionTypeId = await _context.AffInstitutionsDetails
                 .AsNoTracking()
-                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString())
+                .Where(x => x.CollegeCode == collegeCode
+                    && x.FacultyCode == facultyCode.ToString()
+                    && (string.IsNullOrWhiteSpace(courseLevel) || x.CourseLevel == courseLevel))
+                .OrderByDescending(x => x.InstitutionId)
                 .Select(x => x.TypeOfInstitution)
                 .FirstOrDefaultAsync();
             var organizationCategory = int.TryParse(institutionTypeId, out var parsedInstitutionTypeId)
@@ -383,6 +386,11 @@ namespace Medical_Affiliation.Services.Faculty
                 .Select(x => x.StepKey)
                 .Distinct()
                 .ToListAsync();
+
+            // Faculty details are optional in continuous affiliation. Keep
+            // the preview completion calculation consistent with the sidebar,
+            // which treats this step as complete even when no record exists.
+            completedSteps.Add("FacultyDetails");
 
             return requiredSteps.Count == 0
                 ? 0

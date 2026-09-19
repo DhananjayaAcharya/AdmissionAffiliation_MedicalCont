@@ -30,6 +30,10 @@ namespace Medical_Affiliation.Controllers
         private const string EnhancementApplicationType = "Enhancement of Seats / Increase in Intake";
         private const string FixedAcademicYear = "2027-28";
 
+        // Fixed intake slabs shown in "Previous details" (order matters for display)
+        private static readonly string[] PreviousIntakeSlabs =
+            { "50", "51-100", "101-150", "151-200", "201-250" };
+
         private static bool IsEnhancementApplication(string? applicationType) =>
             string.Equals(applicationType?.Trim(), EnhancementApplicationType, StringComparison.OrdinalIgnoreCase);
 
@@ -78,6 +82,45 @@ namespace Medical_Affiliation.Controllers
             return false;
         }
 
+        /// <summary>
+        /// Resolves the selected Type of Affiliation Id from session. Handles both an Id
+        /// ("3") and a description ("Enhancement of Seats / Increase in Intake"),
+        /// stored under any of the session keys this app has used.
+        /// </summary>
+        private async Task<int?> GetAffiliationTypeIdAsync()
+        {
+            var keys = new[]
+            {
+                "AffiliationTypeId", "TypeOfAffiliationId", "AffiliationType",
+                "TypeOfAffiliation", "SelectedTypeOfAffiliation", "ApplicationType"
+            };
+
+            foreach (var key in keys)
+            {
+                var text = HttpContext.Session.GetString(key)?.Trim();
+
+                if (!string.IsNullOrEmpty(text))
+                {
+                    if (int.TryParse(text, out var id) && id > 0)
+                        return id;
+
+                    var typeId = await _context.TypeOfAffiliations
+                        .Where(t => t.TypeDescription == text)
+                        .Select(t => (int?)t.TypeId)
+                        .FirstOrDefaultAsync();
+
+                    if (typeId.HasValue)
+                        return typeId;
+                }
+
+                var intValue = HttpContext.Session.GetInt32(key);
+                if (intValue.HasValue && intValue > 0)
+                    return intValue;
+            }
+
+            return null;
+        }
+
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
         public async Task<IActionResult> MedicalCollegeCourseIntake()
@@ -124,6 +167,8 @@ namespace Medical_Affiliation.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
+            var affiliationTypeId = await GetAffiliationTypeIdAsync();
+
             var model = new MedicalCollegeCourseIntakeViewModel
             {
                 CollegeCode = collegeCode,
@@ -131,8 +176,17 @@ namespace Medical_Affiliation.Controllers
                 FacultyCode = facultyCode,
                 CourseLevel = courseLevel.ToUpperInvariant(),
                 Courses = intakeRows,
-                ShowIncreasedIntakeFields = showIncreasedIntakeFields
+                ShowIncreasedIntakeFields = showIncreasedIntakeFields,
+                AffiliationTypeId = affiliationTypeId
             };
+
+            // "Previous details" section (MBBS slabs) – UG only, needs a resolved affiliation type
+            if (affiliationTypeId.HasValue &&
+                courseLevel.Equals("UG", StringComparison.OrdinalIgnoreCase))
+            {
+                model.PreviousDetails = await BuildPreviousDetailsAsync(
+                    collegeCode, facultyId, affiliationTypeId.Value, intakeRows);
+            }
 
             return View(model);
         }
@@ -184,9 +238,275 @@ namespace Medical_Affiliation.Controllers
             }
 
             await _context.SaveChangesAsync();
+            await MarkIntakeDetailsCompleteAsync(collegeCode, courseLevel: HttpContext.Session.GetString("SelectedCourseLevel"));
 
             TempData["SuccessMessage"] = "Increased intake details saved successfully.";
             return RedirectToAction("MedicalCollegeCourseIntake");
+        }
+
+
+        // ════════════════════════════════════════════════════════════
+        //  PREVIOUS DETAILS  (LOP year + NMC document per intake slab)
+        // ════════════════════════════════════════════════════════════
+
+        private async Task<List<PreviousIntakeCourseVm>> BuildPreviousDetailsAsync(
+            string collegeCode,
+            int facultyId,
+            int affiliationTypeId,
+            List<MedicalCollegeCourseIntakeRowViewModel> courses)
+        {
+            // Projection keeps the PDF bytes out of memory - we only need "has document?"
+            var saved = await _context.MedicalCollegePreviousIntakes
+                .AsNoTracking()
+                .Where(x => x.FacultyCode == facultyId
+                            && x.CollegeCode == collegeCode
+                            && x.AffiliationTypeId == affiliationTypeId)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.CourseCode,
+                    x.IntakeSlab,
+                    x.LopYear,
+                    x.NmcDocumentName,
+                    HasDocument = x.NmcDocument != null
+                })
+                .ToListAsync();
+
+            var result = new List<PreviousIntakeCourseVm>();
+
+            foreach (var course in courses)
+            {
+                if (!int.TryParse(course.CourseCode, out var courseCode))
+                    continue;
+
+                var vm = new PreviousIntakeCourseVm
+                {
+                    CourseCode = courseCode,
+                    CourseName = course.CourseName
+                };
+
+                foreach (var slab in PreviousIntakeSlabs)
+                {
+                    var row = saved.FirstOrDefault(s => s.CourseCode == courseCode && s.IntakeSlab == slab);
+
+                    vm.Slabs.Add(new PreviousIntakeSlabVm
+                    {
+                        Id = row?.Id ?? 0,
+                        IntakeSlab = slab,
+                        LopYear = row?.LopYear,
+                        HasDocument = row?.HasDocument ?? false,
+                        DocumentName = row?.NmcDocumentName
+                    });
+                }
+
+                result.Add(vm);
+            }
+
+            return result;
+        }
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(50_000_000)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 50_000_000)]
+        public async Task<IActionResult> SavePreviousDetails(
+            [Bind(Prefix = "PreviousDetails")] List<PreviousIntakeCourseVm> previousDetails)
+        {
+            // Always take college / faculty / type from session, never from the form
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+            if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("Collegelogin", "Login");
+
+            if (!int.TryParse(facultyCode, out var facultyId))
+                return BadRequest("Invalid faculty code");
+
+            var affiliationTypeId = await GetAffiliationTypeIdAsync();
+            if (!affiliationTypeId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Type of affiliation is not selected. Please select it and try again.";
+                return RedirectToAction(nameof(MedicalCollegeCourseIntake));
+            }
+
+            if (previousDetails == null || previousDetails.Count == 0)
+                return RedirectToAction(nameof(MedicalCollegeCourseIntake));
+
+            try
+            {
+                // Only accept courses that actually belong to this college / faculty
+                var allowedCourseCodes = (await _context.MstMedicalCollegeCourseIntakes
+                        .Where(i => i.CollCode == collegeCode && i.Facultycode == facultyId)
+                        .Select(i => i.CourseCode)
+                        .ToListAsync())
+                    .Where(c => c.HasValue)
+                    .Select(c => c!.Value)
+                    .ToHashSet();
+
+                var existing = await _context.MedicalCollegePreviousIntakes
+                    .Where(x => x.FacultyCode == facultyId
+                                && x.CollegeCode == collegeCode
+                                && x.AffiliationTypeId == affiliationTypeId.Value)
+                    .ToListAsync();
+
+                var existingMap = existing.ToDictionary(x => (x.CourseCode, x.IntakeSlab));
+
+                var errors = new List<string>();
+                var currentYear = DateTime.Now.Year;
+                int added = 0, updated = 0, removed = 0;
+
+                foreach (var course in previousDetails)
+                {
+                    if (!allowedCourseCodes.Contains(course.CourseCode) || course.Slabs == null)
+                        continue;
+
+                    foreach (var slab in course.Slabs)
+                    {
+                        if (!PreviousIntakeSlabs.Contains(slab.IntakeSlab))
+                            continue;
+
+                        var hasFile = slab.NmcDocument is { Length: > 0 };
+                        existingMap.TryGetValue((course.CourseCode, slab.IntakeSlab), out var row);
+
+                        // Year cleared and nothing uploaded -> user emptied this row
+                        if (!slab.LopYear.HasValue && !hasFile)
+                        {
+                            if (row != null)
+                            {
+                                _context.MedicalCollegePreviousIntakes.Remove(row);
+                                removed++;
+                            }
+                            continue;
+                        }
+
+                        var label = $"{course.CourseName} ({slab.IntakeSlab})";
+
+                        if (!slab.LopYear.HasValue)
+                        {
+                            errors.Add($"{label}: select the year of obtaining LOP.");
+                            continue;
+                        }
+
+                        if (slab.LopYear < 1950 || slab.LopYear > currentYear)
+                        {
+                            errors.Add($"{label}: invalid LOP year.");
+                            continue;
+                        }
+
+                        // Remove this check if the document should be optional
+                        if (!hasFile && (row?.NmcDocument == null || row.NmcDocument.Length == 0))
+                        {
+                            errors.Add($"{label}: upload the NMC document (PDF).");
+                            continue;
+                        }
+
+                        if (row == null)
+                        {
+                            row = new MedicalCollegePreviousIntake
+                            {
+                                FacultyCode = facultyId,
+                                CollegeCode = collegeCode,
+                                AffiliationTypeId = affiliationTypeId.Value,
+                                CourseCode = course.CourseCode,
+                                IntakeSlab = slab.IntakeSlab,
+                                CreatedOn = DateTime.Now
+                            };
+                            _context.MedicalCollegePreviousIntakes.Add(row);
+                            added++;
+                        }
+                        else
+                        {
+                            row.UpdatedOn = DateTime.Now;
+                            updated++;
+                        }
+
+                        row.LopYear = slab.LopYear;
+
+                        // Only replace the stored PDF when a new one was uploaded.
+                        // ToBytes() already enforces PDF / content-type / 5 MB.
+                        if (hasFile)
+                        {
+                            row.NmcDocument = ToBytes(slab.NmcDocument);
+                            row.NmcDocumentName = Path.GetFileName(slab.NmcDocument!.FileName);
+                        }
+                    }
+                }
+
+                if (errors.Count > 0)
+                {
+                    // SaveChanges is never called, so nothing is persisted
+                    TempData["ErrorMessage"] = string.Join(" ", errors);
+                    return RedirectToAction(nameof(MedicalCollegeCourseIntake));
+                }
+
+                await _context.SaveChangesAsync();
+                if (added > 0 || updated > 0)
+                {
+                    await MarkIntakeDetailsCompleteAsync(
+                        collegeCode,
+                        HttpContext.Session.GetString("SelectedCourseLevel"));
+                }
+
+                TempData["SuccessMessage"] =
+                    $"Previous details saved — {added} added, {updated} updated, {removed} removed.";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SavePreviousDetails ERROR] {ex}");
+                TempData["ErrorMessage"] = $"Save error: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(MedicalCollegeCourseIntake));
+        }
+
+        private async Task MarkIntakeDetailsCompleteAsync(string collegeCode, string? courseLevel)
+        {
+            if (string.IsNullOrWhiteSpace(courseLevel))
+                return;
+
+            var normalizedLevel = courseLevel.Trim().ToUpperInvariant();
+            var progress = await _context.CaProgresses.FirstOrDefaultAsync(x =>
+                x.CollegeCode == collegeCode
+                && x.CourseLevel == normalizedLevel
+                && x.StepKey == "IntakeDetails");
+
+            if (progress == null)
+            {
+                progress = new CaProgress
+                {
+                    CollegeCode = collegeCode,
+                    CourseLevel = normalizedLevel,
+                    StepKey = "IntakeDetails"
+                };
+                _context.CaProgresses.Add(progress);
+            }
+
+            progress.IsCompleted = true;
+            progress.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+        }
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpGet]
+        public async Task<IActionResult> ViewPreviousNmcDocument(int id)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("Collegelogin", "Login");
+
+            // Ownership check: a college can only open its own documents
+            var bytes = await _context.MedicalCollegePreviousIntakes
+                .AsNoTracking()
+                .Where(x => x.Id == id && x.CollegeCode == collegeCode)
+                .Select(x => x.NmcDocument)
+                .FirstOrDefaultAsync();
+
+            if (bytes == null || bytes.Length == 0)
+                return NotFound();
+
+            Response.Headers["Content-Disposition"] = "inline";
+            return File(bytes, "application/pdf");
         }
 
 
@@ -313,7 +633,7 @@ namespace Medical_Affiliation.Controllers
 
                                 if (vm.AY2025_DCIDocument != null)
                                 {
-                                    DeleteFileIfExists( db.Ay2025Dcidocument, "AY2025_DCI");
+                                    DeleteFileIfExists(db.Ay2025Dcidocument, "AY2025_DCI");
 
                                     db.Ay2025Dcidocument =
                                         await SaveFileAsync(
@@ -708,13 +1028,13 @@ namespace Medical_Affiliation.Controllers
             string facultyCode,
             string collegeCode,
             List<AcademicIntake> target)
-                {
-                    if (rows == null) return;
+        {
+            if (rows == null) return;
 
-                    foreach (var r in rows)
-                    {
-                        if (string.IsNullOrWhiteSpace(r.CourseCode))
-                            continue;
+            foreach (var r in rows)
+            {
+                if (string.IsNullOrWhiteSpace(r.CourseCode))
+                    continue;
 
                 bool hasIntakeData =
                           (r.AY2024_ExistingIntake ?? 0) > 0
@@ -739,8 +1059,8 @@ namespace Medical_Affiliation.Controllers
                     continue;
 
                 target.Add(await MapToEntity(facultyCode, collegeCode, r));
-                    }
-                }
+            }
+        }
 
         /// <summary>
         /// Populates all ViewModel collections from the database.
@@ -758,7 +1078,7 @@ namespace Medical_Affiliation.Controllers
             model.FacultyId = facultyId;
             model.CollegeName ??= HttpContext.Session.GetString("CollegeName");
             var seatSlab = await _context.AcademicIntakes.Where(e => e.CollegeCode == collegeCode).Select(e => e.Ay2025TotalIntake).FirstOrDefaultAsync();
-            
+
             HttpContext.Session.SetString("SeatSlab", seatSlab.ToString());
 
             var hospitalDetailsId = await _context.HospitalDetailsForAffiliations.Where(e => e.CollegeCode == collegeCode).Select(e => e.HospitalDetailsId).FirstOrDefaultAsync();
@@ -932,13 +1252,13 @@ namespace Medical_Affiliation.Controllers
                                 existing?.Ay2025NmcDocument != null &&
                                 existing.Ay2025NmcDocument.Length > 0,
 
-                            HasLopDocument =!string.IsNullOrWhiteSpace(existing?.Ay2025LopDentalDocument),
+                            HasLopDocument = !string.IsNullOrWhiteSpace(existing?.Ay2025LopDentalDocument),
 
                             HasAY2025DciDocument = !string.IsNullOrWhiteSpace(existing?.Ay2025Dcidocument),
 
                             HasAY2025KsdcDocument = !string.IsNullOrWhiteSpace(existing?.Ay2025Ksdcdocument),
 
-                            HasAY2026DciDocument =  !string.IsNullOrWhiteSpace(existing?.Ay2026Dcidocument),
+                            HasAY2026DciDocument = !string.IsNullOrWhiteSpace(existing?.Ay2026Dcidocument),
 
                             HasAY2026KsdcDocument = !string.IsNullOrWhiteSpace(existing?.Ay2026Ksdcdocument),
 
@@ -952,9 +1272,9 @@ namespace Medical_Affiliation.Controllers
 
                             AY2024_TotalIntake = existing?.Ay2024TotalIntake ?? 0,
 
-                            AY2025_ExistingIntake =  existing?.Ay2025ExistingIntake ?? 0,
+                            AY2025_ExistingIntake = existing?.Ay2025ExistingIntake ?? 0,
 
-                            AY2025_LopNmcIntake =  existing?.Ay2025LopNmcIntake ?? 0,
+                            AY2025_LopNmcIntake = existing?.Ay2025LopNmcIntake ?? 0,
 
                             AY2025_TotalIntake = existing?.Ay2025TotalIntake ?? 0,
 
@@ -1068,7 +1388,7 @@ namespace Medical_Affiliation.Controllers
                                 (e.Ay2027Dcidocument != null &&
                                  e.Ay2027Dcidocument.Length > 0),
 
-                  HasKsdcDocument =
+                    HasKsdcDocument =
                                 (e.Ay2025Ksdcdocument != null &&
                                  e.Ay2025Ksdcdocument.Length > 0)
 
@@ -1089,7 +1409,7 @@ namespace Medical_Affiliation.Controllers
             .ToList();
         }
 
-        private void DeleteFileIfExists( string? fileName,  string folderName)
+        private void DeleteFileIfExists(string? fileName, string folderName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
                 return;

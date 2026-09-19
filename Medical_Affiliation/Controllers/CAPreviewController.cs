@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using System;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -49,8 +50,6 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction(nameof(Preview));
             }
 
-            HttpContext.Session.SetString("CAApplicationReadOnly", "true");
-
             var model = await _capreviewService.GetPreviewAsync();
             _paymentCalculationController.ControllerContext = ControllerContext;
             model.PaymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
@@ -75,7 +74,6 @@ namespace Medical_Affiliation.Controllers
             }
 
             var paymentCalculation = await GetPaymentCalculationAsync();
-            var registrationNumber = completion.AffInstituteDetails?.RegistrationNumber?.Trim();
             var collegeCode = (completion.CollegeCode ?? HttpContext.Session.GetString("CollegeCode"))?.Trim();
             var facultyCode = (completion.FacultyCode ?? HttpContext.Session.GetString("FacultyCode"))?.Trim();
             var applicationType = (completion.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"))?.Trim();
@@ -95,8 +93,7 @@ namespace Medical_Affiliation.Controllers
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(registrationNumber)
-                || string.IsNullOrWhiteSpace(collegeCode)
+            if (string.IsNullOrWhiteSpace(collegeCode)
                 || string.IsNullOrWhiteSpace(facultyCode)
                 || string.IsNullOrWhiteSpace(applicationType)
                 || string.IsNullOrWhiteSpace(courseLevel)
@@ -110,6 +107,21 @@ namespace Medical_Affiliation.Controllers
                 .Split(',', ';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .FirstOrDefault() ?? courseCodes[0];
 
+            var registrationNumber = await GetOrGenerateRegistrationNumberAsync(
+                collegeCode,
+                facultyCode,
+                courseCode,
+                applicationType,
+                courseLevel);
+
+            if (await HasSubmittedApplicationAsync(collegeCode, applicationType, courseLevel))
+            {
+                paymentCalculation = await GetPaymentCalculationAsync();
+                var submittedModel = await _capreviewService.GetPreviewAsync();
+                submittedModel.PaymentCalculation = paymentCalculation;
+                return GeneratePreviewPdf(submittedModel);
+            }
+
             await SaveApplicationSubmissionAsync(
                 facultyCode,
                 collegeCode,
@@ -118,11 +130,105 @@ namespace Medical_Affiliation.Controllers
                 courseLevel,
                 registrationNumber);
 
-            HttpContext.Session.SetString("CAApplicationReadOnly", "true");
             paymentCalculation = await GetPaymentCalculationAsync();
             var model = await _capreviewService.GetPreviewAsync();
             model.PaymentCalculation = paymentCalculation;
             return GeneratePreviewPdf(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SubmitApplication()
+        {
+            var model = await _capreviewService.GetPreviewAsync();
+            var collegeCode = (model.CollegeCode ?? HttpContext.Session.GetString("CollegeCode"))?.Trim();
+            var applicationType = (model.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"))?.Trim();
+            var courseLevel = (model.ApplyingCourseLevel
+                ?? HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel"))?.Trim();
+
+            if (string.IsNullOrWhiteSpace(collegeCode)
+                || string.IsNullOrWhiteSpace(applicationType)
+                || string.IsNullOrWhiteSpace(courseLevel)
+                || !await HasSubmittedApplicationAsync(collegeCode, applicationType, courseLevel))
+            {
+                return Forbid();
+            }
+
+            _paymentCalculationController.ControllerContext = ControllerContext;
+            model.PaymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
+            return GeneratePreviewPdf(model);
+        }
+
+        private async Task<bool> HasSubmittedApplicationAsync(
+            string collegeCode,
+            string applicationType,
+            string courseLevel)
+        {
+            return await _context.Database.SqlQuery<int>($@"
+                SELECT COUNT(*) AS [Value]
+                FROM dbo.ApplicationSubmission
+                WHERE CollegeCode = {collegeCode}
+                  AND LTRIM(RTRIM(TypeOfAffiliation)) = LTRIM(RTRIM({applicationType}))
+                  AND UPPER(LTRIM(RTRIM(CourseLevel))) = {courseLevel.Trim().ToUpperInvariant()}").FirstOrDefaultAsync() > 0;
+        }
+
+        private async Task<string> GetOrGenerateRegistrationNumberAsync(
+            string? collegeCode,
+            string? facultyCode,
+            string? courseCode,
+            string? applicationType,
+            string? courseLevel)
+        {
+            var normalizedCollegeCode = collegeCode?.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedCollegeCode)
+                || string.IsNullOrWhiteSpace(facultyCode)
+                || string.IsNullOrWhiteSpace(courseCode)
+                || string.IsNullOrWhiteSpace(applicationType)
+                || string.IsNullOrWhiteSpace(courseLevel))
+                return string.Empty;
+
+            var connectionString = _context.Database.GetConnectionString()
+                ?? throw new InvalidOperationException("The application's database connection string is not configured.");
+
+            await using var connection = new SqlConnection(connectionString);
+            await using var existingCommand = new SqlCommand(@"
+                SELECT TOP (1) RegistrationNumber
+                FROM dbo.ApplicationSubmission
+                WHERE FacultyCode = @FacultyCode
+                  AND CollegeCode = @CollegeCode
+                  AND CourseCode = @CourseCode
+                  AND TypeOfAffiliation = @TypeOfAffiliation
+                  AND CourseLevel = @CourseLevel
+                ORDER BY CreatedOn DESC, Id DESC;", connection);
+
+            existingCommand.Parameters.Add("@FacultyCode", System.Data.SqlDbType.VarChar, 20).Value = facultyCode;
+            existingCommand.Parameters.Add("@CollegeCode", System.Data.SqlDbType.VarChar, 20).Value = normalizedCollegeCode;
+            existingCommand.Parameters.Add("@CourseCode", System.Data.SqlDbType.VarChar, 20).Value = courseCode;
+            existingCommand.Parameters.Add("@TypeOfAffiliation", System.Data.SqlDbType.VarChar, 100).Value = applicationType;
+            existingCommand.Parameters.Add("@CourseLevel", System.Data.SqlDbType.VarChar, 50).Value = courseLevel;
+
+            await connection.OpenAsync();
+            var existingRegistration = await existingCommand.ExecuteScalarAsync();
+            if (existingRegistration is string saved && !string.IsNullOrWhiteSpace(saved))
+                return saved.Trim();
+
+            var currentYear = DateTime.Now.Year;
+            for (var attempt = 0; attempt < 20; attempt++)
+            {
+                var serial = RandomNumberGenerator.GetInt32(0, 100000).ToString("D5");
+                var candidate = $"{normalizedCollegeCode}_{currentYear}_{serial}";
+
+                await using var existsCommand = new SqlCommand(
+                    "SELECT COUNT(1) FROM dbo.ApplicationSubmission WHERE RegistrationNumber = @RegistrationNumber;",
+                    connection);
+                existsCommand.Parameters.Add("@RegistrationNumber", System.Data.SqlDbType.VarChar, 50).Value = candidate;
+                var exists = Convert.ToInt32(await existsCommand.ExecuteScalarAsync()) > 0;
+
+                if (!exists)
+                    return candidate;
+            }
+
+            throw new InvalidOperationException("Unable to generate a unique registration number.");
         }
 
         private async Task<PaymentCalculationViewModel> GetPaymentCalculationAsync()
@@ -156,7 +262,40 @@ namespace Medical_Affiliation.Controllers
             command.Parameters.Add("@RegistrationNumber", System.Data.SqlDbType.VarChar, 50).Value = registrationNumber;
 
             await connection.OpenAsync();
-            await command.ExecuteReaderAsync();
+            await using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    // The procedure result is not required by the submission flow.
+                }
+            }
+
+            // Keep the generated registration number in ApplicationSubmission
+            // even when the deployment's stored procedure does not persist it.
+            // The guard keeps this safe if the procedure already inserted it.
+            await using var insertCommand = new SqlCommand(@"
+                INSERT INTO dbo.ApplicationSubmission
+                    (FacultyCode, CollegeCode, CourseCode, TypeOfAffiliation, CourseLevel, RegistrationNumber)
+                SELECT @FacultyCode, @CollegeCode, @CourseCode, @TypeOfAffiliation, @CourseLevel, @RegistrationNumber
+                WHERE NOT EXISTS
+                (
+                    SELECT 1
+                    FROM dbo.ApplicationSubmission
+                    WHERE FacultyCode = @FacultyCode
+                      AND CollegeCode = @CollegeCode
+                      AND CourseCode = @CourseCode
+                      AND TypeOfAffiliation = @TypeOfAffiliation
+                      AND CourseLevel = @CourseLevel
+                      AND RegistrationNumber = @RegistrationNumber
+                );", connection);
+
+            insertCommand.Parameters.Add("@FacultyCode", System.Data.SqlDbType.VarChar, 20).Value = facultyCode;
+            insertCommand.Parameters.Add("@CollegeCode", System.Data.SqlDbType.VarChar, 20).Value = collegeCode;
+            insertCommand.Parameters.Add("@CourseCode", System.Data.SqlDbType.VarChar, 20).Value = courseCode;
+            insertCommand.Parameters.Add("@TypeOfAffiliation", System.Data.SqlDbType.VarChar, 100).Value = typeOfAffiliation;
+            insertCommand.Parameters.Add("@CourseLevel", System.Data.SqlDbType.VarChar, 50).Value = courseLevel;
+            insertCommand.Parameters.Add("@RegistrationNumber", System.Data.SqlDbType.VarChar, 50).Value = registrationNumber;
+            await insertCommand.ExecuteNonQueryAsync();
         }
 
         public async Task<IActionResult> GetCurriculumFile(int id)

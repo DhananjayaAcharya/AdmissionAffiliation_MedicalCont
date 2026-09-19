@@ -28,4 +28,6 @@ public partial class MstAffiliationType
     public string? CourseLevelGroup { get; set; }
 
     public virtual ICollection<MstAffiliationFeeStructure> MstAffiliationFeeStructures { get; set; } = new List<MstAffiliationFeeStructure>();
+
+    public virtual ICollection<TxnCollegeFeePayment> TxnCollegeFeePayments { get; set; } = new List<TxnCollegeFeePayment>();
 }

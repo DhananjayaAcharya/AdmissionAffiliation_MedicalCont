@@ -278,7 +278,7 @@ namespace Medical_Affiliation.Controllers
                         where ai.CollegeCode == collegeCode && ai.FacultyCode == facultyCode.ToString()
 
                         join acm in _context.AffiliationCollegeMasters
-                            on ai.CollegeCode equals acm.CollegeCode
+                            on ai.AssociatedCollegeCode equals acm.CollegeCode
                             into collegejoin
 
                         from acm in collegejoin.DefaultIfEmpty()

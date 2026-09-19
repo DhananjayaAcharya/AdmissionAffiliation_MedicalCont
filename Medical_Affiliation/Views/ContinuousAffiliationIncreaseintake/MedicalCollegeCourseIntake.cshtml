@@ -444,6 +444,53 @@
         padding-top: 0;
     }
 
+    /* ---------- Previous details ---------- */
+    .previous-details-card {
+        margin-top: 1.4rem;
+    }
+
+        .previous-details-card tbody tr:nth-child(even),
+        .previous-details-card tbody tr:hover {
+            background: transparent;
+        }
+
+        .previous-details-card td.merged {
+            vertical-align: top;
+            border-right: 1px solid var(--bdr);
+            background: #fff;
+        }
+
+        .previous-details-card .slab-label {
+            display: inline-block;
+            min-width: 4.5rem;
+            padding: .15rem .55rem;
+            background: var(--blue-soft);
+            border-radius: 6px;
+            color: var(--blue);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .previous-details-card input[type=file] {
+            max-width: 210px;
+            font-size: .78rem;
+        }
+
+        .previous-details-card .doc-link {
+            display: block;
+            margin-bottom: .25rem;
+            color: var(--blue);
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .previous-details-card .hint {
+            margin: 0;
+            padding: .8rem 1.6rem 0;
+            color: var(--muted);
+            font-size: .76rem;
+        }
+
     @@media (max-width: 768px) {
         .page-header {
             flex-wrap: wrap;
@@ -555,7 +602,7 @@
                                     @if (Model.ShowIncreasedIntakeFields)
                                     {
                                         <th>Increasing Intake</th>
-                                        <th>Academic Year</th>  
+                                        <th>Academic Year</th>
                                     }
                                 </tr>
                             </thead>
@@ -609,6 +656,96 @@
                 </form>
             }
         </section>
+
+        @* ═══════════ Previous details (separate multipart form – must stay outside the form above) ═══════════ *@
+        @if (Model.PreviousDetails != null && Model.PreviousDetails.Count > 0)
+        {
+            var lopYears = Enumerable.Range(1950, DateTime.Now.Year - 1950 + 1).Reverse().ToList();
+
+            <section class="card previous-details-card">
+                <div class="card-header">
+                    <div class="card-header-text">
+                        <h2>Previous details</h2>
+                        <span>Enclose previous years notification copies</span>
+                    </div>
+                    <span class="level-badge">@Model.CourseLevel</span>
+                </div>
+
+                <form asp-action="SavePreviousDetails" asp-controller="@currentControllerName"
+                      method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <p class="hint">Select the year of obtaining LOP and upload the NMC document (PDF, max 5 MB) for each applicable intake. Leave a row empty if it does not apply.</p>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sl. No.</th>
+                                    <th>Course</th>
+                                    <th>Intake</th>
+                                    <th>Year of obtaining LOP</th>
+                                    <th>Upload NMC Doc</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var c = 0; c < Model.PreviousDetails.Count; c++)
+                                {
+                                    var prevCourse = Model.PreviousDetails[c];
+
+                                    for (var s = 0; s < prevCourse.Slabs.Count; s++)
+                                    {
+                                        var slab = prevCourse.Slabs[s];
+                                        <tr>
+                                            @if (s == 0)
+                                            {
+                                                <td class="merged" rowspan="@prevCourse.Slabs.Count">
+                                                    @(c + 1)
+                                                    <input type="hidden" asp-for="PreviousDetails[c].CourseCode" />
+                                                    <input type="hidden" asp-for="PreviousDetails[c].CourseName" />
+                                                </td>
+                                                <td class="merged course-name" rowspan="@prevCourse.Slabs.Count">@prevCourse.CourseName</td>
+                                            }
+
+                                            <td>
+                                                <span class="slab-label">@slab.IntakeSlab</span>
+                                                <input type="hidden" asp-for="PreviousDetails[c].Slabs[s].IntakeSlab" />
+                                            </td>
+
+                                            <td>
+                                                <select class="editable-field" asp-for="PreviousDetails[c].Slabs[s].LopYear">
+                                                    <option value="">Select</option>
+                                                    @foreach (var y in lopYears)
+                                                    {
+                                                        <option value="@y">@y</option>
+                                                    }
+                                                </select>
+                                            </td>
+
+                                            <td>
+                                                @if (slab.HasDocument)
+                                                {
+                                                    <a class="doc-link" target="_blank"
+                                                       asp-action="ViewPreviousNmcDocument" asp-route-id="@slab.Id">
+                                                        View @(string.IsNullOrWhiteSpace(slab.DocumentName) ? "uploaded document" : slab.DocumentName)
+                                                    </a>
+                                                }
+                                                <input type="file" accept="application/pdf"
+                                                       asp-for="PreviousDetails[c].Slabs[s].NmcDocument" />
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Save Previous Details</button>
+                    </div>
+                </form>
+            </section>
+        }
 
         <nav class="page-navigation" aria-label="Course intake navigation">
             <div class="actions">

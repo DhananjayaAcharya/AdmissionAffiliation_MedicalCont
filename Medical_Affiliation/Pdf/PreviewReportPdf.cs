@@ -2900,13 +2900,13 @@ public class PreviewReportPdf : IDocument
             var value = (applicationType ?? string.Empty).Trim().ToLowerInvariant();
 
             if (value.Contains("continu"))
-                return new PdfTheme("#14532D", "#15803D", "#84CC16", "#F0FDF4", "#BBF7D0");
+                return new PdfTheme("#4B5563", "#374151", "#C9A24B", "#F7F4EA", "#D8D1BE");
 
             if (value.Contains("renew"))
                 return new PdfTheme("#7C2D12", "#C2410C", "#F59E0B", "#FFF7ED", "#FED7AA");
 
             if (value.Contains("increase") || value.Contains("intake"))
-                return new PdfTheme("#4C1D95", "#7E22CE", "#D946EF", "#FAF5FF", "#E9D5FF");
+                return new PdfTheme("#0A3D7C", "#0D4A94", "#DCAE3F", "#EEF4FB", "#C9D8EA");
 
             if (value.Contains("first") || value.Contains("new") || value.Contains("initial"))
                 return new PdfTheme("#1E3A8A", "#2563EB", "#06B6D4", "#EFF6FF", "#BFDBFE");
