@@ -1,10 +1,13 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Services.Faculty;
 using Medical_Affiliation.Services.Interfaces;
+using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using System;
+using System.Linq;
 
 namespace Medical_Affiliation.Controllers
 {
@@ -52,6 +55,108 @@ namespace Medical_Affiliation.Controllers
             _paymentCalculationController.ControllerContext = ControllerContext;
             model.PaymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
             return GeneratePreviewPdf(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitApplication(bool declarationConsent)
+        {
+            var completion = await _capreviewService.GetPreviewAsync();
+            if (!completion.IsApplicationComplete)
+            {
+                TempData["PreviewError"] = $"Complete the application sections before submitting. Current completion: {completion.CompletionPercentage}%.";
+                return RedirectToAction(nameof(Preview));
+            }
+
+            if (!declarationConsent)
+            {
+                TempData["PreviewError"] = "Please accept the declaration before submitting the application.";
+                return RedirectToAction(nameof(Preview));
+            }
+
+            var paymentCalculation = await GetPaymentCalculationAsync();
+            var registrationNumber = completion.AffInstituteDetails?.RegistrationNumber?.Trim();
+            var collegeCode = (completion.CollegeCode ?? HttpContext.Session.GetString("CollegeCode"))?.Trim();
+            var facultyCode = (completion.FacultyCode ?? HttpContext.Session.GetString("FacultyCode"))?.Trim();
+            var applicationType = (completion.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"))?.Trim();
+            var courseLevel = (paymentCalculation.CourseLevel ?? completion.ApplyingCourseLevel ?? HttpContext.Session.GetString("CourseLevel"))?.Trim();
+            var courseCodes = paymentCalculation.MatchedCourses
+                .Where(course => !string.IsNullOrWhiteSpace(course.CourseCode))
+                .Select(course => course.CourseCode.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (courseCodes.Count == 0)
+            {
+                var sessionCourseCode = HttpContext.Session.GetString("CourseCode");
+                if (!string.IsNullOrWhiteSpace(sessionCourseCode))
+                {
+                    courseCodes.AddRange(sessionCourseCode.Split(',', ';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(registrationNumber)
+                || string.IsNullOrWhiteSpace(collegeCode)
+                || string.IsNullOrWhiteSpace(facultyCode)
+                || string.IsNullOrWhiteSpace(applicationType)
+                || string.IsNullOrWhiteSpace(courseLevel)
+                || courseCodes.Count == 0)
+            {
+                TempData["PreviewError"] = "Registration, college, faculty, application type, course level and course details are required before submission.";
+                return RedirectToAction(nameof(Preview));
+            }
+
+            var courseCode = (HttpContext.Session.GetString("CourseCode") ?? courseCodes[0])
+                .Split(',', ';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .FirstOrDefault() ?? courseCodes[0];
+
+            await SaveApplicationSubmissionAsync(
+                facultyCode,
+                collegeCode,
+                courseCode!,
+                applicationType,
+                courseLevel,
+                registrationNumber);
+
+            HttpContext.Session.SetString("CAApplicationReadOnly", "true");
+            paymentCalculation = await GetPaymentCalculationAsync();
+            var model = await _capreviewService.GetPreviewAsync();
+            model.PaymentCalculation = paymentCalculation;
+            return GeneratePreviewPdf(model);
+        }
+
+        private async Task<PaymentCalculationViewModel> GetPaymentCalculationAsync()
+        {
+            _paymentCalculationController.ControllerContext = ControllerContext;
+            return await _paymentCalculationController.GetCurrentCalculationAsync();
+        }
+
+        private async Task SaveApplicationSubmissionAsync(
+            string facultyCode,
+            string collegeCode,
+            string courseCode,
+            string typeOfAffiliation,
+            string courseLevel,
+            string registrationNumber)
+        {
+            var connectionString = _context.Database.GetConnectionString()
+                ?? throw new InvalidOperationException("The application's database connection string is not configured.");
+
+            await using var connection = new SqlConnection(connectionString);
+            await using var command = new SqlCommand("dbo.usp_SaveApplicationSubmission", connection)
+            {
+                CommandType = System.Data.CommandType.StoredProcedure
+            };
+
+            command.Parameters.Add("@FacultyCode", System.Data.SqlDbType.VarChar, 20).Value = facultyCode;
+            command.Parameters.Add("@CollegeCode", System.Data.SqlDbType.VarChar, 20).Value = collegeCode;
+            command.Parameters.Add("@CourseCode", System.Data.SqlDbType.VarChar, 20).Value = courseCode;
+            command.Parameters.Add("@TypeOfAffiliation", System.Data.SqlDbType.VarChar, 100).Value = typeOfAffiliation;
+            command.Parameters.Add("@CourseLevel", System.Data.SqlDbType.VarChar, 50).Value = courseLevel;
+            command.Parameters.Add("@RegistrationNumber", System.Data.SqlDbType.VarChar, 50).Value = registrationNumber;
+
+            await connection.OpenAsync();
+            await command.ExecuteReaderAsync();
         }
 
         public async Task<IActionResult> GetCurriculumFile(int id)

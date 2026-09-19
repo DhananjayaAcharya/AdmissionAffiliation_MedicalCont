@@ -1457,16 +1457,16 @@
                 {
                     <div class="alert alert-danger">@TempData["PreviewError"]</div>
                 }
-                <form id="consentForm" asp-controller="CAPreview" asp-action="GeneratePdf" method="post" target="_blank">
+                <form id="consentForm" asp-controller="CAPreview" asp-action="SubmitApplication" method="post" target="_blank">
                     @Html.AntiForgeryToken()
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="declarationConsent" name="declarationConsent" value="true" />
                         <label class="form-check-label" for="declarationConsent">
-                            I confirm and consent to generate the affiliation preview PDF.
+                            I confirm and consent to submit the affiliation application.
                         </label>
                     </div>
                     <button type="submit" id="generatePreviewPdf" class="pdf-action" disabled>
-                        <i class="bi bi-file-earmark-pdf-fill"></i> Generate Preview PDF
+                        <i class="bi bi-send-check-fill"></i> Submit Application
                     </button>
                     <div class="pdf-hint">You must tick the consent box above to enable this button.</div>
                 </form>
