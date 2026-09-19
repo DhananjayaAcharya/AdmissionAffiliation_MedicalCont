@@ -220,12 +220,12 @@ namespace Medical_Affiliation.Controllers
                 return result;
             }
 
-            // Faculty is matched loosely: some colleges have NULL/0 Facultycode
-            // in the intake sheet and would otherwise return no rows at all.
+            // The payment course list is scoped by college and course level.
+            // Faculty is intentionally not part of this lookup because the
+            // intake table can contain legacy or shared faculty mappings.
             var rows = await _context.MstMedicalCollegeCourseIntakes
                 .AsNoTracking()
-                .Where(x => x.CollCode == collegeCode
-                    && (x.Facultycode == null || x.Facultycode == 0 || x.Facultycode == vm.FacultyCode))
+                .Where(x => x.CollCode == collegeCode)
                 .ToListAsync();
 
             var levelRows = rows

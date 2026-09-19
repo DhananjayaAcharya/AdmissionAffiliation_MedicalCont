@@ -1,9 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using Medical_Affiliation.DATA;
 using GeoPhotoModule.Models;
 using GeoPhotoModule.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace GeoPhotoModule.Controllers
 {
@@ -20,17 +22,23 @@ namespace GeoPhotoModule.Controllers
         private static readonly Regex SafeCode = new(@"^[A-Za-z0-9_\-]{1,20}$", RegexOptions.Compiled);
 
         private readonly IGeoPhotoRepository _repo;
+        private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<GeoPhotoController> _log;
 
-        public GeoPhotoController(IGeoPhotoRepository repo, IWebHostEnvironment env, ILogger<GeoPhotoController> log)
+        public GeoPhotoController(
+            IGeoPhotoRepository repo,
+            ApplicationDbContext context,
+            IWebHostEnvironment env,
+            ILogger<GeoPhotoController> log)
         {
             _repo = repo;
+            _context = context;
             _env = env;
             _log = log;
         }
 
-        /// <summary>Photos are stored OUTSIDE wwwroot so they can only be read through the Image action.</summary>
+        /// <summary>Photos are stored outside wwwroot and streamed only through the authorized Image action.</summary>
         private string StorageRoot => Path.Combine(_env.ContentRootPath, "App_Data", "GeoPhotos");
 
         // ==================================================================
@@ -143,6 +151,8 @@ namespace GeoPhotoModule.Controllers
                 if (!string.IsNullOrEmpty(oldPath) && !string.Equals(oldPath, relPath, StringComparison.OrdinalIgnoreCase))
                     TryDeleteFile(oldPath);
 
+                await UpdateGeoPhotoProgressAsync(college, faculty);
+
                 return Ok(new
                 {
                     success = true,
@@ -208,6 +218,7 @@ namespace GeoPhotoModule.Controllers
                     return NotFound(Fail("Photo not found."));
 
                 TryDeleteFile(path);
+                await UpdateGeoPhotoProgressAsync(college, faculty);
                 return Ok(new { success = true, message = "Deleted" });
             }
             catch (Exception ex)
@@ -252,6 +263,41 @@ namespace GeoPhotoModule.Controllers
             {
                 _log.LogWarning(ex, "Could not delete GeoPhoto file {Path}", relPath);
             }
+        }
+
+        private async Task UpdateGeoPhotoProgressAsync(string collegeCode, string facultyCode)
+        {
+            var courseLevel = HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel")
+                ?? HttpContext.Session.GetString("SelectedLevel");
+
+            if (string.IsNullOrWhiteSpace(courseLevel))
+                return;
+
+            courseLevel = courseLevel.Trim().ToUpperInvariant();
+            var categories = await _repo.GetPageAsync(collegeCode, facultyCode);
+            var allRequiredPhotosUploaded = categories.Count > 0
+                && categories.All(category => category.UploadedCount >= category.RequiredImages);
+
+            var progress = await _context.CaProgresses.FirstOrDefaultAsync(x =>
+                x.CollegeCode == collegeCode
+                && x.CourseLevel == courseLevel
+                && x.StepKey == "GeoPhoto");
+
+            if (progress == null)
+            {
+                progress = new Medical_Affiliation.Models.CaProgress
+                {
+                    CollegeCode = collegeCode,
+                    CourseLevel = courseLevel,
+                    StepKey = "GeoPhoto"
+                };
+                _context.CaProgresses.Add(progress);
+            }
+
+            progress.IsCompleted = allRequiredPhotosUploaded;
+            progress.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
         }
 
         private static string? Trunc(string? value, int max) =>
