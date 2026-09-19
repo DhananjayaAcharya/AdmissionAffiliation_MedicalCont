@@ -23,7 +23,7 @@ public partial class MstMedicalCollegeCourseIntake
 
     public int? CourseCode { get; set; }
 
-    public int Intake2025 { get; set; }
+    public int? Intake2025 { get; set; }
 
     public string? UgPg { get; set; }
 

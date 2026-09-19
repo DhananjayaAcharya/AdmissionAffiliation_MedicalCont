@@ -197,6 +197,9 @@
         // ---- Payment ----
         new StepItem{ Key="PaymentCalculation", Label="Payment Calculation", Group="Payment", Ctrl="PaymentCalculation", Act="Index" },
 
+        // ---- Geo-tagged documentation ----
+        new StepItem{ Key="GeoPhoto", Label="Geo-Tagged Photos", Group="Geo-Tagged Photos", Ctrl="GeoPhoto", Act="Index" },
+
         // ---- Final Preview ----
         new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
@@ -368,6 +371,7 @@
     {
         "IntakeDetails",
         "AssociatedInstitutions",
+        "GeoPhoto",
         "PreviewMode"
     };
     var progressSteps = allSteps.Where(s => !excludedProgressKeys.Contains(s.Key)).ToList();
@@ -437,6 +441,7 @@
         "Research & Library",
         "Human Resources",
         "Payment",
+        "Geo-Tagged Photos",
         "Final Preview"
     };
 
@@ -464,6 +469,7 @@
         "Research & Library" => "bi-book",
         "Human Resources" => "bi-people",
         "Payment" => "bi-cash-coin",
+        "Geo-Tagged Photos" => "bi-geo-alt",
         "Final Preview" => "bi-eye",
         _ => "bi-folder2"
     };

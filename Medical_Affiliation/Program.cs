@@ -132,6 +132,9 @@ builder.Services.AddHttpClient("RguhsFacultyApi", client =>
     client.Timeout = TimeSpan.FromSeconds(15);
 });
 
+builder.Services.AddScoped<GeoPhotoModule.Services.IGeoPhotoRepository>(_ =>
+    new GeoPhotoModule.Services.GeoPhotoRepository(decryptedConnectionString));
+
 builder.Services.AddScoped<LicTadaService>();
 builder.Services.AddScoped<ICAInstitutionBasicDetails, CABasicDetailsService>();
 builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();

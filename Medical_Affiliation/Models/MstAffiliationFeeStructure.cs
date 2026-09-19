@@ -34,6 +34,4 @@ public partial class MstAffiliationFeeStructure
     public DateTime? ModifiedDate { get; set; }
 
     public virtual MstAffiliationType AffiliationType { get; set; } = null!;
-
-    public virtual MstFeeHead FeeHead { get; set; } = null!;
 }

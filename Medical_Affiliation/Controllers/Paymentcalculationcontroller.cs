@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +18,10 @@ namespace Medical_Affiliation.Controllers
     public class PaymentCalculationController : Controller
     {
         private const string PaymentAcademicYear = "2025-26";
+
+        // Government colleges pay this flat amount for every application type.
+        private const decimal GovernmentCollegeFee = 3010m;
+
         private readonly ApplicationDbContext _context;
         private readonly string _connectionString;
         private readonly IPaymentReceiptPdfService _paymentReceiptPdfService;
@@ -101,7 +108,7 @@ namespace Medical_Affiliation.Controllers
             {
                 return BadRequest(vm.ErrorMessage ?? "Payment calculation is not available.");
             }
-            
+
             var collegeName = await _context.AffiliationCollegeMasters
                 .AsNoTracking()
                 .Where(x => x.CollegeCode == vm.CollegeCode)
@@ -149,7 +156,17 @@ namespace Medical_Affiliation.Controllers
 
             try
             {
-                await RunPaymentCalculationAsync(vm);
+                if (await IsGovernmentCollegeAsync(vm.CollegeCode))
+                {
+                    // Government college: flat fee, stored procedure is not used.
+                    await RunGovernmentCalculationAsync(vm);
+                }
+                else
+                {
+                    // Private college: existing calculation, unchanged.
+                    await RunPaymentCalculationAsync(vm);
+                }
+
                 vm.HasResult = true;
             }
             catch (SqlException ex)
@@ -157,6 +174,157 @@ namespace Medical_Affiliation.Controllers
                 vm.ErrorMessage = "Could not calculate payment: " + ex.Message;
                 vm.HasResult = false;
             }
+        }
+
+        // ---------------------------------------------------------------------
+        // Government / Private detection
+        // Reads PVT_GOVT from [dbo].[Mst_MedicalCollegeCourseIntake].
+        // A college with no PVT_GOVT value is treated as PVT.
+        // ---------------------------------------------------------------------
+        private async Task<bool> IsGovernmentCollegeAsync(string collegeCode)
+        {
+            const string sql = @"SELECT TOP (1) PVT_GOVT
+                                 FROM dbo.Mst_MedicalCollegeCourseIntake
+                                 WHERE coll_code = @CollegeCode
+                                   AND PVT_GOVT IS NOT NULL
+                                   AND LTRIM(RTRIM(PVT_GOVT)) <> ''";
+
+            using var conn = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@CollegeCode", collegeCode);
+
+            await conn.OpenAsync();
+            var value = await cmd.ExecuteScalarAsync() as string;
+
+            // Matches "GOVT", "Govt", "Government", etc.
+            return NormalizeLabel(value).StartsWith("GOV", StringComparison.Ordinal);
+        }
+
+        // ---------------------------------------------------------------------
+        // Course list loader (used by BOTH government and private paths)
+        // Reads [course], [CourseCode], [ug_pg] (plus intake figures) from
+        // [Admission_Affiliation].[dbo].[Mst_MedicalCollegeCourseIntake]
+        // using the College Code and Course Level stored in session.
+        // ---------------------------------------------------------------------
+        private async Task<List<MatchedCourseVM>> LoadCollegeCoursesFromIntakeAsync(PaymentCalculationViewModel vm)
+        {
+            var collegeCode = (HttpContext.Session.GetString("CollegeCode") ?? vm.CollegeCode)?.Trim();
+            var sessionCourseLevel = HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel")
+                ?? vm.CourseLevel;
+            var levelGroup = NormalizeCourseLevel(sessionCourseLevel);
+
+            var result = new List<MatchedCourseVM>();
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrEmpty(levelGroup))
+            {
+                return result;
+            }
+
+            // Faculty is matched loosely: some colleges have NULL/0 Facultycode
+            // in the intake sheet and would otherwise return no rows at all.
+            var rows = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(x => x.CollCode == collegeCode
+                    && (x.Facultycode == null || x.Facultycode == 0 || x.Facultycode == vm.FacultyCode))
+                .ToListAsync();
+
+            var levelRows = rows
+                .Where(x => NormalizeCourseLevel(x.UgPg) == levelGroup)
+                .ToList();
+
+            // Optional narrowing by CourseCode carried in session.
+            var requestedCodes = (HttpContext.Session.GetString("CourseCode") ?? string.Empty)
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            if (requestedCodes.Count > 0)
+            {
+                var narrowed = levelRows
+                    .Where(x => x.CourseCode.HasValue && requestedCodes.Contains(x.CourseCode.Value.ToString()))
+                    .ToList();
+
+                // Additional Courses stays strict (only the requested ones).
+                // Other types fall back to the full list so a stale session
+                // CourseCode can't hide every course.
+                if (narrowed.Count > 0 || IsAdditionalCourseAffiliation(vm))
+                {
+                    levelRows = narrowed;
+                }
+            }
+
+            // Master table is only a fallback for a blank [course] value.
+            var masterCourseMap = await _context.MstCourses
+                .AsNoTracking()
+                .Where(c => c.FacultyCode == vm.FacultyCode)
+                .ToDictionaryAsync(c => c.CourseCode.ToString(), c => c, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var row in levelRows.OrderBy(x => x.Course))
+            {
+                var code = row.CourseCode?.ToString();
+                var intakeName = row.Course?.Trim();
+                var masterName = code != null && masterCourseMap.TryGetValue(code, out var m) ? m.CourseName : null;
+
+                var courseName = !string.IsNullOrWhiteSpace(intakeName) ? intakeName
+                    : !string.IsNullOrWhiteSpace(masterName) ? masterName
+                    : code ?? string.Empty;
+
+                result.Add(new MatchedCourseVM
+                {
+                    SLNO = row.Slno,
+                    Facultycode = row.Facultycode ?? vm.FacultyCode,
+                    coll_code = row.CollCode,
+                    collegename = row.Collegename,
+                    course = courseName,
+                    ug_pg = row.UgPg,
+                    Intake_26_27 = row.Intake2627,
+                    CourseCode = code,
+                    CourseName = courseName,
+                    RawCourseLevel = row.UgPg,
+                    IncreasedIntake = row.IncreasedIntake,
+                    AcademicYear = row.AcademicYear
+                });
+            }
+
+            return result;
+        }
+
+        private async Task RunGovernmentCalculationAsync(PaymentCalculationViewModel vm)
+        {
+            var sessionCourseLevel = HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel")
+                ?? vm.CourseLevel;
+            var levelGroup = NormalizeCourseLevel(sessionCourseLevel);
+
+            // For "Additional Courses", the matched list is only the requested
+            // courses (added by EnrichAdditionalCourseSelectionsAsync below);
+            // for the other types it is the college's courses at this level,
+            // read from Mst_MedicalCollegeCourseIntake.
+            if (!IsAdditionalCourseAffiliation(vm))
+            {
+                foreach (var course in await LoadCollegeCoursesFromIntakeAsync(vm))
+                {
+                    vm.MatchedCourses.Add(course);
+                }
+            }
+
+            await EnrichAdditionalCourseSelectionsAsync(vm);
+            await PopulateIncreasedIntakeDataAsync(vm);
+            await PopulateTotalSeatsAsync(vm);
+
+            // Government colleges: flat 3010 for every application type.
+            vm.FeeLines.Clear();
+            vm.FeeLines.Add(FixedFee("Affiliation fee (Government college)", GovernmentCollegeFee));
+
+            vm.Summary = new PaymentSummaryVM
+            {
+                CollegeCode = vm.CollegeCode,
+                FacultyCode = vm.FacultyCode,
+                AffiliationTypeId = vm.AffiliationTypeId,
+                CourseLevelGroup = levelGroup,
+                MatchedCourseCount = vm.MatchedCourses.Count,
+                TotalIntakeSeats = vm.MatchedCourses.Sum(c => c.Intake_26_27 ?? 0),
+                GrandTotal = GovernmentCollegeFee
+            };
         }
 
         private async Task<PaymentCalculationViewModel> LoadSessionCalculationDetailsAsync()
@@ -482,73 +650,11 @@ namespace Medical_Affiliation.Controllers
 
         private async Task RunPaymentCalculationAsync(PaymentCalculationViewModel vm)
         {
-            using (var conn = new SqlConnection(_connectionString))
-            using (var cmd = new SqlCommand("usp_CalculateCollegeAffiliationPayment", conn))
+            // Course list comes from Mst_MedicalCollegeCourseIntake
+            // (course / CourseCode / ug_pg) using the session college code and course level.
+            foreach (var course in await LoadCollegeCoursesFromIntakeAsync(vm))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@CollegeCode", vm.CollegeCode);
-                cmd.Parameters.AddWithValue("@FacultyCode", vm.FacultyCode);
-                cmd.Parameters.AddWithValue("@AffiliationTypeId", vm.AffiliationTypeId);
-                cmd.Parameters.AddWithValue("@AcademicYear", vm.AcademicYear);
-
-                await conn.OpenAsync();
-                using (var reader = await cmd.ExecuteReaderAsync())
-                {
-                    // ---- Result Set 1: matched courses ----
-                    while (await reader.ReadAsync())
-                    {
-                        vm.MatchedCourses.Add(new MatchedCourseVM
-                        {
-                            SLNO = ReadInt32(reader, "SLNO"),
-                            Facultycode = ReadInt32(reader, "Facultycode"),
-                            coll_code = reader["coll_code"] as string,
-                            collegename = reader["collegename"] as string,
-                            course = reader["course"] as string,
-                            ug_pg = reader["ug_pg"] as string,
-                            Intake_26_27 = ReadNullableInt32(reader, "Intake_26_27"),
-                            CourseCode = ReadString(reader, "CourseCode"),
-                            CourseName = reader["CourseName"] as string,
-                            RawCourseLevel = reader["RawCourseLevel"] as string,
-                            MatchNote = reader["MatchNote"] as string
-                        });
-                    }
-
-                    // ---- Result Set 2: legacy fee lines (kept for reader compatibility;
-                    // the amounts are superseded below by the circular fee schedule) ----
-                    await reader.NextResultAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        vm.FeeLines.Add(new FeeLineVM
-                        {
-                            FeeHeadName = reader["FeeHeadName"] as string,
-                            UnitAmount = ReadDecimal(reader, "UnitAmount"),
-                            IsPerCourse = ReadBoolean(reader, "IsPerCourse"),
-                            IsPerSeat = ReadBoolean(reader, "IsPerSeat"),
-                            SeatRangeFrom = ReadNullableInt32(reader, "SeatRangeFrom"),
-                            SeatRangeTo = ReadNullableInt32(reader, "SeatRangeTo"),
-                            Multiplier = ReadInt32(reader, "Multiplier"),
-                            LineAmount = ReadDecimal(reader, "LineAmount")
-                        });
-                    }
-
-                    // ---- Result Set 3: summary ----
-                    await reader.NextResultAsync();
-                    if (await reader.ReadAsync())
-                    {
-                        vm.Summary = new PaymentSummaryVM
-                        {
-                            CollegeCode = reader["CollegeCode"] as string,
-                            FacultyCode = ReadInt32(reader, "FacultyCode"),
-                            AffiliationTypeId = ReadInt32(reader, "AffiliationTypeId"),
-                            CourseLevelGroup = reader["CourseLevelGroup"] as string,
-                            MatchedCourseCount = ReadInt32(reader, "MatchedCourseCount"),
-                            TotalIntakeSeats = ReadInt32(reader, "TotalIntakeSeats"),
-                            GrandTotal = reader.IsDBNull(reader.GetOrdinal("GrandTotal"))
-                                            ? 0m
-                                            : ReadDecimal(reader, "GrandTotal")
-                        };
-                    }
-                }
+                vm.MatchedCourses.Add(course);
             }
 
             await EnrichAdditionalCourseSelectionsAsync(vm);
@@ -791,7 +897,7 @@ namespace Medical_Affiliation.Controllers
         }
 
         // =====================================================================
-        // Circular-driven fee schedule
+        // Circular-driven fee schedule (PRIVATE colleges only)
         // Source: RGUHS/MEDICAL/AFF-FEE/2025-26, dated 01/12/2025.
         // Three affiliation types are supported, each calculated per
         // course level (UG / PG broad specialty / Super Specialty):
@@ -802,6 +908,8 @@ namespace Medical_Affiliation.Controllers
         //                                            a single fresh-affiliation fee)
         //   3. Enhancement of Seats / Increase
         //      in Intake                         -> Forms 05 (UG), 06 (PG), 07 (SS)
+        // Government colleges do not use this schedule - see
+        // RunGovernmentCalculationAsync (flat GovernmentCollegeFee).
         // =====================================================================
 
         private static class MedicalAffiliationFeeSchedule
@@ -1045,7 +1153,7 @@ namespace Medical_Affiliation.Controllers
                 // never on Intake_26_27 (the existing sanctioned intake).
                 courseCount = vm.MatchedCourses.Count;
                 seatCount = vm.MatchedCourses.Sum(c =>
-    int.TryParse(c.IncreasedIntake, out var v) ? v : 0);
+                    int.TryParse(c.IncreasedIntake, out var v) ? v : 0);
             }
             else
             {

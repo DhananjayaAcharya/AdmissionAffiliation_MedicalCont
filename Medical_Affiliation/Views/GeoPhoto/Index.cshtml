@@ -1,0 +1,101 @@
+﻿@model GeoPhotoModule.Models.GeoPhotoPageVm
+@{
+    ViewData["Title"] = "Geo-Tagged Photos";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<style>
+    .geo-page { color: #1d2b3a; }
+    .geo-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.35rem 1.5rem; background: linear-gradient(135deg, #176b87 0%, #25859a 100%); color: #fff; border-bottom: 4px solid #dcae3f; }
+    .geo-hero h1 { margin: 0; font-family: 'EB Garamond', serif; font-size: 1.7rem; font-weight: 600; }
+    .geo-hero p { margin: .35rem 0 0; color: rgba(255, 255, 255, .84); font-size: .86rem; }
+    .geo-count { flex: 0 0 auto; padding: .55rem .8rem; border: 1px solid rgba(255, 255, 255, .3); border-radius: 8px; background: rgba(255, 255, 255, .1); font-size: .78rem; font-weight: 700; white-space: nowrap; }
+    .geo-content { padding: 1.25rem; background: #f4f7fb; }
+    .geo-note { margin-bottom: 1rem; padding: .8rem 1rem; border: 1px solid #d6e0ea; border-left: 4px solid #176b87; border-radius: 6px; background: #fff; color: #405466; font-size: .84rem; }
+    .geo-capture-guide { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; padding: 1rem 1.1rem; border: 1px solid #d6e0ea; border-left: 4px solid #dcae3f; border-radius: 6px; background: #fffdf6; }
+    .geo-capture-guide strong { display: block; color: #1d2b3a; font-size: .88rem; }
+    .geo-capture-guide span { display: block; margin-top: .2rem; color: #718294; font-size: .77rem; }
+    .geo-capture-link { display: inline-flex; align-items: center; gap: .4rem; flex: 0 0 auto; padding: .55rem .8rem; border-radius: 5px; background: #176b87; color: #fff; font-size: .78rem; font-weight: 700; text-decoration: none; }
+    .geo-capture-link:hover { background: #12566c; color: #fff; text-decoration: none; }
+    .geo-category { margin-bottom: 1rem; border: 1px solid #d6e0ea; border-radius: 8px; background: #fff; overflow: hidden; }
+    .geo-category-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .85rem 1rem; border-bottom: 1px solid #d6e0ea; background: #f8fafc; }
+    .geo-category-header h2 { margin: 0; color: #176b87; font-size: 1rem; font-weight: 700; }
+    .geo-category-count { color: #718294; font-size: .76rem; font-weight: 600; }
+    .geo-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; padding: 1rem; }
+    .geo-slot { min-width: 0; padding: .75rem; border: 1px solid #e1e8ef; border-radius: 7px; background: #fcfdff; }
+    .geo-slot-preview { display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; min-height: 280px; margin-bottom: .7rem; border: 1px solid #c4d1de; border-radius: 5px; background: #fff; color: #8a9aaa; overflow: hidden; font-size: .78rem; text-align: center; }
+    .geo-slot-preview img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+    .geo-slot-label { display: flex; justify-content: space-between; margin-bottom: .55rem; color: #405466; font-size: .8rem; font-weight: 700; }
+    .geo-slot-meta { margin: .5rem 0 0; color: #718294; font-size: .72rem; line-height: 1.45; }
+    .geo-slot-actions { display: flex; gap: .45rem; flex-wrap: wrap; }
+    .geo-slot-actions .btn { flex: 1 1 100px; font-size: .76rem; }
+    .geo-status { min-height: 1.1rem; margin: .65rem 0 0; color: #718294; font-size: .75rem; }
+    @@media (max-width: 575px) { .geo-hero { flex-direction: column; } .geo-count { width: 100%; text-align: center; } .geo-content { padding: .75rem; } }
+    @@media (max-width: 575px) { .geo-capture-guide { align-items: flex-start; flex-direction: column; } .geo-capture-link { width: 100%; justify-content: center; } .geo-slots { grid-template-columns: 1fr; padding: .75rem; } .geo-slot-preview { min-height: 220px; } }
+</style>
+
+<div class="geo-page">
+    <header class="geo-hero">
+        <div><h1>Geo-Tagged Photos</h1><p>Upload the required site photographs with their GPS location.</p></div>
+        <div class="geo-count" aria-live="polite">@Model.TotalUploaded of @Model.TotalRequired uploaded</div>
+    </header>
+    <div class="geo-content">
+        <div class="geo-note"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>Allow location access when prompted. Only JPG and PNG images up to 5 MB are accepted.</div>
+        <div class="geo-capture-guide">
+            <div>
+                <strong><i class="bi bi-camera me-1" aria-hidden="true"></i>Capture official geo-tagged photos</strong>
+                <span>Use GPS Map Camera to capture photographs with location details, then upload them in the matching slot below.</span>
+            </div>
+            <a class="geo-capture-link" href="https://play.google.com/store/apps/details?id=com.gpsmapcamera.geotagginglocationonphoto" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-google-play" aria-hidden="true"></i> Open GPS Map Camera
+            </a>
+        </div>
+        <div id="geoAlert" class="alert d-none" role="alert"></div>
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "geoTokenForm" })) { @Html.AntiForgeryToken() }
+        @foreach (var category in Model.Categories)
+        {
+            <section class="geo-category" aria-labelledby="geo-category-@category.CategoryId">
+                <div class="geo-category-header"><h2 id="geo-category-@category.CategoryId">@category.CategoryName</h2><span class="geo-category-count">@category.UploadedCount / @category.RequiredImages uploaded</span></div>
+                <div class="geo-slots">
+                    @foreach (var slot in category.Slots)
+                    {
+                        var slotId = $"geo-{category.CategoryId}-{slot.SlotNo}";
+                        <article class="geo-slot" data-category-id="@slot.CategoryId" data-slot-no="@slot.SlotNo">
+                            <div class="geo-slot-preview" id="@slotId-preview">
+                                @if (slot.HasPhoto) { <img src="@Url.Action("Image", "GeoPhoto", new { id = slot.PhotoId })" alt="@category.CategoryName photo @slot.SlotNo" /> }
+                                else { <span><i class="bi bi-camera me-1" aria-hidden="true"></i>No photo uploaded</span> }
+                            </div>
+                            <div class="geo-slot-label"><span>Photo @slot.SlotNo</span><span>@(slot.HasPhoto ? "Uploaded" : "Required")</span></div>
+                            @if (slot.HasPhoto)
+                            {
+                                <p class="geo-slot-meta">GPS: @slot.Latitude?.ToString("0.######"), @slot.Longitude?.ToString("0.######")<br />Uploaded: @slot.UploadedOn?.ToString("dd MMM yyyy, hh:mm tt")</p>
+                                <div class="geo-slot-actions"><button type="button" class="btn btn-outline-danger btn-sm" data-photo-id="@slot.PhotoId" onclick="deleteGeoPhoto(this)"><i class="bi bi-trash3" aria-hidden="true"></i> Delete</button></div>
+                            }
+                            else
+                            {
+                                <div class="geo-slot-actions"><label class="btn btn-primary btn-sm mb-0"><i class="bi bi-upload" aria-hidden="true"></i> Choose photo<input type="file" class="d-none geo-file" accept="image/jpeg,image/png" data-slot-id="@slotId" /></label></div>
+                            }
+                            <div class="geo-status" id="@slotId-status" aria-live="polite"></div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const geoToken = document.querySelector('#geoTokenForm input[name="__RequestVerificationToken"]').value;
+        function showGeoAlert(message, type) { const alert = document.getElementById('geoAlert'); alert.className = `alert alert-${type}`; alert.textContent = message; alert.classList.remove('d-none'); }
+        function getLocation() { return new Promise((resolve, reject) => { if (!navigator.geolocation) { reject(new Error('Location is not available in this browser.')); return; } navigator.geolocation.getCurrentPosition(resolve, () => reject(new Error('Location access is required to upload a photo.')), { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }); }); }
+        document.querySelectorAll('.geo-file').forEach(input => input.addEventListener('change', async function () {
+            const file = this.files[0]; if (!file) return; const slot = this.closest('.geo-slot'); const status = document.getElementById(`${this.dataset.slotId}-status`); status.textContent = 'Getting location...'; this.disabled = true;
+            try {
+                const position = await getLocation(); const formData = new FormData(); formData.append('__RequestVerificationToken', geoToken); formData.append('CategoryId', slot.dataset.categoryId); formData.append('SlotNo', slot.dataset.slotNo); formData.append('Latitude', position.coords.latitude); formData.append('Longitude', position.coords.longitude); formData.append('AccuracyMeters', position.coords.accuracy); formData.append('CapturedOn', new Date().toISOString()); formData.append('Photo', file); status.textContent = 'Uploading...';
+                const response = await fetch('@Url.Action("Upload", "GeoPhoto")', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); const result = await response.json(); if (!response.ok || !result.success) throw new Error(result.message || 'Upload failed.'); window.location.reload();
+            } catch (error) { status.textContent = error.message; showGeoAlert(error.message, 'danger'); this.disabled = false; this.value = ''; }
+        }));
+        async function deleteGeoPhoto(button) { if (!window.confirm('Delete this photo?')) return; button.disabled = true; const formData = new FormData(); formData.append('__RequestVerificationToken', geoToken); formData.append('id', button.dataset.photoId); try { const response = await fetch('@Url.Action("Delete", "GeoPhoto")', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); const result = await response.json(); if (!response.ok || !result.success) throw new Error(result.message || 'Delete failed.'); window.location.reload(); } catch (error) { showGeoAlert(error.message, 'danger'); button.disabled = false; } }
+    </script>
+}

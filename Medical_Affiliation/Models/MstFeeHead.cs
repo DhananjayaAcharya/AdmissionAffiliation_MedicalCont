@@ -20,8 +20,4 @@ public partial class MstFeeHead
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-
-    public virtual ICollection<MstAffiliationFeeStructure> MstAffiliationFeeStructures { get; set; } = new List<MstAffiliationFeeStructure>();
-
-    public virtual ICollection<TxnCollegeFeePaymentDetail> TxnCollegeFeePaymentDetails { get; set; } = new List<TxnCollegeFeePaymentDetail>();
 }
