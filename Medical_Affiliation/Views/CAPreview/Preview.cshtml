@@ -131,6 +131,16 @@
         transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     }
 
+        .submit-application-btn:disabled {
+            background: #d5dde5;
+            border-color: #c3ced8;
+            box-shadow: none;
+            color: #647386;
+            cursor: not-allowed;
+            opacity: .85;
+            transform: none;
+        }
+
         .submit-application-btn:hover {
             background: linear-gradient(135deg, #fff 0%, var(--gold-soft) 100%);
             box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
@@ -899,7 +909,7 @@
                         }
                         else
                         {
-                            <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal">
+                            <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal" disabled="@(!Model.IsApplicationComplete)" title="@(Model.IsApplicationComplete ? "Submit application" : $"Complete the application to 100% ({Model.CompletionPercentage}% complete)")">
                             <i class="bi bi-send-check-fill"></i>
                             Submit Application
                             </button>
@@ -1349,8 +1359,25 @@
             @if (Model.PaymentVM != null)
             {
                 <div id="PaymentCalculation" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>24 · Payment Calculation</span><a class="preview-report-edit" href="@Url.Action("Index", "PaymentCalculation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">@await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)</div>
+                    <h2 class="preview-report-heading">
+                        <span>24 · Payment Calculation</span>
+                        @if (Model.IsApplicationComplete)
+                        {
+                            <a class="preview-report-edit" href="@Url.Action("Index", "PaymentCalculation")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
+                        }
+                    </h2>
+                    <div class="preview-report-body">
+                        @if (Model.IsApplicationComplete)
+                        {
+                            @await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary mb-0">
+                                Payment is available after the application reaches 100% completion. Current completion: <strong>@Model.CompletionPercentage%</strong>.
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         </div>

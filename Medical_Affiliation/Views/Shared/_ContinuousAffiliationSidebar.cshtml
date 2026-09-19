@@ -372,7 +372,8 @@
         "IntakeDetails",
         "AssociatedInstitutions",
         "GeoPhoto",
-        "PreviewMode"
+        "PreviewMode",
+        "PaymentCalculation"
     };
     var progressSteps = allSteps.Where(s => !excludedProgressKeys.Contains(s.Key)).ToList();
     int total = progressSteps.Count;
@@ -897,6 +898,12 @@
             padding-left: 19px;
         }
 
+        .ca-sb-link.is-disabled {
+            color: var(--ca-muted);
+            cursor: not-allowed;
+            opacity: .65;
+        }
+
     /* Step dot */
     .ca-dot {
         width: 8px;
@@ -1064,24 +1071,29 @@
 
                             string dotCls = isActive ? "ca-dot ca-dot-current" : isDone ? "ca-dot ca-dot-done" : "ca-dot ca-dot-pending";
                             string linkCls = "ca-sb-link" + (isActive ? " is-active" : "");
+                            var routeValues = new Microsoft.AspNetCore.Routing.RouteValueDictionary();
+                            var currentCourseCode = Context?.Request?.Query["courseCode"].ToString();
+                            var currentTypeOfAffiliation = Context?.Request?.Query["typeOfAffiliation"].ToString();
+                            var currentCourseLevel = Context?.Request?.Query["courseLevel"].ToString();
+                            if (string.IsNullOrEmpty(currentCourseCode))
+                            {
+                                currentCourseCode = Context?.Session?.GetString("CourseCode");
+                            }
+                            if (string.IsNullOrEmpty(currentTypeOfAffiliation))
+                            {
+                                currentTypeOfAffiliation = Context?.Session?.GetString("TypeOfAffiliation")
+                                    ?? Context?.Session?.GetString("SelectedTypeOfAffiliation");
+                            }
+                                    if (string.IsNullOrEmpty(currentCourseLevel))
+                                    {
+                                    currentCourseLevel = Context?.Session?.GetString("CourseLevel")
+                                        ?? Context?.Session?.GetString("SelectedCourseLevel");
+                                    }
+                            if (!string.IsNullOrEmpty(currentCourseCode)) routeValues["courseCode"] = currentCourseCode;
+                            if (!string.IsNullOrEmpty(currentTypeOfAffiliation)) routeValues["typeOfAffiliation"] = currentTypeOfAffiliation;
+                                    if (!string.IsNullOrEmpty(currentCourseLevel)) routeValues["courseLevel"] = currentCourseLevel;
 
                             <li>
-                                @{
-                                    var routeValues = new Microsoft.AspNetCore.Routing.RouteValueDictionary();
-                                    var currentCourseCode = Context?.Request?.Query["courseCode"].ToString();
-                                    var currentTypeOfAffiliation = Context?.Request?.Query["typeOfAffiliation"].ToString();
-                                    if (string.IsNullOrEmpty(currentCourseCode))
-                                    {
-                                        currentCourseCode = Context?.Session?.GetString("CourseCode");
-                                    }
-                                    if (string.IsNullOrEmpty(currentTypeOfAffiliation))
-                                    {
-                                        currentTypeOfAffiliation = Context?.Session?.GetString("TypeOfAffiliation")
-                                            ?? Context?.Session?.GetString("SelectedTypeOfAffiliation");
-                                    }
-                                    if (!string.IsNullOrEmpty(currentCourseCode)) routeValues["courseCode"] = currentCourseCode;
-                                    if (!string.IsNullOrEmpty(currentTypeOfAffiliation)) routeValues["typeOfAffiliation"] = currentTypeOfAffiliation;
-                                }
                                 <a href="@Url.Action(step.Act, step.Ctrl, routeValues)"
                                    class="@linkCls"
                                    aria-current="@(isActive ? "page" : null)">

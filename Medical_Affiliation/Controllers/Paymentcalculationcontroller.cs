@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -185,7 +186,7 @@ namespace Medical_Affiliation.Controllers
         {
             const string sql = @"SELECT TOP (1) PVT_GOVT
                                  FROM dbo.Mst_MedicalCollegeCourseIntake
-                                 WHERE coll_code = @CollegeCode
+                                                                 WHERE LTRIM(RTRIM(coll_code)) = @CollegeCode
                                    AND PVT_GOVT IS NOT NULL
                                    AND LTRIM(RTRIM(PVT_GOVT)) <> ''";
 
@@ -220,16 +221,27 @@ namespace Medical_Affiliation.Controllers
                 return result;
             }
 
+            var masterCourseMap = await _context.MstCourses
+                .AsNoTracking()
+                .Where(c => vm.FacultyCode <= 0 || c.FacultyCode == vm.FacultyCode)
+                .ToDictionaryAsync(c => c.CourseCode.ToString(), c => c, StringComparer.OrdinalIgnoreCase);
+
             // Faculty is matched loosely: some colleges have NULL/0 Facultycode
             // in the intake sheet and would otherwise return no rows at all.
             var rows = await _context.MstMedicalCollegeCourseIntakes
                 .AsNoTracking()
-                .Where(x => x.CollCode == collegeCode
-                    && (x.Facultycode == null || x.Facultycode == 0 || x.Facultycode == vm.FacultyCode))
+                .Where(x => x.CollCode != null
+                    && x.CollCode.Trim() == collegeCode
+                    && (vm.FacultyCode <= 0
+                        || x.Facultycode == null
+                        || x.Facultycode == 0
+                        || x.Facultycode == vm.FacultyCode))
                 .ToListAsync();
 
             var levelRows = rows
-                .Where(x => NormalizeCourseLevel(x.UgPg) == levelGroup)
+                .Where(x => x.CourseCode.HasValue
+                    && masterCourseMap.TryGetValue(x.CourseCode.Value.ToString(), out var masterCourse)
+                    && NormalizeCourseLevel(masterCourse.CourseLevel) == levelGroup)
                 .ToList();
 
             // Optional narrowing by CourseCode carried in session.
@@ -252,20 +264,14 @@ namespace Medical_Affiliation.Controllers
                 }
             }
 
-            // Master table is only a fallback for a blank [course] value.
-            var masterCourseMap = await _context.MstCourses
-                .AsNoTracking()
-                .Where(c => c.FacultyCode == vm.FacultyCode)
-                .ToDictionaryAsync(c => c.CourseCode.ToString(), c => c, StringComparer.OrdinalIgnoreCase);
-
             foreach (var row in levelRows.OrderBy(x => x.Course))
             {
                 var code = row.CourseCode?.ToString();
                 var intakeName = row.Course?.Trim();
                 var masterName = code != null && masterCourseMap.TryGetValue(code, out var m) ? m.CourseName : null;
 
-                var courseName = !string.IsNullOrWhiteSpace(intakeName) ? intakeName
-                    : !string.IsNullOrWhiteSpace(masterName) ? masterName
+                var courseName = !string.IsNullOrWhiteSpace(masterName) ? masterName
+                    : !string.IsNullOrWhiteSpace(intakeName) ? intakeName
                     : code ?? string.Empty;
 
                 result.Add(new MatchedCourseVM
@@ -389,6 +395,22 @@ namespace Medical_Affiliation.Controllers
                 ?? HttpContext.Session.GetString("SelectedCourseLevel")
                 ?? User?.FindFirst("CourseLevel")?.Value
                 ?? User?.FindFirst("SelectedCourseLevel")?.Value;
+            if (string.IsNullOrWhiteSpace(courseLevel))
+            {
+                var existingCourseLevels = HttpContext.Session.GetString("ExistingCourseLevels");
+                try
+                {
+                    var levels = JsonSerializer.Deserialize<List<string>>(existingCourseLevels ?? string.Empty);
+                    if (levels?.Count == 1)
+                    {
+                        courseLevel = levels[0];
+                    }
+                }
+                catch (JsonException)
+                {
+                    // Ignore invalid legacy session data and continue with the query/user values.
+                }
+            }
             if (string.IsNullOrWhiteSpace(courseLevel) && !string.IsNullOrWhiteSpace(queryCourseLevel))
             {
                 courseLevel = queryCourseLevel.Trim();
@@ -1148,17 +1170,16 @@ namespace Medical_Affiliation.Controllers
             }
             else if (string.Equals(affiliationGroup, "ENHANCEMENT", StringComparison.OrdinalIgnoreCase))
             {
-                // Enhancement of Seats / Increase in Intake is billed strictly
-                // on the Increased_Intake column (the seats being added),
-                // never on Intake_26_27 (the existing sanctioned intake).
                 courseCount = vm.MatchedCourses.Count;
-                seatCount = vm.MatchedCourses.Sum(c =>
-                    int.TryParse(c.IncreasedIntake, out var v) ? v : 0);
+                seatCount = string.Equals(courseLevel, "UG", StringComparison.OrdinalIgnoreCase)
+                    ? vm.MatchedCourses.Sum(GetCombinedSeatCount)
+                    : vm.MatchedCourses.Sum(c =>
+                        int.TryParse(c.IncreasedIntake, out var v) ? v : 0);
             }
             else
             {
-                // CONTINUATION (and any unclassified group defaults to the
-                // currently sanctioned seat/course counts).
+                // Continuation and unclassified groups use the existing
+                // sanctioned intake only.
                 courseCount = vm.MatchedCourses.Count;
                 seatCount = vm.MatchedCourses.Sum(c => c.Intake_26_27 ?? 0);
             }
@@ -1220,6 +1241,15 @@ namespace Medical_Affiliation.Controllers
                 : course.Intake_26_27;
 
             return value ?? 0;
+        }
+
+        private static int GetCombinedSeatCount(MatchedCourseVM course)
+        {
+            var increasedIntake = int.TryParse(course.IncreasedIntake, out var increased)
+                ? increased
+                : 0;
+
+            return (course.Intake_26_27 ?? 0) + increasedIntake;
         }
 
         private static int ReadInt32(SqlDataReader reader, string columnName)

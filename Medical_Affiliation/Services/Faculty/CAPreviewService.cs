@@ -213,6 +213,7 @@ namespace Medical_Affiliation.Services.Faculty
                 FacultyName = facultyName,
                 ApplicationType = applicationType ?? "—",
                 ApplyingCourseLevel = courseLevel,
+                CompletionPercentage = await GetCompletionPercentageAsync(collegeCode, facultyCode, courseLevel, applicationType),
                 AffInstituteDetails = affInstituteDetails,
                 InstitutionDetails = institutionEntity == null ? null : new InstitutionViewModel
                 {
@@ -288,6 +289,104 @@ namespace Medical_Affiliation.Services.Faculty
                 DeclarationVM = await _cADeclarationService.GetDeclarationDetails()
 
             };
+        }
+
+        private async Task<int> GetCompletionPercentageAsync(
+            string collegeCode,
+            int facultyCode,
+            string? courseLevel,
+            string? applicationType)
+        {
+            var levels = await (
+                from intake in _context.AcademicIntakes
+                join course in _context.MstCourses on intake.Courses equals course.CourseCode.ToString()
+                where intake.CollegeCode == collegeCode && intake.FacultyCode == facultyCode.ToString()
+                select course.CourseLevel
+            ).Distinct().ToListAsync();
+
+            levels = levels
+                .Where(level => !string.IsNullOrWhiteSpace(level))
+                .Select(level => level.Trim().ToUpperInvariant())
+                .Distinct()
+                .ToList();
+
+            if (levels.Count == 0 && !string.IsNullOrWhiteSpace(courseLevel))
+            {
+                levels.Add(courseLevel.Trim().ToUpperInvariant());
+            }
+
+            var requiredSteps = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Institution", "DeanDetails", "PrincipalDetails", "ClinicalFacilities",
+                "DepartmentUnits", "Hostel", "Finance", "StaffDetails", "LibraryServices",
+                "Research", "Library", "FacultyDetails", "NonTeachingStaff", "LandBuilding",
+                "EquipmentDetails", "Vehicle", "SkillsLab"
+            };
+
+            var institutionTypeId = await _context.AffInstitutionsDetails
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString())
+                .Select(x => x.TypeOfInstitution)
+                .FirstOrDefaultAsync();
+            var organizationCategory = int.TryParse(institutionTypeId, out var parsedInstitutionTypeId)
+                ? await _context.MstInstitutionTypes
+                    .AsNoTracking()
+                    .Where(x => x.InstitutionTypeId == parsedInstitutionTypeId)
+                    .Select(x => x.OrganizationCategory)
+                    .FirstOrDefaultAsync()
+                : null;
+            if (string.Equals(organizationCategory, "P", StringComparison.OrdinalIgnoreCase))
+            {
+                requiredSteps.Add("TrustDetails");
+                requiredSteps.Add("TrustMemberDetails");
+            }
+
+            if (levels.Contains("UG", StringComparer.OrdinalIgnoreCase))
+            {
+                requiredSteps.Add("BedDistribution");
+                requiredSteps.Add("AcademicMatters");
+                requiredSteps.Add(facultyCode == 2 ? "BDSDetails" : "MBBSDetails");
+            }
+
+            if (levels.Contains("PG", StringComparer.OrdinalIgnoreCase))
+            {
+                requiredSteps.Add("PgCourses");
+                requiredSteps.Add("PGAcademicMatters");
+
+                if (!string.IsNullOrWhiteSpace(_httpContextAccessor.HttpContext?.Session.GetString("CourseCode")))
+                {
+                    requiredSteps.UnionWith(new[]
+                    {
+                        "CourseSubjectSelection", "CourseGeneralDetails", "CourseInfrastructureDetails",
+                        "CourseSummaryDetails", "CourseAcademicActivities", "CourseServicesWorkload",
+                        "CourseStaffDetails"
+                    });
+                }
+            }
+
+            if (levels.Contains("SS", StringComparer.OrdinalIgnoreCase))
+            {
+                requiredSteps.Add("SsCoursesApplied");
+            }
+
+            if (!string.IsNullOrWhiteSpace(applicationType)
+                && applicationType.Contains("Additional", StringComparison.OrdinalIgnoreCase))
+            {
+                requiredSteps.Add("AdditionalCourses");
+            }
+
+            var completedSteps = await _context.CaProgresses
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == collegeCode
+                    && x.IsCompleted == true
+                    && requiredSteps.Contains(x.StepKey))
+                .Select(x => x.StepKey)
+                .Distinct()
+                .ToListAsync();
+
+            return requiredSteps.Count == 0
+                ? 0
+                : (int)Math.Round((double)completedSteps.Count / requiredSteps.Count * 100);
         }
 
         private async Task<List<PreviewCourseIntakeItemVM>> GetCourseIntakeListAsync(

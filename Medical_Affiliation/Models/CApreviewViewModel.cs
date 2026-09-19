@@ -33,6 +33,8 @@ namespace Medical_Affiliation.Models
         public AffiliationPaymentViewModel PaymentVM { get; set; }
         public PaymentCalculationViewModel PaymentCalculation { get; set; }
         public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
+        public int CompletionPercentage { get; set; }
+        public bool IsApplicationComplete => CompletionPercentage >= 100;
         //public
 
     }

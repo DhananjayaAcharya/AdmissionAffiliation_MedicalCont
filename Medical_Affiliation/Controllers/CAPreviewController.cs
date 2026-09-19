@@ -33,6 +33,13 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GeneratePdf(bool declarationConsent)
         {
+            var completion = await _capreviewService.GetPreviewAsync();
+            if (!completion.IsApplicationComplete)
+            {
+                TempData["PreviewError"] = $"Complete the application sections before submitting. Current completion: {completion.CompletionPercentage}%.";
+                return RedirectToAction(nameof(Preview));
+            }
+
             if (!declarationConsent)
             {
                 TempData["PreviewError"] = "Please accept the declaration before generating the preview PDF.";
