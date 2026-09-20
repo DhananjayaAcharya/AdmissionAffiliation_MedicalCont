@@ -4569,6 +4569,7 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("HospitalDetailsForAffiliation");
 
             entity.Property(e => e.HospitalDetailsId).HasColumnName("HospitalDetailsID");
+            entity.Property(e => e.AnatomyActRegistrationPdfPath).HasMaxLength(500);
             entity.Property(e => e.AnnualIpdprevYear).HasColumnName("AnnualIPDPrevYear");
             entity.Property(e => e.AnnualOpdprevYear).HasColumnName("AnnualOPDPrevYear");
             entity.Property(e => e.BioMedicalCertificatePdfPath).HasMaxLength(500);

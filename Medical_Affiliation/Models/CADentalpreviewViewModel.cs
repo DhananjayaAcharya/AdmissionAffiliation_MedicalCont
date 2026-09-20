@@ -232,6 +232,14 @@ namespace Medical_Affiliation.Models
         public bool IsProposedPlansForFutureDevelopmentsExists { get; set; }
 
         public string? ProposedPlansForFutureDevelopmentsPath { get; set; }
+
+        public bool? IsRegisteredUnderAnatomyAct { get; set; }
+
+        public string? AnatomyActRegistrationDetails { get; set; }
+
+        public IFormFile? AnatomyActRegistrationCertificateFile { get; set; }
+
+        public string? AnatomyActRegistrationCertificatePath { get; set; }
     }
 
     public class EngAlliedRequirementsDisplayVM

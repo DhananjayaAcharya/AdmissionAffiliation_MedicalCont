@@ -320,6 +320,18 @@ namespace Medical_Affiliation.Models
         public IFormFile? ProposedPlansForFutureDevelopmentsFile { get; set; }
 
         public string? ProposedPlansForFutureDevelopmentsPath { get; set; }
+
+        // ============================================================
+        // ANATOMY ACT, 1969 REGISTRATION
+        // ============================================================
+
+        /// <summary>
+        /// Registration details under the Anatomy Act, 1969.
+        /// </summary>
+        public bool? HasAnatomyActRegistration { get; set; }
+        public string? AnatomyActRegistrationDetails { get; set; }
+        public IFormFile? AnatomyActRegistrationPdfFile { get; set; }
+        public string? AnatomyActRegistrationPdfPath { get; set; }
     }
 
 

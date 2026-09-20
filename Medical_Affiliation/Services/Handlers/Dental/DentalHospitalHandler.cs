@@ -292,7 +292,10 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     KPMECertificatePath = hospital.KpmecertificatePdfPath,
                     ProposedPlansForFutureDevelopmentsPath = hospital.ProposedPlansForFutureDevelopmentsPdfPath,
                     PollutionControlBoardCertificatePath = hospital.PollutionControlBoardCertificatePdfPath,
-                    BioMedicalCertificatePath = hospital.BioMedicalCertificatePdfPath
+                    BioMedicalCertificatePath = hospital.BioMedicalCertificatePdfPath,
+                    HasAnatomyActRegistration = hospital.HasAnatomyActRegistration,
+                    AnatomyActRegistrationDetails = hospital.AnatomyActRegistrationDetails,
+                    AnatomyActRegistrationPdfPath = hospital.AnatomyActRegistrationPdfPath
                 };
 
             // Build Hospital Facilities VM

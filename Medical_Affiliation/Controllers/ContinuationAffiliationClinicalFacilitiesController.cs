@@ -234,6 +234,22 @@ namespace Medical_Affiliation.Controllers
                                 "ClinicalHospitalDocs",
                                 "ProposedPlans");
                     }
+
+                    hospital.HasAnatomyActRegistration = vm.Form.HasAnatomyActRegistration;
+
+                    hospital.AnatomyActRegistrationDetails = vm.Form.AnatomyActRegistrationDetails;
+
+
+                    // Upload PDF only when a new file is selected
+                    if (vm.Form.AnatomyActRegistrationPdfFile != null &&
+                        vm.Form.AnatomyActRegistrationPdfFile.Length > 0)
+                    {
+                        // Delete old file if required
+                        DeletePhysicalFileIfExists( hospital.AnatomyActRegistrationPdfPath);
+
+                        hospital.AnatomyActRegistrationPdfPath =
+                            await SaveFileAndReturnPath( vm.Form.AnatomyActRegistrationPdfFile, "ClinicalHospitalDocs", "AnatomyActDocument");
+                    }
                 }
 
                 await _context.SaveChangesAsync();
@@ -245,6 +261,15 @@ namespace Medical_Affiliation.Controllers
                 return Unauthorized();
             }
 
+        }
+
+        private void DeletePhysicalFileIfExists(string? filePath)
+        {
+            if (!string.IsNullOrWhiteSpace(filePath) &&
+                System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
         }
 
 
@@ -279,6 +304,8 @@ namespace Medical_Affiliation.Controllers
 
                 "proposedplans" =>
                     hospital.ProposedPlansForFutureDevelopmentsPdfPath,
+
+                "anatomyact" => hospital.AnatomyActRegistrationPdfPath,
 
                 _ => null
             };

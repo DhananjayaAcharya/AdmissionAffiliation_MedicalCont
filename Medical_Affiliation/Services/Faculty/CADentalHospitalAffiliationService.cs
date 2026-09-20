@@ -149,7 +149,11 @@ namespace Medical_Affiliation.Services.Faculty
                     // Proposed Plans
                     IsProposedPlansForFutureDevelopmentsExists =!string.IsNullOrWhiteSpace(firstHospital.ProposedPlansForFutureDevelopmentsPdfPath),
 
-                    ProposedPlansForFutureDevelopmentsPath =  firstHospital.ProposedPlansForFutureDevelopmentsPdfPath
+                    ProposedPlansForFutureDevelopmentsPath =  firstHospital.ProposedPlansForFutureDevelopmentsPdfPath,
+                    IsRegisteredUnderAnatomyAct = !string.IsNullOrWhiteSpace(firstHospital.AnatomyActRegistrationPdfPath),
+                    AnatomyActRegistrationCertificatePath = firstHospital.AnatomyActRegistrationPdfPath,
+                    AnatomyActRegistrationDetails = firstHospital.AnatomyActRegistrationDetails
+                    
                 },
 
                 //HospitalDocumentsToBeUploadedList = hospitalDocuments,

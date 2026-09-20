@@ -1,5 +1,393 @@
 ﻿@model ClinicalHospitalViewModel
 
+<style>
+    /* =========================================================
+        HOSPITAL CERTIFICATES & FUTURE DEVELOPMENT
+        ========================================================= */
+
+    .hospital-certificates-section {
+        margin-top: 1.5rem;
+    }
+
+    .hospital-certificates-section .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        border-left: 4px solid #198754;
+        border-radius: 8px;
+        background: linear-gradient( 135deg, #f0fdf4, #f8fafc );
+        color: #1f2937;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .hospital-certificates-section .section-title::before {
+        content: "\f56c";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: #198754;
+        font-size: 16px;
+    }
+
+
+    /* =========================================================
+        CERTIFICATE CARD
+        ========================================================= */
+
+    .hospital-certificate-card {
+        height: 100%;
+        padding: 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        transition: all 0.2s ease;
+    }
+
+    .hospital-certificate-card:hover {
+        border-color: #b7dec7;
+        box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+    }
+
+
+    /* =========================================================
+        LABEL
+        ========================================================= */
+
+    .hospital-certificate-card .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+        FILE INPUT
+        ========================================================= */
+
+    .hospital-certificate-card input[type="file"] {
+        min-height: 42px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #f8fafc;
+        font-size: 13px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .hospital-certificate-card input[type="file"]:hover {
+        background: #ffffff;
+        border-color: #94a3b8;
+    }
+
+    .hospital-certificate-card input[type="file"]:focus {
+        background: #ffffff;
+        border-color: #198754;
+        box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+        outline: none;
+    }
+
+
+    /* =========================================================
+        HELP TEXT
+        ========================================================= */
+
+    .hospital-certificate-card .text-muted {
+        display: block;
+        margin-top: 6px;
+        color: #64748b !important;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+        EXISTING DOCUMENT AREA
+        ========================================================= */
+
+    .hospital-existing-document {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 12px;
+        padding: 9px 11px;
+        border: 1px solid #dbeafe;
+        border-radius: 7px;
+        background: #f8fafc;
+    }
+
+    .hospital-existing-document .file-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .hospital-existing-document .file-info i {
+        color: #dc3545;
+        font-size: 16px;
+    }
+
+    .hospital-existing-document .file-label {
+        color: #475569;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+
+    /* =========================================================
+        VIEW BUTTON
+        ========================================================= */
+
+    .hospital-existing-document .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .hospital-existing-document .btn:hover {
+        transform: translateY(-1px);
+    }
+
+
+    /* =========================================================
+        FUTURE DEVELOPMENT CARD
+        ========================================================= */
+
+    .hospital-future-development-card {
+        border-left: 3px solid #0d6efd;
+    }
+
+    .hospital-future-development-card .form-label {
+        color: #1e3a8a;
+    }
+
+
+    /* =========================================================
+        MOBILE
+        ========================================================= */
+
+    @@media (max-width: 767.98px) {
+
+        .hospital-certificates-section .section-title {
+            padding: 12px 14px;
+            font-size: 15px;
+        }
+
+        .hospital-certificate-card {
+            padding: 15px;
+        }
+
+        .hospital-existing-document {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .hospital-existing-document .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+
+
+    /* ============================================================
+       ANATOMY ACT, 1969 REGISTRATION
+       ============================================================ */
+
+    .anatomy-act-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 8px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+
+    /* ------------------------------------------------------------
+       QUESTION
+       ------------------------------------------------------------ */
+
+    .anatomy-act-question {
+        padding-bottom: 4px;
+    }
+
+    .anatomy-act-question .form-label {
+        font-weight: 600;
+        color: #334155;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+
+
+    /* ------------------------------------------------------------
+       YES / NO OPTIONS
+       ------------------------------------------------------------ */
+
+    .anatomy-act-options {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        width: fit-content;
+    }
+
+    .anatomy-act-options .form-check {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin: 0;
+    }
+
+    .anatomy-act-options .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .anatomy-act-options .form-check-label {
+        font-weight: 500;
+        color: #334155;
+        cursor: pointer;
+        margin: 0;
+    }
+
+
+    /* ------------------------------------------------------------
+       DETAILS SECTION
+       ------------------------------------------------------------ */
+
+    .anatomy-act-details {
+        margin-top: 20px;
+        padding: 18px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        animation: anatomyActFadeIn 0.2s ease-in-out;
+    }
+
+
+    /* ------------------------------------------------------------
+        TEXTAREA
+    ------------------------------------------------------------ */
+
+    .anatomy-act-details textarea {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    .anatomy-act-details textarea,
+    .anatomy-act-details input[type="file"] {
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+    }
+
+    .anatomy-act-details textarea:focus,
+    .anatomy-act-details input[type="file"]:focus {
+        border-color: #64748b;
+        box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+        outline: none;
+    }
+
+
+    /* ------------------------------------------------------------
+        FILE HELP TEXT
+        ------------------------------------------------------------ */
+
+    .anatomy-act-details small.text-muted {
+        display: block;
+        margin-top: 6px;
+        color: #64748b !important;
+        font-size: 12px;
+    }
+
+
+    /* ------------------------------------------------------------
+        EXISTING FILE BUTTON
+        ------------------------------------------------------------ */
+
+    .anatomy-act-details .btn-outline-success {
+        border-radius: 7px;
+        font-weight: 500;
+        padding: 6px 12px;
+    }
+
+
+    /* ------------------------------------------------------------
+       REQUIRED STAR
+       ------------------------------------------------------------ */
+
+    .anatomy-act-card .req {
+        color: #dc2626;
+        font-weight: 600;
+    }
+
+
+    /* ------------------------------------------------------------
+       VALIDATION
+       ------------------------------------------------------------ */
+
+    .anatomy-act-card .text-danger {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+    }
+
+
+    /* ------------------------------------------------------------
+       ANIMATION
+       ------------------------------------------------------------ */
+
+    @@keyframes anatomyActFadeIn {
+
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    /* ------------------------------------------------------------
+       MOBILE
+       ------------------------------------------------------------ */
+
+    @@media (max-width: 768px) {
+
+        .anatomy-act-card {
+            padding: 15px;
+        }
+
+        .anatomy-act-options {
+            width: 100%;
+            gap: 20px;
+        }
+
+        .anatomy-act-details {
+            padding: 14px;
+        }
+    }
+</style>
+
 <div class="form-section">
     <div class="section-title">Affiliated Hospital Information </div>
 
@@ -159,7 +547,7 @@
                CERTIFICATES & FUTURE DEVELOPMENT DOCUMENTS
                ============================================================ *@
 
-            <div class="col-12 mt-4">
+            <div class="col-12 mt-4 hospital-certificates-section">
 
                 <div class="section-title">
                     Hospital Certificates & Future Development
@@ -174,41 +562,44 @@
 
             <div class="col-md-6">
 
-                <label class="form-label">
-                    KPME Certificate
-                </label>
+                <div class="hospital-certificate-card">
+                    <label class="form-label">
+                        KPME Certificate
+                    </label>
 
-                <input asp-for="Form.KPMECertificateFile"
-                       type="file"
-                       class="form-control"
-                       accept=".pdf" />
+                    <input asp-for="Form.KPMECertificateFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
 
-                <small class="text-muted">
-                    Upload KPME Certificate PDF
-                </small>
+                    <small class="text-muted">
+                        Upload KPME Certificate PDF
+                    </small>
 
-                @if (!string.IsNullOrEmpty(Model.Form.KPMECertificatePath))
-                {
-                    <div class="mt-2">
+                    @if (!string.IsNullOrEmpty(Model.Form.KPMECertificatePath))
+                    {
+                        <div class="mt-2">
 
-                        <a href="@Url.Action(
-                                   "ViewHospitalCertificate",
-                                   "ContinuationAffiliationClinicalFacilities",
-                                   new
-                                   {
-                                       id = Model.Form.HospitalDetailsId,
-                                       type = "kpme"
-                                   })"
-                           target="_blank"
-                           class="btn btn-sm btn-outline-success">
+                            <a href="@Url.Action(
+                                       "ViewHospitalCertificate",
+                                       "ContinuationAffiliationClinicalFacilities",
+                                       new
+                                       {
+                                           id = Model.Form.HospitalDetailsId,
+                                           type = "kpme"
+                                       })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
 
-                            <i class="fas fa-file-pdf"></i>
-                            View Existing KPME Certificate
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing KPME Certificate
 
-                        </a>
+                            </a>
 
-                    </div>
-                }
+                        </div>
+                    }
+
+                </div>
 
             </div>
 
@@ -219,41 +610,45 @@
 
             <div class="col-md-6">
 
-                <label class="form-label">
-                    Pollution Control Board Certificate
-                </label>
+                <div class="hospital-certificate-card">
+                
+                    <label class="form-label">
+                        Pollution Control Board Certificate
+                    </label>
 
-                <input asp-for="Form.PollutionControlBoardCertificateFile"
-                       type="file"
-                       class="form-control"
-                       accept=".pdf" />
+                    <input asp-for="Form.PollutionControlBoardCertificateFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
 
-                <small class="text-muted">
-                    Upload Pollution Control Board Certificate PDF
-                </small>
+                    <small class="text-muted">
+                        Upload Pollution Control Board Certificate PDF
+                    </small>
 
-                @if (!string.IsNullOrEmpty(Model.Form.PollutionControlBoardCertificatePath))
-                {
-                    <div class="mt-2">
+                    @if (!string.IsNullOrEmpty(Model.Form.PollutionControlBoardCertificatePath))
+                    {
+                        <div class="mt-2">
 
-                        <a href="@Url.Action(
-                                   "ViewHospitalCertificate",
-                                   "ContinuationAffiliationClinicalFacilities",
-                                   new
-                                   {
-                                       id = Model.Form.HospitalDetailsId,
-                                       type = "pollution"
-                                   })"
-                           target="_blank"
-                           class="btn btn-sm btn-outline-success">
+                            <a href="@Url.Action(
+                                "ViewHospitalCertificate",
+                                "ContinuationAffiliationClinicalFacilities",
+                                new
+                                {
+                                    id = Model.Form.HospitalDetailsId,
+                                    type = "pollution"
+                                })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
 
-                            <i class="fas fa-file-pdf"></i>
-                            View Existing Certificate
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing Certificate
 
-                        </a>
+                            </a>
 
-                    </div>
-                }
+                        </div>
+                    }
+
+                </div>
 
             </div>
 
@@ -264,41 +659,43 @@
 
             <div class="col-md-6">
 
-                <label class="form-label">
-                    Bio-Medical Certificate
-                </label>
+                <div class="hospital-certificate-card">
+                    <label class="form-label">
+                        Bio-Medical Certificate
+                    </label>
 
-                <input asp-for="Form.BioMedicalCertificateFile"
-                       type="file"
-                       class="form-control"
-                       accept=".pdf" />
+                    <input asp-for="Form.BioMedicalCertificateFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
 
-                <small class="text-muted">
-                    Upload Bio-Medical Certificate PDF
-                </small>
+                    <small class="text-muted">
+                        Upload Bio-Medical Certificate PDF
+                    </small>
 
-                @if (!string.IsNullOrEmpty(Model.Form.BioMedicalCertificatePath))
-                {
-                    <div class="mt-2">
+                    @if (!string.IsNullOrEmpty(Model.Form.BioMedicalCertificatePath))
+                    {
+                        <div class="mt-2">
 
-                        <a href="@Url.Action(
-                                   "ViewHospitalCertificate",
-                                   "ContinuationAffiliationClinicalFacilities",
-                                   new
-                                   {
-                                       id = Model.Form.HospitalDetailsId,
-                                       type = "biomedical"
-                                   })"
-                           target="_blank"
-                           class="btn btn-sm btn-outline-success">
+                            <a href="@Url.Action(
+                                       "ViewHospitalCertificate",
+                                       "ContinuationAffiliationClinicalFacilities",
+                                       new
+                                       {
+                                           id = Model.Form.HospitalDetailsId,
+                                           type = "biomedical"
+                                       })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
 
-                            <i class="fas fa-file-pdf"></i>
-                            View Existing Certificate
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing Certificate
 
-                        </a>
+                            </a>
 
-                    </div>
-                }
+                        </div>
+                    }
+                </div>
 
             </div>
 
@@ -308,90 +705,283 @@
                ============================================================ *@
 
             <div class="col-md-6">
+                <div class="hospital-certificate-card">
+                    <label class="form-label">
+                        Drug Free Campus Certification
+                    </label>
 
-                <label class="form-label">
-                    Drug Free Campus Certification
-                </label>
+                    <input asp-for="Form.DrugFreeCampusCertificationFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
 
-                <input asp-for="Form.DrugFreeCampusCertificationFile"
-                       type="file"
-                       class="form-control"
-                       accept=".pdf" />
+                    <small class="text-muted">
+                        Upload Drug Free Campus Certification PDF
+                    </small>
 
-                <small class="text-muted">
-                    Upload Drug Free Campus Certification PDF
-                </small>
+                    @if (!string.IsNullOrEmpty(Model.Form.DrugFreeCampusCertificationPath))
+                    {
+                        <div class="mt-2">
 
-                @if (!string.IsNullOrEmpty(Model.Form.DrugFreeCampusCertificationPath))
-                {
-                    <div class="mt-2">
+                            <a href="@Url.Action(
+                                    "ViewHospitalCertificate",
+                                    "ContinuationAffiliationClinicalFacilities",
+                                    new
+                                    {
+                                        id = Model.Form.HospitalDetailsId,
+                                        type = "drugfree"
+                                    })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
 
-                        <a href="@Url.Action(
-                                   "ViewHospitalCertificate",
-                                   "ContinuationAffiliationClinicalFacilities",
-                                   new
-                                   {
-                                       id = Model.Form.HospitalDetailsId,
-                                       type = "drugfree"
-                                   })"
-                           target="_blank"
-                           class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing Certification
 
-                            <i class="fas fa-file-pdf"></i>
-                            View Existing Certification
+                            </a>
 
-                        </a>
+                        </div>
+                    }
 
-                    </div>
-                }
+                </div>
+
 
             </div>
-
 
             @* ============================================================
                5. PROPOSED PLANS FOR FUTURE DEVELOPMENTS
                ============================================================ *@
 
             <div class="col-md-6">
+                <div class="hospital-certificate-card hospital-future-development-card">
+                    <label class="form-label">
+                        Proposed Plans for Future Developments
+                    </label>
 
-                <label class="form-label">
-                    Proposed Plans for Future Developments
-                </label>
+                    <input asp-for="Form.ProposedPlansForFutureDevelopmentsFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
 
-                <input asp-for="Form.ProposedPlansForFutureDevelopmentsFile"
-                       type="file"
-                       class="form-control"
-                       accept=".pdf" />
+                    <small class="text-muted">
+                        Upload Proposed Plans for Future Developments PDF
+                    </small>
 
-                <small class="text-muted">
-                    Upload Proposed Plans for Future Developments PDF
-                </small>
+                    @if (!string.IsNullOrEmpty(Model.Form.ProposedPlansForFutureDevelopmentsPath))
+                    {
+                        <div class="mt-2">
 
-                @if (!string.IsNullOrEmpty(Model.Form.ProposedPlansForFutureDevelopmentsPath))
-                {
-                    <div class="mt-2">
+                            <a href="@Url.Action(
+                                    "ViewHospitalCertificate",
+                                    "ContinuationAffiliationClinicalFacilities",
+                                    new
+                                    {
+                                        id = Model.Form.HospitalDetailsId,
+                                        type = "proposedplans"
+                                    })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
 
-                        <a href="@Url.Action(
-                                   "ViewHospitalCertificate",
-                                   "ContinuationAffiliationClinicalFacilities",
-                                   new
-                                   {
-                                       id = Model.Form.HospitalDetailsId,
-                                       type = "proposedplans"
-                                   })"
-                           target="_blank"
-                           class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing Future Development Plan
 
-                            <i class="fas fa-file-pdf"></i>
-                            View Existing Future Development Plan
+                            </a>
 
-                        </a>
+                        </div>
+                    }
 
-                    </div>
-                }
+
+                </div>
 
             </div>
 
+            
+            @* ============================================================
+                ANATOMY ACT, 1969 REGISTRATION
+                ============================================================ *@
+
+            <div class="col-12 mt-4">
+
+                <div class="section-title">
+                    Anatomy Act, 1969 Registration
+                </div>
+
+            </div>
+
+            <div class="col-12">
+
+                <div class="anatomy-act-card">
+
+                    <div class="anatomy-act-question">
+
+                        <label class="form-label anatomy-question-label">
+                            For institutions having course requiring human cadaver
+                            dissection, please furnish details regarding registration
+                            under Anatomy Act, 1969.
+                            <span class="req">*</span>
+                        </label>
+
+
+                        <div class="anatomy-act-options">
+
+                            <div class="form-check">
+
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Form.HasAnatomyActRegistration"
+                                       value="true"
+                                       id="anatomyActYes" />
+
+                                <label class="form-check-label"
+                                       for="anatomyActYes">
+                                    Yes
+                                </label>
+
+                            </div>
+
+
+                            <div class="form-check">
+
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Form.HasAnatomyActRegistration"
+                                       value="false"
+                                       id="anatomyActNo" />
+
+                                <label class="form-check-label"
+                                       for="anatomyActNo">
+                                    No
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <span asp-validation-for="Form.HasAnatomyActRegistration"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    @* ========================================================
+                        DETAILS - SHOWN ONLY WHEN YES
+                        ======================================================== *@
+
+                    <div id="anatomyActDetails"
+                         class="anatomy-act-details">
+
+                        <div class="row g-4">
+
+
+                            @* ==================================================
+                                REGISTRATION DETAILS
+                                ================================================== *@
+
+                            <div class="col-md-12">
+
+                                <div class="anatomy-field-card">
+
+                                    <label class="form-label">
+
+                                        Anatomy Act Registration Details
+
+                                    </label>
+
+                                    <textarea asp-for="Form.AnatomyActRegistrationDetails"
+                                              class="form-control anatomy-textarea"
+                                              rows="5"
+                                              placeholder="Enter registration details">
+                                            </textarea>
+
+                                    <span asp-validation-for="Form.AnatomyActRegistrationDetails"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            @* ==================================================
+                                REGISTRATION CERTIFICATE
+                                ================================================== *@
+
+                            <div class="col-md-12">
+
+                                <div class="anatomy-field-card">
+
+                                    <label class="form-label">
+
+                                        Anatomy Act Registration Certificate
+
+                                    </label>
+
+                                    <input asp-for="Form.AnatomyActRegistrationPdfFile"
+                                           type="file"
+                                           class="form-control"
+                                           accept=".pdf" />
+
+                                    <div class="anatomy-file-help">
+
+                                        <i class="fas fa-info-circle"></i>
+
+                                        Upload Anatomy Act, 1969 Registration
+                                        Certificate in PDF format.
+
+                                    </div>
+
+
+                                    @* Existing document *@
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.Form.AnatomyActRegistrationPdfPath))
+                                    {
+
+                                        <div class="anatomy-existing-file">
+
+                                            <div class="existing-file-info">
+
+                                                <i class="fas fa-file-pdf"></i>
+
+                                                <span>
+                                                    Existing registration certificate
+                                                </span>
+
+                                            </div>
+
+
+                                            <a href="@Url.Action(
+                                                    "ViewHospitalCertificate",
+                                                    "ContinuationAffiliationClinicalFacilities",
+                                                    new
+                                                    {
+                                                        id = Model.Form.HospitalDetailsId,
+                                                        type = "anatomyact"
+                                                    })"
+                                               target="_blank"
+                                               class="btn btn-sm btn-outline-success">
+
+                                                <i class="fas fa-eye"></i>
+
+                                                View Certificate
+
+                                            </a>
+
+                                        </div>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
         </div>
 
         <div class="text-center mt-3">
@@ -514,4 +1104,66 @@
         });
 
     });
+</script>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const anatomyYes =
+            document.getElementById("anatomyActYes");
+
+        const anatomyNo =
+            document.getElementById("anatomyActNo");
+
+        const anatomyDetails =
+            document.getElementById("anatomyActDetails");
+
+
+        function toggleAnatomyActDetails() {
+
+            if (!anatomyDetails) {
+                return;
+            }
+
+
+            if (anatomyYes && anatomyYes.checked) {
+
+                anatomyDetails.style.display = "block";
+
+            }
+            else {
+
+                anatomyDetails.style.display = "none";
+
+            }
+
+        }
+
+
+        if (anatomyYes) {
+
+            anatomyYes.addEventListener(
+                "change",
+                toggleAnatomyActDetails
+            );
+
+        }
+
+
+        if (anatomyNo) {
+
+            anatomyNo.addEventListener(
+                "change",
+                toggleAnatomyActDetails
+            );
+
+        }
+
+
+        // Important when editing existing data
+        toggleAnatomyActDetails();
+
+    });
+
 </script>

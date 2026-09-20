@@ -65,6 +65,12 @@ public partial class HospitalDetailsForAffiliation
 
     public string? ProposedPlansForFutureDevelopmentsPdfPath { get; set; }
 
+    public bool? HasAnatomyActRegistration { get; set; }
+
+    public string? AnatomyActRegistrationDetails { get; set; }
+
+    public string? AnatomyActRegistrationPdfPath { get; set; }
+
     public virtual TypeOfAffiliation AffiliationType { get; set; } = null!;
 
     public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();
