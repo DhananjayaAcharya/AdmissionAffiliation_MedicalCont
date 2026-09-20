@@ -781,4 +781,182 @@ CREATE TABLE StaffShortageDetails
         REFERENCES Faculty(FacultyId)
 );
 
+--select * from StaffShortageDetails
+
+--delete from CollegeAdditionalFeeDetails
+-----------------------------------------------------
+
+/* ============================================================
+   Question 6 - Additional Fee / Donation / Capitation Details
+   Stores details only when any fee other than tuition fee
+   is levied by the college.
+   ============================================================ */
+CREATE TABLE CollegeAdditionalFeeDetails
+(
+    Id INT IDENTITY(1,1) NOT NULL
+        CONSTRAINT PK_CollegeAdditionalFeeDetails PRIMARY KEY,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+    FacultyId INT NOT NULL,
+    CourseLevel VARCHAR(10) NULL,
+
+    IsFeeLevied BIT NOT NULL,
+
+    FeeType NVARCHAR(200) NULL,
+    FeeAmount DECIMAL(18,2) NULL,
+
+    IsDeleted BIT NOT NULL
+        CONSTRAINT DF_CollegeAdditionalFeeDetails_IsDeleted DEFAULT 0,
+
+    CreatedOn DATETIME NOT NULL
+        CONSTRAINT DF_CollegeAdditionalFeeDetails_CreatedOn DEFAULT GETDATE(),
+
+    ModifiedOn DATETIME NULL,
+
+    CONSTRAINT FK_CollegeAdditionalFeeDetails_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_CollegeAdditionalFeeDetails_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId)
+);
+
+/* ============================================================
+   Question 6 - Courses Offered
+
+   Stores UG, PG and Diploma courses offered by the college,
+   including course code, year of starting, sanctioned/admitted
+   admissions and course-wise permission / affiliation documents.
+
+   One row represents one course.
+
+   Permission / affiliation documents:
+   1. Permission of Government of Karnataka
+   2. Permission of concerned Council / Apex Body
+   3. Last Affiliation granted by RGUHS
+   4. Permission of Government of India wherever applicable
+   ============================================================ */
+
+CREATE TABLE CollegeCoursesOffered
+(
+    Id INT IDENTITY(1,1) NOT NULL
+        CONSTRAINT PK_CollegeCoursesOffered PRIMARY KEY,
+
+    /* ========================================================
+       College / Faculty Reference
+       ======================================================== */
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+
+    FacultyId INT NOT NULL,
+
+    /* ========================================================
+       Course Details
+       ======================================================== */
+
+    CourseCode NVARCHAR(100) NOT NULL,
+
+    CourseLevel NVARCHAR(50) NOT NULL,
+
+    CourseName NVARCHAR(300) NOT NULL,
+
+    YearOfStarting INT NULL,
+
+    /* ========================================================
+       Admission Details
+       ======================================================== */
+
+    SanctionedAdmissions INT NULL,
+
+    AdmittedAdmissions INT NULL,
+
+    Remarks NVARCHAR(1000) NULL,
+
+    /* ========================================================
+       1. Government of Karnataka Permission
+       ======================================================== */
+
+    GovtKarnatakaPermissionNumber NVARCHAR(200) NULL,
+
+    GovtKarnatakaDocumentName NVARCHAR(500) NULL,
+
+    GovtKarnatakaDocumentPath NVARCHAR(1000) NULL,
+
+    GovtKarnatakaDocumentContentType NVARCHAR(100) NULL,
+
+    /* ========================================================
+       2. Concerned Council / Apex Body Permission
+
+       Example:
+       Medical Council
+       Dental Council
+       AICTE
+       etc.
+       ======================================================== */
+
+    CouncilPermissionNumber NVARCHAR(200) NULL,
+
+    CouncilDocumentName NVARCHAR(500) NULL,
+
+    CouncilDocumentPath NVARCHAR(1000) NULL,
+
+    CouncilDocumentContentType NVARCHAR(100) NULL,
+
+    /* ========================================================
+       3. Last Affiliation Granted by RGUHS
+       ======================================================== */
+
+    RGUHSLastAffiliationNumber NVARCHAR(200) NULL,
+
+    RGUHSLastAffiliationDocumentName NVARCHAR(500) NULL,
+
+    RGUHSLastAffiliationDocumentPath NVARCHAR(1000) NULL,
+
+    RGUHSLastAffiliationDocumentContentType NVARCHAR(100) NULL,
+
+    /* ========================================================
+       4. Government of India Permission
+       Wherever applicable
+       ======================================================== */
+
+    GovtIndiaPermissionNumber NVARCHAR(200) NULL,
+
+    GovtIndiaDocumentName NVARCHAR(500) NULL,
+
+    GovtIndiaDocumentPath NVARCHAR(1000) NULL,
+
+    GovtIndiaDocumentContentType NVARCHAR(100) NULL,
+
+    /* ========================================================
+       Soft Delete
+       ======================================================== */
+
+    IsDeleted BIT NOT NULL
+        CONSTRAINT DF_CollegeCoursesOffered_IsDeleted
+        DEFAULT 0,
+
+    /* ========================================================
+       Audit
+       ======================================================== */
+
+    CreatedOn DATETIME NOT NULL
+        CONSTRAINT DF_CollegeCoursesOffered_CreatedOn
+        DEFAULT GETDATE(),
+
+    ModifiedOn DATETIME NULL,
+
+    /* ========================================================
+       Foreign Keys
+       ======================================================== */
+
+    CONSTRAINT FK_CollegeCoursesOffered_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_CollegeCoursesOffered_Faculty
+        FOREIGN KEY (FacultyId)
+        REFERENCES Faculty(FacultyId)
+);
+
 -----------------------------------------------------

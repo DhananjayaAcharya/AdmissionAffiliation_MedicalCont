@@ -230,9 +230,13 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<ClinicalWorkloadDetail> ClinicalWorkloadDetails { get; set; }
 
+    public virtual DbSet<CollegeAdditionalFeeDetail> CollegeAdditionalFeeDetails { get; set; }
+
     public virtual DbSet<CollegeCourseIntakeDetail> CollegeCourseIntakeDetails { get; set; }
 
     public virtual DbSet<CollegeCourseRegistration> CollegeCourseRegistrations { get; set; }
+
+    public virtual DbSet<CollegeCoursesOffered> CollegeCoursesOffereds { get; set; }
 
     public virtual DbSet<CollegeDesignationDetail> CollegeDesignationDetails { get; set; }
 
@@ -3304,6 +3308,30 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<CollegeAdditionalFeeDetail>(entity =>
+        {
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.FeeAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.FeeType).HasMaxLength(200);
+            entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.CollegeAdditionalFeeDetails)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CollegeAdditionalFeeDetails_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.CollegeAdditionalFeeDetails)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CollegeAdditionalFeeDetails_Faculty");
+        });
+
         modelBuilder.Entity<CollegeCourseIntakeDetail>(entity =>
         {
             entity.HasKey(e => e.Id).HasFillFactor(80);
@@ -3337,6 +3365,55 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CourseName)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<CollegeCoursesOffered>(entity =>
+        {
+            entity.ToTable("CollegeCoursesOffered");
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CouncilDocumentContentType).HasMaxLength(100);
+            entity.Property(e => e.CouncilDocumentName).HasMaxLength(500);
+            entity.Property(e => e.CouncilDocumentPath).HasMaxLength(1000);
+            entity.Property(e => e.CouncilPermissionNumber).HasMaxLength(200);
+            entity.Property(e => e.CourseCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel).HasMaxLength(50);
+            entity.Property(e => e.CourseName).HasMaxLength(300);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.GovtIndiaDocumentContentType).HasMaxLength(100);
+            entity.Property(e => e.GovtIndiaDocumentName).HasMaxLength(500);
+            entity.Property(e => e.GovtIndiaDocumentPath).HasMaxLength(1000);
+            entity.Property(e => e.GovtIndiaPermissionNumber).HasMaxLength(200);
+            entity.Property(e => e.GovtKarnatakaDocumentContentType).HasMaxLength(100);
+            entity.Property(e => e.GovtKarnatakaDocumentName).HasMaxLength(500);
+            entity.Property(e => e.GovtKarnatakaDocumentPath).HasMaxLength(1000);
+            entity.Property(e => e.GovtKarnatakaPermissionNumber).HasMaxLength(200);
+            entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
+            entity.Property(e => e.Remarks).HasMaxLength(1000);
+            entity.Property(e => e.RguhslastAffiliationDocumentContentType)
+                .HasMaxLength(100)
+                .HasColumnName("RGUHSLastAffiliationDocumentContentType");
+            entity.Property(e => e.RguhslastAffiliationDocumentName)
+                .HasMaxLength(500)
+                .HasColumnName("RGUHSLastAffiliationDocumentName");
+            entity.Property(e => e.RguhslastAffiliationDocumentPath)
+                .HasMaxLength(1000)
+                .HasColumnName("RGUHSLastAffiliationDocumentPath");
+            entity.Property(e => e.RguhslastAffiliationNumber)
+                .HasMaxLength(200)
+                .HasColumnName("RGUHSLastAffiliationNumber");
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.CollegeCoursesOffereds)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CollegeCoursesOffered_College");
+
+            entity.HasOne(d => d.Faculty).WithMany(p => p.CollegeCoursesOffereds)
+                .HasForeignKey(d => d.FacultyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CollegeCoursesOffered_Faculty");
         });
 
         modelBuilder.Entity<CollegeDesignationDetail>(entity =>

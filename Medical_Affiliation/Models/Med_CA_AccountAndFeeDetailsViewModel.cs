@@ -92,7 +92,7 @@ namespace Medical_Affiliation.Models
         public string? AuditedStatementPdfName { get; set; }
 
         // ==================== DONATION FIELDS (Only for PG) ====================
-        [RequiredIfPG(ErrorMessage = "Please specify whether donation is levied")]
+        //[RequiredIfPG(ErrorMessage = "Please specify whether donation is levied")]
         public string? DonationLevied { get; set; } = string.Empty;          // Y / N   (Only required for PG)
 
         public IFormFile? DonationPdf { get; set; }
@@ -100,6 +100,85 @@ namespace Medical_Affiliation.Models
 
         // Helper property to easily check in View
         public bool IsPG => CourseLevel?.Trim().ToUpper() == "PG";
+    }
+
+    // ============================================================
+    // Donation / Capitation Fee
+    // ============================================================
+
+    public class DonationFeeDetailVm
+    {
+        public int Id { get; set; }
+
+        public string CollegeCode { get; set; } = null!;
+
+        public string FacultyCode { get; set; } = null!;
+        public bool IsFeeLevied { get; set; }
+
+        // UG / PG / Diploma
+        public string CourseLevel { get; set; } = null!;
+
+        // Type of fee
+        // Donation / Capitation Fee / Other
+        public string FeeType { get; set; } = string.Empty;
+
+        public decimal? FeeAmount { get; set; }
+
+        public string? Remarks { get; set; }
+    }
+
+
+    // ============================================================
+    // Courses Offered
+    // ============================================================
+
+    public class CollegeCourseOfferedVm
+    {
+        public int Id { get; set; }
+
+        public string CollegeCode { get; set; } = null!;
+
+        public string FacultyCode { get; set; } = null!;
+
+        // UG / PG / Diploma
+        public string CourseLevel { get; set; } = null!;
+
+        public string CourseCode { get; set; } = string.Empty;
+
+        public string CourseName { get; set; } = string.Empty;
+
+        public int? YearOfStarting { get; set; }
+
+        public int? SanctionedAdmissions { get; set; }
+
+        public int? AdmittedAdmissions { get; set; }
+
+        public string? Remarks { get; set; }
+
+        // ========================================================
+        // Course-wise permissions / affiliation documents
+        // One column for each required document
+        // ========================================================
+
+        // Permission of Government of Karnataka
+        public string? KarnatakaGovernmentPermissionNo { get; set; }
+        public IFormFile? KarnatakaGovernmentPermissionFile { get; set; }
+        public string? KarnatakaGovernmentPermissionFileName { get; set; }
+
+        // Permission of concerned Council / Apex Body
+        public string? CouncilPermissionNo { get; set; }
+        public IFormFile? CouncilPermissionFile { get; set; }
+        public string? CouncilPermissionFileName { get; set; }
+
+        // Last affiliation granted by RGUHS
+        public string? RGUHSLastAffiliationNo { get; set; }
+        public IFormFile? RGUHSLastAffiliationFile { get; set; }
+        public string? RGUHSLastAffiliationFileName { get; set; }
+
+        // Permission of Government of India
+        public string? GovernmentOfIndiaPermissionNo { get; set; }
+        public IFormFile? GovernmentOfIndiaPermissionFile { get; set; }
+        public string? GovernmentOfIndiaPermissionFileName { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
@@ -119,6 +198,23 @@ namespace Medical_Affiliation.Models
     }
     public class Med_CA_AccountAndFeeDetailsPageVM
     {
+
+        public bool IsFeeLevied { get; set; }
         public List<Med_CA_AccountAndFeeDetailsViewModel> Sections { get; set; } = new();
+
+        // ========================================================
+        // Donation / Capitation Fee
+        // ========================================================
+
+        public List<DonationFeeDetailVm> DonationFees
+        { get; set; } = new();
+
+
+        // ========================================================
+        // Courses Offered
+        // ========================================================
+
+        public List<CollegeCourseOfferedVm> CoursesOffered
+        { get; set; } = new();
     }
 }
