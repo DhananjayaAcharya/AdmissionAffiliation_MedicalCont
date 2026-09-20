@@ -17,9 +17,9 @@
         </div>
     </div>
     <!-- 🏥 Hospital Summary -->
-    @if (Model.ClinicalHospitalDetails != null)
+    @if (Model.ClinicalDentalHospitalDetails != null)
     {
-        @await Html.PartialAsync("ClinicalFacilities/_ClinicalHospitalSummary", Model.ClinicalHospitalDetails)
+        @await Html.PartialAsync("ClinicalFacilities/_ClinicalHospitalSummary", Model.ClinicalDentalHospitalDetails)
     }
 
    

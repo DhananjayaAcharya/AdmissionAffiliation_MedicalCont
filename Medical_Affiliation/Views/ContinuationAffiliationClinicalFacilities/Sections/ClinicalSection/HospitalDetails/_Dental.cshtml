@@ -191,7 +191,14 @@
                 {
                     <div class="mt-2">
 
-                        <a href="@Url.Content(Model.Form.KPMECertificatePath)"
+                        <a href="@Url.Action(
+                                   "ViewHospitalCertificate",
+                                   "ContinuationAffiliationClinicalFacilities",
+                                   new
+                                   {
+                                       id = Model.Form.HospitalDetailsId,
+                                       type = "kpme"
+                                   })"
                            target="_blank"
                            class="btn btn-sm btn-outline-success">
 
@@ -229,7 +236,14 @@
                 {
                     <div class="mt-2">
 
-                        <a href="@Url.Content(Model.Form.PollutionControlBoardCertificatePath)"
+                        <a href="@Url.Action(
+                                   "ViewHospitalCertificate",
+                                   "ContinuationAffiliationClinicalFacilities",
+                                   new
+                                   {
+                                       id = Model.Form.HospitalDetailsId,
+                                       type = "pollution"
+                                   })"
                            target="_blank"
                            class="btn btn-sm btn-outline-success">
 
@@ -267,7 +281,14 @@
                 {
                     <div class="mt-2">
 
-                        <a href="@Url.Content(Model.Form.BioMedicalCertificatePath)"
+                        <a href="@Url.Action(
+                                   "ViewHospitalCertificate",
+                                   "ContinuationAffiliationClinicalFacilities",
+                                   new
+                                   {
+                                       id = Model.Form.HospitalDetailsId,
+                                       type = "biomedical"
+                                   })"
                            target="_blank"
                            class="btn btn-sm btn-outline-success">
 
@@ -305,7 +326,14 @@
                 {
                     <div class="mt-2">
 
-                        <a href="@Url.Content(Model.Form.DrugFreeCampusCertificationPath)"
+                        <a href="@Url.Action(
+                                   "ViewHospitalCertificate",
+                                   "ContinuationAffiliationClinicalFacilities",
+                                   new
+                                   {
+                                       id = Model.Form.HospitalDetailsId,
+                                       type = "drugfree"
+                                   })"
                            target="_blank"
                            class="btn btn-sm btn-outline-success">
 
@@ -343,7 +371,14 @@
                 {
                     <div class="mt-2">
 
-                        <a href="@Url.Content(Model.Form.ProposedPlansForFutureDevelopmentsPath)"
+                        <a href="@Url.Action(
+                                   "ViewHospitalCertificate",
+                                   "ContinuationAffiliationClinicalFacilities",
+                                   new
+                                   {
+                                       id = Model.Form.HospitalDetailsId,
+                                       type = "proposedplans"
+                                   })"
                            target="_blank"
                            class="btn btn-sm btn-outline-success">
 

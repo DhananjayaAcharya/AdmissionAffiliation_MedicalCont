@@ -141,6 +141,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
 
             var facilities = await _context.HospitalFacilitiesMasters
                 .Where(f => f.AffiliationTypeId == typeOfAffiliation && f.FacultyCode == facultyCode.ToString())
+                .OrderBy(e => e.FacilityName)
                 .ToListAsync();
 
             var districts = await _context.DistrictMasters
@@ -287,6 +288,11 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     Location = hospital.Location,
                     ParentMedicalCollegeExists = hospital.ParentMedicalCollegeExists,
                     IsParentHospitalForOtherNursingInstitution = hospital.IsParentHospitalForOtherNursingInstitution,
+                    DrugFreeCampusCertificationPath = hospital.DrugFreeCampusCertificationPdfPath,
+                    KPMECertificatePath = hospital.KpmecertificatePdfPath,
+                    ProposedPlansForFutureDevelopmentsPath = hospital.ProposedPlansForFutureDevelopmentsPdfPath,
+                    PollutionControlBoardCertificatePath = hospital.PollutionControlBoardCertificatePdfPath,
+                    BioMedicalCertificatePath = hospital.BioMedicalCertificatePdfPath
                 };
 
             // Build Hospital Facilities VM

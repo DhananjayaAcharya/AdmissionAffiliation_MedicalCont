@@ -2550,9 +2550,9 @@ public class PreviewReportDentalPdf : IDocument
         // 1. CLINICAL HOSPITAL DETAILS
         // =========================================================
 
-        if (hospital.ClinicalHospitalDetails != null)
+        if (hospital.ClinicalDentalHospitalDetails != null)
         {
-            var h = hospital.ClinicalHospitalDetails;
+            var h = hospital.ClinicalDentalHospitalDetails;
 
             AddSubHeading(col, "Clinical Hospital Details");
 

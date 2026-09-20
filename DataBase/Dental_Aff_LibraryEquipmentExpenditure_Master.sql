@@ -114,8 +114,8 @@ VALUES
 (2, 2, 'CD-ROM DATABASE'),
 (2, 2, 'MICROFILMS'),
 (2, 2, 'MICRO FICHES'),
-(2, 2, 'AUDIO – CASSETTES'),
-(2, 2, 'VIDEO – CASSETTES'),
+(2, 2, 'AUDIO ï¿½ CASSETTES'),
+(2, 2, 'VIDEO ï¿½ CASSETTES'),
 (2, 2, 'BINDING WORKS');
 
 -- ============================================================
@@ -755,6 +755,16 @@ VALUES
 (2, 2, 'Mortuary and Central Cold Storage', 1, GETDATE()),
 (2, 2, 'Any Other Special Services and Special Clinics', 1, GETDATE());
 
+INSERT INTO [Admission_Affiliation].[dbo].[HospitalFacilitiesMaster]
+(
+    [AffiliationTypeId],
+    [FacultyCode],
+    [FacilityName],
+    [IsActive],
+    [CreatedDate]
+)
+VALUES
+(2, 2, 'Central Photographic cum Audio Visual Unit', 1, GETDATE());
 
 ----------------------------------------------------------------------
 
@@ -791,6 +801,9 @@ CREATE TABLE StaffShortageDetails
    Stores details only when any fee other than tuition fee
    is levied by the college.
    ============================================================ */
+
+--SELECT * FROM CollegeAdditionalFeeDetails
+
 CREATE TABLE CollegeAdditionalFeeDetails
 (
     Id INT IDENTITY(1,1) NOT NULL
@@ -837,6 +850,8 @@ CREATE TABLE CollegeAdditionalFeeDetails
    3. Last Affiliation granted by RGUHS
    4. Permission of Government of India wherever applicable
    ============================================================ */
+
+--SELECT * FROM CollegeCoursesOffered
 
 CREATE TABLE CollegeCoursesOffered
 (

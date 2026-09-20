@@ -35,7 +35,7 @@ namespace Medical_Affiliation.Services.Faculty
                     FacultyCode = facultyId,
 
                     // ✅ Keep empty object instead of null
-                    ClinicalHospitalDetails = new ClinicalHospitalDisplayViewModel(),
+                    ClinicalDentalHospitalDetails = new ClinicalDentalHospitalDisplayViewModel(),
 
                     // ✅ Correct types
                     AffiliatedHospitalDocuments = new List<AffiliatedHospitalDocumentsDisplayViewModel>(),
@@ -110,7 +110,7 @@ namespace Medical_Affiliation.Services.Faculty
                 CollegeCode = collegeCode,
                 FacultyCode = facultyId,
 
-                ClinicalHospitalDetails = new ClinicalHospitalDisplayViewModel
+                ClinicalDentalHospitalDetails = new ClinicalDentalHospitalDisplayViewModel
                 {
                     HospitalDetailsId = firstHospital.HospitalDetailsId,
                     HospitalType = firstHospitalType,
@@ -124,7 +124,32 @@ namespace Medical_Affiliation.Services.Faculty
                     OpdPerDay = firstHospital.OpdperDay ?? 0,
                     IpdOccupancyPercent = firstHospital.IpdbedOccupancyPercent ?? 0,
                     IsOwnerAmemberOfTrust = firstHospital.IsOwnerAmemberOfTrust ?? false,
-                    IsSupportingDocExists = firstHospital.HospitalDocumentsToBeUploadeds != null && firstHospital.HospitalDocumentsToBeUploadeds.Any()
+                    IsSupportingDocExists = firstHospital.HospitalDocumentsToBeUploadeds != null && firstHospital.HospitalDocumentsToBeUploadeds.Any(),
+
+                    // KPME
+                    IsKPMECertificateExists = !string.IsNullOrWhiteSpace(firstHospital.KpmecertificatePdfPath),
+
+                    KPMECertificatePath = firstHospital.KpmecertificatePdfPath,
+
+                    // Pollution Control Board
+                    IsPollutionControlBoardCertificateExists = !string.IsNullOrWhiteSpace( firstHospital.PollutionControlBoardCertificatePdfPath),
+
+                    PollutionControlBoardCertificatePath = firstHospital.PollutionControlBoardCertificatePdfPath,
+
+                    // Bio-Medical
+                    IsBioMedicalCertificateExists = !string.IsNullOrWhiteSpace( firstHospital.BioMedicalCertificatePdfPath),
+
+                    BioMedicalCertificatePath = firstHospital.BioMedicalCertificatePdfPath,
+
+                    // Drug Free Campus
+                    IsDrugFreeCampusCertificationExists = !string.IsNullOrWhiteSpace(firstHospital.DrugFreeCampusCertificationPdfPath),
+
+                    DrugFreeCampusCertificationPath = firstHospital.DrugFreeCampusCertificationPdfPath,
+
+                    // Proposed Plans
+                    IsProposedPlansForFutureDevelopmentsExists =!string.IsNullOrWhiteSpace(firstHospital.ProposedPlansForFutureDevelopmentsPdfPath),
+
+                    ProposedPlansForFutureDevelopmentsPath =  firstHospital.ProposedPlansForFutureDevelopmentsPdfPath
                 },
 
                 //HospitalDocumentsToBeUploadedList = hospitalDocuments,

@@ -140,7 +140,7 @@ namespace Medical_Affiliation.Models
         public string CollegeCode { get; set; } = string.Empty;
         public int FacultyCode { get; set; }
 
-        public ClinicalHospitalDisplayViewModel ClinicalHospitalDetails { get; set; } = new();
+        public ClinicalDentalHospitalDisplayViewModel ClinicalDentalHospitalDetails { get; set; } = new();
 
         public List<AffiliatedHospitalDocumentsDisplayViewModel> AffiliatedHospitalDocuments { get; set; } = new();
         /// <summary>
@@ -160,7 +160,79 @@ namespace Medical_Affiliation.Models
 
     }
 
+    public class ClinicalDentalHospitalDisplayViewModel
+    {
+        public int HospitalDetailsId { get; set; }
+        public string HospitalName { get; set; } = string.Empty;
+        public string HospitalType { get; set; } = string.Empty;
+        public string HospitalOwnedBy { get; set; } = string.Empty;
+        public string OwnerName { get; set; } = string.Empty;
 
+        public string DistrictName { get; set; } = string.Empty;
+        public string TalukName { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
+
+        public int TotalBeds { get; set; }
+        public int OpdPerDay { get; set; }
+        public decimal IpdOccupancyPercent { get; set; }
+
+        public bool ParentMedicalCollegeExists { get; set; }
+        public bool IsParentHospitalForOtherNursingInstitution { get; set; }
+        public bool IsOwnerAmemberOfTrust { get; set; }
+
+        public decimal DistanceFromCollegeKm { get; set; }
+
+        public bool IsSupportingDocExists { get; set; }
+        public int? SupportingDocumentId { get; set; }
+        public string? SupportingDocumentName { get; set; }
+
+        public List<string> Facilities { get; set; } = new();
+
+
+        // --------------------------------------------------
+        // KPME Certificate
+        // --------------------------------------------------
+
+        public bool IsKPMECertificateExists { get; set; }
+
+        public string? KPMECertificatePath { get; set; }
+
+
+        // --------------------------------------------------
+        // Pollution Control Board Certificate
+        // --------------------------------------------------
+
+        public bool IsPollutionControlBoardCertificateExists { get; set; }
+
+        public string? PollutionControlBoardCertificatePath { get; set; }
+
+
+        // --------------------------------------------------
+        // Bio-Medical Waste Certificate
+        // --------------------------------------------------
+
+        public bool IsBioMedicalCertificateExists { get; set; }
+
+        public string? BioMedicalCertificatePath { get; set; }
+
+
+        // --------------------------------------------------
+        // Drug Free Campus Certification
+        // --------------------------------------------------
+
+        public bool IsDrugFreeCampusCertificationExists { get; set; }
+
+        public string? DrugFreeCampusCertificationPath { get; set; }
+
+
+        // --------------------------------------------------
+        // Proposed Plans for Future Developments
+        // --------------------------------------------------
+
+        public bool IsProposedPlansForFutureDevelopmentsExists { get; set; }
+
+        public string? ProposedPlansForFutureDevelopmentsPath { get; set; }
+    }
 
     public class EngAlliedRequirementsDisplayVM
     {

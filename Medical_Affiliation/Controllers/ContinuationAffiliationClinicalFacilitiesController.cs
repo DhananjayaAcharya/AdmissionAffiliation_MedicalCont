@@ -163,6 +163,79 @@ namespace Medical_Affiliation.Controllers
                     hospital.HospitalParentSupportingDoc = null;
                 }
 
+                if(facultyId == 2)
+                {
+                    // --------------------------------------------------
+                    // 5. KPME Certificate
+                    // --------------------------------------------------
+
+                    if (vm.Form.KPMECertificateFile != null &&
+                        vm.Form.KPMECertificateFile.Length > 0)
+                    {
+                        hospital.KpmecertificatePdfPath =
+                            await SaveFileAndReturnPath(
+                                vm.Form.KPMECertificateFile,
+                                "ClinicalHospitalDocs",
+                                "KPME");
+                    }
+
+                    // --------------------------------------------------
+                    // 6. Pollution Control Board Certificate
+                    // --------------------------------------------------
+
+                    if (vm.Form.PollutionControlBoardCertificateFile != null &&
+                        vm.Form.PollutionControlBoardCertificateFile.Length > 0)
+                    {
+                        hospital.PollutionControlBoardCertificatePdfPath =
+                            await SaveFileAndReturnPath(
+                                vm.Form.PollutionControlBoardCertificateFile,
+                                "ClinicalHospitalDocs",
+                                "PollutionControlBoard");
+                    }
+
+                    // --------------------------------------------------
+                    // 7. Bio-Medical Waste Certificate
+                    // --------------------------------------------------
+
+                    if (vm.Form.BioMedicalCertificateFile != null &&
+                        vm.Form.BioMedicalCertificateFile.Length > 0)
+                    {
+                        hospital.BioMedicalCertificatePdfPath =
+                            await SaveFileAndReturnPath(
+                                vm.Form.BioMedicalCertificateFile,
+                                "ClinicalHospitalDocs",
+                                "BioMedical");
+                    }
+
+                    // --------------------------------------------------
+                    // 8. Drug Free Campus Certification
+                    // --------------------------------------------------
+
+                    if (vm.Form.DrugFreeCampusCertificationFile != null &&
+                        vm.Form.DrugFreeCampusCertificationFile.Length > 0)
+                    {
+                        hospital.DrugFreeCampusCertificationPdfPath =
+                            await SaveFileAndReturnPath(
+                                vm.Form.DrugFreeCampusCertificationFile,
+                                "ClinicalHospitalDocs",
+                                "DrugFreeCampus");
+                    }
+
+                    // --------------------------------------------------
+                    // 9. Proposed Plans for Future Developments
+                    // --------------------------------------------------
+
+                    if (vm.Form.ProposedPlansForFutureDevelopmentsFile != null &&
+                        vm.Form.ProposedPlansForFutureDevelopmentsFile.Length > 0)
+                    {
+                        hospital.ProposedPlansForFutureDevelopmentsPdfPath =
+                            await SaveFileAndReturnPath(
+                                vm.Form.ProposedPlansForFutureDevelopmentsFile,
+                                "ClinicalHospitalDocs",
+                                "ProposedPlans");
+                    }
+                }
+
                 await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Basic Hospital details and clinical facilities saved successfully" });
@@ -172,6 +245,56 @@ namespace Medical_Affiliation.Controllers
                 return Unauthorized();
             }
 
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ViewHospitalCertificate(int id,  string type)
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var courseLevel = _userContext.CourseLevel;
+
+            var hospital = await _context.HospitalDetailsForAffiliations
+                .FirstOrDefaultAsync(x =>
+                    x.HospitalDetailsId == id &&
+                    x.CollegeCode == collegeCode &&
+                    x.CourseLevel == courseLevel);
+
+            if (hospital == null)
+                return NotFound();
+
+            string? filePath = type.ToLower() switch
+            {
+                "kpme" =>
+                    hospital.KpmecertificatePdfPath,
+
+                "pollution" =>
+                    hospital.PollutionControlBoardCertificatePdfPath,
+
+                "biomedical" =>
+                    hospital.BioMedicalCertificatePdfPath,
+
+                "drugfree" =>
+                    hospital.DrugFreeCampusCertificationPdfPath,
+
+                "proposedplans" =>
+                    hospital.ProposedPlansForFutureDevelopmentsPdfPath,
+
+                _ => null
+            };
+
+            if (string.IsNullOrWhiteSpace(filePath))
+                return NotFound("Document not found.");
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound("Physical file not found.");
+
+            var contentType = "application/pdf";
+
+            return PhysicalFile(
+                filePath,
+                contentType,
+                enableRangeProcessing: true);
         }
 
         [HttpPost]
