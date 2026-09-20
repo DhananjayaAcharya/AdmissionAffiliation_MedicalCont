@@ -58,6 +58,15 @@ ADD
     DrugFreeCampusCertificationPdfPath NVARCHAR(500) NULL,
     ProposedPlansForFutureDevelopmentsPdfPath NVARCHAR(500) NULL;
 
+------------------------------------------------------------------
+SELECT * FROM [HospitalDetailsForAffiliation]
+WHERE CollegeCode = 'd038'
+ALTER TABLE [dbo].[HospitalDetailsForAffiliation]
+ADD
+    HasAnatomyActRegistration BIT NULL,
+    AnatomyActRegistrationDetails NVARCHAR(MAX) NULL,
+    AnatomyActRegistrationPdfPath NVARCHAR(500) NULL;
+
 ----------------------------------------------------------------
 
 --select * from [AFF_HostelDetails]
