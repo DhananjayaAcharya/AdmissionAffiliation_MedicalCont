@@ -1714,6 +1714,57 @@
         </div>
     }
 
+    <!-- ── AFFILIATION DEADLINE NOTIFICATION ─────────────────── -->
+    @if (TempData["ShowAffiliationNotification"] != null && (bool)TempData["ShowAffiliationNotification"])
+    {
+        <div class="modal fade" id="affiliationNotificationModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-header-inner">
+                            <div class="modal-ico"><i class="bi bi-megaphone-fill"></i></div>
+                            <div>
+                                <div class="modal-title">Important Affiliation Notification</div>
+                                <div class="modal-sub">Please note the application submission deadlines</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">Colleges are requested to submit their affiliation applications within the following dates:</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle mb-3">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Submission period</th>
+                                        <th>Applicable fee</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>21/09/2026 to 13/10/2026</strong></td>
+                                        <td><span class="badge bg-success">Without fine</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>14/10/2026 to 23/10/2026</strong></td>
+                                        <td><span class="badge bg-danger">With a fine of Rs. 100000/-</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-warning mb-0">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Applications submitted from <strong>14/10/2026 to 23/10/2026</strong> will attract a fine of <strong>Rs. 100000/-</strong>.
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn-primary-modal" data-bs-dismiss="modal">I Understand</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- ── COLLEGE PROFILE MODAL ─────────────────────────────── -->
     <div class="modal fade" id="collegeProfileModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -2023,6 +2074,24 @@
                 new bootstrap.Modal(document.getElementById('updatePasswordModal')).show();
                 }, 400);
                 });
+                })();
+            </text>
+        }
+
+        // Affiliation deadline notification
+        @if (TempData["ShowAffiliationNotification"] != null && (bool)TempData["ShowAffiliationNotification"])
+        {
+            <text>
+                (function () {
+                    var notificationModal = new bootstrap.Modal(document.getElementById('affiliationNotificationModal'));
+                    var welcomeModalElement = document.getElementById('welcomeModal');
+                    if (welcomeModalElement) {
+                        welcomeModalElement.addEventListener('hidden.bs.modal', function () {
+                            notificationModal.show();
+                        }, { once: true });
+                    } else {
+                        notificationModal.show();
+                    }
                 })();
             </text>
         }

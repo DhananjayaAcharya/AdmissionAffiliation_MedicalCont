@@ -685,6 +685,7 @@
                                     <th>Course</th>
                                     <th>Intake</th>
                                     <th>Year of obtaining LOP</th>
+                                    <th>Selected Year</th>
                                     <th>Upload NMC Doc</th>
                                 </tr>
                             </thead>
@@ -720,6 +721,10 @@
                                                         <option value="@y">@y</option>
                                                     }
                                                 </select>
+                                            </td>
+
+                                            <td class="selected-lop-year">
+                                                @(slab.LopYear?.ToString() ?? "-")
                                             </td>
 
                                             <td>
@@ -758,5 +763,14 @@
                 Next <span aria-hidden="true">→</span>
             </a>
         </nav>
+
+        <script>
+            document.querySelectorAll('select[name$=".LopYear"]').forEach(select => {
+                select.addEventListener('change', () => {
+                    const selectedYearCell = select.closest('tr').querySelector('.selected-lop-year');
+                    selectedYearCell.textContent = select.value || '-';
+                });
+            });
+        </script>
     </main>
 </div>

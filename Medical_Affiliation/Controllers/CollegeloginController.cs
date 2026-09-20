@@ -250,6 +250,7 @@ namespace Admission_Affiliation.Controllers
 
             TempData["ShowWelcomePopup"] = string.IsNullOrEmpty(college.ChangedPassword);
             TempData["CollegeName"] = college.CollegeName ?? collegeName;
+            TempData["ShowAffiliationNotification"] = true;
             if (string.IsNullOrEmpty(college.DistrictId) || string.IsNullOrEmpty(college.TalukId))
             {
                 TempData["ShowLocationPopup"] = true;

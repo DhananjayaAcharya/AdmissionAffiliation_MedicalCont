@@ -367,6 +367,7 @@
                                 <th>College</th>
                                 <th>Course</th>
                                 <th class="text-center">Annual Intake</th>
+                                <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -384,13 +385,22 @@
                                         <td class="text-center">
                                             <span class="badge">@item.AnnualIntake</span>
                                         </td>
+                                        <td class="text-center">
+                                            <button type="button"
+                                                    class="btn btn-outline-danger btn-sm delete-association-btn"
+                                                    data-id="@item.Id"
+                                                    title="Delete association">
+                                                <i class="bi bi-trash"></i>
+                                                <span class="visually-hidden">Delete</span>
+                                            </button>
+                                        </td>
                                     </tr>
                                 }
                             }
                             else
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-5">
+                                    <td colspan="5" class="text-center text-muted py-5">
                                         No associated institutions added yet
                                     </td>
                                 </tr>
@@ -457,6 +467,7 @@
 
     @* @section Scripts { *@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @Html.AntiForgeryToken()
         <script>
             const facultySelect = document.getElementById('facultySelect');
             const collegeSelect = document.getElementById('collegeSelect');
@@ -558,6 +569,41 @@
                         title: 'Error',
                         text: 'Failed to add association'
                     });
+                });
+            });
+
+            document.querySelectorAll('.delete-association-btn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const confirmation = await Swal.fire({
+                        icon: 'warning',
+                        title: 'Delete association?',
+                        text: 'This record will be permanently removed.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Delete',
+                        confirmButtonColor: '#dc3545'
+                    });
+
+                    if (!confirmation.isConfirmed) return;
+
+                    button.disabled = true;
+                    const formData = new FormData();
+                    formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+                    formData.append('id', button.dataset.id);
+
+                    try {
+                        const response = await fetch('@Url.Action("DeleteAssociatedInstitution", "AffiliationSS")', {
+                            method: 'POST',
+                            body: formData,
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const result = await response.json();
+                        if (!response.ok || !result.success) throw new Error(result.message || 'Delete failed.');
+
+                        window.location.reload();
+                    } catch (error) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: error.message });
+                        button.disabled = false;
+                    }
                 });
             });
         </script>

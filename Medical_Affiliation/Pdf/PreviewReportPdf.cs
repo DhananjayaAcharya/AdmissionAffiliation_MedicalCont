@@ -148,7 +148,81 @@ public class PreviewReportPdf : IDocument
                 });
             });
         });
+
+        container.Page(page =>
+        {
+            page.Size(PageSizes.A4);
+            page.Margin(42);
+            page.DefaultTextStyle(text => text.FontFamily("Arial").FontSize(11).FontColor("#243B53"));
+
+            page.Content()
+                .Border(1.2f)
+                .BorderColor(_theme.Primary)
+                .Padding(28)
+                .Column(AddFinalDeclarationPage);
+
+            page.Footer().PaddingTop(8).BorderTop(1).BorderColor(_theme.Border).Row(row =>
+            {
+                row.RelativeItem().AlignLeft().Text("RGUHS | Final declaration");
+                row.RelativeItem().AlignRight().Text(text =>
+                {
+                    text.Span("Page ").Bold();
+                    text.CurrentPageNumber();
+                    text.Span(" of ");
+                    text.TotalPages();
+                });
+            });
+        });
     }
+
+    private void AddFinalDeclarationPage(ColumnDescriptor col)
+    {
+        var principalName = _model.DeclarationVM?.PrincipalName;
+        if (string.IsNullOrWhiteSpace(principalName))
+            principalName = _model.InstitutionDetails?.Principal_Name;
+
+        var collegeName = _model.CollegeName;
+        if (string.IsNullOrWhiteSpace(collegeName))
+            collegeName = _model.InstitutionDetails?.NameOfInstitution;
+
+        col.Item().AlignCenter().Text("FINAL DECLARATION")
+            .FontSize(17).Bold().FontColor(_theme.Primary);
+
+        col.Item().PaddingTop(8).AlignCenter().Text("To be signed and sealed by the Principal")
+            .FontSize(10).Italic().FontColor("#64748B");
+
+        col.Item().PaddingTop(34).Text(text =>
+        {
+            text.Span("I, ").Bold();
+            text.Span(string.IsNullOrWhiteSpace(principalName) ? "{Principal name}" : principalName).Bold();
+            text.Span(", Principal of ");
+            text.Span(string.IsNullOrWhiteSpace(collegeName) ? "{collegename}" : collegeName).Bold();
+            text.Span(", hereby solemnly declare and undertake that all documents, particulars, statements, declarations and information furnished or uploaded by the College in this application are true, complete, accurate and correct to the best of my knowledge and belief.");
+        });
+
+        col.Item().PaddingTop(18).Text("I further undertake that no material information has been concealed, suppressed or misrepresented in this application. I understand that any false, misleading, fabricated, incomplete or incorrect information or documentation furnished by the College may result in rejection or cancellation of the application, withdrawal of affiliation/approval, or such other action as may be taken by Rajiv Gandhi University of Health Sciences, Karnataka (RGUHS) in accordance with the applicable rules, regulations, ordinances and notifications.");
+
+        col.Item().PaddingTop(58).Row(row =>
+        {
+            row.RelativeItem().Column(signature =>
+            {
+                signature.Item().LineHorizontal(1).LineColor(_theme.Primary);
+                signature.Item().PaddingTop(6).AlignCenter().Text("Principal Signature").Bold();
+                signature.Item().PaddingTop(4).AlignCenter().Text(string.IsNullOrWhiteSpace(principalName) ? "" : principalName).FontSize(10);
+            });
+
+            row.ConstantItem(42);
+
+            row.ConstantItem(145).Height(92).Border(1).BorderColor(_theme.Border).AlignCenter().AlignMiddle().Text("OFFICIAL SEAL").Bold().FontColor("#64748B");
+        });
+
+        col.Item().PaddingTop(34).Text(text =>
+        {
+            text.Span("Date: ").Bold();
+            text.Span("____________________________");
+        });
+    }
+
     private void AddReportHeader(ColumnDescriptor col)
     {
         col.Item().Background(_theme.Primary).Padding(14).Row(row =>
@@ -1314,7 +1388,7 @@ public class PreviewReportPdf : IDocument
 
     private void AddDepartmentOfficesAndMeuSection(ColumnDescriptor col)
     {
-        var vm = _model.PhysicalFacilities.DeptOfficeMeu;
+        var vm = _model.PhysicalFacilities?.DeptOfficeMeu;
         if (vm == null)
             return;
 
@@ -1408,47 +1482,6 @@ public class PreviewReportPdf : IDocument
             AddTextRow(table, "Email Address", vm.MeuCoordinatorEmail);
         });
 
-        // ============================================================
-        // MEU Members & Activities
-        // ============================================================
-        AddSubHeading(col, "MEU Members and Activities", 155);
-
-        col.Item().PaddingTop(8).Table(table =>
-        {
-            table.ColumnsDefinition(c =>
-            {
-                c.RelativeColumn(3);
-                c.RelativeColumn(4);
-            });
-
-            AddTextRow(table,
-                "MEU Members List",
-                FormatPointList(vm.MeuMembersListDescription));
-
-            AddTextRow(table,
-                "MEU Activities during last academic year",
-                vm.MeuActivitiesLastAcademicYear);
-
-            AddTextRow(table,
-                "Members List Document Uploaded",
-                vm.HasMeuMembersListFile ? "Yes" : "No");
-        });
-    }
-
-    private static string FormatPointList(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return "—";
-
-        var items = value
-            .Split(new[] { "\r\n", "\n", ";" }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(item => item.Trim())
-            .Where(item => !string.IsNullOrWhiteSpace(item))
-            .ToList();
-
-        return items.Count == 0
-            ? "—"
-            : string.Join("\n", items.Select((item, index) => $"{index + 1}. {item}"));
     }
 
     private void AddSmallGroupTeachingSection(ColumnDescriptor col)

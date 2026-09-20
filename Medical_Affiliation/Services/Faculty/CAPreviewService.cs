@@ -1,6 +1,7 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
+using GeoPhotoModule.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Services.Faculty
@@ -21,6 +22,7 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICADeclarationService _cADeclarationService;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IGeoPhotoRepository _geoPhotoRepository;
 
 
         public CAPreviewService(
@@ -37,7 +39,8 @@ namespace Medical_Affiliation.Services.Faculty
             ICADeclarationService declarationService,
             IUserContext userContext,
             ApplicationDbContext dbContext,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IGeoPhotoRepository geoPhotoRepository)
         {
             _academicService = academicService;
             _hospitalService = hospitalService;
@@ -53,6 +56,7 @@ namespace Medical_Affiliation.Services.Faculty
             _capaymentService = paymentService;
             _context = dbContext;
             _httpContextAccessor = httpContextAccessor;
+            _geoPhotoRepository = geoPhotoRepository;
         }
 
         public async Task<CApreviewViewModel> GetPreviewAsync()
@@ -286,6 +290,9 @@ namespace Medical_Affiliation.Services.Faculty
                 AdminTeachAndHostelVM = await _adminTeachAndHostelService.GetAdminTeachAndHostelDetails(),
                 FacultyDesigNonTeachDisplayVM = await _facultyDesigNonTeachingService.GetFacultyDesigNonTeachingAsync(),
                 PaymentVM = await _capaymentService.GetPaymentDetails(),
+                GeoPhotos = await _geoPhotoRepository.GetPageAsync(
+                    collegeCode,
+                    facultyCode.ToString()),
                 DeclarationVM = await _cADeclarationService.GetDeclarationDetails()
 
             };
@@ -310,6 +317,11 @@ namespace Medical_Affiliation.Services.Faculty
                 .Distinct()
                 .ToList();
 
+            if (!string.IsNullOrWhiteSpace(courseLevel))
+            {
+                levels = new List<string> { courseLevel.Trim().ToUpperInvariant() };
+            }
+
             if (levels.Count == 0 && !string.IsNullOrWhiteSpace(courseLevel))
             {
                 levels.Add(courseLevel.Trim().ToUpperInvariant());
@@ -320,8 +332,19 @@ namespace Medical_Affiliation.Services.Faculty
                 "Institution", "DeanDetails", "PrincipalDetails", "ClinicalFacilities",
                 "DepartmentUnits", "Hostel", "Finance", "StaffDetails", "LibraryServices",
                 "Research", "Library", "FacultyDetails", "NonTeachingStaff", "LandBuilding",
-                "EquipmentDetails", "Vehicle", "SkillsLab", "IntakeDetails"
+                "EquipmentDetails", "Vehicle", "SkillsLab", "IntakeDetails",
+                "PaymentCalculation", "GeoPhoto"
             };
+
+            if (facultyCode == 2)
+            {
+                requiredSteps.Remove("EquipmentDetails");
+                requiredSteps.Remove("SkillsLab");
+                requiredSteps.Add("DentalEquipmentDetails");
+                requiredSteps.Add("DentalSkillsLab");
+                requiredSteps.Add("DentalFacultyDetails");
+                requiredSteps.Add("ChairDistribution");
+            }
 
             var institutionTypeId = await _context.AffInstitutionsDetails
                 .AsNoTracking()
@@ -381,6 +404,8 @@ namespace Medical_Affiliation.Services.Faculty
             var completedSteps = await _context.CaProgresses
                 .AsNoTracking()
                 .Where(x => x.CollegeCode == collegeCode
+                    && x.CourseLevel != null
+                    && levels.Contains(x.CourseLevel.Trim().ToUpper())
                     && x.IsCompleted == true
                     && requiredSteps.Contains(x.StepKey))
                 .Select(x => x.StepKey)

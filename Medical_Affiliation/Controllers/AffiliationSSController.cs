@@ -422,6 +422,31 @@ namespace Medical_Affiliation.Controllers
             return Ok(new { success = true });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAssociatedInstitution(int id)
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId.ToString();
+            var typeOfAffiliation = _userContext.TypeOfAffiliation;
+
+            var entity = await _context.AssociatedInstitutions.FirstOrDefaultAsync(e =>
+                e.Id == id &&
+                e.CollegeCode == collegeCode &&
+                e.FacultyCode == facultyCode &&
+                e.TypeOfAffiliation == typeOfAffiliation);
+
+            if (entity == null)
+            {
+                return NotFound(new { success = false, message = "Association not found." });
+            }
+
+            _context.AssociatedInstitutions.Remove(entity);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true });
+        }
+
 
     }
 }

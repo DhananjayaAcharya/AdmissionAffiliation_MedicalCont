@@ -103,7 +103,11 @@ namespace Medical_Affiliation.Services.Faculty
 
 
 
-            var indoorBedsOccupancy = await BuildIndoorBedsOccupancyDisplayAsync(collegeCode, facultyId, firstHospital.HospitalDetailsId);
+            var indoorBedsOccupancy = await BuildIndoorBedsOccupancyDisplayAsync(
+                collegeCode,
+                facultyId,
+                firstHospital.HospitalDetailsId,
+                firstHospital.AffiliationTypeId);
 
             var vm = new HospitalAffiliationCompositeDisplayVM
             {
@@ -195,17 +199,27 @@ namespace Medical_Affiliation.Services.Faculty
         }
 
 
-        private async Task<IndoorBedsUnitsRequirementDisplayVM> BuildIndoorBedsOccupancyDisplayAsync(string collegeCode, int facultyCode, int hospitalId)
+        private async Task<IndoorBedsUnitsRequirementDisplayVM> BuildIndoorBedsOccupancyDisplayAsync(
+            string collegeCode,
+            int facultyCode,
+            int hospitalId,
+            int affiliationTypeId)
         {
             var occupancyData = await (from o in _context.IndoorBedsOccupancies.AsNoTracking()
                                        join p in _context.MstIndoorBedsDepartmentMasters.AsNoTracking()
                                        on o.DepartmentId equals p.DeptId
-                                       where o.CollegeCode == collegeCode && o.FacultyCode == facultyCode
+                                       join slab in _context.SeatSlabMasters.AsNoTracking()
+                                       on new { o.SeatSlabId, o.FacultyCode }
+                                       equals new { slab.SeatSlabId, slab.FacultyCode }
+                                       where o.CollegeCode == collegeCode &&
+                                             o.FacultyCode == facultyCode &&
+                                             o.AffiliationTypeId == affiliationTypeId
                                        select new
                                        {
                                            o.DepartmentId,
                                            DepartmentName = p.DepartmentName,
                                            o.SeatSlabId,
+                                           SeatSlab = slab.SeatSlab,
                                            o.Rguhsintake,
                                            o.CollegeIntake,
                                            o.AffiliationTypeId
@@ -222,6 +236,7 @@ namespace Medical_Affiliation.Services.Faculty
                     DepartmentId = x.DepartmentId,
                     DepartmentName = x.DepartmentName,
                     SeatSlabId = x.SeatSlabId,
+                    SeatSlab = x.SeatSlab,
                     RGUHSintake = x.Rguhsintake,
                     CollegeIntake = x.CollegeIntake
                 }).ToList()

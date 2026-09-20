@@ -1269,6 +1269,15 @@
                     <div class="preview-report-body">@await Html.PartialAsync("ClinicalFacilities/_HospitalAffiliation", Model.CAHospitalAFfiliationCompVM)</div>
                 </div>
             }
+            <div id="GeoPhotos" class="preview-report-section">
+                <h2 class="preview-report-heading">
+                    <span>13A · Geo-Tagged Photos</span>
+                    <a class="preview-report-edit" href="@Url.Action("Index", "GeoPhoto")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
+                </h2>
+                <div class="preview-report-body">
+                    @await Html.PartialAsync("GeoPhotos/_GeoPhotos", Model.GeoPhotos)
+                </div>
+            </div>
             @if (isUgPreview)
             {
                 <div id="BedDistribution" class="preview-report-section">
@@ -1371,7 +1380,7 @@
                     <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_NonTeachingStaffDetails" model="Model.FacultyDesigNonTeachDisplayVM.NonTeachingStaffSectionVM" /></div>
                 </div>
             }
-            @if (Model.PaymentVM != null)
+            @if (Model.PaymentVM != null || Model.PaymentCalculation?.HasResult == true)
             {
                 <div id="PaymentCalculation" class="preview-report-section">
                     <h2 class="preview-report-heading">
@@ -1382,7 +1391,24 @@
                         }
                     </h2>
                     <div class="preview-report-body">
-                        @if (Model.IsApplicationComplete)
+                        @if (Model.PaymentCalculation?.HasResult == true)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm data-table align-middle mb-0">
+                                    <thead>
+                                        <tr><th>Fee Head</th><th class="text-end">Unit Amount</th><th class="text-end">Quantity</th><th class="text-end">Amount</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var fee in Model.PaymentCalculation.FeeLines)
+                                        {
+                                            <tr><td>@fee.FeeHeadName</td><td class="text-end">₹ @fee.UnitAmount.ToString("N2")</td><td class="text-end">@fee.Multiplier</td><td class="text-end">₹ @fee.LineAmount.ToString("N2")</td></tr>
+                                        }
+                                        <tr class="fw-bold"><td colspan="3">Grand Total</td><td class="text-end">₹ @Model.PaymentCalculation.Summary?.GrandTotal.ToString("N2")</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else if (Model.IsApplicationComplete && Model.PaymentVM != null)
                         {
                             @await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)
                         }

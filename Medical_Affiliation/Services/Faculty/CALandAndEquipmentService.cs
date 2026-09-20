@@ -2,6 +2,7 @@
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Services.Faculty
@@ -10,11 +11,16 @@ namespace Medical_Affiliation.Services.Faculty
     {
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CALandAndEquipmentService(ApplicationDbContext context, IUserContext userContext)
+        public CALandAndEquipmentService(
+            ApplicationDbContext context,
+            IUserContext userContext,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userContext = userContext;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<SkillsLabDisplayViewModel> GetSkillsLabService()
         {
@@ -60,7 +66,12 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var facultyId = _userContext.FacultyId;
             var collegeCode = _userContext.CollegeCode;
-            var courseLevel = _userContext.CourseLevel?.Trim().ToUpperInvariant();
+            var courseLevel = (
+                    _httpContextAccessor.HttpContext?.Session.GetString("CourseLevel")
+                    ?? _httpContextAccessor.HttpContext?.Session.GetString("SelectedCourseLevel")
+                    ?? _userContext.CourseLevel)
+                ?.Trim()
+                .ToUpperInvariant();
             var entity = await _context.MedicalDepartmentOfficesMeus
                 .AsNoTracking()
                 .Where(x => x.CollegeCode == collegeCode &&

@@ -169,12 +169,47 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 vm.HasResult = true;
+                await MarkPaymentCalculationCompleteAsync(vm);
             }
             catch (SqlException ex)
             {
                 vm.ErrorMessage = "Could not calculate payment: " + ex.Message;
                 vm.HasResult = false;
             }
+        }
+
+        private async Task MarkPaymentCalculationCompleteAsync(PaymentCalculationViewModel vm)
+        {
+            var courseLevel = (vm.CourseLevel ?? HttpContext.Session.GetString("CourseLevel"))?
+                .Trim()
+                .ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(vm.CollegeCode) || string.IsNullOrWhiteSpace(courseLevel))
+                return;
+
+            var progress = await _context.CaProgresses.FirstOrDefaultAsync(x =>
+                x.CollegeCode == vm.CollegeCode &&
+                x.CourseLevel == courseLevel &&
+                x.StepKey == "PaymentCalculation");
+
+            if (progress == null)
+            {
+                _context.CaProgresses.Add(new CaProgress
+                {
+                    CollegeCode = vm.CollegeCode,
+                    CourseLevel = courseLevel,
+                    StepKey = "PaymentCalculation",
+                    IsCompleted = true,
+                    UpdatedAt = DateTime.Now
+                });
+            }
+            else
+            {
+                progress.IsCompleted = true;
+                progress.UpdatedAt = DateTime.Now;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         // ---------------------------------------------------------------------
@@ -184,18 +219,11 @@ namespace Medical_Affiliation.Controllers
         // ---------------------------------------------------------------------
         private async Task<bool> IsGovernmentCollegeAsync(string collegeCode)
         {
-            const string sql = @"SELECT TOP (1) PVT_GOVT
-                                 FROM dbo.Mst_MedicalCollegeCourseIntake
-                                                                 WHERE LTRIM(RTRIM(coll_code)) = @CollegeCode
-                                   AND PVT_GOVT IS NOT NULL
-                                   AND LTRIM(RTRIM(PVT_GOVT)) <> ''";
-
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@CollegeCode", collegeCode);
-
-            await conn.OpenAsync();
-            var value = await cmd.ExecuteScalarAsync() as string;
+            var value = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(x => x.CollCode != null && x.CollCode.Trim() == collegeCode.Trim())
+                .Select(x => x.PvtGovt)
+                .FirstOrDefaultAsync(x => x != null && x.Trim() != "");
 
             // Matches "GOVT", "Govt", "Government", etc.
             return NormalizeLabel(value).StartsWith("GOV", StringComparison.Ordinal);
@@ -223,33 +251,40 @@ namespace Medical_Affiliation.Controllers
 
             var masterCourseMap = await _context.MstCourses
                 .AsNoTracking()
-                .Where(c => vm.FacultyCode <= 0 || c.FacultyCode == vm.FacultyCode)
                 .ToDictionaryAsync(c => c.CourseCode.ToString(), c => c, StringComparer.OrdinalIgnoreCase);
 
-            // Faculty is matched loosely: some colleges have NULL/0 Facultycode
-            // in the intake sheet and would otherwise return no rows at all.
+            // Payment courses are owned by the selected college and course
+            // level. Do not use the session faculty as a filter because the
+            // intake table contains legacy/shared faculty mappings.
+            // The level is matched in C# (NormalizeCourseLevel) so labels such
+            // as "PG Broad Specialty" or stray spacing still match.
             var rows = await _context.MstMedicalCollegeCourseIntakes
+                .FromSqlInterpolated($@"
+                    SELECT *
+                    FROM dbo.Mst_MedicalCollegeCourseIntake
+                    WHERE LTRIM(RTRIM(coll_code)) = {collegeCode}")
                 .AsNoTracking()
-                .Where(x => x.CollCode != null
-                    && x.CollCode.Trim() == collegeCode
-                    && (vm.FacultyCode <= 0
-                        || x.Facultycode == null
-                        || x.Facultycode == 0
-                        || x.Facultycode == vm.FacultyCode))
                 .ToListAsync();
 
+            // A NULL CourseCode is allowed (e.g. legacy rows such as
+            // "M Ch Plastic Surgery"); the course name is used instead.
             var levelRows = rows
-                .Where(x => x.CourseCode.HasValue
-                    && masterCourseMap.TryGetValue(x.CourseCode.Value.ToString(), out var masterCourse)
-                    && NormalizeCourseLevel(masterCourse.CourseLevel) == levelGroup)
+                .Where(x => NormalizeCourseLevel(x.UgPg) == levelGroup
+                    && !string.IsNullOrWhiteSpace(x.Course))
                 .ToList();
 
             // Optional narrowing by CourseCode carried in session.
+            // Continuation covers every course of the college at this level,
+            // so a stale CourseCode left in session by another flow must not
+            // narrow the list (or the seat totals used for the fee).
+            var isContinuation = string.Equals(
+                GetAffiliationGroup(vm.TypeOfAffiliation), "CONTINUATION", StringComparison.Ordinal);
+
             var requestedCodes = (HttpContext.Session.GetString("CourseCode") ?? string.Empty)
                 .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            if (requestedCodes.Count > 0)
+            if (requestedCodes.Count > 0 && !isContinuation)
             {
                 var narrowed = levelRows
                     .Where(x => x.CourseCode.HasValue && requestedCodes.Contains(x.CourseCode.Value.ToString()))
@@ -441,25 +476,15 @@ namespace Medical_Affiliation.Controllers
                 .ThenByDescending(x => x.AcademicYear)
                 .FirstOrDefault();
 
-            var resolvedAffiliationTypeId = affiliationType?.AffiliationTypeId ?? affiliationTypeId;
-            if (resolvedAffiliationTypeId <= 0 && !string.IsNullOrWhiteSpace(sessionAffiliationName))
-            {
-                var normalizedAffiliationName = NormalizeLabel(sessionAffiliationName);
-                if (normalizedAffiliationName.Contains("ADDITIONAL", StringComparison.OrdinalIgnoreCase)
-                    || normalizedAffiliationName.Contains("ADDCOURSE", StringComparison.OrdinalIgnoreCase))
-                {
-                    resolvedAffiliationTypeId = 4;
-                }
-                else if (normalizedAffiliationName.Contains("ENHANCEMENT", StringComparison.OrdinalIgnoreCase)
-                    || normalizedAffiliationName.Contains("INCREASE", StringComparison.OrdinalIgnoreCase))
-                {
-                    resolvedAffiliationTypeId = 3;
-                }
-                else if (normalizedAffiliationName.Contains("CONTINUATION", StringComparison.OrdinalIgnoreCase))
-                {
-                    resolvedAffiliationTypeId = 1;
-                }
-            }
+            // The id saved with the payment document comes from here (it is
+            // written back to session and rendered into the page). It must
+            // never be a stale id left over from another flow.
+            var resolvedAffiliationTypeId = ResolveAffiliationTypeId(
+                affiliationType,
+                affiliationTypes,
+                affiliationTypeId,
+                sessionAffiliationName,
+                normalizedFacultyCode);
 
             if (resolvedAffiliationTypeId > 0)
             {
@@ -504,6 +529,69 @@ namespace Medical_Affiliation.Controllers
                 AcademicYear = PaymentAcademicYear,
                 PaymentSaved = paymentSaved,
                 AffiliationTypeList = new List<AffiliationTypeOption>()
+            };
+        }
+
+        /// <summary>
+        /// Resolves the AffiliationTypeId for the current request.
+        /// 1. A matching MstAffiliationType row (faculty + type group + level) always wins.
+        /// 2. Otherwise the id already in session is trusted only when it belongs to
+        ///    the same affiliation group as the affiliation name on screen. A stale id
+        ///    from another flow (e.g. 4 = Additional Courses while the page says
+        ///    "Continuation of Affiliation") is discarded.
+        /// 3. Otherwise the id is taken from the master table for that group
+        ///    (same faculty first), and only as a last resort from the legacy
+        ///    fixed ids (1 = Fresh, 2 = Continuation, 3 = Enhancement, 4 = Additional).
+        /// </summary>
+        private static int ResolveAffiliationTypeId(
+            MstAffiliationType? matchedType,
+            IReadOnlyList<MstAffiliationType> activeTypes,
+            int sessionAffiliationTypeId,
+            string? affiliationName,
+            string normalizedFacultyCode)
+        {
+            if (matchedType != null)
+            {
+                return matchedType.AffiliationTypeId;
+            }
+
+            var nameGroup = GetAffiliationGroup(affiliationName);
+
+            // Name can't be classified: keep the previous behaviour and use the session id.
+            if (string.IsNullOrEmpty(nameGroup))
+            {
+                return sessionAffiliationTypeId > 0 ? sessionAffiliationTypeId : 0;
+            }
+
+            if (sessionAffiliationTypeId > 0)
+            {
+                var sessionRow = activeTypes.FirstOrDefault(x => x.AffiliationTypeId == sessionAffiliationTypeId);
+                if (sessionRow != null
+                    && string.Equals(GetAffiliationGroup(sessionRow.AffiliationCategory), nameGroup, StringComparison.OrdinalIgnoreCase))
+                {
+                    return sessionAffiliationTypeId;
+                }
+            }
+
+            var sameGroup = activeTypes
+                .Where(x => string.Equals(GetAffiliationGroup(x.AffiliationCategory), nameGroup, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            var fromMaster = sameGroup.FirstOrDefault(x => NormalizeLabel(x.FacultyCode) == normalizedFacultyCode)
+                ?? sameGroup.FirstOrDefault();
+
+            if (fromMaster != null)
+            {
+                return fromMaster.AffiliationTypeId;
+            }
+
+            return nameGroup switch
+            {
+                "FRESH" => 1,
+                "CONTINUATION" => 2,
+                "ENHANCEMENT" => 3,
+                "ADDITIONAL" => 4,
+                _ => 0
             };
         }
 
@@ -1130,14 +1218,14 @@ namespace Medical_Affiliation.Controllers
             var affiliationGroup = GetAffiliationGroup(sessionAffiliationName);
 
             // Fall back to the resolved AffiliationTypeId when the free-text
-            // category couldn't be classified (1 = Continuation, 3 = Enhancement,
-            // 4 = Additional, mirroring the ids already used elsewhere in this
-            // controller for the enhancement / additional groups).
+            // category couldn't be classified (1 = Fresh, 2 = Continuation,
+            // 3 = Enhancement, 4 = Additional - the application type master ids).
             if (string.IsNullOrEmpty(affiliationGroup))
             {
                 affiliationGroup = vm.AffiliationTypeId switch
                 {
-                    1 => "CONTINUATION",
+                    1 => "FRESH",
+                    2 => "CONTINUATION",
                     3 => "ENHANCEMENT",
                     4 => "ADDITIONAL",
                     _ => null
@@ -1216,22 +1304,30 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
+        // The affiliation name decides the group; the id is only a fallback when
+        // the name can't be classified (the id may be stale or differ per level).
         private static bool IsEnhancementAffiliation(PaymentCalculationViewModel vm)
         {
-            var affiliationName = vm.TypeOfAffiliation ?? string.Empty;
-            return vm.AffiliationTypeId == 3
-                || affiliationName.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
-                || affiliationName.Contains("Increase in Intake", StringComparison.OrdinalIgnoreCase)
-                || affiliationName.Contains("Increase", StringComparison.OrdinalIgnoreCase) && affiliationName.Contains("Intake", StringComparison.OrdinalIgnoreCase);
+            var group = GetAffiliationGroup(vm.TypeOfAffiliation);
+            if (group != null)
+            {
+                return group == "ENHANCEMENT";
+            }
+
+            return vm.AffiliationTypeId == 3;
         }
 
         private static bool IsAdditionalCourseAffiliation(PaymentCalculationViewModel vm)
         {
-            var affiliationName = vm.TypeOfAffiliation ?? string.Empty;
+            var group = GetAffiliationGroup(vm.TypeOfAffiliation);
+            if (group != null)
+            {
+                return group == "ADDITIONAL";
+            }
+
+            var name = vm.TypeOfAffiliation ?? string.Empty;
             return vm.AffiliationTypeId == 4
-                || affiliationName.Contains("Additional", StringComparison.OrdinalIgnoreCase)
-                || affiliationName.Contains("Addl", StringComparison.OrdinalIgnoreCase)
-                || affiliationName.Contains("Add Course", StringComparison.OrdinalIgnoreCase);
+                || name.Contains("Addl", StringComparison.OrdinalIgnoreCase);
         }
 
         private static int GetEffectiveSeatCount(MatchedCourseVM course, bool useIncreasedIntakeSeats)

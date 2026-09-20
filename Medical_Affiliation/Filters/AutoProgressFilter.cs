@@ -1,5 +1,6 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -28,14 +29,18 @@ public class AutoProgressFilter : IAsyncActionFilter
         if (context.HttpContext.Request.Method != "POST")
             return;
 
-        // ✅ Only if valid
-        //if (!context.ModelState.IsValid)
-        //    return;
+        if (!context.ModelState.IsValid || context.HttpContext.Response.StatusCode >= 400)
+            return;
+
+        if (result.Result is ViewResult || result.Result is PartialViewResult)
+            return;
 
         var http = context.HttpContext;
 
         var collegeCode = http.Session.GetString("CollegeCode");
-        var courseLevel = http.Session.GetString("CourseLevel");
+        var courseLevel = http.Session.GetString("CourseLevel")
+            ?? http.Session.GetString("SelectedCourseLevel")
+            ?? http.Session.GetString("SelectedLevel");
         var facultyCode = http.Session.GetString("FacultyCode");
 
         //code by ram
@@ -111,6 +116,12 @@ public class AutoProgressFilter : IAsyncActionFilter
         if (string.IsNullOrEmpty(collegeCode) || levels.Count == 0)
             return;
 
+        var activeLevel = courseLevel?.Trim().ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(activeLevel))
+            activeLevel = levels.FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(activeLevel))
+            return;
+
         var ctrl = context.RouteData.Values["controller"]?.ToString();
         var act = context.RouteData.Values["action"]?.ToString();
         Console.WriteLine($"CTRL = [{ctrl}]");
@@ -139,6 +150,7 @@ public class AutoProgressFilter : IAsyncActionFilter
 
             new CAStep { Key="ClinicalFacilities", Ctrl="ContinuationAffiliationClinicalFacilities", Act="SaveOperationTheatreRequirements" },
             new CAStep { Key="ClinicalFacilities", Ctrl="ContinuationAffiliationClinicalFacilities", Act="SaveDentalWardDistribution" },
+            new CAStep { Key="ClinicalFacilities", Ctrl="ContinuationAffiliationClinicalFacilities", Act="SaveClinicalHospitalDetails" },
             new CAStep { Key="Vehicle", Ctrl="Aff_AHS_ContinousApplication", Act="CA_VehicleDetails" },
             new CAStep { Key="BedDistribution", Ctrl="ContinuesAffiliation_Facultybased", Act="MedicalUGBedDistribution" },
             new CAStep { Key="ChairDistribution", Ctrl="PhysicalInfrastructure", Act="ChairDistribution" },
@@ -213,34 +225,31 @@ public class AutoProgressFilter : IAsyncActionFilter
         var stepKey = step.Key;
 
         // ✅ Save to DB
-        foreach (var level in levels)
-        {
-            var exists = await _db.CaProgresses.AnyAsync(x =>
+        var exists = await _db.CaProgresses.AnyAsync(x =>
                 x.CollegeCode == collegeCode &&
-                x.CourseLevel == level &&
+                x.CourseLevel == activeLevel &&
                 x.StepKey == stepKey);
 
-            if (!exists)
+        if (!exists)
+        {
+            _db.CaProgresses.Add(new CaProgress
             {
-                _db.CaProgresses.Add(new CaProgress
-                {
-                    CollegeCode = collegeCode,
-                    CourseLevel = level,
-                    StepKey = stepKey,
-                    IsCompleted = true,
-                    UpdatedAt = DateTime.Now
-                });
-            }
-            else
-            {
-                var progress = await _db.CaProgresses.FirstAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.CourseLevel == level &&
-                    x.StepKey == stepKey);
+                CollegeCode = collegeCode,
+                CourseLevel = activeLevel,
+                StepKey = stepKey,
+                IsCompleted = true,
+                UpdatedAt = DateTime.Now
+            });
+        }
+        else
+        {
+            var progress = await _db.CaProgresses.FirstAsync(x =>
+                x.CollegeCode == collegeCode &&
+                x.CourseLevel == activeLevel &&
+                x.StepKey == stepKey);
 
-                progress.IsCompleted = true;
-                progress.UpdatedAt = DateTime.Now;
-            }
+            progress.IsCompleted = true;
+            progress.UpdatedAt = DateTime.Now;
         }
 
         await _db.SaveChangesAsync();

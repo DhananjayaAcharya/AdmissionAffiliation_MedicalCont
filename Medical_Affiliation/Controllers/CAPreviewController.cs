@@ -29,7 +29,10 @@ namespace Medical_Affiliation.Controllers
         }
         public async Task<IActionResult> Preview()
         {
+            _paymentCalculationController.ControllerContext = ControllerContext;
+            var paymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
             var model = await _capreviewService.GetPreviewAsync();
+            model.PaymentCalculation = paymentCalculation;
             return View(model);
         }
 

@@ -1,0 +1,23 @@
+@model List<GeoPhotoModule.Models.GeoPhotoCategoryVm>
+
+@if (Model != null && Model.Any(category => category.Slots.Any(slot => slot.HasPhoto)))
+{
+    <div class="row g-3">
+        @foreach (var category in Model)
+        {
+            foreach (var slot in category.Slots.Where(slot => slot.HasPhoto))
+            {
+                <div class="col-md-4 col-lg-3">
+                    <figure class="mb-0 border rounded p-2 bg-white h-100">
+                        <img class="img-fluid rounded w-100" src="@Url.Action("Image", "GeoPhoto", new { id = slot.PhotoId })" alt="@category.CategoryName photo @slot.SlotNo" style="aspect-ratio: 4 / 3; object-fit: contain;" />
+                        <figcaption class="small text-muted mt-2">@category.CategoryName · Photo @slot.SlotNo</figcaption>
+                    </figure>
+                </div>
+            }
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">No geo-tagged photos uploaded.</div>
+}

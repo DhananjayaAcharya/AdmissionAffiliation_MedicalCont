@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GeoPhotoModule.Models;
 
 namespace Medical_Affiliation.Models
 {
@@ -32,6 +33,7 @@ namespace Medical_Affiliation.Models
         public FacultyDesigNonTeachDisplayVM FacultyDesigNonTeachDisplayVM { get; set; }
         public AffiliationPaymentViewModel PaymentVM { get; set; }
         public PaymentCalculationViewModel PaymentCalculation { get; set; }
+        public List<GeoPhotoCategoryVm> GeoPhotos { get; set; } = new();
         public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
         public int CompletionPercentage { get; set; }
         public bool IsApplicationComplete => CompletionPercentage >= 100;

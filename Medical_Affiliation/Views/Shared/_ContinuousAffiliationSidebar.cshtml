@@ -137,7 +137,9 @@
 
     var doneSteps = await _context.CaProgresses
         .Where(x => x.CollegeCode == collegeCode
-                    && levels.Contains(x.CourseLevel.Trim().ToUpper())
+                    && (!string.IsNullOrWhiteSpace(selectedCourseLevel)
+                        ? x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == selectedCourseLevel
+                        : levels.Contains(x.CourseLevel.Trim().ToUpper()))
                     && x.IsCompleted == true)
         .Select(x => x.StepKey)
         .Distinct()
@@ -385,15 +387,8 @@
     var excludedProgressKeys = new HashSet<string>
     {
         "AssociatedInstitutions",
-        "GeoPhoto",
-        "PreviewMode",
-        "PaymentCalculation"
+        "PreviewMode"
     };
-    var progressSteps = allSteps.Where(s => !excludedProgressKeys.Contains(s.Key)).ToList();
-    int total = progressSteps.Count;
-    int done = progressSteps.Count(s => doneSteps.Contains(s.Key));
-    int pct = total > 0 ? (int)Math.Round((double)done / total * 100) : 0;
-
     if (isDental)
     {
         // Chair Distribution — right after Classroom & Laboratory
@@ -445,6 +440,13 @@
             .LastOrDefault();
         allSteps.InsertRange(basicLastIndex + 1, orderedIntakeSteps.Concat(remainingIntakeSteps));
     }
+
+    var progressSteps = allSteps.Where(s => !excludedProgressKeys.Contains(s.Key)).ToList();
+    int total = progressSteps.Count;
+    int done = progressSteps.Count(s => doneSteps.Contains(s.Key));
+    int pct = total > 0 ? (int)Math.Round((double)done / total * 100) : 0;
+
+    var progressStepKeys = progressSteps.Select(s => s.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     var groupOrder = new[]
     {
@@ -1055,8 +1057,9 @@
         @foreach (var group in groupedSteps)
         {
             var groupId = group.Key.Replace(" ", "");
-            var groupDone = group.Count(s => doneSteps.Contains(s.Key));
-            var groupTotal = group.Count();
+            var progressGroup = group.Where(s => progressStepKeys.Contains(s.Key)).ToList();
+            var groupDone = progressGroup.Count(s => doneSteps.Contains(s.Key));
+            var groupTotal = progressGroup.Count;
 
             <div class="accordion-item">
                 <button type="button"
