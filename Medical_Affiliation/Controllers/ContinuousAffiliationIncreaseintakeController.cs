@@ -238,7 +238,6 @@ namespace Medical_Affiliation.Controllers
             }
 
             await _context.SaveChangesAsync();
-            await MarkIntakeDetailsCompleteAsync(collegeCode, courseLevel: HttpContext.Session.GetString("SelectedCourseLevel"));
 
             TempData["SuccessMessage"] = "Increased intake details saved successfully.";
             return RedirectToAction("MedicalCollegeCourseIntake");

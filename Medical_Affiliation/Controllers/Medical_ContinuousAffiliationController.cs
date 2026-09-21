@@ -540,11 +540,14 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
-            if (string.IsNullOrEmpty(facultyCode))
+            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("Login", "Account");
 
             var lab = await _context.MedicalSkillsLaboratories
-                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode);
+                                    .AsNoTracking()
+                                    .FirstOrDefaultAsync(x =>
+                                        x.FacultyCode == facultyCode &&
+                                        x.CollegeCode == collegeCode);
 
             if (lab == null)
             {
@@ -601,8 +604,12 @@ namespace Medical_Affiliation.Controllers
 
             // ================================
             // SERVER-SIDE CALCULATION
+            // (same rule as the page script: 600 Sq.m up to 150 intake, 800 Sq.m above)
+            // The page only posts AnnualMbbsIntake, so that is the value used here.
             // ================================
-            model.TotalAreaRequiredSqm = ((facultyCode == "1" ? model.AnnualMbbsIntake : model.AnnualBdsIntake) ?? 0) * 1.2m;
+            var intake = Convert.ToInt32(model.AnnualMbbsIntake ?? 0);
+
+            model.TotalAreaRequiredSqm = intake <= 150 ? 600m : 800m;
             model.TotalAreaDeficiencySqm =
                 Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
 
@@ -657,9 +664,9 @@ namespace Medical_Affiliation.Controllers
                 await transaction.CommitAsync();
                 return RedirectToAction("Medical_EquimentDetails", "Medical_ContinuousAffiliation");
             }
-            catch 
+            catch
             {
-                await transaction.RollbackAsync(); 
+                await transaction.RollbackAsync();
                 ModelState.AddModelError("", "Error while saving data");
                 return View(model);
             }

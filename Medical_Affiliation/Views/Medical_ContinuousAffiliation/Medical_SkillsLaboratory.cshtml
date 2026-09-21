@@ -6,6 +6,11 @@
 }
 @{
     var courseLevel = Context.Session.GetString("CourseLevel");
+
+    // Intake dropdown: selected value is computed here so it works
+    // whatever numeric type AnnualMbbsIntake is (int?, decimal?, etc.)
+    var intakeOptions = new[] { 0, 50, 100, 150, 200, 250 };
+    var selectedIntake = Convert.ToInt32(Model.AnnualMbbsIntake ?? 0);
 }
 
 <style>
@@ -601,11 +606,11 @@
                         <div class="field-grid g-4" style="margin-bottom:16px;">
                             <div class="field-group">
                                 <label class="form-label-text">Annual MBBS Intake</label>
-                                <select class="form-select" asp-for="AnnualMbbsIntake" id="skillsIntake">
-                                    <option value="100">100</option>
-                                    <option value="150">150</option>
-                                    <option value="200">200</option>
-                                    <option value="250">250</option>
+                                <select class="form-select" name="AnnualMbbsIntake" id="skillsIntake">
+                                    @foreach (var opt in intakeOptions)
+                                    {
+                                        <option value="@opt" selected="@(opt == selectedIntake)">@opt</option>
+                                    }
                                 </select>
                                 <span asp-validation-for="AnnualMbbsIntake" class="text-danger"></span>
                             </div>
@@ -836,14 +841,14 @@
                         ← Previous
                     </button>
                     @* <div class="footer-right"> *@
-                        <button type="submit" class="btn-save" id="btnSave">
-                            <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
-                            &#128190; Save &amp; Continue
-                        </button>
+                    <button type="submit" class="btn-save" id="btnSave">
+                        <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
+                        &#128190; Save &amp; Continue
+                    </button>
                     @* </div> *@
                 </div>
 
-                
+
 
                 <div class="form-footer">
 
@@ -869,13 +874,13 @@
 
                     @* <div class="footer-right"> *@
 
-                        @* <button type="submit" class="btn-save" id="btnSave">
+                    @* <button type="submit" class="btn-save" id="btnSave">
                             <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
                             &#128190; Save &amp; Continue
                         </button> *@
 
-                        @* 🔹 NEXT BUTTON *@
-                        @* @if (courseLevel == "UG")
+                    @* 🔹 NEXT BUTTON *@
+                    @* @if (courseLevel == "UG")
                         {
                             <a asp-controller="Medical_ContinuousAffiliation"
                                asp-action="Medical_EquimentDetails"
@@ -909,79 +914,85 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            const skillsIntake    = document.getElementById('skillsIntake');
-            const skillsAreaAvail = document.getElementById('skillsAreaAvail');
-            const skillsAreaReq   = document.getElementById('skillsAreaReq');
-            const skillsAreaDef   = document.getElementById('skillsAreaDef');
-            const sumReq          = document.getElementById('summaryRequired');
-            const sumAvail        = document.getElementById('summaryAvailable');
-            const sumDef          = document.getElementById('summaryDeficiency');
+        const skillsIntake = document.getElementById('skillsIntake');
+        const skillsAreaAvail = document.getElementById('skillsAreaAvail');
+        const skillsAreaReq = document.getElementById('skillsAreaReq');
+        const skillsAreaDef = document.getElementById('skillsAreaDef');
+        const sumReq = document.getElementById('summaryRequired');
+        const sumAvail = document.getElementById('summaryAvailable');
+        const sumDef = document.getElementById('summaryDeficiency');
 
-            const form    = document.getElementById('skillsLabForm');
-            const saveBtn = document.getElementById('btnSave');
-            const spinner = document.getElementById('saveSpinner');
+        const form = document.getElementById('skillsLabForm');
+        const saveBtn = document.getElementById('btnSave');
+        const spinner = document.getElementById('saveSpinner');
 
-            /* ── Area calculation ── */
-            function recalcSkillsArea() {
-                const intake = parseInt(skillsIntake.value) || 0;
-                const avail  = parseFloat(skillsAreaAvail.value) || 0;
-                const req    = intake <= 150 ? 600 : 800;
-                const def    = Math.max(0, req - avail);
+        /* ── Area calculation ── */
+        function recalcSkillsArea() {
+        const intake = parseInt(skillsIntake.value) || 0;
+        const avail = parseFloat(skillsAreaAvail.value) || 0;
+        const req = intake <= 150 ? 600 : 800;
+        const def = Math.max(0, req - avail);
 
-                skillsAreaReq.value = req.toFixed(2);
-                skillsAreaDef.value = def.toFixed(2);
+        skillsAreaReq.value = req.toFixed(2);
+        skillsAreaDef.value = def.toFixed(2);
 
-                sumReq.textContent   = req.toFixed(2);
-                sumAvail.textContent = avail.toFixed(2);
-                sumDef.textContent   = def.toFixed(2);
-                sumDef.className     = 'summary-box-value ' + (def > 0 ? 'val-short' : 'val-ok');
-            }
+        sumReq.textContent = req.toFixed(2);
+        sumAvail.textContent = avail.toFixed(2);
+        sumDef.textContent = def.toFixed(2);
+        sumDef.className = 'summary-box-value ' + (def > 0 ? 'val-short' : 'val-ok');
+        }
 
-            skillsIntake.addEventListener('change', recalcSkillsArea);
-            let timeout;
-            skillsAreaAvail.addEventListener('input', function () {
-                clearTimeout(timeout);
-                timeout = setTimeout(recalcSkillsArea, 300);
-            });
-            recalcSkillsArea();
+        skillsIntake.addEventListener('change', recalcSkillsArea);
+        let timeout;
+        skillsAreaAvail.addEventListener('input', function () {
+        clearTimeout(timeout);
+        timeout = setTimeout(recalcSkillsArea, 300);
+        });
+        recalcSkillsArea();
 
-            /* ── Form submit ── */
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
+        /* ── Form submit ── */
+        form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
 
-                if (!this.checkValidity()) {
-                    this.reportValidity();
-                    return;
-                }
+        if (!this.checkValidity()) {
+        this.reportValidity();
+        return;
+        }
 
-                saveBtn.disabled = true;
-                spinner.classList.remove('d-none');
+        saveBtn.disabled = true;
+        spinner.classList.remove('d-none');
 
-                try {
-                    const formData = new FormData(form);
-                    await fetch(form.action, { method: 'POST', body: formData });
+        try {
+        const formData = new FormData(form);
+        const res = await fetch(form.action, { method: 'POST', body: formData });
 
-                    await Swal.fire({
-                        icon: 'success',
-                        title: 'Saved Successfully!',
-                        text: 'Skills Laboratory details saved.',
-                        confirmButtonColor: '#0f2545'
-                    });
+        // Controller redirects to the next page on success.
+        // If it returned the form again (validation/save error), don't show "success".
+        if (!res.redirected) {
+        throw new Error('Save failed');
+        }
+
+        await Swal.fire({
+        icon: 'success',
+        title: 'Saved Successfully!',
+        text: 'Skills Laboratory details saved.',
+        confirmButtonColor: '#0f2545'
+        });
 
         window.location.href = '@Url.Action("Medical_EquimentDetails", "Medical_ContinuousAffiliation")';
-                } catch (err) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Save Failed',
-                        text: 'Please try again.',
-                        confirmButtonColor: '#c0392b'
-                    });
-                } finally {
-                    saveBtn.disabled = false;
-                    spinner.classList.add('d-none');
-                }
-            });
+        } catch (err) {
+        Swal.fire({
+        icon: 'error',
+        title: 'Save Failed',
+        text: 'Please check the form and try again.',
+        confirmButtonColor: '#c0392b'
+        });
+        } finally {
+        saveBtn.disabled = false;
+        spinner.classList.add('d-none');
+        }
+        });
         });
     </script>
 }

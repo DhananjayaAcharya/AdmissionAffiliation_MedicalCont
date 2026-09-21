@@ -66,6 +66,20 @@
 
     // Fixed set of allowed "Increased Intake" values shown in the dropdown
     var increasedIntakeOptions = new[] { 50, 100, 150, 200, 250 };
+
+    // Converts any saved value (int, int?, decimal, decimal?, string like "100" or "100.00")
+    // to an int so it can be compared with the dropdown option values.
+    Func<object, int?> toInt = value =>
+    {
+        if (value == null) return null;
+        var text = Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+        return decimal.TryParse(text,
+                                System.Globalization.NumberStyles.Any,
+                                System.Globalization.CultureInfo.InvariantCulture,
+                                out var number)
+               ? (int?)Convert.ToInt32(number)
+               : null;
+    };
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -613,6 +627,7 @@
                                 @for (var i = 0; i < Model.Courses.Count; i++)
                                 {
                                     var course = Model.Courses[i];
+                                    var selectedIncreased = toInt(course.IncreasedIntake);
                                     <tr>
                                         <td>@displaySlno</td>
                                         <td class="course-name">@course.CourseName</td>
@@ -625,11 +640,15 @@
                                                 <input type="hidden" asp-for="Courses[i].CourseCode" />
                                                 <input type="hidden" asp-for="Courses[i].CourseName" />
                                                 <input type="hidden" asp-for="Courses[i].Intake2627" />
-                                                <select class="editable-field" asp-for="Courses[i].IncreasedIntake">
-                                                    <option value="">Select</option>
+
+                                                @* asp-for removed on purpose: selected option is set explicitly so saved values always show *@
+                                                <select class="editable-field"
+                                                        name="Courses[@i].IncreasedIntake"
+                                                        id="Courses_@(i)__IncreasedIntake">
+                                                    <option value="" selected="@(!selectedIncreased.HasValue)">Select</option>
                                                     @foreach (var option in increasedIntakeOptions)
                                                     {
-                                                        <option value="@option">@option</option>
+                                                        <option value="@option" selected="@(selectedIncreased == option)">@option</option>
                                                     }
                                                 </select>
                                             </td>
@@ -697,6 +716,7 @@
                                     for (var s = 0; s < prevCourse.Slabs.Count; s++)
                                     {
                                         var slab = prevCourse.Slabs[s];
+                                        var selectedLopYear = toInt(slab.LopYear);
                                         <tr>
                                             @if (s == 0)
                                             {
@@ -714,17 +734,20 @@
                                             </td>
 
                                             <td>
-                                                <select class="editable-field" asp-for="PreviousDetails[c].Slabs[s].LopYear">
-                                                    <option value="">Select</option>
+                                                @* asp-for removed on purpose: selected option is set explicitly so saved values always show *@
+                                                <select class="editable-field"
+                                                        name="PreviousDetails[@c].Slabs[@s].LopYear"
+                                                        id="PreviousDetails_@(c)__Slabs_@(s)__LopYear">
+                                                    <option value="" selected="@(!selectedLopYear.HasValue)">Select</option>
                                                     @foreach (var y in lopYears)
                                                     {
-                                                        <option value="@y">@y</option>
+                                                        <option value="@y" selected="@(selectedLopYear == y)">@y</option>
                                                     }
                                                 </select>
                                             </td>
 
                                             <td class="selected-lop-year">
-                                                @(slab.LopYear?.ToString() ?? "-")
+                                                @(selectedLopYear?.ToString() ?? "-")
                                             </td>
 
                                             <td>
@@ -765,12 +788,12 @@
         </nav>
 
         <script>
-            document.querySelectorAll('select[name$=".LopYear"]').forEach(select => {
-                select.addEventListener('change', () => {
-                    const selectedYearCell = select.closest('tr').querySelector('.selected-lop-year');
-                    selectedYearCell.textContent = select.value || '-';
-                });
-            });
+                    document.querySelectorAll('select[name$=".LopYear"]').forEach(select => {
+                        select.addEventListener('change', () => {
+                            const selectedYearCell = select.closest('tr').querySelector('.selected-lop-year');
+                            selectedYearCell.textContent = select.value || '-';
+                        });
+                    });
         </script>
     </main>
 </div>

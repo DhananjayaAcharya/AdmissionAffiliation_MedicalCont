@@ -145,6 +145,21 @@
         .Distinct()
         .ToListAsync();
 
+    // Intake Details is complete only when at least one Previous details
+    // record has actually been saved. This also corrects stale progress rows.
+    var hasSavedPreviousIntake = false;
+    if (int.TryParse(facultyCode, out var sidebarFacultyId) && !string.IsNullOrWhiteSpace(collegeCode))
+    {
+        hasSavedPreviousIntake = await _context.MedicalCollegePreviousIntakes
+            .AsNoTracking()
+            .AnyAsync(x => x.CollegeCode == collegeCode && x.FacultyCode == sidebarFacultyId);
+    }
+
+    if (!hasSavedPreviousIntake)
+    {
+        doneSteps.RemoveAll(step => string.Equals(step, "IntakeDetails", StringComparison.OrdinalIgnoreCase));
+    }
+
     // Faculty details are optional for continuous affiliation and should not
     // block completion when the page has not been submitted.
     if (!doneSteps.Contains("FacultyDetails"))

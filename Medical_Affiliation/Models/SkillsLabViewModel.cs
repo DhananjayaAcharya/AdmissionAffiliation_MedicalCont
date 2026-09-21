@@ -8,8 +8,8 @@ namespace Medical_Affiliation.Models
     public class SkillsLabViewModel
     {
         // Basic
-        [Range(100, 250, ErrorMessage = "Intake must be between 100 and 250.")]
-        public int? AnnualMbbsIntake { get; set; } // 100/150/200/250
+        [Range(0, 250, ErrorMessage = "Intake must be between 0 and 250.")]
+        public int? AnnualMbbsIntake { get; set; } // 0/50/100/150/200/250
 
 
         [Range(50, 250, ErrorMessage = "Intake must be between 50 and 250.")]
