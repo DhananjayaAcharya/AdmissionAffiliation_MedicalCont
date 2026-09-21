@@ -247,8 +247,9 @@ public class PreviewReportPdf : IDocument
 
     private void AddPreviewMetadataHeader(ColumnDescriptor col)
     {
-        var totalSeats = _model.PaymentCalculation?.MatchedCourses
-            .FirstOrDefault()?.TotalSeats;
+        var firstMatchedCourse = _model.PaymentCalculation?.MatchedCourses.FirstOrDefault();
+        var totalSeats = firstMatchedCourse?.TotalSeats;
+        var increasedIntake = firstMatchedCourse?.IncreasedIntake;
 
         col.Item().PaddingTop(4).PaddingBottom(9).Column(section =>
         {
@@ -258,6 +259,8 @@ public class PreviewReportPdf : IDocument
             var affiliationType = string.IsNullOrWhiteSpace(_model.ApplicationType)
                 ? "Affiliation"
                 : _model.ApplicationType.Trim();
+            var isIncreaseInIntake = affiliationType.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
+                || affiliationType.Contains("Increase", StringComparison.OrdinalIgnoreCase);
 
             section.Item().PaddingTop(4).AlignCenter().Text(text =>
             {
@@ -274,10 +277,18 @@ public class PreviewReportPdf : IDocument
                     columns.RelativeColumn();
                     columns.RelativeColumn();
                     columns.RelativeColumn();
+                    if (isIncreaseInIntake)
+                    {
+                        columns.RelativeColumn();
+                    }
                 });
 
                 AddMetadataCell(table, "Application Type", _model.ApplicationType);
                 AddMetadataCell(table, "Applying Course Level", _model.ApplyingCourseLevel);
+                if (isIncreaseInIntake)
+                {
+                    AddMetadataCell(table, "Increased Intake", increasedIntake);
+                }
                 AddMetadataCell(table, "Total Seats", totalSeats?.ToString() ?? "—");
             });
         });
