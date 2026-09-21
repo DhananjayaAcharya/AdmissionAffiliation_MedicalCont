@@ -58,7 +58,7 @@ namespace Medical_Affiliation.Controllers
                 vm.IsActive = entity.IsActive;
             }
 
-            vm.Conferences = await _context
+            vm.ConferencesConducted = await _context
                 .DentalConferencesConducteds
                 .Where(x =>
                     x.CollegeCode == CollegeCode &&
@@ -84,6 +84,43 @@ namespace Medical_Affiliation.Controllers
                     ConferencePlace = x.ConferencePlace,
 
                     ConferenceDate = x.ConferenceDate,
+
+                    IsActive = x.IsActive
+                })
+                .ToListAsync();
+
+            vm.ConferencesAttended = await _context
+                .DentalConferencesAttendeds
+                .Where(x =>
+                    x.CollegeCode == CollegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel &&
+                    x.TypeId == int.Parse(typeId) &&
+                    x.IsActive)
+                .OrderBy(x => x.ConferenceDate)
+                .Select(x => new DentalConferencesAttendedVM
+                {
+                    Id = x.Id,
+
+                    CollegeCode = x.CollegeCode,
+
+                    FacultyCode = x.FacultyCode,
+
+                    CourseLevel = x.CourseLevel,
+
+                    TypeId = x.TypeId,
+
+                    ConferenceName = x.ConferenceName,
+
+                    ConferencePlace = x.ConferencePlace,
+
+                    ConferenceDate = x.ConferenceDate,
+
+                    StudentParticipants = x.StudentParticipants,
+
+                    TeacherParticipants = x.TeacherParticipants,
+
+                    TotalParticipants = x.TotalParticipants,
 
                     IsActive = x.IsActive
                 })
@@ -125,12 +162,22 @@ namespace Medical_Affiliation.Controllers
 
             ModelState.Remove(nameof(vm.CourseLevel));
 
-            if (vm.Conferences != null)
+            if (vm.ConferencesAttended != null)
             {
-                for (int i = 0; i < vm.Conferences.Count; i++)
+                for (int i = 0; i < vm.ConferencesAttended.Count; i++)
                 {
                     ModelState.Remove(
-                        $"Conferences[{i}].CourseLevel"
+                        $"ConferencesAttended[{i}].CourseLevel"
+                    );
+                }
+            }
+
+            if (vm.ConferencesConducted != null)
+            {
+                for (int i = 0; i < vm.ConferencesConducted.Count; i++)
+                {
+                    ModelState.Remove(
+                        $"ConferencesConducted[{i}].CourseLevel"
                     );
                 }
             }
@@ -266,7 +313,7 @@ namespace Medical_Affiliation.Controllers
                 }
             }
 
-            var existingConferences =
+            var existingConferencesConducted =
                 await _context.DentalConferencesConducteds
                     .Where(x =>
                         x.CollegeCode == collegeCode &&
@@ -276,8 +323,8 @@ namespace Medical_Affiliation.Controllers
                         x.IsActive)
                     .ToListAsync();
 
-            var submittedConferenceIds =
-                vm.Conferences?
+            var submittedConferenceConductedIds =
+                vm.ConferencesConducted?
                     .Where(x => x.Id > 0)
                     .Select(x => x.Id)
                     .ToHashSet()
@@ -288,45 +335,45 @@ namespace Medical_Affiliation.Controllers
             // 10. SOFT DELETE REMOVED CONFERENCES
             // ========================================================
 
-            foreach (var existingConference in existingConferences)
+            foreach (var existingConferenceConducted in existingConferencesConducted)
             {
-                if (!submittedConferenceIds.Contains(
-                        existingConference.Id))
+                if (!submittedConferenceConductedIds.Contains(
+                        existingConferenceConducted.Id))
                 {
-                    existingConference.IsActive = false;
+                    existingConferenceConducted.IsActive = false;
 
-                    existingConference.ModifiedBy =
+                    existingConferenceConducted.ModifiedBy =
                         User.Identity?.Name;
 
-                    existingConference.ModifiedDate =
+                    existingConferenceConducted.ModifiedDate =
                         DateTime.Now;
                 }
             }
 
-            if (vm.Conferences != null)
+            if (vm.ConferencesConducted != null)
             {
-                foreach (var conferenceVm in vm.Conferences)
+                foreach (var conferenceConductedVm in vm.ConferencesConducted)
                 {
                     // -----------------------------------------------
                     // UPDATE EXISTING CONFERENCE
                     // -----------------------------------------------
 
-                    if (conferenceVm.Id > 0)
+                    if (conferenceConductedVm.Id > 0)
                     {
-                        var conferenceEntity = existingConferences.FirstOrDefault( x => x.Id == conferenceVm.Id );
+                        var conferenceConductedEntity = existingConferencesConducted.FirstOrDefault( x => x.Id == conferenceConductedVm.Id );
 
-                        if (conferenceEntity != null)
+                        if (conferenceConductedEntity != null)
                         {
-                            conferenceEntity.ConferenceName = conferenceVm.ConferenceName.Trim();
-                            conferenceEntity.ConferencePlace = conferenceVm.ConferencePlace.Trim();
-                            conferenceEntity.ConferenceDate = conferenceVm.ConferenceDate!.Value;
+                            conferenceConductedEntity.ConferenceName = conferenceConductedVm.ConferenceName.Trim();
+                            conferenceConductedEntity.ConferencePlace = conferenceConductedVm.ConferencePlace.Trim();
+                            conferenceConductedEntity.ConferenceDate = conferenceConductedVm.ConferenceDate!.Value;
 
-                            conferenceEntity.TypeId = int.Parse(affiliationTypeId);
-                            conferenceEntity.ModifiedBy = User.Identity?.Name;
+                            conferenceConductedEntity.TypeId = int.Parse(affiliationTypeId);
+                            conferenceConductedEntity.ModifiedBy = User.Identity?.Name;
 
-                            conferenceEntity.ModifiedDate =  DateTime.Now;
+                            conferenceConductedEntity.ModifiedDate =  DateTime.Now;
 
-                            conferenceEntity.IsActive = true;
+                            conferenceConductedEntity.IsActive = true;
                         }
                     }
 
@@ -347,11 +394,11 @@ namespace Medical_Affiliation.Controllers
 
                                 TypeId = int.Parse(affiliationTypeId),
 
-                                ConferenceName = conferenceVm.ConferenceName.Trim(),
+                                ConferenceName = conferenceConductedVm.ConferenceName.Trim(),
 
-                                ConferencePlace = conferenceVm.ConferencePlace.Trim(),
+                                ConferencePlace = conferenceConductedVm.ConferencePlace.Trim(),
 
-                                ConferenceDate = conferenceVm.ConferenceDate!.Value,
+                                ConferenceDate = conferenceConductedVm.ConferenceDate!.Value,
 
                                 IsActive = true,
 
@@ -364,6 +411,134 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
             }
+
+
+            // ========================================================
+            // CONFERENCE ATTENDED
+            // ========================================================
+
+            var existingConferencesAttended =
+                await _context.DentalConferencesAttendeds
+                    .Where(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode &&
+                        x.CourseLevel == courseLevel &&
+                        x.TypeId == int.Parse(affiliationTypeId) &&
+                        x.IsActive)
+                    .ToListAsync();
+
+
+            // ========================================================
+            // GET SUBMITTED CONFERENCE IDS
+            // ========================================================
+
+            var submittedConferenceAttendedIds =
+                vm.ConferencesAttended?
+                    .Where(x => x.Id > 0)
+                    .Select(x => x.Id)
+                    .ToHashSet()
+                    ?? new HashSet<int>();
+
+
+            // ========================================================
+            // SOFT DELETE REMOVED CONFERENCES
+            // ========================================================
+
+            foreach (var existingConferenceAttended in existingConferencesAttended)
+            {
+                if (!submittedConferenceAttendedIds.Contains(
+                        existingConferenceAttended.Id))
+                {
+                    existingConferenceAttended.IsActive = false;
+
+                    existingConferenceAttended.ModifiedBy =  User.Identity?.Name;
+
+                    existingConferenceAttended.ModifiedDate = DateTime.Now;
+                }
+            }
+
+
+            // ========================================================
+            // UPDATE / INSERT CONFERENCES
+            // ========================================================
+
+            if (vm.ConferencesAttended != null)
+            {
+                foreach (var conferenceAttendedVm in vm.ConferencesAttended)
+                {
+                    // ====================================================
+                    // UPDATE EXISTING CONFERENCE
+                    // ====================================================
+
+                    if (conferenceAttendedVm.Id > 0)
+                    {
+                        var conferenceAttendedEntity = existingConferencesAttended.FirstOrDefault( x => x.Id == conferenceAttendedVm.Id);
+
+                        if (conferenceAttendedEntity != null)
+                        {
+                            conferenceAttendedEntity.ConferenceName = conferenceAttendedVm.ConferenceName.Trim();
+
+                            conferenceAttendedEntity.ConferencePlace = conferenceAttendedVm.ConferencePlace.Trim();
+
+                            conferenceAttendedEntity.ConferenceDate = conferenceAttendedVm.ConferenceDate!.Value;
+
+                            conferenceAttendedEntity.StudentParticipants = conferenceAttendedVm.StudentParticipants;
+
+                            conferenceAttendedEntity.TeacherParticipants = conferenceAttendedVm.TeacherParticipants;
+
+                            conferenceAttendedEntity.TotalParticipants = conferenceAttendedVm.TotalParticipants;
+
+                            conferenceAttendedEntity.TypeId = int.Parse(affiliationTypeId);
+
+                            conferenceAttendedEntity.ModifiedBy = User.Identity?.Name;
+
+                            conferenceAttendedEntity.ModifiedDate = DateTime.Now;
+
+                            conferenceAttendedEntity.IsActive = true;
+                        }
+                    }
+
+                    // ====================================================
+                    // INSERT NEW CONFERENCE
+                    // ====================================================
+
+                    else
+                    {
+                        var conferenceEntity =
+                            new DentalConferencesAttended
+                            {
+                                CollegeCode = collegeCode,
+
+                                FacultyCode = facultyCode,
+
+                                CourseLevel = courseLevel,
+
+                                TypeId = int.Parse(affiliationTypeId),
+
+                                ConferenceName = conferenceAttendedVm.ConferenceName.Trim(),
+
+                                ConferencePlace = conferenceAttendedVm.ConferencePlace.Trim(),
+
+                                ConferenceDate = conferenceAttendedVm.ConferenceDate!.Value,
+
+                                StudentParticipants = conferenceAttendedVm.StudentParticipants,
+
+                                TeacherParticipants = conferenceAttendedVm.TeacherParticipants,
+
+                                TotalParticipants = conferenceAttendedVm.TotalParticipants,
+
+                                IsActive = true,
+
+                                CreatedBy = User.Identity?.Name,
+
+                                CreatedDate = DateTime.Now
+                            };
+
+                        _context.DentalConferencesAttendeds.Add(conferenceEntity);
+                    }
+                }
+            }
+
 
             // ========================================================
             // Save database changes

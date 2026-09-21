@@ -1246,3 +1246,69 @@ CREATE TABLE DentalConferencesConducted
         FOREIGN KEY (TypeId)
         REFERENCES TypeOfAffiliation(TypeId)
 );
+
+
+-----------------------------------------------------------
+
+
+CREATE TABLE DentalConferencesAttended
+(
+    Id INT IDENTITY(1,1) NOT NULL,
+
+    -- College
+    CollegeCode NVARCHAR(100) NOT NULL,
+
+    -- Faculty
+    FacultyCode INT NOT NULL,
+
+    -- Course Level
+    CourseLevel VARCHAR(50) NULL,
+
+    -- Affiliation Type
+    TypeId INT NULL,
+
+    -- Conference Details
+    ConferenceName NVARCHAR(500) NOT NULL,
+
+    ConferencePlace NVARCHAR(300) NOT NULL,
+
+    ConferenceDate DATE NOT NULL,
+
+    -- Participants
+    StudentParticipants INT NOT NULL DEFAULT 0,
+
+    TeacherParticipants INT NOT NULL DEFAULT 0,
+
+    TotalParticipants INT NOT NULL DEFAULT 0,
+
+    -- Status
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    -- Audit
+    CreatedBy NVARCHAR(100) NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy NVARCHAR(100) NULL,
+    ModifiedDate DATETIME NULL,
+
+    -- Primary Key
+    CONSTRAINT PK_DentalConferencesAttended
+        PRIMARY KEY (Id),
+
+    -- Faculty FK
+    CONSTRAINT FK_DentalConferencesAttended_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    -- College FK
+    CONSTRAINT FK_DentalConferencesAttended_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    -- Affiliation Type FK
+    CONSTRAINT FK_DentalConferencesAttended_Affiliated_TypeId
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
+);
+
+---------------------------------------------------

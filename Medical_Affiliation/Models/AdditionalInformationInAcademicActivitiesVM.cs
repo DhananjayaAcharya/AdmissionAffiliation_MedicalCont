@@ -43,7 +43,8 @@ namespace Medical_Affiliation.Models
 
         public bool IsActive { get; set; } = true;
 
-        public List<DentalConferencesConductedVM> Conferences { get; set; } = new List<DentalConferencesConductedVM>();
+        public List<DentalConferencesConductedVM> ConferencesConducted { get; set; } = new List<DentalConferencesConductedVM>();
+        public List<DentalConferencesAttendedVM> ConferencesAttended { get; set; } = new List<DentalConferencesAttendedVM>();
     }
 
 
@@ -75,6 +76,107 @@ namespace Medical_Affiliation.Models
 
         [Required(ErrorMessage = "Conference date is required")]
         public DateOnly? ConferenceDate { get; set; }
+
+        public bool IsActive { get; set; } = true;
+    }
+
+
+    public class DentalConferencesAttendedVM
+    {
+        public int Id { get; set; }
+
+        // ============================
+        // College
+        // ============================
+
+        public string? CollegeCode { get; set; }
+
+
+        // ============================
+        // Faculty
+        // ============================
+
+        public int FacultyCode { get; set; }
+
+
+        // ============================
+        // Course Level
+        // UG / PG / SS
+        // ============================
+
+        public string? CourseLevel { get; set; }
+
+
+        // ============================
+        // Affiliation Type
+        // ============================
+
+        public int? TypeId { get; set; }
+
+
+        // ============================
+        // Conference Details
+        // ============================
+
+        [Required(ErrorMessage = "Conference name is required")]
+        [StringLength(
+            500,
+            ErrorMessage = "Conference name cannot exceed 500 characters"
+        )]
+        public string ConferenceName { get; set; } = string.Empty;
+
+
+        [Required(ErrorMessage = "Conference place is required")]
+        [StringLength(
+            300,
+            ErrorMessage = "Conference place cannot exceed 300 characters"
+        )]
+        public string ConferencePlace { get; set; } = string.Empty;
+
+
+        [Required(ErrorMessage = "Conference date is required")]
+        public DateOnly? ConferenceDate { get; set; }
+
+
+        // ============================
+        // Student Participants
+        // ============================
+
+        [Range(
+            0,
+            int.MaxValue,
+            ErrorMessage = "Enter a valid number of student participants"
+        )]
+        public int StudentParticipants { get; set; }
+
+
+        // ============================
+        // Teacher Participants
+        // ============================
+
+        [Range(
+            0,
+            int.MaxValue,
+            ErrorMessage = "Enter a valid number of teacher participants"
+        )]
+        public int TeacherParticipants { get; set; }
+
+
+        // ============================
+        // Total Participants
+        // ============================
+
+        [Range(
+            0,
+            int.MaxValue,
+            ErrorMessage = "Enter a valid total number of participants"
+        )]
+        public int TotalParticipants { get; set; }
+
+
+        // ============================
+        // Status
+        // ============================
 
         public bool IsActive { get; set; } = true;
     }
