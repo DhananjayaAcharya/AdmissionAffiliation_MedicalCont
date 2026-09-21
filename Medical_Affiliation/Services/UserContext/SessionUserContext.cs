@@ -17,8 +17,7 @@ namespace Medical_Affiliation.Services.UserContext
             User?.FindFirst("CollegeCode")?.Value
             ?? throw new UnauthorizedAccessException("CollegeCode missing");
 
-        public string CourseLevel =>
-            User?.FindFirst("CourseLevel")?.Value
+        public string CourseLevel => _httpContextAccessor.HttpContext.Session.GetString("CourseLevel")
             ?? throw new UnauthorizedAccessException("CourseLevel missing");
 
         public int FacultyId =>

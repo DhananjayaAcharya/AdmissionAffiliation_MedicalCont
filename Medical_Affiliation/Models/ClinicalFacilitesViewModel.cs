@@ -258,6 +258,7 @@ namespace Medical_Affiliation.Models
         public string CollegeCode { get; set; }
         public string FacultyCode { get; set; }
 
+        [ValidateNever]
         public string? CourseLevel { get; set; }
         public int AffiliationTypeId { get; set; }
         public string AffiliationType { get; set; }
@@ -332,8 +333,78 @@ namespace Medical_Affiliation.Models
         public string? AnatomyActRegistrationDetails { get; set; }
         public IFormFile? AnatomyActRegistrationPdfFile { get; set; }
         public string? AnatomyActRegistrationPdfPath { get; set; }
+
+        // ============================================================
+        // TIE-UP WITH OTHER HOSPITALS
+        // ============================================================
+
+        /// <summary>
+        /// Indicates whether the institution has a tie-up
+        /// with another hospital for teaching/clinical requirements.
+        /// </summary>
+        public bool? HasHospitalTieUp { get; set; }
+
+        /// <summary>
+        /// Details of hospitals with which the institution
+        /// has a tie-up.
+        /// </summary>
+        public List<HospitalTieUpDetailVM> HospitalTieUps { get; set; }
+            = new List<HospitalTieUpDetailVM>();
     }
 
+    public class HospitalTieUpDetailVM
+    {
+        public int Id { get; set; }
+
+        public int HospitalDetailsId { get; set; }
+
+        public string CollegeCode { get; set; }
+
+        public int FacultyCode { get; set; }
+
+        public string CourseLevel { get; set; }
+
+
+        // ============================================================
+        // TIE-UP DETAILS
+        // ============================================================
+
+        /// <summary>
+        /// Type of clinical teaching/service tie-up.
+        /// Example: Psychiatry, Tuberculosis, Leprosy, Burns, etc.
+        /// </summary>
+        public string? TieUpType { get; set; }
+
+        public string? HospitalName { get; set; }
+
+        public string? HospitalAddress { get; set; }
+
+        public string? TieUpDetails { get; set; }
+
+
+        // ============================================================
+        // SUPPORTING DOCUMENT
+        // ============================================================
+
+        public IFormFile? SupportingDocumentFile { get; set; }
+
+        public string? SupportingDocumentPath { get; set; }
+
+        public string? SupportingDocumentName { get; set; }
+
+        public string? SupportingDocumentContentType { get; set; }
+
+
+        // ============================================================
+        // STATUS / AUDIT
+        // ============================================================
+
+        public bool IsDeleted { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
+        public DateTime? ModifiedOn { get; set; }
+    }
 
     public class ClinicalCapacityViewModel
     {

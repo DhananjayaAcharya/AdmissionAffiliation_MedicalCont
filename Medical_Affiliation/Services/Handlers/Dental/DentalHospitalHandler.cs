@@ -13,11 +13,13 @@ namespace Medical_Affiliation.Services.Handlers.Medical
     {
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DentalHospitalHandler(ApplicationDbContext context, IUserContext userContext)
+        public DentalHospitalHandler(ApplicationDbContext context, IUserContext userContext, IHttpContextAccessor accessor)
         {
             _context = context;
             _userContext = userContext;
+            _httpContextAccessor = accessor;
         }
 
         private async Task<List<AffiliatedHospitalDocumentsViewModel>> BuildAffiliatedHospitalDocumentsAsync(string collegeCode)
@@ -128,12 +130,99 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             var facultyCode = _userContext.FacultyId;
             var seatSlabId = _userContext.SeatSlabId;
             var typeOfAffiliation = _userContext.TypeOfAffiliation;
-            var courseLevel = _userContext.CourseLevel;
+            var courseLevel = _userContext.CourseLevel ?? _httpContextAccessor.HttpContext.Session.GetString("CourseLevel");
 
             // Sequentially await queries to avoid DbContext concurrency issues
             var hospital = await _context.HospitalDetailsForAffiliations
                 .Include(h => h.HospitalFacilities)
                 .FirstOrDefaultAsync(h => h.CollegeCode == collegeCode && h.CourseLevel == courseLevel);
+
+
+            var hospitalTieUps = new List<HospitalTieUpDetailVM>();
+
+            // ============================================================
+            // HOSPITAL TIE-UP DETAILS
+            // ============================================================
+
+
+            if (hospital != null)
+            {
+                hospitalTieUps = await _context.HospitalTieUpDetails
+                    .Where(x =>
+                        x.HospitalDetailsId == hospital.HospitalDetailsId &&
+                        x.CollegeCode == hospital.CollegeCode &&
+                        x.CourseLevel == courseLevel &&
+                        x.FacultyCode == facultyCode &&
+                        !x.IsDeleted)
+                    .Select(x => new HospitalTieUpDetailVM
+                    {
+                        Id = x.Id,
+                        HospitalDetailsId = x.HospitalDetailsId,
+                        CollegeCode = x.CollegeCode,
+                        FacultyCode = x.FacultyCode,
+
+                        CourseLevel = x.CourseLevel,
+
+                        TieUpType = x.TieUpType,
+                        HospitalName = x.HospitalName,
+                        HospitalAddress = x.HospitalAddress,
+                        TieUpDetails = x.TieUpDetails,
+
+                        SupportingDocumentPath = x.SupportingDocumentPath,
+                        SupportingDocumentName = x.SupportingDocumentName
+                    })
+                    .ToListAsync();
+            }
+
+            // Build Form VM
+            var formVM = hospital == null
+                ? new ClinicalHospitalFormVM
+                {
+                    CollegeCode = collegeCode,
+                    FacultyCode = facultyCode.ToString(),
+                    AffiliationTypeId = typeOfAffiliation,
+                    AffiliationType = "Continuation",
+                    HasHospitalTieUp = null,
+                    HospitalTieUps = new List<HospitalTieUpDetailVM>()
+                    //HospitalTypeList = hospitalTypesList,
+                    //HospitalOwnedByList = hospitalOwnedByList
+
+                }
+                : new ClinicalHospitalFormVM
+                {
+                    HospitalDetailsId = hospital.HospitalDetailsId,
+                    CollegeCode = hospital.CollegeCode,
+                    FacultyCode = hospital.FacultyCode,
+                    AffiliationTypeId = hospital.AffiliationTypeId,
+                    AffiliationType = "Continuation",
+                    HospitalName = hospital.HospitalName,
+                    HospitalOwnerName = hospital.HospitalOwnerName,
+                    HospitalTypeId = hospital.HospitalType,
+                    HospitalOwnedById = hospital.HospitalOwnedBy,
+
+                    //HospitalTypeList = hospitalTypesList,
+                    //HospitalOwnedByList = hospitalOwnedByList,
+                    HospitalType = hospital.HospitalType,
+                    HospitalOwnedBy = hospital.HospitalOwnedBy,
+                    HospitalDistrictId = hospital.HospitalDistrictId,
+                    HospitalTalukId = hospital.HospitalTalukId,
+                    Location = hospital.Location,
+                    ParentMedicalCollegeExists = hospital.ParentMedicalCollegeExists,
+                    IsParentHospitalForOtherNursingInstitution = hospital.IsParentHospitalForOtherNursingInstitution,
+                    DrugFreeCampusCertificationPath = hospital.DrugFreeCampusCertificationPdfPath,
+                    KPMECertificatePath = hospital.KpmecertificatePdfPath,
+                    ProposedPlansForFutureDevelopmentsPath = hospital.ProposedPlansForFutureDevelopmentsPdfPath,
+                    PollutionControlBoardCertificatePath = hospital.PollutionControlBoardCertificatePdfPath,
+                    BioMedicalCertificatePath = hospital.BioMedicalCertificatePdfPath,
+                    HasAnatomyActRegistration = hospital.HasAnatomyActRegistration,
+                    AnatomyActRegistrationDetails = hospital.AnatomyActRegistrationDetails,
+                    AnatomyActRegistrationPdfPath = hospital.AnatomyActRegistrationPdfPath,
+                    HasHospitalTieUp = hospital.HasHospitalTieUp,
+
+                    HospitalTieUps = hospitalTieUps,
+
+                };
+
 
             var affiliatedDocs = await _context.AffiliatedHospitalDocuments
                 .Where(h => h.CollegeCode == collegeCode && h.CourseLevel == courseLevel)
@@ -166,24 +255,67 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             var mstHospitalDocs = await _context.MstHospitalDocuments.Where(f => f.FacultyCode == facultyCode).ToListAsync();
             var existingHospitalDetailsForAffiliations = await _context.HospitalDetailsForAffiliations.Where(h => h.CollegeCode == collegeCode).FirstOrDefaultAsync();
             var options = await _context.MstHospitalOwnedBies.Where(f => f.FacultyCode == facultyCode).ToListAsync();
-            //var hospitalTypesList = await _context.MstHospitalTypes
-            // .Where(x => x.FacultyCode == facultyCode)
-            // .Select(x => new SelectListItem
-            // {
-            //     Text = x.HospitalType,
-            //     Value = x.Id.ToString()
-            // })
-            // .ToListAsync();
 
-            //var hospitalOwnedByList = await _context.MstHospitalOwnedBies
-            //    .Where(x => x.FacultyCode == facultyCode)
-            //    .Select(x => new SelectListItem
-            //    {
-            //        Text = x.OwnedBy,
-            //        Value = x.Id.ToString()
-            //    })
-            //    .ToListAsync();
 
+
+
+            if (hospital != null)
+            {
+                var hospitalDetailsId = hospital.HospitalDetailsId;
+                var hospitalCollegeCode = hospital.CollegeCode;
+                var hospitalFacultyCode = hospital.FacultyCode;
+
+                if (!string.IsNullOrWhiteSpace(hospitalCollegeCode) &&
+                    !string.IsNullOrWhiteSpace(hospitalFacultyCode) &&
+                    !string.IsNullOrWhiteSpace(courseLevel))
+                {
+                    var normalizedCourseLevel =
+                        courseLevel.Trim().ToUpperInvariant();
+
+                    hospitalTieUps = await _context.HospitalTieUpDetails
+                        .Where(x =>
+                            x.HospitalDetailsId == hospitalDetailsId &&
+                            x.CollegeCode == hospitalCollegeCode &&
+                            x.CourseLevel == normalizedCourseLevel &&
+                            x.FacultyCode.ToString() == hospitalFacultyCode &&
+                            !x.IsDeleted)
+                        .Select(x => new HospitalTieUpDetailVM
+                        {
+                            Id = x.Id,
+
+                            HospitalDetailsId =
+                                x.HospitalDetailsId,
+
+                            CollegeCode =
+                                x.CollegeCode,
+
+                            FacultyCode =
+                                x.FacultyCode,
+
+                            CourseLevel =
+                                x.CourseLevel,
+
+                            TieUpType =
+                                x.TieUpType,
+
+                            HospitalName =
+                                x.HospitalName,
+
+                            HospitalAddress =
+                                x.HospitalAddress,
+
+                            TieUpDetails =
+                                x.TieUpDetails,
+
+                            SupportingDocumentPath =
+                                x.SupportingDocumentPath,
+
+                            SupportingDocumentName =
+                                x.SupportingDocumentName
+                        })
+                        .ToListAsync();
+                }
+            }
 
             var existingSuperVisionInFpa = await _context.SuperVisionInFieldPracticeAreas.Where(f => f.CollegeCode == collegeCode).ToListAsync();
 
@@ -255,49 +387,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 existingHospitalDocs = new List<HospitalDocumentsToBeUploaded>();
             }
 
-            // Build Form VM
-            var formVM = hospital == null
-                ? new ClinicalHospitalFormVM
-                {
-                    CollegeCode = collegeCode,
-                    FacultyCode = facultyCode.ToString(),
-                    AffiliationTypeId = typeOfAffiliation,
-                    AffiliationType = "Continuation",
-                    //HospitalTypeList = hospitalTypesList,
-                    //HospitalOwnedByList = hospitalOwnedByList
-
-                }
-                : new ClinicalHospitalFormVM
-                {
-                    HospitalDetailsId = hospital.HospitalDetailsId,
-                    CollegeCode = hospital.CollegeCode,
-                    FacultyCode = hospital.FacultyCode,
-                    AffiliationTypeId = hospital.AffiliationTypeId,
-                    AffiliationType = "Continuation",
-                    HospitalName = hospital.HospitalName,
-                    HospitalOwnerName = hospital.HospitalOwnerName,
-                    HospitalTypeId = hospital.HospitalType,
-                    HospitalOwnedById = hospital.HospitalOwnedBy,
-
-                    //HospitalTypeList = hospitalTypesList,
-                    //HospitalOwnedByList = hospitalOwnedByList,
-                    HospitalType = hospital.HospitalType,
-                    HospitalOwnedBy = hospital.HospitalOwnedBy,
-                    HospitalDistrictId = hospital.HospitalDistrictId,
-                    HospitalTalukId = hospital.HospitalTalukId,
-                    Location = hospital.Location,
-                    ParentMedicalCollegeExists = hospital.ParentMedicalCollegeExists,
-                    IsParentHospitalForOtherNursingInstitution = hospital.IsParentHospitalForOtherNursingInstitution,
-                    DrugFreeCampusCertificationPath = hospital.DrugFreeCampusCertificationPdfPath,
-                    KPMECertificatePath = hospital.KpmecertificatePdfPath,
-                    ProposedPlansForFutureDevelopmentsPath = hospital.ProposedPlansForFutureDevelopmentsPdfPath,
-                    PollutionControlBoardCertificatePath = hospital.PollutionControlBoardCertificatePdfPath,
-                    BioMedicalCertificatePath = hospital.BioMedicalCertificatePdfPath,
-                    HasAnatomyActRegistration = hospital.HasAnatomyActRegistration,
-                    AnatomyActRegistrationDetails = hospital.AnatomyActRegistrationDetails,
-                    AnatomyActRegistrationPdfPath = hospital.AnatomyActRegistrationPdfPath
-                };
-
+            
             // Build Hospital Facilities VM
             var hospitalFacilitiesVM = new HospitalFacilitiesViewModel
             {

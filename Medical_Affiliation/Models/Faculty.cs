@@ -53,6 +53,8 @@ public partial class Faculty
 
     public virtual ICollection<HospitalFacility> HospitalFacilities { get; set; } = new List<HospitalFacility>();
 
+    public virtual ICollection<HospitalTieUpDetail> HospitalTieUpDetails { get; set; } = new List<HospitalTieUpDetail>();
+
     public virtual ICollection<IndoorBedsOccupancy> IndoorBedsOccupancies { get; set; } = new List<IndoorBedsOccupancy>();
 
     public virtual ICollection<IndoorInfrastructureRequirementsCompliance> IndoorInfrastructureRequirementsCompliances { get; set; } = new List<IndoorInfrastructureRequirementsCompliance>();

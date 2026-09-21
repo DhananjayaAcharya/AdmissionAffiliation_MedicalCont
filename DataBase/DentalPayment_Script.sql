@@ -1,5 +1,63 @@
 ﻿
 
+
+/* ============================================================
+   TABLE: MstDentalAffiliationType
+
+   PURPOSE:
+   Stores affiliation types specifically applicable to the
+   Dental faculty.
+
+   EXAMPLES:
+   - Fresh Affiliation
+   - Continuation of Affiliation
+   - Enhancement / Increase in Intake
+
+   RELATIONSHIPS:
+   - FacultyCode → Faculty(FacultyId)
+
+   ============================================================ */
+
+CREATE TABLE MstDentalAffiliationType
+(
+    DentalAffiliationTypeId INT IDENTITY(1,1) PRIMARY KEY,
+
+    FacultyCode INT NOT NULL,
+
+    AffiliationCategory NVARCHAR(200) NOT NULL,
+
+    TypeId INT null,
+
+    AcademicYear NVARCHAR(20) NOT NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CourseLevelGroup VARCHAR(50) NULL,
+    -- Examples: UG, PG
+
+    CreatedBy VARCHAR(100) NULL,
+
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy VARCHAR(100) NULL,
+
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT FK_MstDentalAffiliationType_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT UQ_MstDentalAffiliationType
+        UNIQUE
+        (
+            FacultyCode,
+            AffiliationCategory,
+            AcademicYear,
+            CourseLevelGroup
+        )
+);
+
+
 /* ============================================================
    TABLE: MstDentalFeeTypes
 
@@ -50,7 +108,7 @@ CREATE TABLE MstDentalFeeTypes
 
     CONSTRAINT FK_MstDentalFeeTypes_DentalAffiliationType
         FOREIGN KEY (AffiliationTypeId)
-        REFERENCES MstDentalAffiliationType(DentalAffiliationTypeId)
+        REFERENCES MstDentalAffiliationType(DentalAffiliationTypeId),
 
     CONSTRAINT UQ_MstDentalFeeTypes
         UNIQUE
@@ -497,63 +555,6 @@ VALUES
 ( 2, 'Fee for Change of Address of the Institution', 500000, 2,  3, 1, 'Admin', GETDATE()),
 ( 2, 'Re-Inspection Fee', 100000, 2, 4, 1, 'Admin', GETDATE());
 
-
-
-/* ============================================================
-   TABLE: MstDentalAffiliationType
-
-   PURPOSE:
-   Stores affiliation types specifically applicable to the
-   Dental faculty.
-
-   EXAMPLES:
-   - Fresh Affiliation
-   - Continuation of Affiliation
-   - Enhancement / Increase in Intake
-
-   RELATIONSHIPS:
-   - FacultyCode → Faculty(FacultyId)
-
-   ============================================================ */
-
-CREATE TABLE MstDentalAffiliationType
-(
-    DentalAffiliationTypeId INT IDENTITY(1,1) PRIMARY KEY,
-
-    FacultyCode INT NOT NULL,
-
-    AffiliationCategory NVARCHAR(200) NOT NULL,
-
-    TypeId INT null,
-
-    AcademicYear NVARCHAR(20) NOT NULL,
-
-    IsActive BIT NOT NULL DEFAULT 1,
-
-    CourseLevelGroup VARCHAR(50) NULL,
-    -- Examples: UG, PG
-
-    CreatedBy VARCHAR(100) NULL,
-
-    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
-
-    ModifiedBy VARCHAR(100) NULL,
-
-    ModifiedDate DATETIME NULL,
-
-    CONSTRAINT FK_MstDentalAffiliationType_Faculty
-        FOREIGN KEY (FacultyCode)
-        REFERENCES Faculty(FacultyId),
-
-    CONSTRAINT UQ_MstDentalAffiliationType
-        UNIQUE
-        (
-            FacultyCode,
-            AffiliationCategory,
-            AcademicYear,
-            CourseLevelGroup
-        )
-);
 
 --ALTER TABLE MstDentalAffiliationType
 --ADD TypeId INT null;

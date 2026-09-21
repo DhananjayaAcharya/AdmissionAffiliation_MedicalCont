@@ -100,6 +100,16 @@ namespace Medical_Affiliation.Controllers
 
                 ValidateClinicalHospitalDetails(vm);
 
+                if (facultyId == 2 && vm.Form.HospitalTieUps != null)
+                {
+                    for (int i = 0; i < vm.Form.HospitalTieUps.Count; i++)
+                    {
+                        ModelState.Remove(
+                            $"Form.HospitalTieUps[{i}].CourseLevel"
+                        );
+                    }
+                }
+
                 if (!ModelState.IsValid)
                 {
                     var errors = ModelState
@@ -250,6 +260,116 @@ namespace Medical_Affiliation.Controllers
                         hospital.AnatomyActRegistrationPdfPath =
                             await SaveFileAndReturnPath( vm.Form.AnatomyActRegistrationPdfFile, "ClinicalHospitalDocs", "AnatomyActDocument");
                     }
+
+                    hospital.HasHospitalTieUp = vm.Form.HasHospitalTieUp;
+
+                    // ============================================================
+                    // TIE-UP WITH OTHER HOSPITALS - DETAILS
+                    // ============================================================
+
+                    if (vm.Form.HasHospitalTieUp == true &&
+                        vm.Form.HospitalTieUps != null)
+                    {
+                        foreach (var tieUp in vm.Form.HospitalTieUps)
+                        {
+                            // Skip completely empty rows
+                            if (string.IsNullOrWhiteSpace(tieUp.TieUpType) &&
+                                string.IsNullOrWhiteSpace(tieUp.HospitalName) &&
+                                string.IsNullOrWhiteSpace(tieUp.HospitalAddress) &&
+                                string.IsNullOrWhiteSpace(tieUp.TieUpDetails) &&
+                                tieUp.SupportingDocumentFile == null)
+                            {
+                                continue;
+                            }
+
+                            HospitalTieUpDetail? dbTieUp = null;
+
+
+                            // ========================================================
+                            // UPDATE EXISTING RECORD
+                            // ========================================================
+
+                            if (tieUp.Id > 0)
+                            {
+                                dbTieUp = await _context.HospitalTieUpDetails
+                                    .FirstOrDefaultAsync(x =>
+                                        x.Id == tieUp.Id &&
+                                        x.HospitalDetailsId == hospital.HospitalDetailsId &&
+                                        x.CollegeCode == collegeCode &&
+                                        x.CourseLevel == courseLevel &&
+                                        x.FacultyCode == facultyId &&
+                                        !x.IsDeleted);
+                            }
+
+
+                            // ========================================================
+                            // INSERT NEW RECORD
+                            // ========================================================
+
+                            if (dbTieUp == null)
+                            {
+                                dbTieUp = new HospitalTieUpDetail
+                                {
+                                    HospitalDetailsId = hospital.HospitalDetailsId,
+                                    CollegeCode = collegeCode,
+                                    CourseLevel = courseLevel,
+                                    FacultyCode = facultyId,
+                                    CreatedOn = DateTime.Now,
+                                    IsDeleted = false
+                                };
+
+                                _context.HospitalTieUpDetails.Add(dbTieUp);
+                            }
+
+
+                            // ========================================================
+                            // COMMON DETAILS
+                            // ========================================================
+
+                            dbTieUp.TieUpType =
+                                tieUp.TieUpType?.Trim();
+
+                            dbTieUp.HospitalName =
+                                tieUp.HospitalName?.Trim();
+
+                            dbTieUp.HospitalAddress =
+                                tieUp.HospitalAddress?.Trim();
+
+                            dbTieUp.TieUpDetails =
+                                tieUp.TieUpDetails?.Trim();
+
+                            dbTieUp.IsDeleted = false;
+
+                            dbTieUp.ModifiedOn = DateTime.Now;
+
+
+                            // ========================================================
+                            // SUPPORTING DOCUMENT
+                            // ========================================================
+
+                            if (tieUp.SupportingDocumentFile != null &&
+                                tieUp.SupportingDocumentFile.Length > 0)
+                            {
+                                var path = await SaveFileAndReturnPath(
+                                    tieUp.SupportingDocumentFile,
+                                    "ClinicalHospitalDocs",
+                                    "HospitalTieUpDocument");
+
+                                // Delete old physical file if replacing
+                                DeletePhysicalFileIfExists(
+                                    dbTieUp.SupportingDocumentPath);
+
+                                dbTieUp.SupportingDocumentPath = path;
+
+                                dbTieUp.SupportingDocumentName =
+                                    tieUp.SupportingDocumentFile.FileName;
+
+                                dbTieUp.SupportingDocumentContentType =
+                                    tieUp.SupportingDocumentFile.ContentType;
+                            }
+                        }
+                    }
+
                 }
 
                 await _context.SaveChangesAsync();
@@ -272,6 +392,148 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteHospitalTieUp(int id)
+        {
+            try
+            {
+                var collegeCode = HttpContext.Session.GetString("CollegeCode");
+                var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+                if (string.IsNullOrWhiteSpace(collegeCode) ||
+                    string.IsNullOrWhiteSpace(facultyCode))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Session expired. Please login again."
+                    });
+                }
+
+                var tieUp = await _context.HospitalTieUpDetails
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == id &&
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode.ToString() == facultyCode &&
+                        !x.IsDeleted);
+
+                if (tieUp == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Hospital tie-up details not found."
+                    });
+                }
+
+                // Soft delete
+                tieUp.IsDeleted = true;
+                tieUp.ModifiedOn = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                // Delete physical document if required
+                if (!string.IsNullOrWhiteSpace(tieUp.SupportingDocumentPath))
+                {
+                    DeletePhysicalFileIfExists(
+                        tieUp.SupportingDocumentPath);
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Hospital tie-up deleted successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Unable to delete hospital tie-up.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewHospitalTieUpDocument(int id)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCode))
+            {
+                return Unauthorized();
+            }
+
+
+            // ============================================================
+            // GET TIE-UP DOCUMENT
+            // ============================================================
+
+            var tieUp = await _context.HospitalTieUpDetails
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode.ToString() == facultyCode &&
+                    !x.IsDeleted);
+
+
+            if (tieUp == null)
+            {
+                return NotFound("Hospital tie-up record not found.");
+            }
+
+
+            // ============================================================
+            // CHECK DOCUMENT
+            // ============================================================
+
+            if (string.IsNullOrWhiteSpace(tieUp.SupportingDocumentPath))
+            {
+                return NotFound("Supporting document not found.");
+            }
+
+
+            // ============================================================
+            // GET PHYSICAL FILE
+            // ============================================================
+
+            var filePath = tieUp.SupportingDocumentPath;
+
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("Supporting document file not found.");
+            }
+
+
+            // ============================================================
+            // RETURN PDF
+            // ============================================================
+
+            var contentType =
+                string.IsNullOrWhiteSpace(
+                    tieUp.SupportingDocumentContentType)
+                    ? "application/pdf"
+                    : tieUp.SupportingDocumentContentType;
+
+
+            var fileName =
+                string.IsNullOrWhiteSpace(
+                    tieUp.SupportingDocumentName)
+                    ? "HospitalTieUpDocument.pdf"
+                    : tieUp.SupportingDocumentName;
+
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+
+
+            return File(fileBytes, contentType);
+        }
 
         [HttpGet]
         public async Task<IActionResult> ViewHospitalCertificate(int id,  string type)

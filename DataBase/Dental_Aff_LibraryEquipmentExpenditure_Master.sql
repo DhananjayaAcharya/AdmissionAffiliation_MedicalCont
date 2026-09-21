@@ -61,14 +61,67 @@ ADD
 ------------------------------------------------------------------
 SELECT * FROM [HospitalDetailsForAffiliation]
 WHERE CollegeCode = 'd038'
+
+UPDATE HospitalDetailsForAffiliation
+SET CourseLevel = 'UG'
+WHERE FacultyCode = 2 
+------------------------------------------------------------------
 ALTER TABLE [dbo].[HospitalDetailsForAffiliation]
 ADD
     HasAnatomyActRegistration BIT NULL,
     AnatomyActRegistrationDetails NVARCHAR(MAX) NULL,
-    AnatomyActRegistrationPdfPath NVARCHAR(500) NULL;
+    AnatomyActRegistrationPdfPath NVARCHAR(500) NULL,
+    HasHospitalTieUp BIT NULL;
 
 ----------------------------------------------------------------
 
+select *  FROM [HospitalTieUpDetails]
+WHERE CollegeCode = 'd038'
+
+
+CREATE TABLE [dbo].[HospitalTieUpDetails]
+(
+    Id INT IDENTITY(1,1) NOT NULL
+        CONSTRAINT PK_HospitalTieUpDetails PRIMARY KEY,
+
+    HospitalDetailsId INT NOT NULL,
+
+    CollegeCode NVARCHAR(100) NULL,
+    CourseLevel VARCHAR(10) NULL,
+
+    FacultyCode INT NOT NULL,
+
+    TieUpType NVARCHAR(200) NOT NULL,
+
+    HospitalName NVARCHAR(300) NULL,
+
+    HospitalAddress NVARCHAR(500) NULL,
+
+    TieUpDetails NVARCHAR(MAX) NULL,
+
+    SupportingDocumentPath NVARCHAR(500) NULL,
+
+    SupportingDocumentName NVARCHAR(255) NULL,
+
+    SupportingDocumentContentType NVARCHAR(100) NULL,
+
+    IsDeleted BIT NOT NULL
+        CONSTRAINT DF_HospitalTieUpDetails_IsDeleted DEFAULT (0),
+
+    CreatedOn DATETIME NOT NULL
+        CONSTRAINT DF_HospitalTieUpDetails_CreatedOn DEFAULT (GETDATE()),
+
+    ModifiedOn DATETIME NULL,
+
+    CONSTRAINT FK_HospitalTieUpDetails_HospitalDetails
+        FOREIGN KEY (HospitalDetailsId)
+        REFERENCES [dbo].[HospitalDetailsForAffiliation](HospitalDetailsId),
+
+    CONSTRAINT FK_HospitalTieUpDetails_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES [dbo].[Faculty](FacultyId)
+);
+-----------------------------------------------------------
 --select * from [AFF_HostelDetails]
 --where collegecode = 'd038'
 -- ============================================================

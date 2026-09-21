@@ -330,6 +330,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<HospitalFacility> HospitalFacilities { get; set; }
 
+    public virtual DbSet<HospitalTieUpDetail> HospitalTieUpDetails { get; set; }
+
     public virtual DbSet<IndoorBedsOccupancy> IndoorBedsOccupancies { get; set; }
 
     public virtual DbSet<IndoorInfrastructureRequirementsCompliance> IndoorInfrastructureRequirementsCompliances { get; set; }
@@ -4696,6 +4698,34 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.HospitalDetailsId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_HF_Hospital");
+        });
+
+        modelBuilder.Entity<HospitalTieUpDetail>(entity =>
+        {
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.HospitalAddress).HasMaxLength(500);
+            entity.Property(e => e.HospitalName).HasMaxLength(300);
+            entity.Property(e => e.ModifiedOn).HasColumnType("datetime");
+            entity.Property(e => e.SupportingDocumentContentType).HasMaxLength(100);
+            entity.Property(e => e.SupportingDocumentName).HasMaxLength(255);
+            entity.Property(e => e.SupportingDocumentPath).HasMaxLength(500);
+            entity.Property(e => e.TieUpType).HasMaxLength(200);
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.HospitalTieUpDetails)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HospitalTieUpDetails_Faculty");
+
+            entity.HasOne(d => d.HospitalDetails).WithMany(p => p.HospitalTieUpDetails)
+                .HasForeignKey(d => d.HospitalDetailsId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HospitalTieUpDetails_HospitalDetails");
         });
 
         modelBuilder.Entity<IndoorBedsOccupancy>(entity =>
