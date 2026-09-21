@@ -1055,7 +1055,6 @@ where FacultyCode=2
     References:
     - FacultyCode  -> TblFacultyMasters.FacultyCode
     - CollegeCode  -> TblCollegeMasters.CollegeCode
-    - DepartmentId -> DepartmentMaster.Id
 */
 
 
@@ -1096,3 +1095,63 @@ CREATE TABLE DepartmentWiseResearchProjects
 );
 
 ---------------------------------------------------------
+
+/*
+    Table Name : AdditionalInformationInAcademicActivities
+
+    Description:
+    This table stores additional information related to academic
+    activities of a college, including the availability of a
+    Medical Education Unit, TOT programmes conducted and attended,
+    and the supporting CME programme PDF document path.
+
+    References:
+    - FacultyCode -> Faculty master
+    - CollegeCode -> College master
+*/
+
+CREATE TABLE AdditionalInformationInAcademicActivities
+(
+    Id INT IDENTITY(1,1) NOT NULL,
+
+    FacultyCode INT NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+
+    CourseLevel VARCHAR(50) NULL,
+
+    HasMedicalEducationUnit BIT NOT NULL DEFAULT 0,
+
+    HasTOTProgrammesConducted BIT NOT NULL DEFAULT 0,
+
+    HasTOTProgrammesAttended BIT NOT NULL DEFAULT 0,
+    -- Number of TOT programmes conducted
+    TOTProgrammesConducted INT NOT NULL DEFAULT 0,
+
+    -- Number of TOT programmes attended
+    TOTProgrammesAttended INT NOT NULL DEFAULT 0,
+
+    CMEProgrammePdfPath NVARCHAR(1000) NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy NVARCHAR(100) NULL,
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT PK_AdditionalInformationInAcademicActivities
+        PRIMARY KEY (Id),
+
+    CONSTRAINT FK_AIAAF_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_AIAAF_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode)
+);
+
+
+-----------------------------

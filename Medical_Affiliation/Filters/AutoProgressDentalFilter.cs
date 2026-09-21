@@ -166,6 +166,7 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
 
             new () { Key="AcademicMatters", Ctrl="CA_Aff_AcademicMatters", Acts=new() {"AcademicMatters" } },
             new (){ Key="PGAcademicMatters", Ctrl="CA_Aff_AcademicMatters", Acts=new() {"AcademicMattersPG" } },
+            new (){ Key="AdditionalInformationInAcademicActivities", Ctrl="AdditionalInformationInAcademicActivities", Acts=new() { "Save" } },
 
             new () { Key="Finance", Ctrl="Aff_CA_Med_FinanceDetails", Acts=new() {"Med_CA_AccountAndFeeDetails" } },
             new () { Key="StaffDetails", Ctrl="CA_Med_StaffDetails", Acts=new() {"SavePayScale" } },

@@ -43,6 +43,8 @@ public partial class AffiliationCollegeMaster
 
     public virtual ICollection<ActionTakenDeficiencyReport> ActionTakenDeficiencyReports { get; set; } = new List<ActionTakenDeficiencyReport>();
 
+    public virtual ICollection<AdditionalInformationInAcademicActivity> AdditionalInformationInAcademicActivities { get; set; } = new List<AdditionalInformationInAcademicActivity>();
+
     public virtual ICollection<AffiliationFinalDeclaration> AffiliationFinalDeclarations { get; set; } = new List<AffiliationFinalDeclaration>();
 
     public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();

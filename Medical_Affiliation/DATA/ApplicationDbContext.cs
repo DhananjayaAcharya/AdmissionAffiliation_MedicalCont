@@ -32,6 +32,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AddCoursedetail> AddCoursedetails { get; set; }
 
+    public virtual DbSet<AdditionalInformationInAcademicActivity> AdditionalInformationInAcademicActivities { get; set; }
+
     public virtual DbSet<AdministrativeFacilityType> AdministrativeFacilityTypes { get; set; }
 
     public virtual DbSet<AffAdminTeachingBlock> AffAdminTeachingBlocks { get; set; }
@@ -883,6 +885,38 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<AdditionalInformationInAcademicActivity>(entity =>
+        {
+            entity.Property(e => e.CmeprogrammePdfPath)
+                .HasMaxLength(1000)
+                .HasColumnName("CMEProgrammePdfPath");
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.HasTotprogrammesAttended).HasColumnName("HasTOTProgrammesAttended");
+            entity.Property(e => e.HasTotprogrammesConducted).HasColumnName("HasTOTProgrammesConducted");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.TotprogrammesAttended).HasColumnName("TOTProgrammesAttended");
+            entity.Property(e => e.TotprogrammesConducted).HasColumnName("TOTProgrammesConducted");
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.AdditionalInformationInAcademicActivities)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AIAAF_College");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.AdditionalInformationInAcademicActivities)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AIAAF_Faculty");
         });
 
         modelBuilder.Entity<AdministrativeFacilityType>(entity =>
