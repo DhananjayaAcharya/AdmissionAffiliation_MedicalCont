@@ -78,6 +78,41 @@ namespace Medical_Affiliation.Models
 
         public List<DepartmentWisePublicationVM> DepartmentWisePublications { get; set; } = new();
 
+        public List<DepartmentWiseResearchProjectVM> DepartmentWiseResearchProjects { get; set; }  = new();
+
+    }
+
+    public class DepartmentWiseResearchProjectVM
+    {
+        public int Id { get; set; }
+
+        // College Code
+        public string? CollegeCode { get; set; }
+
+        // Faculty Code
+        public int FacultyCode { get; set; }
+
+        public string CourseLevel { get; set; }
+
+
+        // Department details for display
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        // Number of research projects added/completed
+        // during the last 3 years
+        [Required(ErrorMessage = "Number of research projects is required")]
+        [Range(0, int.MaxValue, ErrorMessage = "Enter a valid number of research projects")]
+        public int NoOfResearchProjectsLast3Years { get; set; }
+
+        // Supporting PDF
+        public IFormFile? ResearchProjectsPdf { get; set; }
+
+        // Existing PDF path
+        public string? PdfFilePath { get; set; }
+
+        public bool IsActive { get; set; } = true;
     }
 
 

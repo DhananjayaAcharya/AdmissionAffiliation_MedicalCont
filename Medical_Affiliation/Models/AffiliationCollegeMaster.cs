@@ -67,6 +67,8 @@ public partial class AffiliationCollegeMaster
 
     public virtual ICollection<DentalWardBedDistribution> DentalWardBedDistributions { get; set; } = new List<DentalWardBedDistribution>();
 
+    public virtual ICollection<DepartmentWiseResearchProject> DepartmentWiseResearchProjects { get; set; } = new List<DepartmentWiseResearchProject>();
+
     public virtual ICollection<LibraryExpenditure> LibraryExpenditures { get; set; } = new List<LibraryExpenditure>();
 
     public virtual ICollection<LibraryStaffDetail> LibraryStaffDetails { get; set; } = new List<LibraryStaffDetail>();

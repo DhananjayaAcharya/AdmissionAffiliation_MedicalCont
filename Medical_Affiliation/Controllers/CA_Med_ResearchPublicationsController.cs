@@ -24,6 +24,7 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
             var levels = string.IsNullOrEmpty(raw)
@@ -103,6 +104,13 @@ namespace Medical_Affiliation.Controllers
                             x.FacultyCode == facultyCodeInt)
                 .ToListAsync();
 
+            // ── Department Wise Research Projects ─────────────────────────────
+            var savedDeptResearchProjects = await _context.DepartmentWiseResearchProjects
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.CourseLevel == courseLevel &&
+                            x.FacultyCode == facultyCodeInt)
+                .ToListAsync();
+
             var activityMasters = await _context.CaMstMedOtherAcademicActivities
                 .OrderBy(x => x.ActivityName)
                 .ToListAsync();
@@ -166,6 +174,30 @@ namespace Medical_Affiliation.Controllers
                         PublicationPath = saved?.PublicationPath
                     };
                 }).ToList(),
+
+                DepartmentWiseResearchProjects = departments
+                .Select(d =>
+                {
+                    var saved = savedDeptResearchProjects.FirstOrDefault(e => e.DepartmentCode == d.DepartmentCode);
+
+                    return new DepartmentWiseResearchProjectVM
+                    {
+                        Id = saved?.Id ?? 0,
+
+                        CollegeCode = collegeCode,
+
+                        FacultyCode = facultyCodeInt,
+                        CourseLevel = courseLevel,
+
+                        DepartmentCode = d.DepartmentCode,
+
+                        DepartmentName = d.DepartmentName,
+
+                        NoOfResearchProjectsLast3Years = saved?.NoOfResearchProjectsLast3Years ?? 0,
+
+                        PdfFilePath = saved?.PdfFilePath
+                    };
+                }).ToList()
             };
 
             return View(vm);
@@ -221,7 +253,14 @@ namespace Medical_Affiliation.Controllers
             
                 if (ClinicalTrialsPdf == null && string.IsNullOrEmpty(entity?.ClinicalTrialsPdfPath))
                     ModelState.AddModelError("ClinicalTrialsPdf", "Clinical Trials PDF is required.");
-            
+
+            if (model.DepartmentWiseResearchProjects != null)
+            {
+                for (int i = 0; i < model.DepartmentWiseResearchProjects.Count; i++)
+                {
+                    ModelState.Remove($"DepartmentWiseResearchProjects[{i}].CourseLevel");
+                }
+            }
 
             if (!ModelState.IsValid)
             {
@@ -326,6 +365,74 @@ namespace Medical_Affiliation.Controllers
                 }
 
             }
+
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            // ── Department Wise Publications ─────────────────────────────
+            if (model.DepartmentWiseResearchProjects != null &&  model.DepartmentWiseResearchProjects.Any())
+            {
+                int facultyCodeInt = Convert.ToInt32(facultyCode);
+
+                foreach (var item in model.DepartmentWiseResearchProjects)
+                {
+                    var deptResearchEntity = await _context.DepartmentWiseResearchProjects
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCodeInt &&
+                            x.CourseLevel == courseLevel &&
+                            x.DepartmentCode == item.DepartmentCode);
+
+                    if (deptResearchEntity == null)
+                    {
+                        deptResearchEntity = new DepartmentWiseResearchProject
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyCode = facultyCodeInt,
+                            DepartmentCode = item.DepartmentCode,
+                            CourseLevel = courseLevel,
+                            CreatedDate = DateTime.Now
+                        };
+
+                        _context.DepartmentWiseResearchProjects.Add(deptResearchEntity);
+                    }
+
+                    deptResearchEntity.NoOfResearchProjectsLast3Years = item.NoOfResearchProjectsLast3Years;
+                    deptResearchEntity.ModifiedDate = DateTime.Now;
+
+                    // Upload file and save only the path
+                    if (item.ResearchProjectsPdf != null && item.ResearchProjectsPdf.Length > 0)
+                    {
+                        // Keep the old file path before replacing it
+                        string? oldFilePath = deptResearchEntity.PdfFilePath;
+
+                        // Save the new PDF
+                        string? newFilePath = await SaveFileAndReturnPath( item.ResearchProjectsPdf, "DepartmentWiseResearchProjects", item.DepartmentCode );
+
+                        if (!string.IsNullOrEmpty(newFilePath))
+                        {
+                            // Update database path
+                            deptResearchEntity.PdfFilePath = newFilePath;
+
+                            // Delete old physical file
+                            if (!string.IsNullOrWhiteSpace(oldFilePath) && System.IO.File.Exists(oldFilePath))
+                            {
+                                try
+                                {
+                                    System.IO.File.Delete(oldFilePath);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(
+                                        $"Unable to delete old research project PDF: {ex.Message}"
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Research and Publication details saved successfully.";
@@ -357,6 +464,39 @@ namespace Medical_Affiliation.Controllers
 
             var stream = new FileStream(
                 publication.PublicationPath,
+                FileMode.Open,
+                FileAccess.Read);
+
+            return File(stream, "application/pdf");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewDepartmentResearchProjectPdf(int id)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            var researchProject = await _context.DepartmentWiseResearchProjects
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.CollegeCode == collegeCode &&
+                    x.CourseLevel == courseLevel &&
+                    x.FacultyCode == Convert.ToInt32(facultyCode));
+
+            if (researchProject == null ||
+                string.IsNullOrWhiteSpace(researchProject.PdfFilePath))
+            {
+                return NotFound("PDF not found.");
+            }
+
+            if (!System.IO.File.Exists(researchProject.PdfFilePath))
+            {
+                return NotFound("File does not exist on server.");
+            }
+
+            var stream = new FileStream(
+                researchProject.PdfFilePath,
                 FileMode.Open,
                 FileAccess.Read);
 

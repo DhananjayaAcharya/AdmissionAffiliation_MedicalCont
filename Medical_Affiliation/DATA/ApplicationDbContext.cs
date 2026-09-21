@@ -284,6 +284,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<DepartmentWiseFacultyMaster> DepartmentWiseFacultyMasters { get; set; }
 
+    public virtual DbSet<DepartmentWiseResearchProject> DepartmentWiseResearchProjects { get; set; }
+
     public virtual DbSet<DepartmentalMuseum> DepartmentalMuseums { get; set; }
 
     public virtual DbSet<DepartmentalResearchLab> DepartmentalResearchLabs { get; set; }
@@ -4106,6 +4108,35 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.SeatSlabId)
                 .HasMaxLength(10)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<DepartmentWiseResearchProject>(entity =>
+        {
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DepartmentCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.PdfFilePath).HasMaxLength(1000);
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.DepartmentWiseResearchProjects)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DWRP_College");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.DepartmentWiseResearchProjects)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DWRP_Faculty");
         });
 
         modelBuilder.Entity<DepartmentalMuseum>(entity =>

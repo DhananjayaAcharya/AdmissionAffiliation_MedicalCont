@@ -43,6 +43,8 @@ public partial class Faculty
 
     public virtual ICollection<DentalWardBedDistribution> DentalWardBedDistributions { get; set; } = new List<DentalWardBedDistribution>();
 
+    public virtual ICollection<DepartmentWiseResearchProject> DepartmentWiseResearchProjects { get; set; } = new List<DepartmentWiseResearchProject>();
+
     public virtual ICollection<DeptWisePublication> DeptWisePublications { get; set; } = new List<DeptWisePublication>();
 
     public virtual ICollection<Event> Events { get; set; } = new List<Event>();

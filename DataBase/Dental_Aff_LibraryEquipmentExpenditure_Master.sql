@@ -1037,3 +1037,62 @@ CREATE TABLE CollegeCoursesOffered
 );
 
 -----------------------------------------------------
+
+select * from DepartmentMaster
+where FacultyCode=2
+
+-----------------------------------------------------
+
+/*
+    Table Name : DepartmentWiseResearchProjects
+
+    Description:
+    This table stores department-wise research project information
+    for a college, including the faculty, college, department,
+    number of research projects completed/added during the last
+    three years, and the supporting PDF document path.
+
+    References:
+    - FacultyCode  -> TblFacultyMasters.FacultyCode
+    - CollegeCode  -> TblCollegeMasters.CollegeCode
+    - DepartmentId -> DepartmentMaster.Id
+*/
+
+
+CREATE TABLE DepartmentWiseResearchProjects
+(
+    Id INT IDENTITY(1,1) NOT NULL,
+
+    FacultyCode INT NOT NULL,
+
+    CollegeCode NVARCHAR(100) NOT NULL,
+    CourseLevel VARCHAR(10) NULL,
+
+    DepartmentCode VARCHAR(50) NULL,
+
+    NoOfResearchProjectsLast3Years INT NOT NULL DEFAULT 0,
+
+    PdfFilePath NVARCHAR(1000) NULL,
+
+    IsActive BIT NOT NULL DEFAULT 1,
+
+    CreatedBy NVARCHAR(100) NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    ModifiedBy NVARCHAR(100) NULL,
+    ModifiedDate DATETIME NULL,
+
+    CONSTRAINT PK_DepartmentWiseResearchProjects
+        PRIMARY KEY (Id),
+
+    CONSTRAINT FK_DWRP_Faculty
+        FOREIGN KEY (FacultyCode)
+        REFERENCES Faculty(FacultyId),
+
+    CONSTRAINT FK_DWRP_College
+        FOREIGN KEY (CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+);
+
+---------------------------------------------------------
