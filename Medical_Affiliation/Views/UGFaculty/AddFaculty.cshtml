@@ -6,7 +6,7 @@
     var designations = ViewBag.Designations as List<Medical_Affiliation.Models.UgdesignationMaster>;
     var collegeName = ViewBag.CollegeName as string ?? Context.Session.GetString("CollegeName") ?? "";
     var collegeCode = Context.Session.GetString("CollegeCode") ?? "";
-    var isLocked = ViewBag.IsLocked != null && (bool)ViewBag.IsLocked;
+    var isLocked = false;
     Layout = null;
 }
 
@@ -834,14 +834,6 @@
                     </div>
                 </div>
 
-                @if (isLocked)
-                {
-                    <div class="alert alert-danger mb-3" style="border-radius:10px;">
-                        <i class="bi bi-lock-fill me-2"></i>
-                        Faculty submission already completed. Further modification is not allowed.
-                    </div>
-                }
-
                 <!-- ── GRID SEARCH BAR ── -->
                 <div class="grid-search-bar">
                     <div class="grid-search-wrap">
@@ -894,14 +886,7 @@
 
                 <div class="d-flex justify-content-end align-items-center gap-2 mt-2 mb-4" id="confirmBtnWrap">
                     <button class="btn-confirm" id="btnConfirm" onclick="confirmData()" @(isLocked ? "disabled" : "")>
-                        @if (isLocked)
-                        {
-                            <text><i class="bi bi-lock-fill"></i> Faculty Data Already Submitted</text>
-                        }
-                        else
-                        {
-                            <text><i class="bi bi-check2-all"></i> All Above Table Data is Confirmed &nbsp;(Click here to Preview &amp; Generate)</text>
-                        }
+                        <text><i class="bi bi-check2-all"></i> All Above Table Data is Confirmed &nbsp;(Click here to Preview &amp; Generate)</text>
                     </button>
                 </div>
 
@@ -940,7 +925,7 @@
                             <i class="bi bi-patch-check-fill"></i> Process Completed
                         </div>
                         <p class="text-muted mb-0" style="font-size:.86rem;">
-                            Faculty list declared and signed copy submitted. No further edits allowed.
+                            Signed copy submitted successfully. Faculty records remain available for maintenance.
                         </p>
                     </div>
                 </div>
@@ -1004,6 +989,8 @@
                                     <th onclick="sortList(12)">Exp (Yrs)<i class="bi bi-chevron-expand sort-icon"></i></th>
                                     <th>Photo</th>
                                     <th style="text-align:center;">View</th>
+                                    <th style="text-align:center;">Edit</th>
+                                    <th style="text-align:center;">Delete</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -1279,7 +1266,7 @@
 
         // ── Add / Update ──────────────────────────────────────────────
         function addEntryFromForm() {
-            if (declared) return;
+            declared = false;
             const f = getFormValues();
             if (!f.deptId||!f.desigId||!f.name||!f.mobile||!f.pan||!f.regNo||!f.aebas||!f.qual||!f.nature||!f.exp||!f.dob||!f.doa) {
                 Swal.fire({ icon:'error', title:'Validation Warning', text:'Please complete all fields marked with an asterisk (*).' });
@@ -1313,9 +1300,9 @@
                             fd.append('photo', photoInput.files[0]);
                             fd.append('facultyId', tid);
                             fetch(URLS.uploadPhotoDirect, { method: 'POST', body: fd })
-                                .then(r => r.json()).then(() => { syncTableGrid(); clearGridSearch(); });
+                                .then(r => r.json()).then(() => { syncTableGrid(); loadAllFaculty(); clearGridSearch(); });
                         } else {
-                            syncTableGrid(); clearGridSearch();
+                            syncTableGrid(); loadAllFaculty(); clearGridSearch();
                         }
                         resetForm(); clearAlert();
                         Swal.fire({ icon:'success', title:'Saved', text: currentEditId===0 ? 'Faculty added!' : 'Record updated.', timer:1500, showConfirmButton:false });
@@ -1349,6 +1336,30 @@
             } else {
                 document.getElementById('photoPreviewWrap').style.display = 'none';
             }
+            const btn = document.getElementById('btnAddEntry');
+            btn.innerHTML = '<i class="bi bi-pencil-square"></i> Save Changes';
+            btn.className = 'btn btn-warning text-dark fw-bold btn-add-entry';
+            document.getElementById('entryFormCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function editListRow(index) {
+            const t = filteredListData[index];
+            if (!t) return;
+
+            currentEditId = t.id;
+            document.getElementById('f_dept').value   = t.departmentCode || '';
+            document.getElementById('f_desig').value  = t.designationCode || '';
+            document.getElementById('f_name').value   = t.nameOftheFaculty || '';
+            document.getElementById('f_dob').value    = t.dob || '';
+            document.getElementById('f_doa').value    = t.dateOfAppointment || '';
+            document.getElementById('f_mobile').value = t.mobileNo || '';
+            document.getElementById('f_pan').value    = t.panNo || '';
+            document.getElementById('f_regNo').value  = t.stateCouncilRegNo || '';
+            document.getElementById('f_aebas').value  = t.aEBASAttendId || '';
+            document.getElementById('f_qual').value   = t.professionalQualification || '';
+            document.getElementById('f_nature').value = t.natureOfEmployment || '';
+            document.getElementById('f_exp').value    = t.teachingExpInYrs || '';
+
             const btn = document.getElementById('btnAddEntry');
             btn.innerHTML = '<i class="bi bi-pencil-square"></i> Save Changes';
             btn.className = 'btn btn-warning text-dark fw-bold btn-add-entry';
@@ -1415,7 +1426,7 @@
 
         // ── Delete ────────────────────────────────────────────────────
         function deleteRow(seq, dbId) {
-            if (declared) return;
+            declared = false;
             Swal.fire({
                 title: 'Delete this entry?', text: 'This permanently removes the record.',
                 icon: 'warning', showCancelButton: true,
@@ -1430,6 +1441,41 @@
                             Swal.fire({ toast:true, icon:'success', title:'Deleted', position:'top-end', showConfirmButton:false, timer:1500 });
                             syncTableGrid(); clearGridSearch();
                         } else { Swal.fire({ icon:'error', title:'Failed', text: res.message }); }
+                    }
+                });
+            });
+        }
+
+        function deleteListRow(index) {
+            const record = filteredListData[index];
+            if (!record) return;
+
+            Swal.fire({
+                title: 'Delete this entry?',
+                text: 'This permanently removes the record.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'Yes, delete'
+            }).then(result => {
+                if (!result.isConfirmed) return;
+
+                $.ajax({
+                    url: URLS.deleteFaculty,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ Id: record.id }),
+                    success(res) {
+                        if (res.success) {
+                            Swal.fire({ toast: true, icon: 'success', title: 'Deleted', position: 'top-end', showConfirmButton: false, timer: 1500 });
+                            syncTableGrid();
+                            loadAllFaculty();
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Failed', text: res.message });
+                        }
+                    },
+                    error() {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Server communication failed.' });
                     }
                 });
             });
@@ -1550,7 +1596,7 @@
                         </button>
                     </td>
                     <td class="text-center">
-                        <button class="btn-del" onclick="deleteRow(${r.seq},${r.dbId})" ${declared ? 'disabled' : ''}>
+                        <button class="btn-del" onclick="deleteRow(${r.seq},${r.dbId})">
                             <i class="bi bi-trash3"></i>
                         </button>
                     </td>
@@ -1636,25 +1682,23 @@
             });
         }
         function onUploadComplete() {
-            declared = true;
+            declared = false;
             document.getElementById('uploadSection').style.display    = 'none';
             document.getElementById('completedSection').style.display = 'block';
             document.getElementById('step3Badge').className           = 'step-pill done';
-            document.getElementById('entryFormCard').style.display    = 'none';
-            document.getElementById('confirmBtnWrap').style.display   = 'none';
             syncTableGrid();
-            showAlert('Signed copy uploaded successfully. Workflow complete.', 'success');
+            showAlert('Signed copy uploaded successfully. Faculty records remain open for add, edit, and delete.', 'success');
         }
 
         // ── LIST TAB ──────────────────────────────────────────────────
         function loadAllFaculty() {
             const tbody = document.getElementById('listBody');
-            tbody.innerHTML = `<tr><td colspan="16" class="text-center py-4"><i class="bi bi-hourglass-split me-2"></i>Loading records...</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="18" class="text-center py-4"><i class="bi bi-hourglass-split me-2"></i>Loading records...</td></tr>`;
             document.getElementById('listPagination').style.display = 'none';
 
             $.getJSON(URLS.getAllFaculty, function(res) {
                 if (!res.success || !res.data || res.data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="16" class="text-center py-4 text-muted">No records found</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="18" class="text-center py-4 text-muted">No records found</td></tr>`;
                     document.getElementById('totalCountChip').textContent = '0 records';
                     return;
                 }
@@ -1758,7 +1802,7 @@
             const q        = (document.getElementById('listSearchInput').value || '').toLowerCase().trim();
 
             if (!pageData.length) {
-                tbody.innerHTML = `<tr class="no-results-row"><td colspan="16">
+                tbody.innerHTML = `<tr class="no-results-row"><td colspan="18">
                     <i class="bi bi-search no-results-icon"></i>
                     <div class="no-results-title">No results found</div>
                     <div class="no-results-sub text-muted">Try adjusting your search or filters</div>
@@ -1799,6 +1843,16 @@
                         <td class="text-center">
                             <button class="btn-view-faculty" onclick="openListFacultyModal(${start + idx})">
                                 <i class="bi bi-eye-fill"></i> View
+                            </button>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-view-faculty" style="color:#d97706;border-color:#fcd34d;" onclick="editListRow(${start + idx})">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </button>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-del" onclick="deleteListRow(${start + idx})" title="Delete faculty record">
+                                <i class="bi bi-trash3"></i>
                             </button>
                         </td>
                         <td><span class="badge-submitted"><i class="bi bi-check-circle-fill"></i> Submitted</span></td>
@@ -2000,24 +2054,6 @@
         // ── Init ──────────────────────────────────────────────────────
         $(function() { syncTableGrid(); });
 
-        const IS_LOCKED = @(isLocked.ToString().ToLower());
-
-        document.addEventListener("DOMContentLoaded", function () {
-            if (IS_LOCKED) {
-                document.querySelectorAll('#entryFormCard input, #entryFormCard select, #entryFormCard button')
-                    .forEach(el => { el.disabled = true; });
-
-                const confirmBtn = document.getElementById('btnConfirm');
-                if (confirmBtn) {
-                    confirmBtn.disabled = true;
-                    confirmBtn.style.opacity = "0.6";
-                    confirmBtn.style.cursor = "not-allowed";
-                    confirmBtn.innerHTML = '<i class="bi bi-lock-fill"></i> Faculty Data Already Submitted';
-                }
-
-                document.querySelectorAll('.btn-del').forEach(btn => { btn.disabled = true; });
-            }
-        });
     </script>
 </body>
 </html>

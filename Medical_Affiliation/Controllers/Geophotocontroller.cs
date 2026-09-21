@@ -39,7 +39,9 @@ namespace GeoPhotoModule.Controllers
         }
 
         /// <summary>Photos are stored outside wwwroot and streamed only through the authorized Image action.</summary>
-        private string StorageRoot => Path.Combine(_env.ContentRootPath, "App_Data", "GeoPhotos");
+        private string StorageRoot => Path.Combine(
+            Directory.Exists(@"E:\") ? @"E:\Affiliation_Medical" : @"D:\Affiliation_Medical",
+            "GeoPhotos");
 
         // ==================================================================
         // GET /GeoPhoto  -> upload page

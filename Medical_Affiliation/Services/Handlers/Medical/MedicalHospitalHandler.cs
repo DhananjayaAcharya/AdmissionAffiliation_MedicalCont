@@ -93,6 +93,22 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             }).ToList();
         }
 
+        private static string NormalizeCourseLevel(string? courseLevel)
+        {
+            var normalizedLevel = courseLevel?.Trim().ToUpperInvariant() ?? string.Empty;
+
+            if (normalizedLevel.Contains("UG") || normalizedLevel.Contains("UNDERGRADUATE"))
+                return "UG";
+
+            if (normalizedLevel.Contains("SS") || normalizedLevel.Contains("SUPERSPECIAL"))
+                return "SS";
+
+            if (normalizedLevel.Contains("PG") || normalizedLevel.Contains("POSTGRADUATE"))
+                return "PG";
+
+            return normalizedLevel;
+        }
+
 
         public async Task<HospitalAffiliationCompositeViewModel> GetDetailsAsync(string collegeCode)
         {
@@ -100,6 +116,15 @@ namespace Medical_Affiliation.Services.Handlers.Medical
             var seatSlabId = _userContext.SeatSlabId;
             var typeOfAffiliation = _userContext.TypeOfAffiliation;
             var courseLevel = _userContext.CourseLevel;
+
+            var intakeRows = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(i => i.CollCode == collegeCode)
+                .ToListAsync();
+
+            var intakeForSeatSlab = intakeRows
+                .Where(i => NormalizeCourseLevel(i.UgPg) == NormalizeCourseLevel(courseLevel))
+                .Sum(i => i.Intake2627 ?? 0);
 
             // Sequentially await queries to avoid DbContext concurrency issues
             var hospital = await _context.HospitalDetailsForAffiliations
@@ -474,7 +499,7 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                         DepartmentId = d.DeptId,
                         DepartmentName = d.DepartmentName,
                         SeatSlabId = s.SeatSlabId,
-                        SeatSlab = s.SeatSlab,
+                        SeatSlab = intakeForSeatSlab,
 
                         RGUHSintake =
                             saved?.Rguhsintake > 0

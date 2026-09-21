@@ -2007,7 +2007,10 @@
         // Change password shortcut
         function goToChangePassword(e) {
         if (e) e.preventDefault();
-        new bootstrap.Modal(document.getElementById('updatePasswordModal')).show();
+        const modalElement = document.getElementById('updatePasswordModal');
+        if (!modalElement) return;
+        if (modalElement.parentElement !== document.body) document.body.appendChild(modalElement);
+        bootstrap.Modal.getOrCreateInstance(modalElement).show();
         }
 
         // College Profile shortcut — fetch current values, then show modal
@@ -2071,7 +2074,11 @@
                 document.getElementById('btnChangePassword').addEventListener('click', function () {
                 welcomeModal.hide();
                 setTimeout(function () {
-                new bootstrap.Modal(document.getElementById('updatePasswordModal')).show();
+                var passwordModal = document.getElementById('updatePasswordModal');
+                if (passwordModal) {
+                    if (passwordModal.parentElement !== document.body) document.body.appendChild(passwordModal);
+                    bootstrap.Modal.getOrCreateInstance(passwordModal).show();
+                }
                 }, 400);
                 });
                 })();

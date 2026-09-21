@@ -2,78 +2,175 @@
 @{
     ViewData["Title"] = "Geo-Tagged Photos";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var overallPercent = Model.TotalRequired > 0 ? (int)Math.Round(Model.TotalUploaded * 100.0 / Model.TotalRequired) : 0;
 }
 
 <style>
-    .geo-page { color: #1d2b3a; }
-    .geo-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.35rem 1.5rem; background: linear-gradient(135deg, #176b87 0%, #25859a 100%); color: #fff; border-bottom: 4px solid #dcae3f; }
-    .geo-hero h1 { margin: 0; font-family: 'EB Garamond', serif; font-size: 1.7rem; font-weight: 600; }
-    .geo-hero p { margin: .35rem 0 0; color: rgba(255, 255, 255, .84); font-size: .86rem; }
-    .geo-count { flex: 0 0 auto; padding: .55rem .8rem; border: 1px solid rgba(255, 255, 255, .3); border-radius: 8px; background: rgba(255, 255, 255, .1); font-size: .78rem; font-weight: 700; white-space: nowrap; }
-    .geo-content { padding: 1.25rem; background: #f4f7fb; }
-    .geo-note { margin-bottom: 1rem; padding: .8rem 1rem; border: 1px solid #d6e0ea; border-left: 4px solid #176b87; border-radius: 6px; background: #fff; color: #405466; font-size: .84rem; }
-    .geo-capture-guide { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; padding: 1rem 1.1rem; border: 1px solid #d6e0ea; border-left: 4px solid #dcae3f; border-radius: 6px; background: #fffdf6; }
-    .geo-capture-guide strong { display: block; color: #1d2b3a; font-size: .88rem; }
-    .geo-capture-guide span { display: block; margin-top: .2rem; color: #718294; font-size: .77rem; }
-    .geo-capture-link { display: inline-flex; align-items: center; gap: .4rem; flex: 0 0 auto; padding: .55rem .8rem; border-radius: 5px; background: #176b87; color: #fff; font-size: .78rem; font-weight: 700; text-decoration: none; }
-    .geo-capture-link:hover { background: #12566c; color: #fff; text-decoration: none; }
-    .geo-category { margin-bottom: 1rem; border: 1px solid #d6e0ea; border-radius: 8px; background: #fff; overflow: hidden; }
-    .geo-category-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .85rem 1rem; border-bottom: 1px solid #d6e0ea; background: #f8fafc; }
-    .geo-category-header h2 { margin: 0; color: #176b87; font-size: 1rem; font-weight: 700; }
-    .geo-category-count { color: #718294; font-size: .76rem; font-weight: 600; }
-    .geo-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; padding: 1rem; }
-    .geo-slot { min-width: 0; padding: .75rem; border: 1px solid #e1e8ef; border-radius: 7px; background: #fcfdff; }
-    .geo-slot-preview { display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; min-height: 280px; margin-bottom: .7rem; border: 1px solid #c4d1de; border-radius: 5px; background: #fff; color: #8a9aaa; overflow: hidden; font-size: .78rem; text-align: center; }
-    .geo-slot-preview img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
-    .geo-slot-label { display: flex; justify-content: space-between; margin-bottom: .55rem; color: #405466; font-size: .8rem; font-weight: 700; }
-    .geo-slot-meta { margin: .5rem 0 0; color: #718294; font-size: .72rem; line-height: 1.45; }
-    .geo-slot-actions { display: flex; gap: .45rem; flex-wrap: wrap; }
-    .geo-slot-actions .btn { flex: 1 1 100px; font-size: .76rem; }
-    .geo-status { min-height: 1.1rem; margin: .65rem 0 0; color: #718294; font-size: .75rem; }
-    @@media (max-width: 575px) { .geo-hero { flex-direction: column; } .geo-count { width: 100%; text-align: center; } .geo-content { padding: .75rem; } }
-    @@media (max-width: 575px) { .geo-capture-guide { align-items: flex-start; flex-direction: column; } .geo-capture-link { width: 100%; justify-content: center; } .geo-slots { grid-template-columns: 1fr; padding: .75rem; } .geo-slot-preview { min-height: 220px; } }
+    .geo-page { color: #1d2b3a; background: #fff; border: 1px solid #d3dce6; border-radius: 4px; overflow: hidden; }
+
+    /* ---------- Page header ---------- */
+    .geo-hero { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1.1rem 1.5rem; background: #14607a; color: #fff; border-bottom: 4px solid #dcae3f; }
+    .geo-hero h1 { margin: 0; font-family: 'EB Garamond', serif; font-size: 1.55rem; font-weight: 600; letter-spacing: .2px; }
+    .geo-hero p { margin: .25rem 0 0; color: rgba(255, 255, 255, .85); font-size: .82rem; }
+    .geo-progress-box { flex: 0 0 240px; }
+    .geo-progress-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .35rem; font-size: .74rem; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
+    .geo-progress-top strong { font-size: .95rem; }
+    .geo-progress-bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .28); overflow: hidden; }
+    .geo-progress-bar > div { height: 100%; background: #dcae3f; }
+
+    /* ---------- Body ---------- */
+    .geo-content { padding: 1.25rem 1.5rem 1.5rem; background: #f4f6f9; }
+    .geo-info-row { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin-bottom: 1.1rem; }
+    .geo-note, .geo-capture-guide { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem 1rem; border: 1px solid #d3dce6; border-radius: 4px; background: #fff; font-size: .8rem; color: #405466; }
+    .geo-note { border-left: 4px solid #14607a; justify-content: flex-start; }
+    .geo-note i { color: #14607a; font-size: 1rem; }
+    .geo-capture-guide { border-left: 4px solid #dcae3f; }
+    .geo-capture-guide strong { display: block; color: #1d2b3a; font-size: .82rem; }
+    .geo-capture-guide span { display: block; margin-top: .15rem; color: #6b7c8d; font-size: .74rem; }
+    .geo-capture-link { display: inline-flex; align-items: center; gap: .4rem; flex: 0 0 auto; padding: .45rem .8rem; border-radius: 3px; background: #14607a; color: #fff; font-size: .74rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .geo-capture-link:hover { background: #0f4b60; color: #fff; text-decoration: none; }
+
+    /* ---------- Category sections ---------- */
+    .geo-category { margin-bottom: 1rem; border: 1px solid #d3dce6; border-radius: 4px; background: #fff; overflow: hidden; }
+    .geo-category-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .65rem 1rem; border-bottom: 1px solid #d3dce6; background: #eaf0f5; }
+    .geo-category-header h2 { margin: 0; color: #14607a; font-size: .92rem; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; }
+    .geo-category-right { display: flex; align-items: center; gap: .6rem; }
+    .geo-category-count { color: #56687a; font-size: .74rem; font-weight: 700; }
+    .geo-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .9rem; padding: 1rem; }
+
+    /* ---------- Photo slot (compact) ---------- */
+    .geo-slot { min-width: 0; display: flex; flex-direction: column; border: 1px solid #d3dce6; border-radius: 4px; background: #fff; }
+    .geo-slot-head { display: flex; align-items: center; justify-content: space-between; padding: .45rem .65rem; border-bottom: 1px solid #e4eaf0; background: #f8fafc; }
+    .geo-slot-title { color: #1d2b3a; font-size: .76rem; font-weight: 700; }
+    .geo-badge { display: inline-block; padding: .12rem .5rem; border-radius: 2px; font-size: .62rem; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
+    .geo-badge.is-done { background: #e3f4e8; color: #1e7a3c; border: 1px solid #b7e0c3; }
+    .geo-badge.is-pending { background: #fff5dc; color: #8a6412; border: 1px solid #ecd28f; }
+    .geo-badge.is-complete { background: #1e7a3c; color: #fff; border: 1px solid #1e7a3c; }
+    .geo-slot-body { padding: .65rem; }
+    .geo-slot-preview { display: flex; align-items: center; justify-content: center; height: 130px; border: 1px solid #d3dce6; border-radius: 3px; background: #f4f6f9; color: #8a9aaa; overflow: hidden; font-size: .72rem; text-align: center; }
+    .geo-slot-preview.is-empty { border-style: dashed; }
+    .geo-slot-preview.is-empty span { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+    .geo-slot-preview.is-empty i { font-size: 1.3rem; }
+    .geo-thumb-btn { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; position: relative; }
+    .geo-thumb-btn img { width: 100%; height: 100%; object-fit: contain; }
+    .geo-thumb-btn .geo-zoom { position: absolute; right: 6px; bottom: 6px; padding: .12rem .4rem; border-radius: 2px; background: rgba(20, 96, 122, .88); color: #fff; font-size: .62rem; font-weight: 700; opacity: 0; transition: opacity .15s; }
+    .geo-thumb-btn:hover .geo-zoom, .geo-thumb-btn:focus-visible .geo-zoom { opacity: 1; }
+    .geo-slot-meta { margin: .55rem 0 0; padding: 0; list-style: none; font-size: .7rem; line-height: 1.5; color: #56687a; }
+    .geo-slot-meta li { display: flex; gap: .35rem; }
+    .geo-slot-meta b { flex: 0 0 62px; color: #1d2b3a; font-weight: 700; }
+    .geo-slot-actions { padding: 0 .65rem .65rem; margin-top: auto; }
+    .geo-slot-actions .btn { width: 100%; font-size: .74rem; padding: .32rem .5rem; border-radius: 3px; }
+    .geo-status { min-height: 1rem; padding: 0 .65rem .5rem; margin: 0; color: #56687a; font-size: .7rem; }
+
+    /* ---------- Lightbox ---------- */
+    .geo-lightbox { display: none; position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; padding: 1.5rem; background: rgba(15, 30, 45, .82); }
+    .geo-lightbox.open { display: flex; }
+    .geo-lightbox-inner { position: relative; max-width: 960px; width: 100%; background: #fff; border-radius: 4px; border-top: 4px solid #dcae3f; box-shadow: 0 10px 40px rgba(0, 0, 0, .35); }
+    .geo-lightbox-inner img { display: block; width: 100%; max-height: 78vh; object-fit: contain; background: #f4f6f9; }
+    .geo-lightbox-cap { padding: .6rem 1rem; font-size: .8rem; font-weight: 600; color: #1d2b3a; border-top: 1px solid #d3dce6; }
+    .geo-lightbox-close { position: absolute; top: -14px; right: -14px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: #14607a; color: #fff; font-size: 1.1rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .3); }
+
+    /* ---------- Responsive ---------- */
+    @@media (max-width: 991px) {
+        .geo-info-row { grid-template-columns: 1fr; }
+    }
+    @@media (max-width: 575px) {
+        .geo-hero { flex-direction: column; align-items: stretch; gap: .9rem; }
+        .geo-progress-box { flex: 1 1 auto; }
+        .geo-content { padding: .75rem; }
+        .geo-capture-guide { align-items: flex-start; flex-direction: column; }
+        .geo-capture-link { width: 100%; justify-content: center; }
+        .geo-slots { grid-template-columns: repeat(2, 1fr); gap: .6rem; padding: .6rem; }
+        .geo-slot-preview { height: 105px; }
+        .geo-slot-meta b { flex-basis: 52px; }
+        .geo-lightbox-close { top: 6px; right: 6px; }
+    }
+    @@media (max-width: 380px) {
+        .geo-slots { grid-template-columns: 1fr; }
+    }
 </style>
 
 <div class="geo-page">
     <header class="geo-hero">
-        <div><h1>Geo-Tagged Photos</h1><p>Upload the required site photographs with their GPS location.</p></div>
-        <div class="geo-count" aria-live="polite">@Model.TotalUploaded of @Model.TotalRequired uploaded</div>
-    </header>
-    <div class="geo-content">
-        <div class="geo-note"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>Allow location access when prompted. Only JPG and PNG images up to 5 MB are accepted.</div>
-        <div class="geo-capture-guide">
-            <div>
-                <strong><i class="bi bi-camera me-1" aria-hidden="true"></i>Capture official geo-tagged photos</strong>
-                <span>Use GPS Map Camera to capture photographs with location details, then upload them in the matching slot below.</span>
-            </div>
-            <a class="geo-capture-link" href="https://play.google.com/store/apps/details?id=com.gpsmapcamera.geotagginglocationonphoto" target="_blank" rel="noopener noreferrer">
-                <i class="bi bi-google-play" aria-hidden="true"></i> Open GPS Map Camera
-            </a>
+        <div>
+            <h1>Geo-Tagged Photos</h1>
+            <p>Upload the required site photographs with their GPS location.</p>
         </div>
+    </header>
+
+    <div class="geo-content">
+        <div class="geo-info-row">
+            <div class="geo-note">
+                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                <div>Allow location access when prompted. Only <strong>JPG</strong> and <strong>PNG</strong> images up to <strong>5 MB</strong> are accepted.</div>
+            </div>
+            <div class="geo-capture-guide">
+                <div>
+                    <strong><i class="bi bi-camera me-1" aria-hidden="true"></i>Capture official geo-tagged photos</strong>
+                    <span>Use GPS Map Camera to capture photographs with location details, then upload them in the matching slot below.</span>
+                </div>
+                <a class="geo-capture-link" href="https://play.google.com/store/apps/details?id=com.gpsmapcamera.geotagginglocationonphoto" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-google-play" aria-hidden="true"></i> Open GPS Map Camera
+                </a>
+            </div>
+        </div>
+
         <div id="geoAlert" class="alert d-none" role="alert"></div>
         @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "geoTokenForm" })) { @Html.AntiForgeryToken() }
+
         @foreach (var category in Model.Categories)
         {
+            var isComplete = category.RequiredImages > 0 && category.UploadedCount >= category.RequiredImages;
             <section class="geo-category" aria-labelledby="geo-category-@category.CategoryId">
-                <div class="geo-category-header"><h2 id="geo-category-@category.CategoryId">@category.CategoryName</h2><span class="geo-category-count">@category.UploadedCount / @category.RequiredImages uploaded</span></div>
+                <div class="geo-category-header">
+                    <h2 id="geo-category-@category.CategoryId">@category.CategoryName</h2>
+                    <div class="geo-category-right">
+                        @if (isComplete) { <span class="geo-badge is-complete">Complete</span> }
+                        <span class="geo-category-count">@category.UploadedCount / @category.RequiredImages uploaded</span>
+                    </div>
+                </div>
                 <div class="geo-slots">
                     @foreach (var slot in category.Slots)
                     {
                         var slotId = $"geo-{category.CategoryId}-{slot.SlotNo}";
                         <article class="geo-slot" data-category-id="@slot.CategoryId" data-slot-no="@slot.SlotNo">
-                            <div class="geo-slot-preview" id="@slotId-preview">
-                                @if (slot.HasPhoto) { <img src="@Url.Action("Image", "GeoPhoto", new { id = slot.PhotoId })" alt="@category.CategoryName photo @slot.SlotNo" /> }
-                                else { <span><i class="bi bi-camera me-1" aria-hidden="true"></i>No photo uploaded</span> }
+                            <div class="geo-slot-head">
+                                <span class="geo-slot-title">Photo @slot.SlotNo</span>
+                                <span class="geo-badge @(slot.HasPhoto ? "is-done" : "is-pending")">@(slot.HasPhoto ? "Uploaded" : "Required")</span>
                             </div>
-                            <div class="geo-slot-label"><span>Photo @slot.SlotNo</span><span>@(slot.HasPhoto ? "Uploaded" : "Required")</span></div>
+                            <div class="geo-slot-body">
+                                @if (slot.HasPhoto)
+                                {
+                                    var imageUrl = Url.Action("Image", "GeoPhoto", new { id = slot.PhotoId });
+                                    <div class="geo-slot-preview" id="@slotId-preview">
+                                        <button type="button" class="geo-thumb-btn" data-full="@imageUrl" data-caption="@category.CategoryName - Photo @slot.SlotNo" title="Click to enlarge">
+                                            <img src="@imageUrl" alt="@category.CategoryName photo @slot.SlotNo" loading="lazy" />
+                                            <span class="geo-zoom"><i class="bi bi-arrows-fullscreen" aria-hidden="true"></i> View</span>
+                                        </button>
+                                    </div>
+                                    <ul class="geo-slot-meta">
+                                        <li><b>GPS</b><span>@slot.Latitude?.ToString("0.######"), @slot.Longitude?.ToString("0.######")</span></li>
+                                        <li><b>Uploaded</b><span>@slot.UploadedOn?.ToString("dd MMM yyyy, hh:mm tt")</span></li>
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <div class="geo-slot-preview is-empty" id="@slotId-preview">
+                                        <span><i class="bi bi-camera" aria-hidden="true"></i>No photo uploaded</span>
+                                    </div>
+                                }
+                            </div>
                             @if (slot.HasPhoto)
                             {
-                                <p class="geo-slot-meta">GPS: @slot.Latitude?.ToString("0.######"), @slot.Longitude?.ToString("0.######")<br />Uploaded: @slot.UploadedOn?.ToString("dd MMM yyyy, hh:mm tt")</p>
-                                <div class="geo-slot-actions"><button type="button" class="btn btn-outline-danger btn-sm" data-photo-id="@slot.PhotoId" onclick="deleteGeoPhoto(this)"><i class="bi bi-trash3" aria-hidden="true"></i> Delete</button></div>
+                                <div class="geo-slot-actions">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-photo-id="@slot.PhotoId" onclick="deleteGeoPhoto(this)"><i class="bi bi-trash3" aria-hidden="true"></i> Delete</button>
+                                </div>
                             }
                             else
                             {
-                                <div class="geo-slot-actions"><label class="btn btn-primary btn-sm mb-0"><i class="bi bi-upload" aria-hidden="true"></i> Choose photo<input type="file" class="d-none geo-file" accept="image/jpeg,image/png" data-slot-id="@slotId" /></label></div>
+                                <div class="geo-slot-actions">
+                                    <label class="btn btn-primary btn-sm mb-0"><i class="bi bi-upload" aria-hidden="true"></i> Choose photo<input type="file" class="d-none geo-file" accept="image/jpeg,image/png" data-slot-id="@slotId" /></label>
+                                </div>
                             }
                             <div class="geo-status" id="@slotId-status" aria-live="polite"></div>
                         </article>
@@ -84,18 +181,98 @@
     </div>
 </div>
 
+<div id="geoLightbox" class="geo-lightbox" role="dialog" aria-modal="true" aria-label="Photo preview">
+    <div class="geo-lightbox-inner">
+        <button type="button" class="geo-lightbox-close" id="geoLightboxClose" aria-label="Close preview">&times;</button>
+        <img id="geoLightboxImg" src="" alt="" />
+        <div class="geo-lightbox-cap" id="geoLightboxCap"></div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         const geoToken = document.querySelector('#geoTokenForm input[name="__RequestVerificationToken"]').value;
+        const GEO_MAX_BYTES = 5 * 1024 * 1024;
+
         function showGeoAlert(message, type) { const alert = document.getElementById('geoAlert'); alert.className = `alert alert-${type}`; alert.textContent = message; alert.classList.remove('d-none'); }
-        function getLocation() { return new Promise((resolve, reject) => { if (!navigator.geolocation) { reject(new Error('Location is not available in this browser.')); return; } navigator.geolocation.getCurrentPosition(resolve, () => reject(new Error('Location access is required to upload a photo.')), { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }); }); }
+        function getLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Location is not available in this browser.'));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    resolve,
+                    error => {
+                        const messages = {
+                            1: 'Location permission was denied. Allow location access for this site and try again.',
+                            2: 'The device location could not be determined. Turn on GPS/location services and try again.',
+                            3: 'Location lookup timed out. Move to an open area and try again.'
+                        };
+                        reject(new Error(messages[error.code] || 'Location access is required to upload a photo.'));
+                    },
+                    { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+                );
+            });
+        }
+
         document.querySelectorAll('.geo-file').forEach(input => input.addEventListener('change', async function () {
-            const file = this.files[0]; if (!file) return; const slot = this.closest('.geo-slot'); const status = document.getElementById(`${this.dataset.slotId}-status`); status.textContent = 'Getting location...'; this.disabled = true;
+            const file = this.files[0]; if (!file) return;
+            const slot = this.closest('.geo-slot');
+            const status = document.getElementById(`${this.dataset.slotId}-status`);
+
+            if (!['image/jpeg', 'image/png'].includes(file.type)) { const m = 'Only JPG and PNG images are accepted.'; status.textContent = m; showGeoAlert(m, 'danger'); this.value = ''; return; }
+            if (file.size > GEO_MAX_BYTES) { const m = 'Image size must not exceed 5 MB.'; status.textContent = m; showGeoAlert(m, 'danger'); this.value = ''; return; }
+
+            status.textContent = 'Getting location...'; this.disabled = true;
             try {
-                const position = await getLocation(); const formData = new FormData(); formData.append('__RequestVerificationToken', geoToken); formData.append('CategoryId', slot.dataset.categoryId); formData.append('SlotNo', slot.dataset.slotNo); formData.append('Latitude', position.coords.latitude); formData.append('Longitude', position.coords.longitude); formData.append('AccuracyMeters', position.coords.accuracy); formData.append('CapturedOn', new Date().toISOString()); formData.append('Photo', file); status.textContent = 'Uploading...';
-                const response = await fetch('@Url.Action("Upload", "GeoPhoto")', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); const result = await response.json(); if (!response.ok || !result.success) throw new Error(result.message || 'Upload failed.'); window.location.reload();
-            } catch (error) { status.textContent = error.message; showGeoAlert(error.message, 'danger'); this.disabled = false; this.value = ''; }
+                const position = await getLocation();
+                const formData = new FormData();
+                formData.append('__RequestVerificationToken', geoToken);
+                formData.append('CategoryId', slot.dataset.categoryId);
+                formData.append('SlotNo', slot.dataset.slotNo);
+                formData.append('Latitude', position.coords.latitude);
+                formData.append('Longitude', position.coords.longitude);
+                formData.append('AccuracyMeters', position.coords.accuracy);
+                formData.append('CapturedOn', new Date().toISOString());
+                formData.append('Photo', file);
+                status.textContent = 'Uploading...';
+                const response = await fetch('@Url.Action("Upload", "GeoPhoto")', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message || 'Upload failed.');
+                window.location.reload();
+            } catch (error) {
+                status.textContent = error.message; showGeoAlert(error.message, 'danger'); this.disabled = false; this.value = '';
+            }
         }));
-        async function deleteGeoPhoto(button) { if (!window.confirm('Delete this photo?')) return; button.disabled = true; const formData = new FormData(); formData.append('__RequestVerificationToken', geoToken); formData.append('id', button.dataset.photoId); try { const response = await fetch('@Url.Action("Delete", "GeoPhoto")', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } }); const result = await response.json(); if (!response.ok || !result.success) throw new Error(result.message || 'Delete failed.'); window.location.reload(); } catch (error) { showGeoAlert(error.message, 'danger'); button.disabled = false; } }
+
+        async function deleteGeoPhoto(button) {
+            if (!window.confirm('Delete this photo?')) return;
+            button.disabled = true;
+            const formData = new FormData();
+            formData.append('__RequestVerificationToken', geoToken);
+            formData.append('id', button.dataset.photoId);
+            try {
+                const response = await fetch('@Url.Action("Delete", "GeoPhoto")', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message || 'Delete failed.');
+                window.location.reload();
+            } catch (error) { showGeoAlert(error.message, 'danger'); button.disabled = false; }
+        }
+
+        // ---- Enlarged photo viewer ----
+        (function () {
+            const box = document.getElementById('geoLightbox');
+            const img = document.getElementById('geoLightboxImg');
+            const cap = document.getElementById('geoLightboxCap');
+            function closeBox() { box.classList.remove('open'); img.src = ''; }
+            document.querySelectorAll('.geo-thumb-btn').forEach(btn => btn.addEventListener('click', function () {
+                img.src = this.dataset.full; img.alt = this.dataset.caption; cap.textContent = this.dataset.caption; box.classList.add('open');
+            }));
+            document.getElementById('geoLightboxClose').addEventListener('click', closeBox);
+            box.addEventListener('click', function (e) { if (e.target === box) closeBox(); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box.classList.contains('open')) closeBox(); });
+        })();
     </script>
 }

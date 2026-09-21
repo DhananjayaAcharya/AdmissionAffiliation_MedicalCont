@@ -109,10 +109,7 @@ namespace Medical_Affiliation.Controllers
             if (college == null)
                 return RedirectToAction("Dashboard", "Home");
 
-            bool isLocked = _context.UgPrintedUploads
-                .Any(x => x.CollegeCode == collegeCode);
-
-            ViewBag.IsLocked = isLocked;
+            ViewBag.IsLocked = false;
             ViewBag.Departments = _context.DepartmentMastersForUgs.ToList();
             ViewBag.Designations = _context.UgdesignationMasters.ToList();
 

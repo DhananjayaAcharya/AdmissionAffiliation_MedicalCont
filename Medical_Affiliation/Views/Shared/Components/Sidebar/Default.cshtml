@@ -541,6 +541,15 @@
                     color: #fff;
                 }
 
+    body > .password-modal {
+        z-index: 2000;
+    }
+
+    body > .password-modal + .modal-backdrop,
+    .modal-backdrop.password-modal-backdrop {
+        z-index: 1990;
+    }
+
     .sidebar.collapsed .sidebar-action-btn {
         justify-content: center;
         padding: 0.68rem 0;
@@ -1007,6 +1016,11 @@
 
 <script>
      document.addEventListener("DOMContentLoaded", function () {
+         const passwordModal = document.getElementById("updatePasswordModal");
+         if (passwordModal && passwordModal.parentElement !== document.body) {
+             document.body.appendChild(passwordModal);
+         }
+
          const toggleBtn = document.querySelector(".toggle-password");
          const passwordInput = document.getElementById("NewPassword");
          const toggleIcon = document.getElementById("toggleIcon");
