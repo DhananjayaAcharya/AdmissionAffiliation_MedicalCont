@@ -11,6 +11,8 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<ActionTakenDeficiencyReport> ActionTakenDeficiencyReports { get; set; } = new List<ActionTakenDeficiencyReport>();
 
+    public virtual ICollection<AdditionalInformationInAcademicActivity> AdditionalInformationInAcademicActivities { get; set; } = new List<AdditionalInformationInAcademicActivity>();
+
     public virtual ICollection<AffiliationFinalDeclaration> AffiliationFinalDeclarations { get; set; } = new List<AffiliationFinalDeclaration>();
 
     public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();
@@ -26,6 +28,8 @@ public partial class TypeOfAffiliation
     public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();
 
     public virtual ICollection<DentalService> DentalServices { get; set; } = new List<DentalService>();
+
+    public virtual ICollection<DepartmentWiseResearchProject> DepartmentWiseResearchProjects { get; set; } = new List<DepartmentWiseResearchProject>();
 
     public virtual ICollection<HospitalDetailsForAffiliation> HospitalDetailsForAffiliations { get; set; } = new List<HospitalDetailsForAffiliation>();
 

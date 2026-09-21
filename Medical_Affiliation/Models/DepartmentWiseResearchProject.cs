@@ -29,7 +29,11 @@ public partial class DepartmentWiseResearchProject
 
     public DateTime? ModifiedDate { get; set; }
 
+    public int? TypeId { get; set; }
+
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;
+
+    public virtual TypeOfAffiliation? Type { get; set; }
 }

@@ -917,6 +917,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AIAAF_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.AdditionalInformationInAcademicActivities)
+                .HasForeignKey(d => d.TypeId)
+                .HasConstraintName("FK_AdditionalInformationInAcademicActivities_AffiliationType");
         });
 
         modelBuilder.Entity<AdministrativeFacilityType>(entity =>
@@ -4171,6 +4175,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.FacultyCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DWRP_Faculty");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.DepartmentWiseResearchProjects)
+                .HasForeignKey(d => d.TypeId)
+                .HasConstraintName("FK_DepartmentWiseResearchProjects_AffiliationType");
         });
 
         modelBuilder.Entity<DepartmentalMuseum>(entity =>

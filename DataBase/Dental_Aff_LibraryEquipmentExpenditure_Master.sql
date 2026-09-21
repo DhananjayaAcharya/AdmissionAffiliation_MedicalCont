@@ -1057,7 +1057,6 @@ where FacultyCode=2
     - CollegeCode  -> TblCollegeMasters.CollegeCode
 */
 
-
 CREATE TABLE DepartmentWiseResearchProjects
 (
     Id INT IDENTITY(1,1) NOT NULL,
@@ -1066,6 +1065,7 @@ CREATE TABLE DepartmentWiseResearchProjects
 
     CollegeCode NVARCHAR(100) NOT NULL,
     CourseLevel VARCHAR(10) NULL,
+    TypeId INT NULL,
 
     DepartmentCode VARCHAR(50) NULL,
 
@@ -1092,7 +1092,22 @@ CREATE TABLE DepartmentWiseResearchProjects
         FOREIGN KEY (CollegeCode)
         REFERENCES Affiliation_College_Master(CollegeCode),
 
+    CONSTRAINT FK_DepartmentWiseResearchProjects_AffiliationType
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
+
 );
+
+
+--ALTER TABLE DepartmentWiseResearchProjects
+--ADD TypeId INT NULL;
+
+--ALTER TABLE DepartmentWiseResearchProjects
+--ADD CONSTRAINT FK_DepartmentWiseResearchProjects_AffiliationType
+--    FOREIGN KEY (TypeId)
+--    REFERENCES TypeOfAffiliation(TypeId);
+
+
 
 ---------------------------------------------------------
 
@@ -1110,6 +1125,7 @@ CREATE TABLE DepartmentWiseResearchProjects
     - CollegeCode -> College master
 */
 
+
 CREATE TABLE AdditionalInformationInAcademicActivities
 (
     Id INT IDENTITY(1,1) NOT NULL,
@@ -1119,6 +1135,7 @@ CREATE TABLE AdditionalInformationInAcademicActivities
     CollegeCode NVARCHAR(100) NOT NULL,
 
     CourseLevel VARCHAR(50) NULL,
+    TypeId INT NULL,
 
     HasMedicalEducationUnit BIT NOT NULL DEFAULT 0,
 
@@ -1150,8 +1167,22 @@ CREATE TABLE AdditionalInformationInAcademicActivities
 
     CONSTRAINT FK_AIAAF_College
         FOREIGN KEY (CollegeCode)
-        REFERENCES Affiliation_College_Master(CollegeCode)
+        REFERENCES Affiliation_College_Master(CollegeCode),
+
+    CONSTRAINT FK_AdditionalInformationInAcademicActivities_AffiliationType
+        FOREIGN KEY (TypeId)
+        REFERENCES TypeOfAffiliation(TypeId)
 );
 
 
+--ALTER TABLE AdditionalInformationInAcademicActivities
+--ADD TypeId INT NULL;
+
+--ALTER TABLE AdditionalInformationInAcademicActivities
+--ADD CONSTRAINT FK_AdditionalInformationInAcademicActivities_AffiliationType
+--    FOREIGN KEY (TypeId)
+--    REFERENCES TypeOfAffiliation(TypeId);
+
+--update AdditionalInformationInAcademicActivities
+--set TypeId = 2
 -----------------------------

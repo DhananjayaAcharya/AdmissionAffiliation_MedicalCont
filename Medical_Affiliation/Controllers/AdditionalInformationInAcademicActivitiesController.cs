@@ -81,6 +81,7 @@ namespace Medical_Affiliation.Controllers
             string collegeCode = CollegeCode;
 
             string courseLevel = CourseLevel;
+            string affiliationTypeId = HttpContext.Session.GetString("TypeOfAffiliationId") ?? AffTypeId.ToString();
 
             // ========================================================
             // Remove CourseLevel from ModelState
@@ -145,7 +146,7 @@ namespace Medical_Affiliation.Controllers
                         FacultyCode = facultyCode,
                         CollegeCode = collegeCode,
                         CourseLevel = courseLevel,
-
+                        TypeId = int.Parse(affiliationTypeId),
                         HasMedicalEducationUnit = vm.HasMedicalEducationUnit,
                         HasTotprogrammesAttended = vm.HasTOTProgrammesAttended,
                         HasTotprogrammesConducted = vm.HasTOTProgrammesConducted,

@@ -25,6 +25,7 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var affiliationTypeId = HttpContext.Session.GetString("TypeOfAffiliationId");
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
             var levels = string.IsNullOrEmpty(raw)
@@ -108,6 +109,7 @@ namespace Medical_Affiliation.Controllers
             var savedDeptResearchProjects = await _context.DepartmentWiseResearchProjects
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.CourseLevel == courseLevel &&
+                            x.TypeId.ToString() == affiliationTypeId &&
                             x.FacultyCode == facultyCodeInt)
                 .ToListAsync();
 
@@ -217,6 +219,8 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var affiliationTypeId = HttpContext.Session.GetString("TypeOfAffiliationId");
+
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
             var levels = ParseLevels(raw);
 
@@ -380,6 +384,7 @@ namespace Medical_Affiliation.Controllers
                             x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCodeInt &&
                             x.CourseLevel == courseLevel &&
+                            x.TypeId.ToString() == affiliationTypeId &&
                             x.DepartmentCode == item.DepartmentCode);
 
                     if (deptResearchEntity == null)
@@ -390,6 +395,7 @@ namespace Medical_Affiliation.Controllers
                             FacultyCode = facultyCodeInt,
                             DepartmentCode = item.DepartmentCode,
                             CourseLevel = courseLevel,
+                            TypeId = int.Parse(affiliationTypeId),
                             CreatedDate = DateTime.Now
                         };
 
