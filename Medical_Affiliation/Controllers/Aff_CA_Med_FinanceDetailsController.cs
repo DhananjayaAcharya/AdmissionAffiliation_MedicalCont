@@ -25,6 +25,12 @@ namespace Medical_Affiliation.Controllers
 
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var selectedCourseLevel = (
+                HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel")
+                ?? CourseLevel)
+                .Trim()
+                .ToUpperInvariant();
             //var regNo = HttpContext.Session.GetString("RegistrationNo");
 
             // First try from CollegeCourseIntakeDetails
@@ -44,11 +50,8 @@ namespace Medical_Affiliation.Controllers
                 levels = await GetSortedCourseLevels();
             }
 
-            levels = levels
-                .OrderBy(l => l == "UG" ? 1 :
-                              l == "PG" ? 2 :
-                              l == "SS" ? 3 : 99)
-                .ToList();
+            // Finance details must show only the level currently selected by the user.
+            levels = new List<string> { selectedCourseLevel };
 
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))

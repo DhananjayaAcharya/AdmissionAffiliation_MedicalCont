@@ -118,6 +118,7 @@ public class PreviewReportPdf : IDocument
                 {
                     AddAcademicMattersSection(col);
                 }
+                AddLibraryCommitteeSection(col);
                 AddFinanceStaffParticularsSection(col);
                 AddFinanceOtherStaffDetailsSection(col);
                 AddAdminTeachingBlockSection(col);
@@ -2059,7 +2060,7 @@ public class PreviewReportPdf : IDocument
             return;
 
         // ================= SUB HEADING =================
-        AddSubHeading(col, "Library Committee Details", 140);
+        AddSubHeading(col, "Committees", 140);
 
         // ================= TABLE =================
         col.Item().PaddingTop(8).Table(table =>

@@ -25,7 +25,7 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> AcademicMatters()
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel")?.Trim().ToUpperInvariant() ?? "UG";
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             int facultyId = Convert.ToInt32(FacultyCode ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
@@ -170,7 +170,8 @@ namespace Medical_Affiliation.Controllers
             var savedRegisters = await _context.CaStudentRegisterRecords
                     .Where(x => x.CollegeCode == collegeCode &&
                                 x.FacultyId == facultyId &&
-                        x.CourseLevel == courseLevel &&
+                        x.CourseLevel != null &&
+                        x.CourseLevel.Trim().ToUpper() == courseLevel &&
                                 x.AffiliationType == affiliationType)
                     .ToListAsync();
 
@@ -379,7 +380,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> AcademicMatters(CA_Aff_AcademicMattersViewModel model)
         {
 
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel")?.Trim().ToUpperInvariant() ?? "UG";
 
             if (model == null)
                 return RedirectToAction(nameof(AcademicMatters));
@@ -584,7 +585,8 @@ namespace Medical_Affiliation.Controllers
                             .FirstOrDefaultAsync(x =>
                                 x.CollegeCode == model.CollegeCode &&
                                 x.FacultyId == model.FacultyId &&
-                                x.CourseLevel == courseLevel &&
+                                x.CourseLevel != null &&
+                                x.CourseLevel.Trim().ToUpper() == courseLevel &&
                                 x.AffiliationType == model.AffiliationType &&
                                 x.RegisterRecordId == rec.RegisterRecordId);
 
@@ -603,6 +605,7 @@ namespace Medical_Affiliation.Controllers
                             _context.CaStudentRegisterRecords.Add(existing);
                         }
 
+                        existing.CourseLevel = courseLevel;
                         existing.IsMaintained = rec.IsMaintained;
                     }
                 }

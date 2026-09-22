@@ -21,7 +21,7 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public IActionResult MedicalLibrary()
         {
-            var courseLevel = CourseLevel;
+            var courseLevel = CourseLevel.Trim().ToUpperInvariant();
             string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
             int facultyCode = Convert.ToInt32( HttpContext.Session.GetString("FacultyCode"));
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
@@ -42,7 +42,7 @@ namespace Medical_Affiliation.Controllers
             var savedServices = _context.CaMedicalLibraryServices
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                           (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel == courseLevel) &&
+                           (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
                 .ToList();
 
@@ -67,7 +67,7 @@ namespace Medical_Affiliation.Controllers
             var usage = _context.CaMedicalLibraryUsageReports
                 .FirstOrDefault(x => x.CollegeCode == collegeCode &&
                                      x.FacultyCode == facultyCode &&
-                                     (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel == courseLevel) &&
+                                     (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                                      x.AffiliationType == affiliationType);
 
             if (usage != null)
@@ -77,7 +77,7 @@ namespace Medical_Affiliation.Controllers
             var savedStaff = _context.CaMedicalLibraryStaffs
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel == courseLevel) &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
                 .ToList();
 
@@ -96,7 +96,7 @@ namespace Medical_Affiliation.Controllers
             var savedDepartments = _context.CaMedicalDepartmentLibraries
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                           (string.IsNullOrEmpty(x.CourseLevel) ||x.CourseLevel == courseLevel) &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
                 .ToList();
 
@@ -149,11 +149,13 @@ namespace Medical_Affiliation.Controllers
             var otherDetailsCandidates = _context.CaMedicalLibraryOtherDetails
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel == courseLevel) &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
                 .ToList();
 
-            var otherDetails = otherDetailsCandidates.FirstOrDefault(x => x.CourseLevel == courseLevel)
+            var otherDetails = otherDetailsCandidates.FirstOrDefault(x =>
+                                   x.CourseLevel != null &&
+                                   x.CourseLevel.Trim().ToUpper() == courseLevel)
                 ?? otherDetailsCandidates.FirstOrDefault(x => string.IsNullOrEmpty(x.CourseLevel));
 
             if (otherDetails != null)
@@ -288,7 +290,8 @@ namespace Medical_Affiliation.Controllers
             if (model == null)
                 return RedirectToAction(nameof(MedicalLibrary));
 
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var courseLevel = (HttpContext.Session.GetString("CourseLevel") ?? CourseLevel)
+                .Trim().ToUpperInvariant();
 
             string collegeCode =
                 HttpContext.Session.GetString("CollegeCode") ?? "";
@@ -324,7 +327,7 @@ namespace Medical_Affiliation.Controllers
                     .Where(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
-                        x.CourseLevel == courseLevel &&
+                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                         x.AffiliationType == affiliationType)
                     .ToList();
 
@@ -357,7 +360,7 @@ namespace Medical_Affiliation.Controllers
                         model.OtherDetails.NoOfSystems <= 0)
                     {
                         ModelState.AddModelError(
-                            nameof(model.OtherDetails.NoOfSystems),
+                            "OtherDetails.NoOfSystems",
                             "Number of systems is required."
                         );
                     }
@@ -366,7 +369,7 @@ namespace Medical_Affiliation.Controllers
                         model.OtherDetails.HasStableInternet))
                     {
                         ModelState.AddModelError(
-                            nameof(model.OtherDetails.HasStableInternet),
+                            "OtherDetails.HasStableInternet",
                             "LAN / Stable Internet is required."
                         );
                     }
@@ -375,7 +378,7 @@ namespace Medical_Affiliation.Controllers
                         model.OtherDetails.HasCccameraSystem))
                     {
                         ModelState.AddModelError(
-                            nameof(model.OtherDetails.HasCccameraSystem),
+                            "OtherDetails.HasCccameraSystem",
                             "CCTV Camera System is required."
                         );
                     }
@@ -389,7 +392,7 @@ namespace Medical_Affiliation.Controllers
                     _context.CaMedicalLibraryUsageReports.Any(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
-                        x.CourseLevel == courseLevel &&
+                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                         x.AffiliationType == affiliationType &&
                         !string.IsNullOrEmpty(x.UploadedFileName)
                     );
@@ -422,7 +425,7 @@ namespace Medical_Affiliation.Controllers
                     _context.CaMedicalLibraryOtherDetails.Any(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
-                        x.CourseLevel == courseLevel &&
+                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                         x.AffiliationType == affiliationType &&
                         x.SpecialFeaturesAchievementsPdfPath != null
                     );
@@ -541,7 +544,7 @@ namespace Medical_Affiliation.Controllers
                         .FirstOrDefault(x =>
                             x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                            x.CourseLevel == courseLevel &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType &&
                             x.ServiceId == row.ServiceId);
 
@@ -594,7 +597,7 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefault(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
-                        x.CourseLevel == courseLevel &&
+                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                         x.AffiliationType == affiliationType);
 
                 if (usage == null &&
@@ -643,7 +646,7 @@ namespace Medical_Affiliation.Controllers
                     .Where(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
-                        x.CourseLevel == courseLevel &&
+                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                         x.AffiliationType == affiliationType)
                     .ToList();
 
@@ -678,7 +681,7 @@ namespace Medical_Affiliation.Controllers
                     .Where(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
-                        x.CourseLevel == courseLevel &&
+                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                         x.AffiliationType == affiliationType)
                     .ToList();
 
@@ -727,69 +730,89 @@ namespace Medical_Affiliation.Controllers
                 // =====================================================
                 // 5. OTHER DETAILS
                 // =====================================================
-              if (facultyCode != 2)
-              {
+                if (facultyCode != 2)
+                {
                     var otherEntityCandidates =
                         _context.CaMedicalLibraryOtherDetails
                         .Where(x =>
                             x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel == courseLevel) &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
                         .ToList();
 
-                    var otherEntity = otherEntityCandidates.FirstOrDefault(x => x.CourseLevel == courseLevel)
+                    var otherEntity = otherEntityCandidates.FirstOrDefault(x =>
+                                           x.CourseLevel != null &&
+                                           x.CourseLevel.Trim().ToUpper() == courseLevel)
                         ?? otherEntityCandidates.FirstOrDefault(x => string.IsNullOrEmpty(x.CourseLevel));
 
-                if (otherEntity == null)
-                {
-                    otherEntity = new CaMedicalLibraryOtherDetail
+                    if (otherEntity == null)
                     {
-                        CollegeCode = collegeCode,
-                        FacultyCode = facultyCode,
-                        AffiliationType = affiliationType,
-                        CourseLevel = courseLevel,
-                        CreatedDate = DateTime.Now
-                    };
+                        otherEntity = new CaMedicalLibraryOtherDetail
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyCode = facultyCode,
+                            AffiliationType = affiliationType,
+                            CourseLevel = courseLevel,
+                            CreatedDate = DateTime.Now
+                        };
 
-                    _context.CaMedicalLibraryOtherDetails.Add(otherEntity);
-                }
+                        _context.CaMedicalLibraryOtherDetails.Add(otherEntity);
+                    }
 
-                if (model.OtherDetails != null)
-                {
-                    otherEntity.HasDigitalValuationCentre =
-                        model.OtherDetails.HasDigitalValuationCentre;
-                }
+                    if (model.OtherDetails != null)
+                    {
+                        otherEntity.HasDigitalValuationCentre =
+                            model.OtherDetails.HasDigitalValuationCentre;
+                    }
 
-                if (model.OtherDetails?.HasDigitalValuationCentre == "Yes")
-                {
-                    otherEntity.NoOfSystems =
-                        model.OtherDetails.NoOfSystems;
+                    if (model.OtherDetails?.HasDigitalValuationCentre == "Yes")
+                    {
+                        otherEntity.NoOfSystems =
+                            model.OtherDetails.NoOfSystems;
 
-                    otherEntity.HasStableInternet =
-                        model.OtherDetails.HasStableInternet;
+                        otherEntity.HasStableInternet =
+                            model.OtherDetails.HasStableInternet;
 
-                    otherEntity.HasCccameraSystem =
-                        model.OtherDetails.HasCccameraSystem;
-                }
-                else
-                {
-                    otherEntity.NoOfSystems = null;
-                    otherEntity.HasStableInternet = null;
-                    otherEntity.HasCccameraSystem = null;
-                }
+                        otherEntity.HasCccameraSystem =
+                            model.OtherDetails.HasCccameraSystem;
+                    }
+                    else
+                    {
+                        otherEntity.NoOfSystems = null;
+                        otherEntity.HasStableInternet = null;
+                        otherEntity.HasCccameraSystem = null;
+                    }
 
-                if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes" &&
-                    model.OtherDetails.SpecialFeaturesPdf != null &&
-                    model.OtherDetails.SpecialFeaturesPdf.Length > 0)
-                {
-                    var path = await SaveLibraryFileAsync(
-                        model.OtherDetails.SpecialFeaturesPdf,
-                        "SpecialFeatures",
-                        FacultyCode
-                    );
+                    if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes" &&
+                        model.OtherDetails.SpecialFeaturesPdf != null &&
+                        model.OtherDetails.SpecialFeaturesPdf.Length > 0)
+                    {
+                        var path = await SaveLibraryFileAsync(
+                            model.OtherDetails.SpecialFeaturesPdf,
+                            "SpecialFeatures",
+                            FacultyCode
+                        );
 
-                    if (path != null)
+                        if (path != null)
+                        {
+                            if (!string.IsNullOrEmpty(
+                                otherEntity.SpecialFeaturesAchievementsPdfPath) &&
+                                System.IO.File.Exists(
+                                    otherEntity.SpecialFeaturesAchievementsPdfPath))
+                            {
+                                System.IO.File.Delete(
+                                    otherEntity.SpecialFeaturesAchievementsPdfPath);
+                            }
+
+                            otherEntity.SpecialFeaturesAchievementsPdfPath =
+                                path;
+
+                            otherEntity.UploadedFileName =
+                                model.OtherDetails.SpecialFeaturesPdf.FileName;
+                        }
+                    }
+                    else if (model.OtherDetails?.SpecialFeaturesQuestion == "No")
                     {
                         if (!string.IsNullOrEmpty(
                             otherEntity.SpecialFeaturesAchievementsPdfPath) &&
@@ -800,28 +823,10 @@ namespace Medical_Affiliation.Controllers
                                 otherEntity.SpecialFeaturesAchievementsPdfPath);
                         }
 
-                        otherEntity.SpecialFeaturesAchievementsPdfPath =
-                            path;
-
-                        otherEntity.UploadedFileName =
-                            model.OtherDetails.SpecialFeaturesPdf.FileName;
+                        otherEntity.SpecialFeaturesAchievementsPdfPath = null;
+                        otherEntity.UploadedFileName = null;
                     }
                 }
-                else if (model.OtherDetails?.SpecialFeaturesQuestion == "No")
-                {
-                    if (!string.IsNullOrEmpty(
-                        otherEntity.SpecialFeaturesAchievementsPdfPath) &&
-                        System.IO.File.Exists(
-                            otherEntity.SpecialFeaturesAchievementsPdfPath))
-                    {
-                        System.IO.File.Delete(
-                            otherEntity.SpecialFeaturesAchievementsPdfPath);
-                    }
-
-                    otherEntity.SpecialFeaturesAchievementsPdfPath = null;
-                    otherEntity.UploadedFileName = null;
-                }
-              }
 
                 // =====================================================
                 // DENTAL LIBRARY RECORDS
@@ -888,19 +893,6 @@ namespace Medical_Affiliation.Controllers
 
                 transaction.Commit();
 
-                //if(FacultyCode == "1")
-                //{
-
-                //TempData["Success"] =
-                //    "Medical Library details saved successfully.";
-                //}
-                //if(FacultyCode == "2")
-                //{
-
-                //TempData["Success"] =
-                //    "Dental Library details saved successfully.";
-                //}
-
                 return RedirectToAction(nameof(MedicalLibrary));
             }
             catch (Exception ex)
@@ -932,15 +924,15 @@ namespace Medical_Affiliation.Controllers
             int affiliationType =
                 HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
-            var courseLevel =
-                HttpContext.Session.GetString("CourseLevel");
+            var courseLevel = (HttpContext.Session.GetString("CourseLevel") ?? CourseLevel)
+                .Trim().ToUpperInvariant();
 
             var record =
                 await _context.CaDentalLibraryRecords
                 .FirstOrDefaultAsync(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode &&
-                    x.CourseLevel == courseLevel &&
+                    (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                     x.AffiliationType == affiliationType &&
                     x.RecordId == recordId);
 
@@ -1363,28 +1355,33 @@ namespace Medical_Affiliation.Controllers
 
         private static string? NormalizeYesNo(string? value)
         {
-            if (string.Equals(value?.Trim(), "yes", StringComparison.OrdinalIgnoreCase))
+            var normalized = value?.Trim();
+
+            if (string.Equals(normalized, "yes", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalized, "y", StringComparison.OrdinalIgnoreCase))
                 return "Yes";
 
-            if (string.Equals(value?.Trim(), "no", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(normalized, "no", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(normalized, "n", StringComparison.OrdinalIgnoreCase))
                 return "No";
 
-            return value?.Trim();
+            return normalized;
         }
 
         [HttpGet]
         public async Task<IActionResult> ViewSpecialFeaturesPdf()
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var courseLevel = (HttpContext.Session.GetString("CourseLevel") ?? CourseLevel)
+                .Trim().ToUpperInvariant();
 
             string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
-            int facultyCode = HttpContext.Session.GetInt32("FacultyId") ?? 1;
+            int facultyCode = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var record = await _context.CaMedicalLibraryOtherDetails.FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
-                x.CourseLevel == courseLevel &&
+                    (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                 x.AffiliationType == affiliationType);
 
             if (record == null || string.IsNullOrEmpty(record.SpecialFeaturesAchievementsPdfPath))
@@ -1406,17 +1403,18 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewLibraryServicePdf(int serviceId)
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var courseLevel = (HttpContext.Session.GetString("CourseLevel") ?? CourseLevel)
+                .Trim().ToUpperInvariant();
 
             string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
-            int facultyCode = HttpContext.Session.GetInt32("FacultyId") ?? 1;
+            int facultyCode = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var record = await _context.CaMedicalLibraryServices.FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
                 x.AffiliationType == affiliationType &&
-                x.CourseLevel == courseLevel &&
+                (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                 x.ServiceId == serviceId);
 
             if (record == null || string.IsNullOrEmpty(record.UploadedPdfPath))
@@ -1438,16 +1436,17 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewUsageReportPdf()
         {
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var courseLevel = (HttpContext.Session.GetString("CourseLevel") ?? CourseLevel)
+                .Trim().ToUpperInvariant();
 
             string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
-            int facultyCode = HttpContext.Session.GetInt32("FacultyId") ?? 1;
+            int facultyCode = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var record = await _context.CaMedicalLibraryUsageReports.FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
-                x.CourseLevel == courseLevel &&
+                (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                 x.AffiliationType == affiliationType);
 
             if (record == null || string.IsNullOrEmpty(record.UploadedFileDataPath))

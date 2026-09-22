@@ -612,16 +612,16 @@
                                 <label>2. Is there a stable LAN / Internet connection for library use?</label>
                                 <select class="form-control w-25" asp-for="OtherDetails.HasStableInternet">
                                     <option value="">--Select--</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
+                                    <option value="Yes" selected="@(Model.OtherDetails?.HasStableInternet == "Yes")">Yes</option>
+                                    <option value="No" selected="@(Model.OtherDetails?.HasStableInternet == "No")">No</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label>3. Is there a CCTV Camera system in the library?</label>
                                 <select class="form-control w-25" asp-for="OtherDetails.HasCccameraSystem">
                                     <option value="">--Select--</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
+                                    <option value="Yes" selected="@(Model.OtherDetails?.HasCccameraSystem == "Yes")">Yes</option>
+                                    <option value="No" selected="@(Model.OtherDetails?.HasCccameraSystem == "No")">No</option>
                                 </select>
                             </div>
                         </div>
