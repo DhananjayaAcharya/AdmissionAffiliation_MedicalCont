@@ -55,6 +55,11 @@ namespace Medical_Affiliation.Controllers
                 vm.CMEProgrammePdfPath = entity.CmeprogrammePdfPath;
                 vm.HasTOTProgrammesAttended = entity.HasTotprogrammesAttended;
                 vm.HasTOTProgrammesConducted = entity.HasTotprogrammesConducted;
+                vm.HasCMEProgrammeConducted = entity.HasCmeprogrammesConducted;
+                vm.HasCMEProgrammeAttended = entity.HasCmeprogrammesAttended;
+                vm.NoOfCMEProgrammesConducted = entity.NoOfCmeprogrammesConducted;
+                vm.NoOfCMEProgrammesAttended = entity.NoOfCmeprogrammesAttended;
+
                 vm.IsActive = entity.IsActive;
             }
 
@@ -244,6 +249,10 @@ namespace Medical_Affiliation.Controllers
                         HasTotprogrammesAttended = vm.HasTOTProgrammesAttended,
                         HasTotprogrammesConducted = vm.HasTOTProgrammesConducted,
                         TotprogrammesConducted = vm.TOTProgrammesConducted,
+                        HasCmeprogrammesAttended = vm.HasCMEProgrammeAttended,
+                        HasCmeprogrammesConducted = vm.HasCMEProgrammeConducted,
+                        NoOfCmeprogrammesAttended = vm.NoOfCMEProgrammesAttended,
+                        NoOfCmeprogrammesConducted = vm.NoOfCMEProgrammesConducted,
                         TotprogrammesAttended = vm.TOTProgrammesAttended,
                         IsActive = true,
                         CreatedBy = User.Identity?.Name,
@@ -270,6 +279,10 @@ namespace Medical_Affiliation.Controllers
                 entity.HasMedicalEducationUnit = vm.HasMedicalEducationUnit;
                 entity.HasTotprogrammesAttended = vm.HasTOTProgrammesAttended;
                 entity.HasTotprogrammesConducted = vm.HasTOTProgrammesConducted;
+                entity.HasCmeprogrammesConducted = vm.HasCMEProgrammeConducted;
+                entity.HasCmeprogrammesAttended = vm.HasCMEProgrammeAttended;
+                entity.NoOfCmeprogrammesConducted = vm.NoOfCMEProgrammesConducted;
+                entity.NoOfCmeprogrammesAttended = vm.NoOfCMEProgrammesAttended;
 
                 entity.TotprogrammesConducted = vm.TOTProgrammesConducted;
 

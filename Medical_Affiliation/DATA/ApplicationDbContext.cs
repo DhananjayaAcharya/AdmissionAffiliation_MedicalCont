@@ -904,11 +904,15 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.HasCmeprogrammesAttended).HasColumnName("HasCMEProgrammesAttended");
+            entity.Property(e => e.HasCmeprogrammesConducted).HasColumnName("HasCMEProgrammesConducted");
             entity.Property(e => e.HasTotprogrammesAttended).HasColumnName("HasTOTProgrammesAttended");
             entity.Property(e => e.HasTotprogrammesConducted).HasColumnName("HasTOTProgrammesConducted");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.NoOfCmeprogrammesAttended).HasColumnName("NoOfCMEProgrammesAttended");
+            entity.Property(e => e.NoOfCmeprogrammesConducted).HasColumnName("NoOfCMEProgrammesConducted");
             entity.Property(e => e.TotprogrammesAttended).HasColumnName("TOTProgrammesAttended");
             entity.Property(e => e.TotprogrammesConducted).HasColumnName("TOTProgrammesConducted");
 

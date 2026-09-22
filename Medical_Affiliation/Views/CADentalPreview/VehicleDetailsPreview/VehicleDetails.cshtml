@@ -1,0 +1,124 @@
+﻿@model Medical_Affiliation.Models.VehicleDetailPreviewViewModel
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-truck"></i>
+                Vehicle Details
+            </h2>
+        </div>
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- VEHICLE DETAILS -->
+    <!-- ====================================================== -->
+    @if (Model.Vehicles.Any())
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-car-front-fill"></i>
+                    Vehicles
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Vehicle Registration No.</th>
+                            <th>Vehicle For</th>
+                            <th class="text-center">Seating Capacity</th>
+                            <th class="text-center">FC Valid Till</th>
+                            <th class="text-center">RC Book</th>
+                            <th class="text-center">Insurance</th>
+                            <th class="text-center">Driving Licence</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var vehicle in Model.Vehicles)
+                        {
+                            <tr>
+
+                                <td>@vehicle.VehicleRegNo</td>
+
+                                <td>@vehicle.VehicleFor</td>
+
+                                <td class="text-center">
+                                    @vehicle.SeatingCapacity
+                                </td>
+
+                                <td class="text-center">
+                                    @(vehicle.ValidityDate?.ToString("dd-MM-yyyy") ?? "-")
+                                </td>
+
+                                <td class="text-center">
+                                    @if (vehicle.RcBookAvailable)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    @if (vehicle.InsuranceAvailable)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    @if (vehicle.DrivingLicenseAvailable)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill text-danger"></i>
+                                    }
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="section-block">
+
+            <div class="text-center text-muted py-4">
+                <i class="bi bi-info-circle"></i>
+                No vehicle details available.
+            </div>
+
+        </div>
+    }
+
+</div>

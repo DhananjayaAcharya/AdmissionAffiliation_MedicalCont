@@ -1125,7 +1125,6 @@ CREATE TABLE DepartmentWiseResearchProjects
     - CollegeCode -> College master
 */
 
-
 CREATE TABLE AdditionalInformationInAcademicActivities
 (
     Id INT IDENTITY(1,1) NOT NULL,
@@ -1147,6 +1146,10 @@ CREATE TABLE AdditionalInformationInAcademicActivities
 
     -- Number of TOT programmes attended
     TOTProgrammesAttended INT NOT NULL DEFAULT 0,
+    HasCMEProgrammesConducted BIT NULL,
+    NoOfCMEProgrammesConducted INT NULL,
+    HasCMEProgrammesAttended BIT NULL,
+    NoOfCMEProgrammesAttended INT NULL,
 
     CMEProgrammePdfPath NVARCHAR(1000) NULL,
 

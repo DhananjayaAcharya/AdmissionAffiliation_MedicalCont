@@ -35,6 +35,14 @@ namespace Medical_Affiliation.Models
         )]
         public int TOTProgrammesAttended { get; set; }
 
+        public bool? HasCMEProgrammeConducted { get; set; }
+
+        public int? NoOfCMEProgrammesConducted { get; set; }
+
+        public bool? HasCMEProgrammeAttended { get; set; }
+
+        public int? NoOfCMEProgrammesAttended { get; set; }
+
         // New PDF upload
         public IFormFile? CMEProgrammePdf { get; set; }
 

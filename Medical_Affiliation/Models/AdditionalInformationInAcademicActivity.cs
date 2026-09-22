@@ -37,6 +37,14 @@ public partial class AdditionalInformationInAcademicActivity
 
     public int? TypeId { get; set; }
 
+    public bool? HasCmeprogrammesConducted { get; set; }
+
+    public int? NoOfCmeprogrammesConducted { get; set; }
+
+    public bool? HasCmeprogrammesAttended { get; set; }
+
+    public int? NoOfCmeprogrammesAttended { get; set; }
+
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;

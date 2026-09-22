@@ -3,6 +3,8 @@
     ViewData["Title"] = "Details Preview";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var FacultyCode = Context.Session.GetString("FacultyCode");
+
+    var courseLevel = Context.Session.GetString("CourseLevel");
 }
 
 <style>
@@ -29,7 +31,7 @@
             right: -10%;
             width: 280px;
             height: 280px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0..08);
             border-radius: 50%;
         }
 
@@ -118,144 +120,94 @@
         gap: 0rem;
     }
 
-    /* =========================================================
-       STICKY SECTION NAVIGATION
-       ========================================================= */
-
     .navigation-tabs {
+        background: rgba(255,255,255,0.98);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e0f2fe;
+        margin-bottom: 2rem;
         position: sticky;
         top: 0;
-        z-index: 1020;
-        width: 100%;
-        margin-bottom: 1.25rem;
-        background: rgba(255, 255, 255, 0.96);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
+        z-index: 1000;
+        margin-bottom: 2rem;
+        transition: box-shadow 0.2s ease, border-radius 0.2s ease;
     }
 
-    /* When navigation reaches the top */
-    .navigation-tabs.is-sticky {
-        border-radius: 0 0 14px 14px;
-        background: rgba(255, 255, 255, 0.98);
-        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.14);
-        border-top-color: rgba(14, 165, 233, 0.25);
-    }
+        .navigation-tabs.is-sticky {
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
 
-
-    
-    /* =========================================================
-       NAVIGATION SCROLL AREA
-       ========================================================= */
-
+    /* ========================================================= TABS ========================================================= */
     .nav-tabs-custom {
-        display: flex;
-        align-items: center;
-        flex-wrap: nowrap;
-        gap: 0.45rem;
-        margin: 0;
-        padding: 0.55rem 0.65rem;
         border: none;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0.85rem;
         overflow-x: auto;
         overflow-y: hidden;
-        scroll-behavior: smooth;
         scrollbar-width: thin;
         scrollbar-color: #cbd5e1 transparent;
+        padding: 0.5rem;
     }
 
-    .nav-tabs-custom::-webkit-scrollbar {
-        height: 4px;
-    }
+        .nav-tabs-custom::-webkit-scrollbar {
+            height: 4px;
+        }
 
-    .nav-tabs-custom::-webkit-scrollbar-track {
-        background: transparent;
-    }
+        .nav-tabs-custom::-webkit-scrollbar-track {
+            background: transparent;
+        }
 
-    .nav-tabs-custom::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-    }
+        .nav-tabs-custom::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
 
-    .nav-tabs-custom .nav-item {
-        flex: 0 0 auto;
-    }
+        .nav-tabs-custom .nav-item {
+            flex: 0 0 auto;
+        }
 
-    /* =========================================================
-    NAVIGATION LINK
-    ========================================================= */
+        
 
-    .nav-tabs-custom .nav-link {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        min-height: 38px;
-        padding: 0.45rem 0.8rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 9px;
-        background: #f8fafc;
-        color: #475569 !important;
-        font-size: 0.78rem;
-        font-weight: 600;
-        white-space: nowrap;
-        text-decoration: none;
-        transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    }
+            .nav-tabs-custom .nav-link i {
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+
+        .nav-tabs-custom .nav-link {
+            background: #dbeafe;
+            border: 1px solid #60a5fa;
+            color: #5e70a1 !important;
+            font-weight: 500;
+            font-size: 0.72rem;
+            padding: 0.42rem 0.7rem;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .nav-tabs-custom .nav-link:hover {
+                background: #bfdbfe;
+                border-color: #3b82f6;
+                color: #1d4ed8;
+                transform: translateY(-1px);
+                box-shadow: 0 3px 8px rgba(59, 130, 246, 0.18);
+            }
 
 
-    /* Icon */
-    .nav-tabs-custom .nav-link i {
-        font-size: 0.95rem;
-        flex-shrink: 0;
-        color: #64748b;
-        transition: color 0.2s ease;
-    }
-
-    .nav-tabs-custom .nav-link span{
-        color : #1d7298;
-    }
-
-    /* Hover */
-    .nav-tabs-custom .nav-link:hover {
-        background: #f0f9ff;
-        border-color: #7dd3fc;
-        color: #0369a1;
-        transform: translateY(-1px);
-        box-shadow: 0 3px 8px rgba(14, 165, 233, 0.12);
-    }
-
-    .nav-tabs-custom .nav-link:hover i {
-        color: #0284c7;
-    }
-
-    /* =========================================================
-        ACTIVE TAB
-        ========================================================= */
-
-    .nav-tabs-custom .nav-link.active {
-        background: linear-gradient( 135deg, #0ea5e9 0%, #0284c7 100% );
-        border-color: #0284c7;
-        color: #ffffff;
-        box-shadow: 0 4px 10px rgba(14, 165, 233, 0.25);
-        transform: translateY(-1px);
-    }
-
-    .nav-tabs-custom .nav-link.active i {
-        color: #ffffff;
-    }
-
-    /* Small active indicator */
-    .nav-tabs-custom .nav-link.active::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        bottom: -6px;
-        width: 18px;
-        height: 3px;
-        transform: translateX(-50%);
-        background: #0284c7;
-        border-radius: 5px;
-    }
+            .nav-tabs-custom .nav-link.active {
+                background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+                color: white !important;
+                border-color: #0284c7;
+                box-shadow: 0 2px 7px rgba(14,165,233,0.25);
+            }
 
     .sections-container {
         display: flex;
@@ -287,19 +239,19 @@
         background: transparent;
     }
 
-    .breadcrumb-custom .breadcrumb-item {
-        color: #0284c7;
-        font-weight: 500;
-        font-size: 0.9rem;
-    }
+        .breadcrumb-custom .breadcrumb-item {
+            color: #0284c7;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
 
-    .breadcrumb-custom .breadcrumb-item.active {
-        color: #64748b;
-    }
+            .breadcrumb-custom .breadcrumb-item.active {
+                color: #64748b;
+            }
 
-    .breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
-        color: #0284c7;
-    }
+            .breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
+                color: #0284c7;
+            }
 
     .info-alert {
         background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
@@ -313,11 +265,11 @@
         box-shadow: 0 2px 6px rgba(59,130,246,0.08);
     }
 
-    .info-alert i {
-        color: #3b82f6;
-        font-size: 1.2rem;
-        flex-shrink: 0;
-    }
+        .info-alert i {
+            color: #3b82f6;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
 
     .info-alert-content {
         flex: 1;
@@ -344,85 +296,32 @@
         border-radius: 2px;
     }
 
-    /* =========================================================
-       TABLET
-       ========================================================= */
-
-    @@media (max-width: 992px) {
-
-        .navigation-tabs {
-            margin-bottom: 1rem;
-        }
-
-        .nav-tabs-custom {
-            gap: 0.35rem;
-            padding: 0.45rem 0.5rem;
-        }
-
-        .nav-tabs-custom .nav-link {
-            min-height: 35px;
-            padding: 0.4rem 0.65rem;
-            font-size: 0.72rem;
-        }
-
-        .nav-tabs-custom .nav-link i {
-            font-size: 0.85rem;
-        }
-    }
-
-    
-    /* =========================================================
-       MOBILE
-       ========================================================= */
-
     @@media (max-width: 768px) {
-
-        .navigation-tabs {
-            border-radius: 10px;
+        .affiliation-header-wrapper {
+            padding: 1.5rem;
         }
 
-        .navigation-tabs.is-sticky {
-            border-radius: 0 0 10px 10px;
+        .affiliation-title {
+            font-size: 1.75rem;
+        }
+
+        .affiliation-meta {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .meta-item {
+            width: 100%;
         }
 
         .nav-tabs-custom {
-            gap: 0.3rem;
-            padding: 0.4rem;
-            -webkit-overflow-scrolling: touch;
+            flex-direction: column;
         }
 
-        .nav-tabs-custom .nav-link {
-            min-height: 34px;
-            padding: 0.38rem 0.6rem;
-            font-size: 0.68rem;
-            border-radius: 8px;
-        }
-
-        .nav-tabs-custom .nav-link i {
-            font-size: 0.8rem;
-        }
-
-        .sections-container > div[id] {
-            scroll-margin-top: 65px;
-        }
-    }
-
-
-    /* =========================================================
-       VERY SMALL MOBILE
-       ========================================================= */
-
-    @@media (max-width: 480px) {
-
-        .nav-tabs-custom .nav-link {
-            min-height: 32px;
-            padding: 0.35rem 0.55rem;
-            font-size: 0.64rem;
-        }
-
-        .nav-tabs-custom .nav-link i {
-            font-size: 0.75rem;
-        }
+            .nav-tabs-custom .nav-link {
+                width: 100%;
+                justify-content: center;
+            }
     }
 
     @@media (max-width: 1280px) {
@@ -567,7 +466,7 @@
             <div class="affiliation-header-content">
                 <span class="affiliation-badge">
                     <i class="bi bi-clipboard-check"></i>
-                    <a href="@Url.Action("TestPdf", "CADentalPreview")" target="_blank">
+                    <a href="@Url.Action("TestPdf", "CAPreview")" target="_blank">
 
                         Preview Mode
                     </a>
@@ -1079,7 +978,7 @@
             @if (Model.HumanResourcesVM?.FacultyDetails != null)
             {
                 <div id="human-resources-group">
-                    @await Html.PartialAsync("HumanResources/HumanResources.cshtml", Model.HumanResourcesVM)
+                    @await Html.PartialAsync(partialViewName: "HumanResources/HumanResources.cshtml", Model.HumanResourcesVM)
                 </div>
 
                 <div class="section-separator"></div>
@@ -1087,7 +986,7 @@
             @if (Model.HostelPreviewVM != null && FacultyCode == "2")
             {
                 <div id="hostel-details-group">
-                    @await Html.PartialAsync("HostelDetails/HostelDetails", Model.HostelPreviewVM)
+                    @await Html.PartialAsync(partialViewName: "HostelDetails/HostelDetails", Model.HostelPreviewVM)
                 </div>
             }
             <!-- Section Separator -->
@@ -1099,7 +998,7 @@
             @if (Model.MedicalUGBedDistributionVM != null && FacultyCode == "2")
             {
                 <div id="bed-distribution-group">
-                    @await Html.PartialAsync("UGBedDistribution/UGBedDistribution", Model.MedicalUGBedDistributionVM)
+                    @await Html.PartialAsync(partialViewName: "UGBedDistribution/UGBedDistribution", Model.MedicalUGBedDistributionVM)
                 </div>
             }
 
@@ -1110,7 +1009,7 @@
             @if (Model.DepartmentOfficesMeuVM != null)
             {
                 <div id="department-education-unit-group">
-                    @await Html.PartialAsync("DEU/DepartmentEducationUnit", Model.DepartmentOfficesMeuVM)
+                    @await Html.PartialAsync(partialViewName: "DEU/DepartmentEducationUnit", Model.DepartmentOfficesMeuVM)
                 </div>
 
                 <div class="section-separator"></div>
@@ -1129,7 +1028,7 @@
             @if (Model.LibraryDisplay != null)
             {
                 <div id="library-group">
-                    @await Html.PartialAsync("Library/LibraryPreview", Model.LibraryDisplay)
+                    @await Html.PartialAsync(partialViewName: "Library/LibraryPreview", Model.LibraryDisplay)
                 </div>
             }
             <!-- Section Separator -->
@@ -1140,7 +1039,7 @@
             @if (Model.VehiclePreviewVM != null)
             {
                 <div id="vehicle-group">
-                    @await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehiclePreviewVM)
+                    @await Html.PartialAsync(partialViewName: "VehicleDetails/VehicleDetailsPreview", Model.VehiclePreviewVM)
                 </div>
             }
 
@@ -1164,7 +1063,7 @@
             @if (Model.FacultyDesigNonTeachDisplayVM != null)
             {
                 <div id="fac-group">
-                    @await Html.PartialAsync("FacultyDesigNonTEaching/Preview", Model.FacultyDesigNonTeachDisplayVM)
+                    @await Html.PartialAsync(partialViewName: "FacultyDesigNonTEaching/Preview", Model.FacultyDesigNonTeachDisplayVM)
                 </div>
             }
 
@@ -1181,7 +1080,7 @@
             @if (Model.FinanceVm != null)
             {
                 <div id="finance-group">
-                    @await Html.PartialAsync("FinancialDetails/FinanceDetailsPreview", Model.FinanceVm)
+                    @await Html.PartialAsync(partialViewName: "FinancialDetails/FinanceDetailsPreview", Model.FinanceVm)
                 </div>
             }
 
@@ -1195,7 +1094,7 @@
             @if (Model.AdminTeachAndHostelVM != null)
             {
                 <div id="admin-group">
-                    @await Html.PartialAsync("AdminTeachAndHostel/AdminAndHostelPreview", Model.AdminTeachAndHostelVM)
+                    @await Html.PartialAsync(partialViewName: "AdminTeachAndHostel/AdminAndHostelPreview", Model.AdminTeachAndHostelVM)
                 </div>
             }
 
@@ -1238,195 +1137,177 @@
 
     
 </div>
-@await Html.PartialAsync("_DocumentViewer")
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
 
-        const navigationTabs =
-            document.querySelector('.navigation-tabs');
+        const navigationTabs = document.querySelector('.navigation-tabs');
+        const navLinks = document.querySelectorAll('.nav-tabs-custom .nav-link');
+        const scrollContainer = document.querySelector('.ca-body');
 
-        const navContainer =
-            document.querySelector('.nav-tabs-custom');
-
-        const navLinks =
-            document.querySelectorAll('.nav-tabs-custom .nav-link');
-
-        const scrollContainer =
-            document.querySelector('.ca-body');
-
-        if (!navigationTabs || !navContainer || !navLinks.length || !scrollContainer) {
+        if (!navigationTabs || !navLinks.length) {
             return;
         }
 
+        /*
+         * ==========================================================
+         * STICKY NAVIGATION
+         * ==========================================================
+         */
 
-        /* =========================================================
-           STICKY NAVIGATION SHADOW
-           ========================================================= */
+        const navigationTop = navigationTabs.offsetTop;
 
-        const updateStickyState = () => {
+        function handleSticky() {
+            const scrollTop = scrollContainer
+                ? scrollContainer.scrollTop
+                : window.pageYOffset;
 
-            const rect = navigationTabs.getBoundingClientRect();
-
-            const containerRect =
-                scrollContainer.getBoundingClientRect();
-
-            if (rect.top <= 1) {
+            if (scrollTop >= navigationTop) {
                 navigationTabs.classList.add('is-sticky');
             } else {
                 navigationTabs.classList.remove('is-sticky');
             }
-        };
+        }
 
 
-        scrollContainer.addEventListener(
-            'scroll',
-            updateStickyState,
-            { passive: true }
-        );
-
-        updateStickyState();
-
-
-        /* =========================================================
-           GET SECTIONS FROM NAVIGATION LINKS
-           ========================================================= */
-
-        const sections = [];
+        /*
+         * ==========================================================
+         * NAVIGATION CLICK
+         * ==========================================================
+         */
 
         navLinks.forEach(link => {
 
-            const targetId =
-                link.getAttribute('href');
-
-            if (!targetId || !targetId.startsWith('#')) {
-                return;
-            }
-
-            const section =
-                document.querySelector(targetId);
-
-            if (section) {
-                sections.push({
-                    id: targetId.substring(1),
-                    element: section,
-                    link: link
-                });
-            }
-        });
-
-
-        /* =========================================================
-           NAVIGATION CLICK
-           ========================================================= */
-
-        navLinks.forEach(link => {
-
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
 
                 e.preventDefault();
 
-                const targetId =
-                    this.getAttribute('href');
+                const targetId = this.getAttribute('href');
 
-                const targetSection =
-                    document.querySelector(targetId);
-
-                if (!targetSection) {
+                if (!targetId || targetId === '#') {
                     return;
                 }
 
+                const targetSection = document.querySelector(targetId);
 
-                const navHeight =
-                    navigationTabs.offsetHeight;
-
+                if (!targetSection) {
+                    console.warn('Section not found:', targetId);
+                    return;
+                }
 
                 /*
-                 * Calculate the exact position.
-                 * This prevents the section heading from
-                 * hiding underneath the sticky navigation.
+                 * Remove active from all tabs
                  */
-
-                const containerRect =
-                    scrollContainer.getBoundingClientRect();
-
-                const targetPosition =
-                    targetSection.offsetTop -
-                    navHeight -
-                    15;
-
-                scrollContainer.scrollTo({
-                    top: Math.max(0, targetPosition),
-                    behavior: 'smooth'
+                navLinks.forEach(l => {
+                    l.classList.remove('active');
                 });
 
-
                 /*
-                 * Immediately update active tab
+                 * Add active to clicked tab
                  */
-
-                navLinks.forEach(item =>
-                    item.classList.remove('active')
-                );
-
                 this.classList.add('active');
 
 
                 /*
-                 * Keep selected tab visible
+                 * ==================================================
+                 * SCROLL TO SECTION
+                 * ==================================================
                  */
 
-                scrollNavLinkIntoView(this);
+                if (scrollContainer) {
+
+                    const containerRect =
+                        scrollContainer.getBoundingClientRect();
+
+                    const targetRect =
+                        targetSection.getBoundingClientRect();
+
+                    const currentScroll =
+                        scrollContainer.scrollTop;
+
+                    const navHeight =
+                        navigationTabs.offsetHeight;
+
+                    const targetPosition =
+                        currentScroll +
+                        (targetRect.top - containerRect.top) -
+                        navHeight -
+                        20;
+
+                    scrollContainer.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+
+                } else {
+
+                    /*
+                     * If page itself is scrolling
+                     */
+
+                    const targetPosition =
+                        window.pageYOffset +
+                        targetSection.getBoundingClientRect().top -
+                        navigationTabs.offsetHeight -
+                        20;
+
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+
             });
 
         });
 
 
-        /* =========================================================
-           KEEP ACTIVE TAB VISIBLE
-           ========================================================= */
+        /*
+         * ==========================================================
+         * SECTION SELECTOR
+         * ==========================================================
+         */
 
-        function scrollNavLinkIntoView(link) {
-
-            const containerRect =
-                navContainer.getBoundingClientRect();
-
-            const linkRect =
-                link.getBoundingClientRect();
-
-            if (linkRect.left < containerRect.left) {
-
-                navContainer.scrollBy({
-                    left:
-                        linkRect.left -
-                        containerRect.left -
-                        20,
-
-                    behavior: 'smooth'
-                });
-
-            }
-            else if (linkRect.right > containerRect.right) {
-
-                navContainer.scrollBy({
-                    left:
-                        linkRect.right -
-                        containerRect.right +
-                        20,
-
-                    behavior: 'smooth'
-                });
-            }
-        }
+        const sectionSelector = [
+            '#basic-section',
+            '#trust-details',
+            '#trust-member-details',
+            '#ug-pg-intake-details',
+            '#teaching-faculty-details',
+            '#equipment-details',
+            '#academic-intake-group',
+            '#academic-section',
+            '#academic-performance-group',
+            '#hospital-section',
+            '#small-group',
+            '#library-group',
+            '#den-land-building-group',
+            '#den-skills-lab-group',
+            '#hostel-details-group',
+            '#bed-distribution-group',
+            '#chair-distribution-group',
+            '#department-education-unit-group',
+            '#dental-library-group',
+            '#vehicle-group',
+            '#human-resources-group',
+            '#finance-group',
+            '#admin-group',
+            '#fac-group',
+            '#payment-group'
+        ].join(',');
 
 
-        /* =========================================================
-           UPDATE ACTIVE TAB WHILE SCROLLING
-           ========================================================= */
+        const sections =
+            document.querySelectorAll(sectionSelector);
 
-        let ticking = false;
 
-        function updateActiveSection() {
+        /*
+         * ==========================================================
+         * UPDATE ACTIVE TAB WHILE SCROLLING
+         * ==========================================================
+         */
+
+        function updateActiveTab() {
 
             if (!sections.length) {
                 return;
@@ -1435,87 +1316,110 @@
             const navHeight =
                 navigationTabs.offsetHeight;
 
+            let current = '';
+
+            if (scrollContainer) {
+
+                const containerRect =
+                    scrollContainer.getBoundingClientRect();
+
+                sections.forEach(section => {
+
+                    const sectionRect =
+                        section.getBoundingClientRect();
+
+                    const relativeTop =
+                        sectionRect.top - containerRect.top;
+
+                    if (relativeTop <= navHeight + 50) {
+                        current = section.id;
+                    }
+
+                });
+
+            } else {
+
+                const scrollPosition =
+                    window.pageYOffset;
+
+                sections.forEach(section => {
+
+                    const sectionTop =
+                        section.getBoundingClientRect().top +
+                        window.pageYOffset;
+
+                    if (
+                        scrollPosition >=
+                        sectionTop - navHeight - 50
+                    ) {
+                        current = section.id;
+                    }
+
+                });
+
+            }
+
+
             /*
-             * Position where a section becomes active.
-             */
-
-            const activationPoint =
-                navHeight + 40;
-
-            let currentSection = sections[0];
-
-
-            sections.forEach(section => {
-
-                const rect =
-                    section.element.getBoundingClientRect();
-
-                if (rect.top <= activationPoint) {
-                    currentSection = section;
-                }
-
-            });
-
-
-            /*
-             * Update active tab
+             * Update active navigation
              */
 
             navLinks.forEach(link => {
+
                 link.classList.remove('active');
+
+                if (
+                    link.getAttribute('href') ===
+                    '#' + current
+                ) {
+                    link.classList.add('active');
+                }
+
             });
-
-            if (currentSection) {
-
-                currentSection.link.classList.add('active');
-
-                /*
-                 * Automatically bring active tab
-                 * into horizontal view.
-                 */
-
-                scrollNavLinkIntoView(
-                    currentSection.link
-                );
-            }
-
-            ticking = false;
         }
 
 
-        scrollContainer.addEventListener('scroll', function() {
+        /*
+         * ==========================================================
+         * SCROLL EVENTS
+         * ==========================================================
+         */
 
-            if (!ticking) {
+        if (scrollContainer) {
 
-                window.requestAnimationFrame(
-                    updateActiveSection
-                );
+            scrollContainer.addEventListener(
+                'scroll',
+                function () {
 
-                ticking = true;
-            }
+                    handleSticky();
+                    updateActiveTab();
 
-        }, { passive: true });
+                },
+                { passive: true }
+            );
 
+        } else {
 
-        function updateSectionOffset() {
-            const navHeight = navigationTabs.offsetHeight;
+            window.addEventListener(
+                'scroll',
+                function () {
 
-            document
-                .querySelectorAll('.sections-container > div[id]')
-                .forEach(section => {
-                    section.style.scrollMarginTop = `${navHeight + 15}px`;
-                });
+                    handleSticky();
+                    updateActiveTab();
+
+                },
+                { passive: true }
+            );
+
         }
 
-        updateSectionOffset();
-        window.addEventListener('resize', updateSectionOffset);
 
+        /*
+         * Initial state
+         */
 
-        /* =========================================================
-           INITIAL ACTIVE SECTION
-           ========================================================= */
-
-        updateActiveSection();
+        handleSticky();
+        updateActiveTab();
 
     });
 </script>
