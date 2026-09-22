@@ -515,7 +515,7 @@ namespace Medical_Affiliation.Controllers
                                       CreatedOn = DateTime.Now
                                   }).OrderBy(x => x.CourseLevel == "UG" ? 1 : x.CourseLevel == "PG" ? 2 : 3)
                                   .ToList();
-        }
+        } 
 
 
 

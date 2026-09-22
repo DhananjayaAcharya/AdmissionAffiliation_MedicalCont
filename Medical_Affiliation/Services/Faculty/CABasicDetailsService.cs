@@ -157,22 +157,24 @@ namespace Medical_Affiliation.Services.Faculty
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
 
-            var data = await _context.AffDeanOrDirectorDetails
+            var entity = await _context.AffDeanOrDirectorDetails
                 .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString())
-                .Select(x => new AffDeanOrDirectorDetailDisplayVM
-                {
-                    DeanOrDirectorName = x.DeanOrDirectorName,
-                    DeanQualification = x.DeanQualification,
-                    DeanQualificationDate = x.DeanQualificationDate.HasValue
-                        ? x.DeanQualificationDate.Value.ToString("dd-MM-yyyy")
-                        : "—",
-                    DeanUniversity = x.DeanUniversity,
-                    DeanStateCouncilNumber = x.DeanStateCouncilNumber,
-                    RecognizedByMci = x.RecognizedByMci == true ? "Yes" : "No"
-                })
                 .FirstOrDefaultAsync();
 
-            return data;
+            if (entity == null)
+                return null;
+
+            return new AffDeanOrDirectorDetailDisplayVM
+            {
+                DeanOrDirectorName = entity.DeanOrDirectorName,
+                DeanQualification = await ResolveQualificationNameAsync(entity.DeanQualification),
+                DeanQualificationDate = entity.DeanQualificationDate.HasValue
+                    ? entity.DeanQualificationDate.Value.ToString("dd-MM-yyyy")
+                    : "—",
+                DeanUniversity = entity.DeanUniversity,
+                DeanStateCouncilNumber = entity.DeanStateCouncilNumber,
+                RecognizedByMci = entity.RecognizedByMci == true ? "Yes" : "No"
+            };
         }
 
         public async Task<AffPrincipalDetailDisplayVM?> GetPrincipalDetails()
@@ -180,22 +182,39 @@ namespace Medical_Affiliation.Services.Faculty
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
 
-            var data = await _context.AffPrincipalDetails
+            var entity = await _context.AffPrincipalDetails
                 .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString())
-                .Select(x => new AffPrincipalDetailDisplayVM
-                {
-                    PrincipalName = x.DeanOrDirectorName,
-                    PrincipalQualification = x.DeanQualification,
-                    PrincipalQualificationDate = x.DeanQualificationDate.HasValue
-                        ? x.DeanQualificationDate.Value.ToString("dd-MM-yyyy")
-                        : "—",
-                    PrincipalUniversity = x.DeanUniversity,
-                    PrincipalStateCouncilNumber = x.DeanStateCouncilNumber,
-                    RecognizedByMci = x.RecognizedByMci == true ? "Yes" : "No"
-                })
                 .FirstOrDefaultAsync();
 
-            return data;
+            if (entity == null)
+                return null;
+
+            return new AffPrincipalDetailDisplayVM
+            {
+                PrincipalName = entity.DeanOrDirectorName,
+                PrincipalQualification = await ResolveQualificationNameAsync(entity.DeanQualification),
+                PrincipalQualificationDate = entity.DeanQualificationDate.HasValue
+                    ? entity.DeanQualificationDate.Value.ToString("dd-MM-yyyy")
+                    : "—",
+                PrincipalUniversity = entity.DeanUniversity,
+                PrincipalStateCouncilNumber = entity.DeanStateCouncilNumber,
+                RecognizedByMci = entity.RecognizedByMci == true ? "Yes" : "No"
+            };
+        }
+
+        private async Task<string?> ResolveQualificationNameAsync(string? qualificationCode)
+        {
+            if (string.IsNullOrWhiteSpace(qualificationCode))
+                return qualificationCode;
+
+            if (!int.TryParse(qualificationCode, out var courseId))
+                return qualificationCode;
+
+            return await _context.MstCourses
+                .AsNoTracking()
+                .Where(course => course.Id == courseId)
+                .Select(course => course.CourseName)
+                .FirstOrDefaultAsync() ?? qualificationCode;
         }
 
     }

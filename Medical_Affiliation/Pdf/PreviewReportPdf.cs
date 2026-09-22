@@ -538,7 +538,7 @@ public class PreviewReportPdf : IDocument
             AddTextRow(table, "Intake 2025-26", item.IntakeDuring202526);
             AddTextRow(table, "Intake Slab", item.IntakeSlab);
             AddTextRow(table, "Permission Type", item.TypeofPermission);
-            AddTextRow(table, "Year of LoP", item.YearOfLop);
+            AddTextRow(table, "First Year of LOP", item.YearOfLop);
             AddTextRow(table, "Date of Recognition", item.DateOfRecognition);
             AddTextRow(table, "Year of EC/FC", item.YearOfObtainingEcAndFc);
             AddTextRow(table, "Sanctioned Intake EC/FC", item.SanctionedIntakeEcFc);
@@ -551,7 +551,31 @@ public class PreviewReportPdf : IDocument
         var beds = _model.BedDistribution;
         if (beds == null) return;
 
-        AddMainHeading(col, "14 · Bed Distribution - MBBS - UG");
+        var totalBeds = _model.CAHospitalAFfiliationCompVM?.ClinicalHospitalDetails?.TotalBeds;
+        var totalBedsText = totalBeds > 0 ? totalBeds.ToString() : "—";
+        var distributedBedsTotal = new int?[]
+        {
+            beds.GenMedicine,
+            beds.Paediatrics,
+            beds.SkinVD,
+            beds.Psychiatry,
+            beds.GenSurgery,
+            beds.Orthopaedics,
+            beds.Ophthalmology,
+            beds.ENT,
+            beds.ObstetricsANC,
+            beds.Gynaecology,
+            beds.Postpartum,
+            beds.MajorOT,
+            beds.MinorOT,
+            beds.ICCU,
+            beds.ICU,
+            beds.PICU_NICU,
+            beds.SICU,
+            beds.CasualtyBeds
+        }.Sum(value => value ?? 0);
+
+        AddMainHeading(col, $"08 · Bed Distribution - MBBS - UG | Total Beds: {totalBedsText}");
         AddSubHeading(col, "Bed Distribution - MBBS - UG", 135);
         col.Item().PaddingTop(8).Table(table =>
         {
@@ -583,6 +607,12 @@ public class PreviewReportPdf : IDocument
             AddTextRow(table, "Total ICU Beds", beds.TotalICUBeds?.ToString() ?? "—");
             AddTextRow(table, "Casualty Beds", beds.CasualtyBeds?.ToString() ?? "—");
         });
+
+        col.Item().PaddingTop(10).AlignRight().Text(text =>
+        {
+            text.Span("Total Bed Distribution: ").Bold();
+            text.Span(distributedBedsTotal.ToString()).Bold().FontColor(_theme.Primary);
+        });
     }
 
     private void AddDeanOrDirectorSection(ColumnDescriptor col)
@@ -603,8 +633,7 @@ public class PreviewReportPdf : IDocument
 
             AddTextRow(table, "Name", dean.DeanOrDirectorName);
             AddTextRow(table, "Qualification", dean.DeanQualification);
-            AddTextRow(table, "Qualification Date", dean.DeanQualificationDate);
-            AddTextRow(table, "University", dean.DeanUniversity);
+            AddTextRow(table, "Contact Number", _model.InstitutionDetails?.DeanMobileNumber);
             AddTextRow(table, "State Council Number", dean.DeanStateCouncilNumber);
             AddTextRow(table, "Recognized by MCI", dean.RecognizedByMci);
         });
@@ -628,8 +657,7 @@ public class PreviewReportPdf : IDocument
 
             AddTextRow(table, "Name", principal.PrincipalName);
             AddTextRow(table, "Qualification", principal.PrincipalQualification);
-            AddTextRow(table, "Qualification Date", principal.PrincipalQualificationDate);
-            AddTextRow(table, "University", principal.PrincipalUniversity);
+            AddTextRow(table, "Contact Number", _model.InstitutionDetails?.PrincipalMobileNumber);
             AddTextRow(table, "State Council Number", principal.PrincipalStateCouncilNumber);
             AddTextRow(table, "Recognized by MCI", principal.RecognizedByMci);
         });
@@ -855,7 +883,22 @@ public class PreviewReportPdf : IDocument
             AddRow("Hospital Owned By", h.HospitalOwnedBy ?? "—");
             AddRow("Owner Name", h.OwnerName ?? "—");
             AddRow("Location", $"{h.DistrictName}, {h.TalukName}");
-            AddRow("Total Beds", h.TotalBeds.ToString());
+            table.Cell()
+                .Background("#FFF3CD")
+                .Border(1.5f)
+                .BorderColor("#D39E00")
+                .Padding(5)
+                .Text("Total Beds")
+                .Bold()
+                .FontColor("#7A5200");
+            table.Cell()
+                .Background("#FFF3CD")
+                .Border(1.5f)
+                .BorderColor("#D39E00")
+                .Padding(5)
+                .Text(h.TotalBeds.ToString())
+                .Bold()
+                .FontColor("#7A5200");
             AddRow("OPD per Day", h.OpdPerDay.ToString());
             AddRow("IPD Occupancy %", h.IpdOccupancyPercent.ToString());
             AddRow("Member of Trust", h.IsOwnerAmemberOfTrust ? "Yes" : "No");
