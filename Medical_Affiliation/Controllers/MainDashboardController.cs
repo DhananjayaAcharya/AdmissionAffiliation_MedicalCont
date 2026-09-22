@@ -73,7 +73,7 @@ namespace Medical_Affiliation.Controllers
                     FacultyId = id,
                     FacultyName = f.FacultyName ?? "Unknown",
                     Icon = GetFacultyIcon(id),
-                    CollegeCount = allColleges.Count(c => c.FacultyCode.ToString() == id)
+                    CollegeCount = allColleges.Count(c => c.FacultyCode == id)
                 };
             }).ToList();
 
@@ -81,7 +81,7 @@ namespace Medical_Affiliation.Controllers
             var filtered = allColleges.AsEnumerable();
 
             if (vm.ActiveFaculty != "ALL")
-                filtered = filtered.Where(c => c.FacultyCode.ToString() == vm.ActiveFaculty);
+                filtered = filtered.Where(c => c.FacultyCode == vm.ActiveFaculty);
 
             // ── 5. Apply search filter (case-insensitive) ─────────────────
             if (!string.IsNullOrWhiteSpace(vm.SearchTerm))
@@ -97,7 +97,7 @@ namespace Medical_Affiliation.Controllers
 
             vm.Colleges = filtered.Select(c =>
             {
-                string code = c.FacultyCode.ToString();
+                string code = c.FacultyCode ?? "";
                 facultyLookup.TryGetValue(code, out var fac);
                 return new CollegeItem
                 {
