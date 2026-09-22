@@ -155,6 +155,17 @@ public class PreviewReportPdf : IDocument
             page.Margin(42);
             page.DefaultTextStyle(text => text.FontFamily("Arial").FontSize(11).FontColor("#243B53"));
 
+            page.Background()
+                .Background(Colors.White)
+                .Extend()
+                .Element(background => background
+                    .AlignCenter()
+                    .AlignMiddle()
+                    .Width(360)
+                    .Height(360)
+                    .Image(GetWatermarkLogo())
+                    .FitArea());
+
             page.Content()
                 .Border(1.2f)
                 .BorderColor(_theme.Primary)
@@ -188,11 +199,12 @@ public class PreviewReportPdf : IDocument
         col.Item().AlignCenter().Text("FINAL DECLARATION")
             .FontSize(17).Bold().FontColor(_theme.Primary);
 
-        col.Item().PaddingTop(8).AlignCenter().Text("To be signed and sealed by the Principal")
+        col.Item().PaddingTop(8).AlignCenter().Text("To be signed with official seal of the Principal")
             .FontSize(10).Italic().FontColor("#64748B");
 
         col.Item().PaddingTop(34).Text(text =>
         {
+            text.Justify();
             text.Span("I, ").Bold();
             text.Span(string.IsNullOrWhiteSpace(principalName) ? "{Principal name}" : principalName).Bold();
             text.Span(", Principal of ");
@@ -200,20 +212,23 @@ public class PreviewReportPdf : IDocument
             text.Span(", hereby solemnly declare and undertake that all documents, particulars, statements, declarations and information furnished or uploaded by the College in this application are true, complete, accurate and correct to the best of my knowledge and belief.");
         });
 
-        col.Item().PaddingTop(18).Text("I further undertake that no material information has been concealed, suppressed or misrepresented in this application. I understand that any false, misleading, fabricated, incomplete or incorrect information or documentation furnished by the College may result in rejection or cancellation of the application, withdrawal of affiliation/approval, or such other action as may be taken by Rajiv Gandhi University of Health Sciences, Karnataka (RGUHS) in accordance with the applicable rules, regulations, ordinances and notifications.");
+        col.Item().PaddingTop(18).Text(text =>
+        {
+            text.Justify();
+            text.Span("I further undertake that no material information has been concealed, suppressed or misrepresented in this application. I understand that any false, misleading, fabricated, incomplete or incorrect information or documentation furnished by the College may result in rejection or cancellation of the application, withdrawal of affiliation/approval, or such other action as may be taken by Rajiv Gandhi University of Health Sciences, Karnataka (RGUHS) in accordance with the applicable rules, regulations, ordinances and notifications.");
+        });
 
         col.Item().PaddingTop(58).Row(row =>
         {
-            row.RelativeItem().Column(signature =>
+            row.RelativeItem();
+
+            row.ConstantItem(190).Column(signature =>
             {
                 signature.Item().LineHorizontal(1).LineColor(_theme.Primary);
                 signature.Item().PaddingTop(6).AlignCenter().Text("Principal Signature").Bold();
                 signature.Item().PaddingTop(4).AlignCenter().Text(string.IsNullOrWhiteSpace(principalName) ? "" : principalName).FontSize(10);
+                signature.Item().PaddingTop(18).Height(76).Border(1).BorderColor(_theme.Border).AlignCenter().AlignMiddle().Text("OFFICIAL SEAL").Bold().FontColor("#64748B");
             });
-
-            row.ConstantItem(42);
-
-            row.ConstantItem(145).Height(92).Border(1).BorderColor(_theme.Border).AlignCenter().AlignMiddle().Text("OFFICIAL SEAL").Bold().FontColor("#64748B");
         });
 
         col.Item().PaddingTop(34).Text(text =>
@@ -248,8 +263,17 @@ public class PreviewReportPdf : IDocument
     private void AddPreviewMetadataHeader(ColumnDescriptor col)
     {
         var firstMatchedCourse = _model.PaymentCalculation?.MatchedCourses.FirstOrDefault();
-        var totalSeats = firstMatchedCourse?.TotalSeats;
-        var increasedIntake = firstMatchedCourse?.IncreasedIntake;
+        var presentIntake = firstMatchedCourse?.Intake_26_27;
+        var additionalSeatsRequested = firstMatchedCourse?.IncreasedIntake;
+
+        var additionalSeatCount = 0;
+        if (!string.IsNullOrWhiteSpace(additionalSeatsRequested)
+            && int.TryParse(additionalSeatsRequested, out var parsedAdditionalSeatsRequested))
+        {
+            additionalSeatCount = parsedAdditionalSeatsRequested;
+        }
+
+        var totalSeats = (presentIntake ?? 0) + additionalSeatCount;
 
         col.Item().PaddingTop(4).PaddingBottom(9).Column(section =>
         {
@@ -276,9 +300,15 @@ public class PreviewReportPdf : IDocument
                 {
                     columns.RelativeColumn();
                     columns.RelativeColumn();
-                    columns.RelativeColumn();
                     if (isIncreaseInIntake)
                     {
+                        columns.RelativeColumn();
+                        columns.RelativeColumn();
+                        columns.RelativeColumn();
+                    }
+                    else
+                    {
+                        columns.RelativeColumn();
                         columns.RelativeColumn();
                     }
                 });
@@ -287,9 +317,10 @@ public class PreviewReportPdf : IDocument
                 AddMetadataCell(table, "Applying Course Level", _model.ApplyingCourseLevel);
                 if (isIncreaseInIntake)
                 {
-                    AddMetadataCell(table, "Increased Intake", increasedIntake);
+                    AddMetadataCell(table, "Present Intake", presentIntake?.ToString() ?? "—");
+                    AddMetadataCell(table, "Additional Seats Requested", additionalSeatsRequested ?? "—");
                 }
-                AddMetadataCell(table, "Total Seats", totalSeats?.ToString() ?? "—");
+                AddMetadataCell(table, "Total Seats", totalSeats.ToString());
             });
         });
     }
@@ -443,35 +474,69 @@ public class PreviewReportPdf : IDocument
         var rows = _model.CourseIntakeList;
         if (rows == null || rows.Count == 0) return;
 
+        var affiliationType = string.IsNullOrWhiteSpace(_model.ApplicationType)
+            ? "Affiliation"
+            : _model.ApplicationType.Trim();
+        var isIncreaseInIntake = affiliationType.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
+            || affiliationType.Contains("Increase", StringComparison.OrdinalIgnoreCase);
+
         AddMainHeading(col, "07 · Course Intake List");
         AddSubHeading(col, "Course Intake List", 135);
         col.Item().PaddingTop(8).Table(table =>
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(4);
-                columns.RelativeColumn(1.5f);
-                columns.RelativeColumn(1.5f);
-                columns.RelativeColumn(1.5f);
                 columns.RelativeColumn(3);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(1.8f);
+                columns.RelativeColumn(1.5f);
+                if (isIncreaseInIntake)
+                {
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1.8f);
+                }
+                else
+                {
+                    columns.RelativeColumn(1.5f);
+                    columns.RelativeColumn(2.5f);
+                }
             });
 
             table.Header(header =>
             {
                 header.Cell().Border(1).Padding(3).Text("Course").Bold();
-                header.Cell().Border(1).Padding(3).Text("Level").Bold();
-                header.Cell().Border(1).Padding(3).AlignCenter().Text("Intake 26-27").Bold();
-                header.Cell().Border(1).Padding(3).Text("Course Code").Bold();
-                header.Cell().Border(1).Padding(3).Text("Match Note").Bold();
+                header.Cell().Border(1).Padding(3).Text("Application Type").Bold();
+                header.Cell().Border(1).Padding(3).Text("Applying Course Level").Bold();
+                header.Cell().Border(1).Padding(3).AlignCenter().Text("Present Intake").Bold();
+                if (isIncreaseInIntake)
+                {
+                    header.Cell().Border(1).Padding(3).AlignCenter().Text("Additional Seats Requested").Bold();
+                    header.Cell().Border(1).Padding(3).AlignCenter().Text("Total Seats").Bold();
+                }
+                else
+                {
+                    header.Cell().Border(1).Padding(3).Text("Course Code").Bold();
+                    header.Cell().Border(1).Padding(3).Text("Match Note").Bold();
+                }
             });
 
             foreach (var item in rows)
             {
                 table.Cell().Border(1).Padding(3).Text(item.CourseName);
-                table.Cell().Border(1).Padding(3).Text(item.CourseLevel);
+                table.Cell().Border(1).Padding(3).Text(affiliationType);
+                table.Cell().Border(1).Padding(3).Text(string.IsNullOrWhiteSpace(item.ApplyingCourseLevel) ? item.CourseLevel : item.ApplyingCourseLevel);
                 table.Cell().Border(1).Padding(3).AlignCenter().Text(item.Intake?.ToString() ?? "—");
-                table.Cell().Border(1).Padding(3).Text(item.CourseCode?.ToString() ?? "—");
-                table.Cell().Border(1).Padding(3).Text(string.IsNullOrWhiteSpace(item.MatchNote) ? "—" : item.MatchNote);
+
+                if (isIncreaseInIntake)
+                {
+                    table.Cell().Border(1).Padding(3).AlignCenter().Text(item.AdditionalSeatsRequested?.ToString() ?? "—");
+                    table.Cell().Border(1).Padding(3).AlignCenter().Text(item.TotalSeats?.ToString() ?? "—");
+                }
+                else
+                {
+                    table.Cell().Border(1).Padding(3).Text(item.CourseCode?.ToString() ?? "—");
+                    table.Cell().Border(1).Padding(3).Text(string.IsNullOrWhiteSpace(item.MatchNote) ? "—" : item.MatchNote);
+                }
             }
         });
     }
@@ -2384,8 +2449,8 @@ public class PreviewReportPdf : IDocument
         if (staffList == null || !staffList.Any())
             return;
 
-        AddMainHeading(col, "20 · Staff Details");
-        AddSubHeading(col, "Staff Pay Particulars", 105);
+        AddMainHeading(col, "20 · Staff Pay Scale Details");
+        AddSubHeading(col, "Staff Pay Scale Details", 105);
 
         col.Item().PaddingTop(8).Table(table =>
         {

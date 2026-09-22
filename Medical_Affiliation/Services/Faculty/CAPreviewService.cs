@@ -444,14 +444,36 @@ namespace Medical_Affiliation.Services.Faculty
                 rows = levelRows;
             }
 
-            return rows.Select(x => new PreviewCourseIntakeItemVM
+            var applicationType = _httpContextAccessor.HttpContext?.Session.GetString("TypeOfAffiliation") ?? string.Empty;
+            var applyingCourseLevel = courseLevel
+                ?? _httpContextAccessor.HttpContext?.Session.GetString("CourseLevel")
+                ?? _httpContextAccessor.HttpContext?.Session.GetString("SelectedCourseLevel")
+                ?? string.Empty;
+
+            return rows.Select(x =>
             {
-                Slno = x.Slno,
-                CourseName = x.Course ?? string.Empty,
-                CourseLevel = x.UgPg ?? string.Empty,
-                Intake = x.Intake2627,
-                CourseCode = x.CourseCode,
-                //MatchNote = x.MatchNote ?? string.Empty
+                var presentIntake = x.Intake2627 ?? 0;
+                var additionalSeatsRequested = 0;
+
+                if (!string.IsNullOrWhiteSpace(x.IncreasedIntake)
+                    && int.TryParse(x.IncreasedIntake, out var parsedIncreasedIntake))
+                {
+                    additionalSeatsRequested = parsedIncreasedIntake;
+                }
+
+                return new PreviewCourseIntakeItemVM
+                {
+                    Slno = x.Slno,
+                    CourseName = x.Course ?? string.Empty,
+                    CourseLevel = x.UgPg ?? string.Empty,
+                    Intake = x.Intake2627,
+                    CourseCode = x.CourseCode,
+                    ApplicationType = applicationType,
+                    ApplyingCourseLevel = applyingCourseLevel,
+                    AdditionalSeatsRequested = additionalSeatsRequested,
+                    TotalSeats = presentIntake + additionalSeatsRequested,
+                    //MatchNote = x.MatchNote ?? string.Empty
+                };
             }).ToList();
         }
 

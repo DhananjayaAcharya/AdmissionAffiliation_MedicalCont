@@ -7,6 +7,8 @@ public partial class CollegeCourseIntakeDetail
 {
     public int Id { get; set; }
 
+    public string? CourseLevel { get; set; }
+
     public string? CollegeName { get; set; }
 
     public string? CollegeAddress { get; set; }

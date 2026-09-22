@@ -1045,7 +1045,7 @@
                         <div class="preview-tab-row"><span>Academic Matters - UG</span><a href="@Url.Action("AcademicMatters", "CA_Aff_AcademicMatters")">Edit</a></div>
                     }
                     <div class="preview-tab-row"><span>Account and Fee Details</span><a href="@Url.Action("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Staff Details</span><a href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Staff Pay Scale Details</span><a href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")">Edit</a></div>
                     @if (isPgPreview)
                     {
                         <div class="preview-tab-row"><span>Academic Matters PG - PG</span><a href="@Url.Action("AcademicMattersPG", "CA_Aff_AcademicMatters")">Edit</a></div>
@@ -1198,15 +1198,28 @@
                 <div class="preview-report-body">
                     @if (Model.CourseIntakeList.Any())
                     {
+                        var isEnhancementApplication = !string.IsNullOrWhiteSpace(Model.ApplicationType)
+                            && (Model.ApplicationType.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
+                                || Model.ApplicationType.Contains("Increase in Intake", StringComparison.OrdinalIgnoreCase));
+
                         <div class="table-responsive">
                             <table class="table table-sm data-table align-middle mb-0">
                                 <thead>
                                     <tr>
                                         <th>Course</th>
-                                        <th>Course Level</th>
-                                        <th class="text-center">Intake (26-27)</th>
-                                        <th>Course Code</th>
-                                        <th>Match Note</th>
+                                        <th>Application Type</th>
+                                        <th>Applying Course Level</th>
+                                        <th class="text-center">Present Intake</th>
+                                        @if (isEnhancementApplication)
+                                        {
+                                            <th class="text-center">Additional Seats Requested</th>
+                                            <th class="text-center">Total Seats</th>
+                                        }
+                                        else
+                                        {
+                                            <th>Course Code</th>
+                                            <th>Match Note</th>
+                                        }
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1214,10 +1227,19 @@
                                     {
                                         <tr>
                                             <td>@item.CourseName</td>
-                                            <td>@item.CourseLevel</td>
+                                            <td>@(string.IsNullOrWhiteSpace(Model.ApplicationType) ? "—" : Model.ApplicationType)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(item.ApplyingCourseLevel) ? item.CourseLevel : item.ApplyingCourseLevel)</td>
                                             <td class="text-center">@(item.Intake?.ToString() ?? "—")</td>
-                                            <td>@(item.CourseCode?.ToString() ?? "—")</td>
-                                            <td>@(string.IsNullOrWhiteSpace(item.MatchNote) ? "—" : item.MatchNote)</td>
+                                            @if (isEnhancementApplication)
+                                            {
+                                                <td class="text-center">@(item.AdditionalSeatsRequested.HasValue ? item.AdditionalSeatsRequested.Value.ToString() : "—")</td>
+                                                <td class="text-center">@(item.TotalSeats.HasValue ? item.TotalSeats.Value.ToString() : "—")</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@(item.CourseCode?.ToString() ?? "—")</td>
+                                                <td>@(string.IsNullOrWhiteSpace(item.MatchNote) ? "—" : item.MatchNote)</td>
+                                            }
                                         </tr>
                                     }
                                 </tbody>
@@ -1348,7 +1370,7 @@
             @if (Model.FinanceVm != null)
             {
                 <div id="StaffDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>20 · Staff Details</span><a class="preview-report-edit" href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                    <h2 class="preview-report-heading"><span>20 · Staff Pay Scale Details</span><a class="preview-report-edit" href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">
                         @if (Model.FinanceVm != null)
                         {
@@ -1356,7 +1378,7 @@
                         }
                         else
                         {
-                            <div class="empty-state">No staff details available.</div>
+                            <div class="empty-state">No staff pay scale details available.</div>
                         }
                     </div>
                 </div>

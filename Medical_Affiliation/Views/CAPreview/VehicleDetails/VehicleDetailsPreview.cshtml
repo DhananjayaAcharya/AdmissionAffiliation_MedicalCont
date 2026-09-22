@@ -38,42 +38,31 @@
                 <table class="table data-table requirements-table align-middle">
                     <thead>
                         <tr>
-                            <th>Vehicle Reg. No</th>
-                            <th>Purpose</th>
-                            <th class="text-center">Seating Capacity</th>
-                            <th class="text-center">RC Book Status</th>
-                            <th class="text-center">Insurance Status</th>
-                            <th class="text-center">Driving License Status</th>
+                            <th>Sl</th>
+                            <th>Vehicle Reg No</th>
+                            <th>Vehicle For</th>
+                            <th class="text-center">Seats</th>
+                            <th class="text-center">Validity Date</th>
+                            <th class="text-center">RC</th>
+                            <th class="text-center">Insurance</th>
+                            <th class="text-center">DL</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @{ var sl = 1; }
                         @foreach (var item in Model.Items)
                         {
                             <tr>
-                                <td>
-                                    @item.VehicleRegNo
-                                </td>
-
-                                <td>
-                                    @item.VehicleForCode
-                                </td>
-
-                                <td class="text-center">
-                                    @(item.SeatingCapacity?.ToString() ?? "-")
-                                </td>
-
-                                <td class="text-center">
-                                    @(item.HasValidRc ? "Available" : "Not Available")
-                                </td>
-
-                                <td class="text-center">
-                                    @(item.HasValidInsurance ? "Available" : "Not Available")
-                                </td>
-
-                                <td class="text-center">
-                                    @(item.HasValidLicense ? "Available" : "Not Available")
-                                </td>
+                                <td>@sl</td>
+                                <td>@item.VehicleRegNo</td>
+                                <td>@item.VehicleForCode</td>
+                                <td class="text-center">@(item.SeatingCapacity?.ToString() ?? "-")</td>
+                                <td class="text-center">@(item.ValidityDate.HasValue ? item.ValidityDate.Value.ToString("dd-MM-yyyy") : "-")</td>
+                                <td class="text-center">@(item.HasValidRc ? "Available" : "Not Available")</td>
+                                <td class="text-center">@(item.HasValidInsurance ? "Available" : "Not Available")</td>
+                                <td class="text-center">@(item.HasValidLicense ? "Available" : "Not Available")</td>
                             </tr>
+                            sl++;
                         }
                     </tbody>
                 </table>

@@ -49,6 +49,10 @@ namespace Medical_Affiliation.Models
         public int? Intake { get; set; }
         public int? CourseCode { get; set; }
         public string MatchNote { get; set; } = string.Empty;
+        public string ApplicationType { get; set; } = string.Empty;
+        public string ApplyingCourseLevel { get; set; } = string.Empty;
+        public int? AdditionalSeatsRequested { get; set; }
+        public int? TotalSeats { get; set; }
     }
 
     public class HospitalAffiliationCompositeDisplayVM
