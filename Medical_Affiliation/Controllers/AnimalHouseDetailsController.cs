@@ -60,23 +60,23 @@ namespace Medical_Affiliation.Controllers
             // Get FacultyId
             // --------------------------------------------------------
 
-            var facultyId = await _context.Faculties
-                .Where(f =>
-                    f.Status == "Active" &&
-                    _context.AffiliationCollegeMasters.Any(c =>
-                        c.CollegeCode == collegeCode &&
-                        c.FacultyCode == facultyCode))
-                .Select(f => (int?)f.FacultyId)
-                .FirstOrDefaultAsync();
+            //var facultyId = await _context.Faculties
+            //    .Where(f =>
+            //        f.Status == "Active" &&
+            //        _context.AffiliationCollegeMasters.Any(c =>
+            //            c.CollegeCode == collegeCode &&
+            //            c.FacultyCode == facultyCode))
+            //    .Select(f => (int?)f.FacultyId)
+            //    .FirstOrDefaultAsync();
 
 
-            if (!facultyId.HasValue)
-            {
-                TempData["ErrorMessage"] =
-                    "Faculty information not found.";
+            //if (!facultyId.HasValue)
+            //{
+            //    TempData["ErrorMessage"] =
+            //        "Faculty information not found.";
 
-                return RedirectToAction("Index", "Home");
-            }
+            //    return RedirectToAction("Index", "Home");
+            //}
 
 
             // --------------------------------------------------------
@@ -88,7 +88,7 @@ namespace Medical_Affiliation.Controllers
                 .Include(x => x.Type)
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
-                    x.FacultyId == facultyId.Value &&
+                    x.FacultyId == int.Parse(facultyCode) &&
                     x.TypeId == typeId.Value &&
                     x.CourseLevel == courseLevel &&
                     x.IsActive)
@@ -102,7 +102,7 @@ namespace Medical_Affiliation.Controllers
 
             var model = new AnimalHouseDetailsViewModel
             {
-                FacultyId = facultyId.Value,
+                FacultyId = int.Parse(facultyCode),
 
                 CollegeCode = collegeCode,
 

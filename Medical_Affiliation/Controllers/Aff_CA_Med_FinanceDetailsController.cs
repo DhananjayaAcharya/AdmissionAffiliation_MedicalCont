@@ -21,7 +21,7 @@ namespace Medical_Affiliation.Controllers
         {
 
 
-            var selectedCourseLevel = HttpContext.Session.GetString("CourseLevel");
+            //var selectedCourseLevel = HttpContext.Session.GetString("CourseLevel");
 
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
