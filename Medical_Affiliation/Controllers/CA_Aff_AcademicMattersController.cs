@@ -46,7 +46,9 @@ namespace Medical_Affiliation.Controllers
             //x.CurriculumId == curriculumId);
             var savedCurriculums = await _context.CaCourseCurricula
                 .Where(x => x.CollegeCode == model.CollegeCode &&
-                            x.FacultyId == facultyId)
+                            x.FacultyId == facultyId &&
+                            x.CourseLevel == courseLevel &&
+                            x.AffiliationType == model.AffiliationType)
                 .ToListAsync();
 
             // Load academic performance rows for this college/faculty/affiliation

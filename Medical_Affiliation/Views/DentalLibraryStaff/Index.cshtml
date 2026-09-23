@@ -1,0 +1,98 @@
+@model Medical_Affiliation.Models.DentalLibraryStaffPageViewModel
+
+@{
+    ViewData["Title"] = "Dental Library Staff";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    var isEditing = Model.Form.LibraryStaffId > 0;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<style>
+    .dental-library-staff-page { min-height: calc(100vh - 8rem); padding: 1.5rem 0 3rem; background: #f4f8fb; color: #18324b; }
+    .dental-library-staff-page .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: 1.5rem 1.75rem; color: #fff; border-radius: .75rem; background: linear-gradient(120deg, #0e4d80, #1769aa); }
+    .dental-library-staff-page .page-heading h1 { margin: 0; font-size: 1.8rem; }
+    .dental-library-staff-page .page-heading p { margin: .35rem 0 0; color: rgba(255,255,255,.78); }
+    .dental-library-staff-page .panel { border: 1px solid #dce7f0; border-radius: .7rem; box-shadow: 0 .5rem 1.5rem rgba(34,67,96,.07); }
+    .dental-library-staff-page .form-label { color: #526b80; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+    .dental-library-staff-page .table th { color: #62798d; background: #f1f6fa; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+    .dental-library-staff-page .table td { vertical-align: middle; }
+    @@media (max-width: 767.98px) {
+        .dental-library-staff-page .page-heading { align-items: start; flex-direction: column; padding: 1.25rem; }
+    }
+</style>
+
+<div class="dental-library-staff-page">
+    <div class="container-fluid">
+        <div class="page-heading">
+            <div>
+                <h1>Dental Library Staff</h1>
+                <p>Maintain library staff details and current working status.</p>
+            </div>
+            <span class="small">College: @Model.CollegeCode</span>
+        </div>
+
+        <div class="panel border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">@(isEditing ? "Edit staff member" : "Add staff member")</h5>
+                    @if (isEditing)
+                    {
+                        <a asp-action="Index" class="small text-decoration-none">Clear</a>
+                    }
+                </div>
+                <form asp-action="Save" method="post">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="Form.LibraryStaffId" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                    <div class="row g-3">
+                        <div class="col-md-4"><label asp-for="Form.Name" class="form-label"></label><input asp-for="Form.Name" class="form-control" /><span asp-validation-for="Form.Name" class="text-danger small"></span></div>
+                        <div class="col-md-4"><label asp-for="Form.Designation" class="form-label"></label><input asp-for="Form.Designation" class="form-control" /><span asp-validation-for="Form.Designation" class="text-danger small"></span></div>
+                        <div class="col-md-4"><label asp-for="Form.Qualification" class="form-label"></label><input asp-for="Form.Qualification" class="form-control" /></div>
+                        <div class="col-md-3"><label asp-for="Form.ExperienceFrom" class="form-label"></label><input asp-for="Form.ExperienceFrom" type="date" class="form-control" /></div>
+                        <div class="col-md-3"><label asp-for="Form.ExperienceTo" class="form-label"></label><input asp-for="Form.ExperienceTo" type="date" class="form-control" /></div>
+                        <div class="col-md-3 d-flex align-items-end"><div class="form-check mb-2"><input asp-for="Form.CurrentlyWorking" class="form-check-input" /><label asp-for="Form.CurrentlyWorking" class="form-check-label">Currently working</label></div></div>
+                        <div class="col-md-4"><label asp-for="Form.PayScale" class="form-label"></label><input asp-for="Form.PayScale" class="form-control" /></div>
+                        <div class="col-md-4"><label asp-for="Form.Category" class="form-label"></label><input asp-for="Form.Category" class="form-control" /></div>
+                        <div class="col-md-4 d-flex align-items-end"><button type="submit" class="btn btn-primary w-100"><i class="bi bi-save me-1" aria-hidden="true"></i>@(isEditing ? "Update staff" : "Save staff")</button></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel border-0">
+            <div class="card-body p-0">
+                <div class="p-4 border-bottom"><h5 class="mb-0">Library staff records</h5></div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead><tr><th class="ps-4">Name</th><th>Designation</th><th>Qualification</th><th>Experience</th><th>Working</th><th>Category</th><th class="text-end pe-4">Actions</th></tr></thead>
+                        <tbody>
+                            @if (Model.Staff.Count == 0)
+                            {
+                                <tr><td colspan="7" class="text-center text-muted py-5">No library staff records found.</td></tr>
+                            }
+                            else
+                            {
+                                foreach (var item in Model.Staff)
+                                {
+                                    <tr>
+                                        <td class="ps-4 fw-semibold">@item.Name</td>
+                                        <td>@item.Designation</td>
+                                        <td>@item.Qualification</td>
+                                        <td>@(item.ExperienceFrom?.ToString("dd-MM-yyyy") ?? "-") - @(item.CurrentlyWorking ? "Present" : item.ExperienceTo?.ToString("dd-MM-yyyy") ?? "-")</td>
+                                        <td><span class="badge @(item.CurrentlyWorking ? "text-bg-success" : "text-bg-secondary")">@(item.CurrentlyWorking ? "Yes" : "No")</span></td>
+                                        <td>@item.Category</td>
+                                        <td class="text-end pe-4"><a asp-action="Index" asp-route-editId="@item.LibraryStaffId" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></a><form asp-action="Delete" asp-route-id="@item.LibraryStaffId" method="post" class="d-inline" onsubmit="return confirm('Remove this staff record?');">@Html.AntiForgeryToken()<button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="bi bi-trash" aria-hidden="true"></i></button></form></td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

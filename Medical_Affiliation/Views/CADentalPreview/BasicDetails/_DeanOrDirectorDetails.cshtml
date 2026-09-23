@@ -1,0 +1,41 @@
+﻿@model DentalInstitutionBasicDetailsDisplayVM
+
+<div class="general-body">
+    <div class="section-block">
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge">
+                <i class="bi bi-person-badge"></i>
+                Dean / Director Details
+            </div>
+        </div>
+
+        @if (Model != null)
+        {
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <td>@Model.InstitutionDetails.DeanName</td>
+                        </tr>
+                        <tr>
+                            <th>Dean Mobile Number</th>
+                            <td>@Model.InstitutionDetails.DeanMobileNumber</td>
+                        </tr>
+                        <tr>
+                            <th>Dean Email Id</th>
+                            <td>@Model.InstitutionDetails.DeanEmailId</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No Dean / Director details available.</p>
+            </div>
+        }
+    </div>
+</div>

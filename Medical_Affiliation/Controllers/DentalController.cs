@@ -622,6 +622,25 @@ namespace Medical_Affiliation.Controllers
                 });
             }
 
+            // ── Saved Staff Shortage records ─────────────────────────────────────
+
+            vm.StaffShortages = await _context.StaffShortageDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId == facultyCodeInt)
+                .OrderBy(x => x.StaffShortageId)
+                .Select(x => new StaffShortageVm
+                {
+                    Id = x.StaffShortageId,
+                    CollegeCode = x.CollegeCode,
+                    FacultyId = x.FacultyId,
+                    PostName = x.PostName,
+                    Reason = x.ReasonForShortage,
+                    Arrangements = x.ArrangementMade
+                })
+                .ToListAsync();
+
+
 
             return View(vm);
         }
@@ -751,6 +770,218 @@ namespace Medical_Affiliation.Controllers
 
             TempData["Success"] = "Teaching staff details saved successfully.";
             return RedirectToAction("TeachingStaffDepartmentWise");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestFormLimits(ValueCountLimit = 100000)]
+        public async Task<IActionResult> SaveStaffShortage(DentalTeachingStaffVm vm)
+        {
+            // ============================================
+            // GET CURRENT COLLEGE / FACULTY FROM SESSION
+            // ============================================
+
+            var collegeCode =
+                HttpContext.Session.GetString("CollegeCode");
+
+            var facultyCode =
+                HttpContext.Session.GetString("FacultyCode");
+
+
+            if (string.IsNullOrWhiteSpace(collegeCode) ||
+                string.IsNullOrWhiteSpace(facultyCode))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+
+            // ============================================
+            // VALIDATE FACULTY ID
+            // ============================================
+
+            if (!int.TryParse(facultyCode, out int facultyId))
+            {
+                TempData["Error"] = "Invalid faculty information.";
+                return RedirectToAction("TeachingStaffDepartmentWise");
+            }
+
+
+            // ============================================
+            // GET POSTED SHORTAGES
+            // ============================================
+
+            var shortages =
+                vm.StaffShortages ??
+                new List<StaffShortageVm>();
+
+
+            // ============================================
+            // GET EXISTING IDS
+            // ============================================
+
+            var postedIds = shortages
+                .Where(x => x.Id > 0)
+                .Select(x => x.Id)
+                .Distinct()
+                .ToList();
+
+
+            // ============================================
+            // DELETE REMOVED RECORDS
+            // ============================================
+
+            var recordsToDelete =
+                await _context.StaffShortageDetails
+                    .Where(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyId == facultyId &&
+                        !postedIds.Contains(x.StaffShortageId))
+                    .ToListAsync();
+
+
+            if (recordsToDelete.Any())
+            {
+                _context.StaffShortageDetails
+                    .RemoveRange(recordsToDelete);
+            }
+
+
+            // ============================================
+            // INSERT / UPDATE
+            // ============================================
+
+            foreach (var shortage in shortages)
+            {
+                // Ignore completely empty rows
+
+                if (string.IsNullOrWhiteSpace(shortage.PostName) &&
+                    string.IsNullOrWhiteSpace(shortage.Reason) &&
+                    string.IsNullOrWhiteSpace(shortage.Arrangements))
+                {
+                    continue;
+                }
+
+
+                // Validate required fields
+
+                if (string.IsNullOrWhiteSpace(shortage.PostName))
+                {
+                    TempData["Error"] =
+                        "Post Name is required.";
+
+                    return RedirectToAction(
+                        "TeachingStaffDepartmentWise");
+                }
+
+
+                if (string.IsNullOrWhiteSpace(shortage.Reason))
+                {
+                    TempData["Error"] =
+                        "Reason for shortage is required.";
+
+                    return RedirectToAction(
+                        "TeachingStaffDepartmentWise");
+                }
+
+
+                if (string.IsNullOrWhiteSpace(shortage.Arrangements))
+                {
+                    TempData["Error"] =
+                        "Arrangement Made is required.";
+
+                    return RedirectToAction(
+                        "TeachingStaffDepartmentWise");
+                }
+
+
+                // ========================================
+                // FIND EXISTING RECORD
+                // ========================================
+
+                StaffShortageDetail? entity = null;
+
+
+                if (shortage.Id > 0)
+                {
+                    entity =
+                        await _context.StaffShortageDetails
+                            .FirstOrDefaultAsync(x =>
+                                x.StaffShortageId == shortage.Id &&
+                                x.CollegeCode == collegeCode &&
+                                x.FacultyId == facultyId);
+                }
+
+
+                // ========================================
+                // INSERT
+                // ========================================
+
+                if (entity == null)
+                {
+                    entity = new StaffShortageDetail
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyId = facultyId,
+
+                        PostName =
+                            shortage.PostName.Trim(),
+
+                        ReasonForShortage =
+                            shortage.Reason.Trim(),
+
+                        ArrangementMade =
+                            shortage.Arrangements.Trim(),
+
+                        CreatedOn = DateTime.Now
+                    };
+
+                    _context.StaffShortageDetails.Add(entity);
+                }
+
+                // ========================================
+                // UPDATE
+                // ========================================
+                else
+                {
+                    entity.PostName =
+                        shortage.PostName.Trim();
+
+                    entity.ReasonForShortage =
+                        shortage.Reason.Trim();
+
+                    entity.ArrangementMade =
+                        shortage.Arrangements.Trim();
+
+                    entity.ModifiedOn =
+                        DateTime.Now;
+                }
+            }
+
+
+            // ============================================
+            // SAVE
+            // ============================================
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] =
+                    "Staff shortage details saved successfully.";
+            }
+            catch (DbUpdateException)
+            {
+                TempData["Error"] =
+                    "Unable to save staff shortage details.";
+            }
+
+
+            // ============================================
+            // RETURN
+            // ============================================
+
+            return RedirectToAction(
+                "TeachingStaffDepartmentWise");
         }
 
         [HttpGet]

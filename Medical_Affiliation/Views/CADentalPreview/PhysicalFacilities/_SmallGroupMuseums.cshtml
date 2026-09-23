@@ -1,0 +1,122 @@
+﻿@model SmallGroupMuseumsDisplayViewModel
+
+@if (Model != null)
+{
+        <!-- Body -->
+    <div class="general-body">
+        <div class="section-block">
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-flask"></i>
+                Medical Museums
+                </div>
+
+                <p class="section-description">
+                Infrastructure and facilities available in medical museums
+                </p>
+            </div>
+            <!-- Core Details -->
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <label class="field-label">Separate Anatomy Museum</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.SeparateAnatomyMuseumAvailable == true ? "Yes" : "No")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Pathology / Forensic Shared</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.PathologyForensicSharedMuseum == true ? "Yes" : "No")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Pharmacology / Microbiology / Community Shared</label>
+                    <div class="field-value fw-semibold">
+                        @(Model.PharmMicroCommSharedMuseum == true ? "Yes" : "No")
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Seating Capacity per Museum</label>
+                    <div class="field-value">
+                        @Model.SeatingCapacityPerMuseum
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Available Area (sqm)</label>
+                    <div class="field-value">
+                        @Model.SeatingAreaAvailableSqm
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Required Area (sqm)</label>
+                    <div class="field-value fw-semibold
+                            @(Model.SeatingAreaAvailableSqm < Model.SeatingAreaRequiredSqm
+                                                            ? "text-danger"
+                                                            : "text-success")">
+                        @Model.SeatingAreaRequiredSqm
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Facilities Status -->
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <span class="status-label">AV Facilities Available</span><br />
+                    <span class="@(Model.MuseumsHaveAV == true
+                                                        ? "status-badge-maintained"
+                                                        : "status-badge-not-maintained")">
+                        @(Model.MuseumsHaveAV == true ? "Yes" : "No")
+                    </span>
+                </div>
+
+                <div class="col-md-4">
+                    <span class="status-label">Internet Available</span><br />
+                    <span class="@(Model.MuseumsHaveInternet == true
+                                                        ? "status-badge-maintained"
+                                                        : "status-badge-not-maintained")">
+                        @(Model.MuseumsHaveInternet == true ? "Yes" : "No")
+                    </span>
+                </div>
+
+                <div class="col-md-4">
+                    <span class="status-label">Digitally Linked</span><br />
+                    <span class="@(Model.MuseumsDigitallyLinked == true
+                                                        ? "status-badge-maintained"
+                                                        : "status-badge-not-maintained")">
+                        @(Model.MuseumsDigitallyLinked == true ? "Yes" : "No")
+                    </span>
+                </div>
+
+                <div class="col-md-4">
+                    <span class="status-label">Racks / Shelves Available</span><br />
+                    <span class="@(Model.MuseumsHaveRacksShelves == true
+                                                        ? "status-badge-maintained"
+                                                        : "status-badge-not-maintained")">
+                        @(Model.MuseumsHaveRacksShelves == true ? "Yes" : "No")
+                    </span>
+                </div>
+
+                <div class="col-md-4">
+                    <span class="status-label">Radiology Display Available</span><br />
+                    <span class="@(Model.MuseumsHaveRadiologyDisplay == true
+                                                        ? "status-badge-maintained"
+                                                        : "status-badge-not-maintained")">
+                        @(Model.MuseumsHaveRadiologyDisplay == true ? "Yes" : "No")
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}

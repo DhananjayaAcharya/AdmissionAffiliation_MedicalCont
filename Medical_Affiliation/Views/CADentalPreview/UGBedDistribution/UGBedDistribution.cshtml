@@ -1,0 +1,136 @@
+﻿@model Medical_Affiliation.Models.MedicalUGBedDistributionVM
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-hospital"></i>
+                Bed Distribution
+            </h2>
+        </div>
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- MEDICAL BED DISTRIBUTION -->
+    <!-- ====================================================== -->
+    @if (Model.Medical != null)
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-hospital-fill"></i>
+                    Department-wise Bed Distribution
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th class="text-center">Beds</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr><td>General Medicine</td><td class="text-center">@Model.Medical.GenMedicine</td></tr>
+                        <tr><td>Paediatrics</td><td class="text-center">@Model.Medical.Paediatrics</td></tr>
+                        <tr><td>Skin &amp; VD</td><td class="text-center">@Model.Medical.SkinVD</td></tr>
+                        <tr><td>Psychiatry</td><td class="text-center">@Model.Medical.Psychiatry</td></tr>
+
+                        <tr><td>General Surgery</td><td class="text-center">@Model.Medical.GenSurgery</td></tr>
+                        <tr><td>Orthopaedics</td><td class="text-center">@Model.Medical.Orthopaedics</td></tr>
+                        <tr><td>Ophthalmology</td><td class="text-center">@Model.Medical.Ophthalmology</td></tr>
+                        <tr><td>ENT</td><td class="text-center">@Model.Medical.ENT</td></tr>
+
+                        <tr><td>Obstetrics (ANC)</td><td class="text-center">@Model.Medical.ObstetricsANC</td></tr>
+                        <tr><td>Gynaecology</td><td class="text-center">@Model.Medical.Gynaecology</td></tr>
+                        <tr><td>Postpartum</td><td class="text-center">@Model.Medical.Postpartum</td></tr>
+
+                        <tr><td>Major OT</td><td class="text-center">@Model.Medical.MajorOT</td></tr>
+                        <tr><td>Minor OT</td><td class="text-center">@Model.Medical.MinorOT</td></tr>
+
+                        <tr><td>ICCU</td><td class="text-center">@Model.Medical.ICCU</td></tr>
+                        <tr><td>ICU</td><td class="text-center">@Model.Medical.ICU</td></tr>
+                        <tr><td>PICU / NICU</td><td class="text-center">@Model.Medical.PICU_NICU</td></tr>
+                        <tr><td>SICU</td><td class="text-center">@Model.Medical.SICU</td></tr>
+
+                        <tr><td>Total ICU Beds</td><td class="text-center">@Model.Medical.TotalICUBeds</td></tr>
+                        <tr><td>Casualty Beds</td><td class="text-center">@Model.Medical.CasualtyBeds</td></tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+    <!-- ====================================================== -->
+    <!-- DENTAL BED DISTRIBUTION -->
+    <!-- ====================================================== -->
+    @if (Model.Dental != null)
+    {
+        <div class="section-block">
+
+            <div class="section-header-block">
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    Dental Bed Distribution
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <table class="table data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Ward</th>
+                            <th class="text-center">Beds Required</th>
+                            <th class="text-center">Beds Present</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (Model.Dental.OralMaxillofacialSurgery.HasValue)
+                        {
+                            <tr>
+                                <td>Oral &amp; Maxillofacial Surgery</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">@Model.Dental.OralMaxillofacialSurgery</td>
+                            </tr>
+                        }
+
+                        @* @foreach (var ward in Model.Dental.DentalWards)
+                        {
+                            <tr>
+                                <td>@ward.WardName</td>
+                                <td class="text-center">@ward.BedsRequired</td>
+                                <td class="text-center">@(ward.BedsPresent ?? 0)</td>
+                            </tr>
+                        } *@
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+</div>

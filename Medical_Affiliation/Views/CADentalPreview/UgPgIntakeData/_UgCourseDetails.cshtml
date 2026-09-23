@@ -1,0 +1,550 @@
+﻿@model AffiliationCourseDetailsViewModel
+
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css"
+      asp-append-version="true" />
+
+<div class="section-block mb-4">
+
+    <!-- ========================= -->
+    <!-- SECTION HEADER -->
+    <!-- ========================= -->
+
+    <div class="preview-section-header">
+
+        <div class="preview-section-header-content">
+
+            <div class="preview-section-title">
+
+                <div>
+                    <h3>
+                        Undergraduate (UG) Course Details
+                    </h3>
+
+                    <p class="" style="font-size: 14px; font-weight: normal;">
+                        Course-wise affiliation, intake, recognition and inspection details.
+                    </p>
+                </div>
+            </div>
+
+            <a class="preview-section-edit"
+               href="@Url.Action(
+                    "Aff_CourseDetails",
+                    "ContinuesAffiliation_Facultybased",
+                    new
+                    {
+                        typeOfAffiliation = "Continuation of Affiliation"
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+                <span>Edit section</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- COURSE NAME -->
+    <!-- ========================= -->
+
+    <div class="d-flex justify-content-end mb-3">
+
+        <span class="count-badge">
+            @(string.IsNullOrWhiteSpace(Model.courseName)
+                ? "—"
+                : Model.courseName)
+        </span>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- A. PRESENT INTAKE -->
+    <!-- ========================= -->
+
+    <div class="section-block mb-4">
+
+        <div class="section-title-text section-badge">
+            A. Present Intake
+        </div>
+
+        <div class="data-table-wrapper mt-3">
+
+            <table class="table data-table table-bordered align-middle">
+
+                <tbody>
+
+                    <tr>
+                        <th style="width:35%;">
+                            Course
+                        </th>
+
+                        <td>
+                            <strong>
+                                @(string.IsNullOrWhiteSpace(Model.courseName)
+                                    ? "—"
+                                    : Model.courseName)
+                            </strong>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Present Intake 2025-26
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.IntakeDuring_2025_26)
+                                ? "—"
+                                : Model.IntakeDuring_2025_26)
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- B. PREVIOUS DETAILS -->
+    <!-- ========================= -->
+
+    <div class="section-block mb-4">
+
+        <div class="section-title-text section-badge">
+            B. Previous Details
+        </div>
+
+        <div class="data-table-wrapper mt-3">
+
+            <table class="table data-table table-bordered align-middle">
+
+                <tbody>
+
+                    <tr>
+                        <th style="width:35%;">
+                            Intake
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.Intake_slab)
+                                ? "—"
+                                : Model.Intake_slab)
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Type of Permission
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.Typeofpermission)
+                                ? "—"
+                                : Model.Typeofpermission)
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Year of Obtaining LOP
+                        </th>
+
+                        <td>
+                            @(Model.yearofLOP?.ToString("dd-MM-yyyy") ?? "—")
+                        </td>
+                    </tr>
+
+                    @if (Model.HasPreviousNotificationFile)
+                    {
+                        <tr>
+
+                            <th>
+                                Previous Notification
+                            </th>
+
+                            <td>
+
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-check-circle"></i>
+                                    Uploaded
+                                </span>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        onclick="openDocumentViewer(
+                                            '@Url.Action(
+                                                "PreviousNotification",
+                                                "ContinuesAffiliation_Facultybased",
+                                                new { courseId = Model.CourseId }
+                                            )',
+                                            'Previous Notification'
+                                        )">
+
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <th>
+                                Previous Notification
+                            </th>
+
+                            <td>
+                                <span class="text-muted">
+                                    Not Uploaded
+                                </span>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- C. PERMISSION / RECOGNITION -->
+    <!-- ========================= -->
+
+    <div class="section-block mb-4">
+
+        <div class="section-title-text section-badge">
+            C. Particulars of Permission / Recognition
+        </div>
+
+        <div class="data-table-wrapper mt-3">
+
+            <table class="table data-table table-bordered align-middle">
+
+                <tbody>
+
+                    <tr>
+                        <th style="width:35%;">
+                            Type of Permission
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.Typeofpermission)
+                                ? "—"
+                                : Model.Typeofpermission)
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Date of LOP / Renewal from DCI / KSDC
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.DateOfLOP_Renewal_DCIKSDC)
+                                ? "—"
+                                : Model.DateOfLOP_Renewal_DCIKSDC)
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Sanctioned Intake
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.SanctionedIntake_Permission)
+                                ? "—"
+                                : Model.SanctionedIntake_Permission)
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Date of Recognition / Renewal by Apex Bodies
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.dateofrecognition)
+                                ? "—"
+                                : Model.dateofrecognition)
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- D. EC & FC -->
+    <!-- ========================= -->
+
+    <div class="section-block mb-4">
+
+        <div class="section-title-text section-badge">
+            D. Year of Obtaining EC &amp; FC from Government of Karnataka
+        </div>
+
+        <div class="data-table-wrapper mt-3">
+
+            <table class="table data-table table-bordered align-middle">
+
+                <tbody>
+
+                    <tr>
+                        <th style="width:35%;">
+                            Year of Obtaining EC &amp; FC
+                        </th>
+
+                        <td>
+                            @(Model.yearofObtainingECandFC?.ToString("dd-MM-yyyy") ?? "—")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Sanctioned Intake
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.sannctionedIntake_EC_FC)
+                                ? "—"
+                                : Model.sannctionedIntake_EC_FC)
+                        </td>
+                    </tr>
+
+                    @if (Model.HasGOKOrder)
+                    {
+                        <tr>
+
+                            <th>
+                                GOK Order
+                            </th>
+
+                            <td>
+
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-check-circle"></i>
+                                    Uploaded
+                                </span>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        onclick="openDocumentViewer(
+                                            '@Url.Action(
+                                                "ViewGOKOrder",
+                                                "ContinuesAffiliation_Facultybased",
+                                                new { courseId = Model.CourseId }
+                                            )',
+                                            'GOK Order'
+                                        )">
+
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <th>
+                                GOK Order
+                            </th>
+
+                            <td>
+                                <span class="text-muted">
+                                    Not Uploaded
+                                </span>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- E. LAST AFFILIATION -->
+    <!-- ========================= -->
+
+    <div class="section-block mb-4">
+
+        <div class="section-title-text section-badge">
+            E. Year of Last Affiliation Granted by RGUHS
+        </div>
+
+        <div class="data-table-wrapper mt-3">
+
+            <table class="table data-table table-bordered align-middle">
+
+                <tbody>
+
+                    <tr>
+                        <th style="width:35%;">
+                            Year of Last Affiliation
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.YearOfLastAffiliation_RGUHS)
+                                ? "—"
+                                : Model.YearOfLastAffiliation_RGUHS)
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Sanctioned Intake
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.SanctionedIntake_LastAffiliation)
+                                ? "—"
+                                : Model.SanctionedIntake_LastAffiliation)
+                        </td>
+                    </tr>
+
+                    @if (Model.HasLastAffiliationFile)
+                    {
+                        <tr>
+
+                            <th>
+                                Supporting Document
+                            </th>
+
+                            <td>
+
+                                <span class="badge bg-success me-2">
+                                    <i class="bi bi-check-circle"></i>
+                                    Uploaded
+                                </span>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        onclick="openDocumentViewer(
+                                            '@Url.Action(
+                                                "ViewLastAffiliation",
+                                                "ContinuesAffiliation_Facultybased",
+                                                new { courseId = Model.CourseId }
+                                            )',
+                                            'Supporting Document'
+                                        )">
+
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <th>
+                                Supporting Document
+                            </th>
+
+                            <td>
+                                <span class="text-muted">
+                                    Not Uploaded
+                                </span>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- F. PREVIOUS LIC INSPECTION -->
+    <!-- ========================= -->
+
+    <div class="section-block mb-4">
+
+        <div class="section-title-text section-badge">
+            F. Date of Previous Inspection by LIC
+        </div>
+
+        <div class="data-table-wrapper mt-3">
+
+            <table class="table data-table table-bordered align-middle">
+
+                <tbody>
+
+                    <tr>
+                        <th style="width:35%;">
+                            Date of Previous Inspection
+                        </th>
+
+                        <td>
+                            @(Model.DateOfPreviousLICInspection?.ToString("dd-MM-yyyy") ?? "—")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            Action Taken on Deficiencies
+                        </th>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(Model.ActionTakenOnDeficiencies)
+                                ? "—"
+                                : Model.ActionTakenOnDeficiencies)
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

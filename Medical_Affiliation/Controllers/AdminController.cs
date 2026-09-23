@@ -1421,30 +1421,136 @@ namespace Admission_Affiliation.Controllers
                 .ToListAsync();
 
 
-            var existingCourses = await (from c in _context.CollegeCourseIntakeDetails
-                                         join cm in _context.AffiliationCollegeMasters on c.CollegeCode equals cm.CollegeCode
-                                         join cr in _context.MstCourses on c.CourseCode equals cr.CourseCode.ToString()
-                                         orderby cm.CollegeName
-                                         select new AddCourseViewModel
-                                         {
-                                             CollegeName = cm.CollegeName + ", " + cm.CollegeTown,
-                                             CollegeCode = c.CollegeCode,
-                                             CourseLevel = cr.CourseLevel,
-                                             CourseName = cr.CourseName,
-                                             CourseCode = cr.CourseCode,
-                                             ExistingIntake = c.ExistingIntake,
-                                             FacultyId = facultyId,
-                                             CollegeFacultyId = cr.FacultyCode,
-                                             Id = c.Id
-                                         })
-                                        .ToListAsync();
+            // =========================================
+            // REGULAR FACULTY COURSES
+            // CollegeCourseIntakeDetails
+            // =========================================
+
+            var regularCoursesQuery =
+                from c in _context.CollegeCourseIntakeDetails
+                join cm in _context.AffiliationCollegeMasters
+                    on c.CollegeCode equals cm.CollegeCode
+                join cr in _context.MstCourses
+                    on c.CourseCode equals cr.CourseCode.ToString()
+                select new
+                {
+                    CourseIntake = c,
+                    College = cm,
+                    Course = cr
+                };
+
+
+            // Section Officer sees only their faculty
+            if (facultyId <= 98)
+            {
+                regularCoursesQuery = regularCoursesQuery
+                    .Where(x => x.CourseIntake.FacultyCode == facultyId);
+            }
+
+
+            var regularCourses = await regularCoursesQuery
+                .Select(x => new AddCourseViewModel
+                {
+                    CollegeName =
+                        x.College.CollegeName + ", " +
+                        x.College.CollegeTown,
+
+                    CollegeCode = x.CourseIntake.CollegeCode,
+
+                    CourseLevel = x.Course.CourseLevel,
+                    CourseName = x.Course.CourseName,
+                    CourseCode = x.Course.CourseCode,
+
+                    ExistingIntake = x.CourseIntake.ExistingIntake,
+
+                    FacultyId = facultyId,
+
+                    CollegeFacultyId =
+                        x.Course.FacultyCode,
+
+                    Id = x.CourseIntake.Id
+                })
+                .ToListAsync();
+
+
+            // =========================================
+            // DENTAL FACULTY COURSES
+            // AcademicIntakes
+            // AY 2026 Existing Intake
+            // =========================================
+
+            var dentalCoursesQuery =
+                from a in _context.AcademicIntakes
+                join cm in _context.AffiliationCollegeMasters
+                    on a.CollegeCode equals cm.CollegeCode
+                join cr in _context.MstCourses
+                    on a.Courses equals cr.CourseCode.ToString()
+                select new
+                {
+                    AcademicIntake = a,
+                    College = cm,
+                    Course = cr
+                };
+
+            // Section Officer sees only their faculty
+            if (facultyId <= 98)
+            {
+                dentalCoursesQuery = dentalCoursesQuery
+                    .Where(x => x.Course.FacultyCode == facultyId);
+            }
+
+            var dentalCourses = await dentalCoursesQuery
+                .Select(x => new AddCourseViewModel
+                {
+                    CollegeName =
+                        x.College.CollegeName + ", " +
+                        x.College.CollegeTown,
+
+                    CollegeCode =
+                        x.AcademicIntake.CollegeCode,
+
+                    // From MstCourses
+                    CourseLevel =
+                        x.Course.CourseLevel,
+
+                    CourseName =
+                        x.Course.CourseName,
+
+                    CourseCode =
+                        x.Course.CourseCode,
+
+                    // From AcademicIntakes
+                    ExistingIntake =
+                        x.AcademicIntake.Ay2026ExistingIntake,
+
+                    FacultyId =
+                        facultyId,
+
+                    CollegeFacultyId =
+                        x.Course.FacultyCode,
+
+                    Id =
+                        x.AcademicIntake.Id
+                })
+                .ToListAsync();
+
+
+            // =========================================
+            // COMBINE REGULAR + DENTAL COURSES
+            // =========================================
+
+            var existingCourses = regularCourses
+                .Concat(dentalCourses)
+                .OrderBy(x => x.CollegeName)
+                .ThenBy(x => x.CourseName)
+                .ToList();
 
             var viewModel = new AddCoursePageViewModel
             {
                 CourseModel = new AddCourseViewModel(),
                 FacultyList = faculties,
-                CollegeList = new List<SelectListItem>(),
-                CourseList = new List<SelectListItem>(),
+                CollegeList = colleges,
+                CourseList = courses,
                 ExistingCourses = existingCourses,
                 CourseLevelList = courseLevels,
                 CoursePrefixList = coursePrefixList
@@ -1457,6 +1563,8 @@ namespace Admission_Affiliation.Controllers
 
             return View(viewModel);
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetCoursesByFacultyAndLevel(int facultyId, string courseLevel, string collegeCode)

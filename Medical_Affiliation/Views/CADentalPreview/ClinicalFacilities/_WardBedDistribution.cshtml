@@ -1,0 +1,87 @@
+﻿@model List<DentalWardBedDistributionVm>
+
+<div class="general-body">
+    <div class="section-block mt-4">
+
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-hospital-fill"></i>
+                Ward Bed Distribution
+            </div>
+
+            <p class="section-description">
+                Required and available bed strength across hospital wards.
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Ward</th>
+                        <th class="text-center">Seat Slab</th>
+                        <th class="text-center">Beds Required</th>
+                        <th class="text-center">Beds Available</th>
+                        @* <th class="text-center">Status</th> *@
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model?.Any() == true)
+                    {
+                        @foreach (var ward in Model)
+                        {
+                            bool isMaintained = (ward.BedsPresent ?? 0) >= ward.BedsRequired;
+
+                            <tr>
+                                <td>
+                                    <strong>@ward.WardName</strong>
+                                </td>
+
+                                <td class="text-center">
+                                    @ward.SeatSlab
+                                </td>
+
+                                <td class="text-center">
+                                    @ward.BedsRequired
+                                </td>
+
+                                <td class="text-center">
+                                    @(ward.BedsPresent ?? 0)
+                                </td>
+
+                                @* <td class="text-center">
+                                    @if (isMaintained)
+                                    {
+                                        <span class="text-success fs-5">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger fs-5">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        </span>
+                                    }
+                                </td> *@
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                Ward bed distribution details not available.
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>

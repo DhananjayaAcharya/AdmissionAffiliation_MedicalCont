@@ -5,5 +5,6 @@ namespace Medical_Affiliation.Services.Interfaces
     public interface ICAInstitutionBasicDetails
     {
         Task<InstituionBasicDetailsDisplayVM> GetAllDetails();
+        Task<DentalInstitutionBasicDetailsDisplayVM> GetAllDentalDetails();
     }
 }

@@ -88,6 +88,32 @@ namespace Medical_Affiliation.ViewModels
         [Display(Name = "Preclinical & Skill Lab Area (Sq.m)")]
         public decimal? PreclinicalSkillLabAreaSqm { get; set; }
 
+
+
+        // =====================================================
+        // q. STAFF RESIDENTIAL QUARTERS
+        // =====================================================
+
+        [Display(Name = "Principal Staff Residential Quarter Available")]
+        public bool? PrincipalStaffResidentialQuarter { get; set; }
+
+        [Display(Name = "Principal Staff Residential Quarter Area (Sq. Ft.)")]
+        public decimal? PrincipalStaffResidentialQuarterAreaSqFt { get; set; }
+
+
+        [Display(Name = "Other Staff Residential Quarter Available")]
+        public bool? OtherStaffResidentialQuarter { get; set; }
+
+        [Display(Name = "Other Staff Residential Quarter Area (Sq. Ft.)")]
+        public decimal? OtherStaffResidentialQuarterAreaSqFt { get; set; }
+
+
+        [Display(Name = "Teaching & Ancillary Staff Residential Quarter Available")]
+        public bool? TeachingAncillaryStaffResidentialQuarter { get; set; }
+
+        [Display(Name = "Teaching & Ancillary Staff Residential Quarter Area (Sq. Ft.)")]
+        public decimal? TeachingAncillaryStaffResidentialQuarterAreaSqFt { get; set; }
+
         // =====================================================
         // LAND DOCUMENTS
         // =====================================================

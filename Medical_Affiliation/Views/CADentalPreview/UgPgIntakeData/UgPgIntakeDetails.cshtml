@@ -1,0 +1,89 @@
+﻿@model UGPgIntakeDetailsPreviewViewModel
+
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+}
+
+<link rel="stylesheet" href="~/css/preview-section-header.css" />
+
+<div class="preview-section">
+
+    <!-- ========================= -->
+    <!-- HEADER -->
+    <!-- ========================= -->
+
+    <div class="preview-section-header">
+
+        <div class="preview-section-header-content">
+
+            <h2 class="preview-section-title">
+
+                <i class="bi bi-journal-bookmark-fill"></i>
+
+                <span>UG / PG Intake Details</span>
+
+            </h2>
+
+
+            <!-- EDIT BUTTON -->
+            <a class="preview-section-edit"
+               href="@Url.Action(
+                    "Aff_InstituteDetails",
+                    "ContinuesAffiliation_Facultybased",
+                    new
+                    {
+                        typeOfAffiliation = AffiliationType
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+
+                <span>Edit section</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- BODY -->
+    <!-- ========================= -->
+
+    <div class="preview-section-body">
+
+        <!-- ========================= -->
+        <!-- UG COURSE DETAILS -->
+        <!-- ========================= -->
+
+        @if (Model?.UgCourseDetails != null)
+        {
+            <div id="ug-course-details">
+
+                @await Html.PartialAsync(
+                    "UgPgIntakeData/_UgCourseDetails",
+                    Model.UgCourseDetails)
+
+            </div>
+        }
+
+
+        <!-- ========================= -->
+        <!-- PG COURSE DETAILS -->
+        <!-- ========================= -->
+
+        @if (Model?.PgCourseDetails != null)
+        {
+            <div id="pg-course-details">
+
+                @await Html.PartialAsync(
+                    "UgPgIntakeData/_PgCourseDetails",
+                    Model.PgCourseDetails)
+
+            </div>
+        }
+
+    </div>
+
+</div>

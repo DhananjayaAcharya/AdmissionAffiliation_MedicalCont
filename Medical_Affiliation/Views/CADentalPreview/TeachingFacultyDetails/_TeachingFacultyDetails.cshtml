@@ -1,0 +1,144 @@
+﻿@model TeachingFacultyDetailsPreviewViewModel
+
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css" />
+
+
+<div class="general-section">
+
+    <!-- ========================= -->
+    <!-- HEADER -->
+    <!-- ========================= -->
+
+    <div class="preview-section-header">
+
+        <div class="preview-section-header-content">
+
+            <div class="preview-section-title">
+
+                <i class="bi bi-person-workspace"></i>
+
+                <div>
+                    <h3>
+                        Faculty Repository
+                    </h3>
+                </div>
+
+            </div>
+
+            <a class="preview-section-edit"
+               href="@Url.Action(
+                    "TeachingFacultyDetails",
+                    "DentalRepository",
+                    new
+                    {
+                        typeOfAffiliation = @AffiliationType
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+
+                <span>Edit section</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- BODY -->
+    <!-- ========================= -->
+
+    <div class="general-body" style="padding: 0.2rem 0.2rem;">
+
+        @if (Model?.FacultyDetails?.Any() == true)
+        {
+            <div class="data-table-wrapper">
+
+                <div class="table-responsive">
+
+                    <table class="table data-table table-bordered align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Designation
+                                </th>
+
+                                <th class="text-center">
+                                    Required Faculty
+                                </th>
+
+                                <th class="text-center">
+                                    Available Faculty
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in Model.FacultyDetails)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @(!string.IsNullOrWhiteSpace(item.DepartmentName)
+                                            ? item.DepartmentName
+                                            : "—")
+                                    </td>
+
+                                    <td>
+                                        @(!string.IsNullOrWhiteSpace(item.DesignationName)
+                                            ? item.DesignationName
+                                            : "—")
+                                    </td>
+
+                                    <td class="text-center">
+                                        @(!string.IsNullOrWhiteSpace(item.RequiredFaculty)
+                                            ? item.RequiredFaculty
+                                            : "0")
+                                    </td>
+
+                                    <td class="text-center">
+                                        @(!string.IsNullOrWhiteSpace(item.AvailableFaculty)
+                                            ? item.AvailableFaculty
+                                            : "0")
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+
+                <i class="bi bi-inbox"></i>
+
+                <p>
+                    No teaching faculty details available.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>

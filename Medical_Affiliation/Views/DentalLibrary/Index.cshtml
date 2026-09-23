@@ -1,0 +1,173 @@
+@model Medical_Affiliation.Models.DentalLibraryPageViewModel
+
+@{
+    ViewData["Title"] = "Dental Library";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<style>
+    .dental-library-page { min-height: calc(100vh - 8rem); padding: 1.5rem 0 3rem; background: #f4f8fb; color: #18324b; }
+    .dental-library-page .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: 1.5rem 1.75rem; color: #fff; border-radius: .75rem; background: linear-gradient(120deg, #0e4d80, #1769aa); }
+    .dental-library-page .page-heading h1 { margin: 0; font-size: 1.8rem; }
+    .dental-library-page .page-heading p { margin: .35rem 0 0; color: rgba(255,255,255,.78); }
+    .dental-library-page .panel { border: 1px solid #dce7f0; border-radius: .7rem; box-shadow: 0 .5rem 1.5rem rgba(34,67,96,.07); }
+    .dental-library-page .table th { color: #62798d; background: #f1f6fa; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; }
+    .dental-library-page .amount-input { max-width: 15rem; }
+    .dental-library-page .availability-buttons .btn { min-width: 6.5rem; }
+    @@media (max-width: 767.98px) {
+        .dental-library-page .page-heading { align-items: start; flex-direction: column; padding: 1.25rem; }
+        .dental-library-page .amount-input { max-width: none; }
+    }
+</style>
+
+<div class="dental-library-page">
+    <div class="container-fluid">
+        <div class="page-heading">
+            <div>
+                <h1>Dental Library</h1>
+                <p>Maintain library services and proposed expenditure for the configured library items.</p>
+            </div>
+            <span class="small">College: @Model.CollegeCode</span>
+        </div>
+
+        <form asp-action="Save" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="panel border-0 mb-4">
+                <div class="card-body p-0">
+                    <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">Library services</h5>
+                            <span class="text-muted small">Mark each configured service as available or unavailable.</span>
+                        </div>
+                        <span class="badge text-bg-light">@Model.Services.Count services</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4" style="width: 5rem;">#</th>
+                                    <th>Service name</th>
+                                    <th style="width: 14rem;">Availability</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Services.Count == 0)
+                                {
+                                    <tr><td colspan="3" class="text-center text-muted py-5">No library services are configured.</td></tr>
+                                }
+                                else
+                                {
+                                    @for (var index = 0; index < Model.Services.Count; index++)
+                                    {
+                                        <tr>
+                                            <td class="ps-4">@(index + 1)</td>
+                                            <td>
+                                                <input asp-for="Services[index].ServiceId" type="hidden" />
+                                                <label asp-for="Services[index].IsAvailable" class="mb-0 fw-semibold">@Model.Services[index].ServiceName</label>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group availability-buttons" role="group" aria-label="Library service availability">
+                                                    <input type="radio"
+                                                           class="btn-check"
+                                                           name="Services[@index].IsAvailable"
+                                                           id="service-available-@index"
+                                                           value="true"
+                                                           checked="@(Model.Services[index].IsAvailable ? "checked" : null)" />
+                                                    <label class="btn btn-outline-success" for="service-available-@index">
+                                                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>Yes
+                                                    </label>
+                                                    <input type="radio"
+                                                           class="btn-check"
+                                                           name="Services[@index].IsAvailable"
+                                                           id="service-unavailable-@index"
+                                                           value="false"
+                                                           checked="@(!Model.Services[index].IsAvailable ? "checked" : null)" />
+                                                    <label class="btn btn-outline-secondary" for="service-unavailable-@index">
+                                                        <i class="bi bi-x-lg me-1" aria-hidden="true"></i>No
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel border-0">
+                <div class="card-body p-0">
+                    <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">Library expenditure</h5>
+                            <span class="text-muted small">Values of zero are treated as not entered.</span>
+                        </div>
+                        <span class="badge text-bg-light">@Model.Expenditures.Count items</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4" style="width: 5rem;">#</th>
+                                    <th>Item name</th>
+                                    <th style="width: 22rem;">Proposed expenditure</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Expenditures.Count == 0)
+                                {
+                                    <tr><td colspan="3" class="text-center text-muted py-5">No expenditure items are configured.</td></tr>
+                                }
+                                else
+                                {
+                                    @for (var index = 0; index < Model.Expenditures.Count; index++)
+                                    {
+                                        <tr>
+                                            <td class="ps-4">@(index + 1)</td>
+                                            <td>
+                                                <input asp-for="Expenditures[index].ItemId" type="hidden" />
+                                                <label asp-for="Expenditures[index].ExpenditureProposed" class="mb-0 fw-semibold">@Model.Expenditures[index].ItemName</label>
+                                            </td>
+                                            <td>
+                                                <div class="input-group amount-input">
+                                                    <span class="input-group-text">₹</span>
+                                                    <input asp-for="Expenditures[index].ExpenditureProposed" class="form-control" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
+                                                </div>
+                                                <span asp-validation-for="Expenditures[index].ExpenditureProposed" class="text-danger small"></span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Services.Count > 0 || Model.Expenditures.Count > 0)
+            {
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1" aria-hidden="true"></i> Save library details
+                    </button>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    @if (TempData["Success"] is string successMessage)
+    {
+        <script>
+            Swal.fire({ icon: "success", text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(successMessage)), toast: true, position: "top-end", showConfirmButton: false, timer: 2500, timerProgressBar: true });
+        </script>
+    }
+}

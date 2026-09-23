@@ -1,0 +1,878 @@
+﻿@model Medical_Affiliation.Models.AnimalHouseDetailsViewModel
+
+@{
+    ViewData["Title"] = "Animal House Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+
+    var isEditing = Model.AnimalHouseDetailsId > 0;
+}
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<style>
+    .animal-house-page {
+        min-height: calc(100vh - 8rem);
+        padding: 1.5rem 0 3rem;
+        background: #f4f8fb;
+        color: #18324b;
+    }
+
+    .animal-house-page .page-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        padding: 1.5rem 1.75rem;
+        color: #fff;
+        border-radius: .75rem;
+        background: linear-gradient(120deg, #0e4d80, #1769aa);
+    }
+
+    .animal-house-page .page-heading h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    .animal-house-page .page-heading p {
+        margin: .35rem 0 0;
+        color: rgba(255, 255, 255, .78);
+    }
+
+    .animal-house-page .panel {
+        border: 1px solid #dce7f0;
+        border-radius: .7rem;
+        background: #fff;
+        box-shadow: 0 .5rem 1.5rem rgba(34, 67, 96, .07);
+    }
+
+    .animal-house-page .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #18324b;
+    }
+
+    .animal-house-page .form-label {
+        color: #526b80;
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+    .animal-house-page .required::after {
+        content: " *";
+        color: #dc3545;
+    }
+
+    .animal-house-page .form-control:focus {
+        border-color: #1769aa;
+        box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .12);
+    }
+
+    .animal-house-page textarea {
+        min-height: 125px;
+        resize: vertical;
+    }
+
+    .animal-house-page .table th {
+        color: #62798d;
+        background: #f1f6fa;
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        white-space: nowrap;
+    }
+
+    .animal-house-page .table td {
+        vertical-align: middle;
+    }
+
+    .animal-house-page .table tbody tr:hover {
+        background: #f8fbfd;
+    }
+
+    .animal-house-page .record-text {
+        max-width: 300px;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .animal-house-page .action-btn {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .animal-house-page .btn-primary {
+        background-color: #1769aa;
+        border-color: #1769aa;
+    }
+
+    .animal-house-page .btn-primary:hover {
+        background-color: #0e4d80;
+        border-color: #0e4d80;
+    }
+
+    @@media (max-width: 767.98px) {
+
+        .animal-house-page .page-heading {
+            align-items: start;
+            flex-direction: column;
+            padding: 1.25rem;
+        }
+
+        .animal-house-page .page-heading h1 {
+            font-size: 1.5rem;
+        }
+
+        .animal-house-page .record-text {
+            max-width: 180px;
+        }
+    }
+</style>
+
+
+<div class="animal-house-page">
+
+    <div class="container-fluid">
+
+        <!-- ========================================================= -->
+        <!-- PAGE HEADER -->
+        <!-- ========================================================= -->
+
+        <div class="page-heading">
+
+            <div>
+
+                <h1>
+                    <i class="bi bi-house-heart me-2"></i>
+                    Animal House Details
+                </h1>
+
+                <p>
+                    Maintain particulars of the animal house including area,
+                    staff and type of animals.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- ADD / EDIT FORM -->
+        <!-- ========================================================= -->
+
+        <div class="panel border-0 mb-4">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h5 class="section-title mb-1">
+
+                            <i class="bi bi-pencil-square me-1"></i>
+
+                            @(isEditing
+                                ? "Edit Animal House Details"
+                                : "Add Animal House Details")
+
+                        </h5>
+
+                        <small class="text-muted">
+                            Enter the animal house particulars.
+                        </small>
+
+                    </div>
+
+
+                    @if (isEditing)
+                    {
+                        <a asp-action="Index"
+                           class="btn btn-sm btn-outline-secondary">
+
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel
+
+                        </a>
+                    }
+
+                </div>
+
+
+                <form id="animalHouseForm"
+                      asp-action="@(isEditing ? "Edit" : "Create")"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    @if (isEditing)
+                    {
+                        <input asp-for="AnimalHouseDetailsId"
+                               type="hidden" />
+                    }
+
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger small mb-3">
+                    </div>
+
+
+                    <div class="row g-4">
+
+                        <!-- ================================================= -->
+                        <!-- AREA -->
+                        <!-- ================================================= -->
+
+                        <div class="col-md-4">
+
+                            <label asp-for="Area"
+                                   class="form-label required">
+
+                                <i class="bi bi-rulers me-1"></i>
+                                Area
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <input asp-for="Area"
+                                       type="number"
+                                       class="form-control"
+                                       step="0.01"
+                                       min="0.01"
+                                       placeholder="Enter area" />
+
+                                <span class="input-group-text">
+                                    Sq. m
+                                </span>
+
+                            </div>
+
+                            <span asp-validation-for="Area"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- STAFF -->
+                        <!-- ================================================= -->
+
+                        <div class="col-md-8">
+
+                            <label asp-for="Staff"
+                                   class="form-label required">
+
+                                <i class="bi bi-people me-1"></i>
+                                Staff
+
+                            </label>
+
+                            <textarea asp-for="Staff"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Enter animal house staff particulars..."></textarea>
+
+                            <span asp-validation-for="Staff"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- TYPE OF ANIMALS -->
+                        <!-- ================================================= -->
+
+                        <div class="col-md-12">
+
+                            <label asp-for="TypeOfAnimals"
+                                   class="form-label required">
+
+                                <i class="bi bi-heart-pulse me-1"></i>
+                                Type of Animals
+
+                            </label>
+
+                            <textarea asp-for="TypeOfAnimals"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Enter type of animals maintained in the animal house..."></textarea>
+
+                            <span asp-validation-for="TypeOfAnimals"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- SAVE BUTTON -->
+                        <!-- ================================================= -->
+
+                        <div class="col-md-4 ms-auto">
+
+                            <button type="submit"
+                                    class="btn btn-primary w-100"
+                                    id="saveAnimalHouseBtn">
+
+                                <i class="bi bi-save me-1"></i>
+
+                                @(isEditing
+                                    ? "Update Animal House"
+                                    : "Save Animal House")
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- EXISTING RECORDS -->
+        <!-- ========================================================= -->
+
+        <div class="panel border-0">
+
+            <div class="card-body p-0">
+
+                <div class="p-4 border-bottom">
+
+                    <h5 class="section-title mb-1">
+
+                        <i class="bi bi-table me-1"></i>
+                        Animal House Records
+
+                    </h5>
+
+                    <small class="text-muted">
+                        Existing animal house particulars.
+                    </small>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+
+                                <th class="ps-4">
+                                    Area
+                                </th>
+
+                                <th>
+                                    Staff
+                                </th>
+
+                                <th>
+                                    Type of Animals
+                                </th>
+
+                                <th class="text-end pe-4">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @if (Model.AnimalHouseRecords == null ||
+                                 !Model.AnimalHouseRecords.Any())
+                            {
+                                <tr>
+
+                                    <td colspan="4"
+                                        class="text-center text-muted py-5">
+
+                                        <div class="mb-2">
+
+                                            <i class="bi bi-inbox fs-2"></i>
+
+                                        </div>
+
+                                        No animal house records found.
+
+                                    </td>
+
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var item in Model.AnimalHouseRecords)
+                                {
+                                    <tr>
+
+                                        <!-- Area -->
+
+                                        <td class="ps-4 fw-semibold">
+
+                                            @item.Area
+                                            <span class="text-muted small">
+                                                Sq. m
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Staff -->
+
+                                        <td>
+
+                                            <div class="record-text">
+
+                                                @item.Staff
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- Type of Animals -->
+
+                                        <td>
+
+                                            <div class="record-text">
+
+                                                @item.TypeOfAnimals
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- Actions -->
+
+                                        <td class="text-end pe-4">
+
+                                            <a asp-action="Edit"
+                                               asp-route-id="@item.AnimalHouseDetailsId"
+                                               class="btn btn-sm btn-outline-primary action-btn me-1"
+                                               title="Edit">
+
+                                                <i class="bi bi-pencil"></i>
+
+                                            </a>
+
+
+                                            <form asp-action="Delete"
+                                                  asp-route-id="@item.AnimalHouseDetailsId"
+                                                  method="post"
+                                                  class="d-inline delete-animal-house-form">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger action-btn"
+                                                        title="Remove">
+
+                                                    <i class="bi bi-trash"></i>
+
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const form =
+                document.getElementById("animalHouseForm");
+
+            const isEditing =
+                        @isEditing.ToString().ToLower();
+
+
+            // ============================================================
+            // SAVE / UPDATE
+            // ============================================================
+
+            if (form) {
+
+                form.addEventListener("submit", function(event) {
+
+                    let errors = [];
+
+
+                    const area =
+                        document.getElementById("Area");
+
+                    const staff =
+                        document.getElementById("Staff");
+
+                    const typeOfAnimals =
+                        document.getElementById("TypeOfAnimals");
+
+
+                    // ----------------------------------------------------
+                    // Area
+                    // ----------------------------------------------------
+
+                    if (!area ||
+                        !area.value ||
+                        parseFloat(area.value) <= 0) {
+
+                        errors.push(
+                            "Please enter a valid Area."
+                        );
+
+                    }
+
+
+                    // ----------------------------------------------------
+                    // Staff
+                    // ----------------------------------------------------
+
+                    if (!staff ||
+                        !staff.value.trim()) {
+
+                        errors.push(
+                            "Please enter Staff details."
+                        );
+
+                    }
+
+
+                    // ----------------------------------------------------
+                    // Type of Animals
+                    // ----------------------------------------------------
+
+                    if (!typeOfAnimals ||
+                        !typeOfAnimals.value.trim()) {
+
+                        errors.push(
+                            "Please enter Type of Animals."
+                        );
+
+                    }
+
+
+                    // ====================================================
+                    // VALIDATION ERROR
+                    // ====================================================
+
+                    if (errors.length > 0) {
+
+                        event.preventDefault();
+
+                        Swal.fire({
+
+                            icon: "warning",
+
+                            title: "Validation Required",
+
+                            html: errors.map(function(error) {
+
+                                return '<div class="text-start mb-1">• '
+                                    + error +
+                                    '</div>';
+
+                            }).join(""),
+
+                            confirmButtonText: "OK",
+
+                            confirmButtonColor: "#1769aa"
+
+                        });
+
+                        return;
+                    }
+
+
+                    // ====================================================
+                    // CONFIRM SAVE / UPDATE
+                    // ====================================================
+
+                    event.preventDefault();
+
+
+                    Swal.fire({
+
+                        icon: "question",
+
+                        title: isEditing
+                            ? "Update Animal House Details?"
+                            : "Save Animal House Details?",
+
+                        text: isEditing
+                            ? "Are you sure you want to update this record?"
+                            : "Are you sure you want to save this record?",
+
+                        showCancelButton: true,
+
+                        confirmButtonText: isEditing
+                            ? "Yes, Update"
+                            : "Yes, Save",
+
+                        cancelButtonText: "Cancel",
+
+                        reverseButtons: true,
+
+                        confirmButtonColor: "#1769aa"
+
+                    }).then(function(result) {
+
+                        if (result.isConfirmed) {
+
+                            const button =
+                                document.getElementById(
+                                    "saveAnimalHouseBtn"
+                                );
+
+
+                            button.disabled = true;
+
+
+                            button.innerHTML =
+                                '<span class="spinner-border spinner-border-sm me-1"></span>' +
+                                (
+                                    isEditing
+                                        ? "Updating..."
+                                        : "Saving..."
+                                );
+
+
+                            form.submit();
+
+                        }
+
+                    });
+
+                });
+
+            }
+
+
+            // ============================================================
+            // DELETE CONFIRMATION
+            // ============================================================
+
+            document
+                .querySelectorAll(".delete-animal-house-form")
+                .forEach(function(deleteForm) {
+
+                    deleteForm.addEventListener(
+                        "submit",
+                        function(event) {
+
+                            event.preventDefault();
+
+
+                            Swal.fire({
+
+                                icon: "warning",
+
+                                title: "Remove Animal House Record?",
+
+                                text:
+                                    "Are you sure you want to remove this animal house record?",
+
+                                showCancelButton: true,
+
+                                confirmButtonText:
+                                    "Yes, Remove",
+
+                                cancelButtonText:
+                                    "Cancel",
+
+                                reverseButtons: true,
+
+                                confirmButtonColor:
+                                    "#dc3545"
+
+                            }).then(function(result) {
+
+                                if (result.isConfirmed) {
+
+                                    deleteForm.submit();
+
+                                }
+
+                            });
+
+                        });
+
+                });
+
+
+            // ============================================================
+            // SERVER VALIDATION SUMMARY
+            // ============================================================
+
+            const validationSummary =
+                document.querySelector(
+                    "[data-valmsg-summary='true']"
+                );
+
+
+            if (validationSummary) {
+
+                const errorItems =
+                    validationSummary.querySelectorAll("li");
+
+
+                if (errorItems.length > 0) {
+
+                    let messages = [];
+
+
+                    errorItems.forEach(function(item) {
+
+                        const message =
+                            item.textContent.trim();
+
+
+                        if (message) {
+
+                            messages.push(message);
+
+                        }
+
+                    });
+
+
+                    if (messages.length > 0) {
+
+                        Swal.fire({
+
+                            icon: "error",
+
+                            title: "Unable to Save",
+
+                            html: messages.map(function(message) {
+
+                                return '<div class="text-start mb-1">• '
+                                    + message +
+                                    '</div>';
+
+                            }).join(""),
+
+                            confirmButtonText: "OK",
+
+                            confirmButtonColor: "#1769aa"
+
+                        });
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    </script>
+
+
+    <!-- ============================================================= -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ============================================================= -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+
+            Swal.fire({
+
+                icon: "success",
+
+                title: "Success",
+
+                text: @Html.Raw(
+                                System.Text.Json.JsonSerializer.Serialize(
+                                TempData["SuccessMessage"]?.ToString()
+                                )
+                                ),
+
+                confirmButtonText: "OK",
+
+                confirmButtonColor: "#1769aa"
+
+            });
+
+        </script>
+    }
+
+
+    <!-- ============================================================= -->
+    <!-- ERROR MESSAGE -->
+    <!-- ============================================================= -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+
+            Swal.fire({
+
+                icon: "error",
+
+                title: "Error",
+
+                text: @Html.Raw(
+                                System.Text.Json.JsonSerializer.Serialize(
+                                TempData["ErrorMessage"]?.ToString()
+                                )
+                                ),
+
+                confirmButtonText: "OK",
+
+                confirmButtonColor: "#dc3545"
+
+            });
+
+        </script>
+    }
+
+}

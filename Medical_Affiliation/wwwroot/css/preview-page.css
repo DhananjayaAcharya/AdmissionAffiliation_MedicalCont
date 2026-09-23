@@ -1,0 +1,521 @@
+﻿/*==========================================================
+    PREVIEW PAGE - COMMON LAYOUT
+==========================================================*/
+
+/*==========================================================
+    SECTION - ONE
+==========================================================*/
+
+
+.preview-card {
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0f7fb 100%);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(59,130,246,.20);
+    box-shadow: 0 10px 30px rgba(59,130,246,.15);
+    margin-bottom: 2rem;
+}
+
+.preview-card-header {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);
+    padding: 1.25rem 1.5rem;
+}
+
+.preview-card-header::before {
+    content: "";
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.10);
+    top: -55%;
+    right: -10%;
+}
+
+.preview-card-header::after {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    left: -5%;
+    bottom: -35%;
+}
+
+.preview-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.preview-title {
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: .8rem 0 .35rem;
+}
+
+.preview-subtitle {
+    color: rgba(255,255,255,.9);
+    font-size: .92rem;
+    margin: 0;
+}
+
+.preview-card-body {
+    background: #fff;
+    padding: 2rem;
+}
+
+/*======================================
+        Common Badges
+========================================*/
+
+.preview-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .45rem 1rem;
+    border-radius: 25px;
+    background: rgba(255,255,255,.22);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    backdrop-filter: blur(10px);
+}
+
+
+/* ===============================
+        Common Section Card
+   =======================================*/
+
+.preview-section {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-radius: 18px;
+    border: 1px solid #bfdbfe;
+    background: linear-gradient(135deg,#eff6ff 0%,#f8fbff 100%);
+}
+
+.preview-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg,#3b82f6,#2563eb);
+}
+
+.preview-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.preview-section-title {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    color: #1e40af;
+    font-size: .82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: .35rem;
+}
+
+.preview-section-title i {
+    color: #2563eb;
+}
+
+.preview-section-description {
+    color: #64748b;
+    margin: 0;
+    font-size: .88rem;
+}
+
+.preview-section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    background: #fff;
+    color: #1e40af;
+    border-radius: 25px;
+    padding: .45rem .9rem;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.preview-count-badge {
+    background: #fff;
+    border: 1px solid #93c5fd;
+    color: #2563eb;
+    padding: .35rem .85rem;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+/* ========================================
+                 Edit Button
+   =====================================*/
+
+.preview-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .75rem 1.5rem;
+    background: #fff;
+    color: #2563eb;
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: .9rem;
+    font-weight: 600;
+    transition: .30s;
+    box-shadow: 0 5px 15px rgba(0,0,0,.12);
+}
+
+.preview-edit-btn:hover {
+    color: #1d4ed8;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,.18);
+}
+
+/* ====================================
+                Common Grid 
+   ====================================*/
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+    gap: 1.5rem;
+}
+
+.preview-info {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.preview-label {
+    color: #64748b;
+    font-size: .78rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: .35rem;
+}
+
+.preview-value {
+    color: #1e293b;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+
+/*==========================================================
+    SECTION TWO
+==========================================================*/
+
+/*==========================================================
+    TABLES
+==========================================================*/
+
+.preview-table-wrapper {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #dbeafe;
+    box-shadow: 0 3px 10px rgba(15,23,42,.05);
+}
+
+.preview-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.preview-table thead {
+    background: linear-gradient(135deg,#dbeafe 0%,#e0e7ff 100%);
+}
+
+.preview-table thead th {
+    padding: 1rem;
+    border: none;
+    color: #1e40af;
+    font-size: .80rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.preview-table tbody tr {
+    transition: .25s;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.preview-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.preview-table tbody tr:hover {
+    background: #f8fbff;
+}
+
+.preview-table tbody td {
+    padding: .95rem;
+    color: #334155;
+    font-size: .90rem;
+    vertical-align: middle;
+}
+
+
+/* =============================
+            Alternate Row Colors
+   ===================================*/
+
+.preview-table-striped tbody tr:nth-child(even) {
+    background: #fbfdff;
+}
+
+.preview-table-striped tbody tr:nth-child(even):hover {
+    background: #f4f9ff;
+}
+
+
+
+/* =====================================
+            Table Alignment
+   ===================================*/
+
+.preview-text-center {
+    text-align: center;
+}
+
+.preview-text-end {
+    text-align: right;
+}
+
+.preview-text-start {
+    text-align: left;
+}
+
+.preview-middle {
+    vertical-align: middle;
+}
+
+
+/* =====================================
+            Table Cell Styles
+   ===================================*/
+
+.preview-primary-text {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.preview-secondary-text {
+    color: #64748b;
+}
+
+.preview-success-text {
+    color: #059669;
+    font-weight: 600;
+}
+
+.preview-danger-text {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.preview-warning-text {
+    color: #d97706;
+    font-weight: 600;
+}
+
+.preview-muted {
+    color: #94a3b8;
+}
+
+
+/* =============================
+            Numeric Cells
+   ===================================*/
+
+.preview-number {
+    text-align: center;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.preview-total {
+    text-align: center;
+    font-weight: 700;
+    color: #059669;
+    font-size: .95rem;
+}
+
+.preview-date {
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+/* =============================
+
+        Small Badge inside Tables
+
+   ===================================*/
+
+.preview-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .30rem .75rem;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.preview-pill-blue {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.preview-pill-green {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.preview-pill-red {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.preview-pill-orange {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.preview-pill-gray {
+    background: #e5e7eb;
+    color: #475569;
+}
+
+
+/* =============================
+
+        Status Badges
+
+   ===================================*/
+
+.preview-status {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem .9rem;
+    border-radius: 20px;
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.preview-status-success {
+    background: linear-gradient(135deg,#10b981,#059669);
+    color: #fff;
+}
+
+.preview-status-danger {
+    background: linear-gradient(135deg,#ef4444,#dc2626);
+    color: #fff;
+}
+
+.preview-status-warning {
+    background: linear-gradient(135deg,#f59e0b,#d97706);
+    color: #fff;
+}
+
+.preview-status-info {
+    background: linear-gradient(135deg,#3b82f6,#2563eb);
+    color: #fff;
+}
+
+.preview-status-secondary {
+    background: #64748b;
+    color: #fff;
+}
+
+/* =============================
+
+        Action Buttons
+
+   ===================================*/
+
+.preview-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    text-decoration: none;
+    border-radius: 8px;
+    padding: .55rem 1rem;
+    font-size: .85rem;
+    font-weight: 600;
+    transition: .25s;
+}
+
+.preview-btn-primary {
+    background: linear-gradient(135deg,#3b82f6,#2563eb);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(59,130,246,.30);
+}
+
+.preview-btn-primary:hover {
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59,130,246,.40);
+}
+
+.preview-btn-success {
+    background: #10b981;
+    color: #fff;
+}
+
+.preview-btn-danger {
+    background: #ef4444;
+    color: #fff;
+}
+
+
+/*  Scrollable Tables */
+
+
+.preview-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.preview-table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.preview-table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+}
+
+.preview-table-responsive::-webkit-scrollbar-track {
+    background: #f8fafc;
+}

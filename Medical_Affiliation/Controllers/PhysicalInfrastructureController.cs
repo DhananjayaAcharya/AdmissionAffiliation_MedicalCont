@@ -24,6 +24,10 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
 
+            var affTypeId = _userContext.TypeOfAffiliation != 0
+                    ? _userContext.TypeOfAffiliation
+                    : Convert.ToInt32(HttpContext.Session.GetString("TypeOfAffiliationId"));
+
             // =========================================================
             // GET ALL ACADEMIC INTAKES
             // =========================================================
@@ -42,7 +46,7 @@ namespace Medical_Affiliation.Controllers
                                     .Where(x =>
                                         x.CollegeCode == collegeCode &&
                                         x.FacultyCode == facultyCode &&
-                                        x.AffiliationTypeId == AffTypeId &&
+                                        x.AffiliationTypeId == affTypeId &&
                                         x.CourseLevel == SelectedCourseLevel
                                         )
                                     .ToListAsync();
@@ -222,6 +226,7 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChairDistribution(List<DentalChairVm> model)
@@ -250,6 +255,7 @@ namespace Medical_Affiliation.Controllers
 
                 var collegeCode = _userContext.CollegeCode;
                 var facultyCode = _userContext.FacultyId;
+                var affiliationTypeId = _userContext.TypeOfAffiliation;
 
                 foreach (var item in model)
                 {
@@ -281,9 +287,8 @@ namespace Medical_Affiliation.Controllers
                         .FirstOrDefaultAsync(x =>
                             x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
-                            x.CourseCode == item.CourseCode &&
-                            x.AffiliationTypeId == AffTypeId
-                            );
+                            x.AffiliationTypeId == affiliationTypeId &&
+                            x.CourseCode == item.CourseCode);
 
                     // ============================================
                     // UPDATE
@@ -317,7 +322,7 @@ namespace Medical_Affiliation.Controllers
 
                             ChairsRequired = item.ChairsRequired,
                             ChairsExisting = item.ChairsExisting,
-                            AffiliationTypeId = AffTypeId
+                            AffiliationTypeId = affiliationTypeId
                         });
                     }
                 }
@@ -366,6 +371,9 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCodeString = HttpContext.Session.GetString("FacultyCode");
+
+            var affId = HttpContext.Session.GetString("TypeOfAffiliationId");
+            var affTypeId = Convert.ToInt32(affId);
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCodeString))
             {
@@ -432,7 +440,7 @@ namespace Medical_Affiliation.Controllers
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode && 
                     x.CourseLevel == SelectedCourseLevel &&
-                    x.AffiliationTypeId == AffTypeId);
+                    x.AffiliationTypeId == affTypeId);
 
 
             // ======================================================
@@ -452,7 +460,7 @@ namespace Medical_Affiliation.Controllers
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode &&
-                    x.AffiliationTypeId == AffTypeId &&
+                    x.AffiliationTypeId == affTypeId &&
                     x.CourseLevel == SelectedCourseLevel &&
                     x.SeatSlab == seatSlab)
                 .ToListAsync();
@@ -591,6 +599,20 @@ namespace Medical_Affiliation.Controllers
 
                 model.SewageSanitationApprovalDocumentPath =
                     existingData.SewageSanitationApprovalDocumentPath;
+
+                // ----------------------------------------
+                // q. STAFF RESIDENTIAL QUARTERS
+                // ----------------------------------------
+
+                model.PrincipalStaffResidentialQuarter = existingData.PrincipalStaffResidentialQuarter;
+
+                model.PrincipalStaffResidentialQuarterAreaSqFt = existingData.PrincipalStaffResidentialQuarterAreaSqFt;
+
+                model.OtherStaffResidentialQuarter = existingData.OtherStaffResidentialQuarter;
+                model.OtherStaffResidentialQuarterAreaSqFt = existingData.OtherStaffResidentialQuarterAreaSqFt;
+
+                model.TeachingAncillaryStaffResidentialQuarter = existingData.TeachingAncillaryStaffResidentialQuarter;
+                model.TeachingAncillaryStaffResidentialQuarterAreaSqFt = existingData.TeachingAncillaryStaffResidentialQuarterAreaSqFt;
             }
 
             PopulateNorms(model, slabNorm);
@@ -625,6 +647,8 @@ namespace Medical_Affiliation.Controllers
             }
 
             int facultyCode = Convert.ToInt32(facultyCodeString);
+            var affId = HttpContext.Session.GetString("TypeOfAffiliationId");
+            var affTypeId = Convert.ToInt32(affId);
 
             // ==============================
             // FETCH ACADEMIC INTAKE
@@ -663,7 +687,7 @@ namespace Medical_Affiliation.Controllers
                 .FirstOrDefaultAsync(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode &&
-                    x.AffiliationTypeId == AffTypeId &&
+                    x.AffiliationTypeId == affTypeId &&
                     x.CourseLevel == SelectedCourseLevel
                     );
 
@@ -673,7 +697,7 @@ namespace Medical_Affiliation.Controllers
 
                 entity.CollegeCode = collegeCode;
                 entity.FacultyCode = facultyCode;
-                entity.AffiliationTypeId = AffTypeId;
+                entity.AffiliationTypeId = affTypeId;
                 entity.CourseLevel = SelectedCourseLevel;
 
                 entity.CreatedOn = DateTime.Now;
@@ -700,6 +724,12 @@ namespace Medical_Affiliation.Controllers
             entity.MuseumDemoRoomsAreaSqm = model.MuseumDemoRoomsAreaSqm;
             entity.PreclinicalSkillLabAreaSqm = model.PreclinicalSkillLabAreaSqm;
             entity.DepartmentWiseAreaSqm = model.DepartmentWiseAreaSqm;
+            entity.PrincipalStaffResidentialQuarter = model.PrincipalStaffResidentialQuarter;
+            entity.PrincipalStaffResidentialQuarterAreaSqFt = model.PrincipalStaffResidentialQuarterAreaSqFt;
+            entity.TeachingAncillaryStaffResidentialQuarter = model.TeachingAncillaryStaffResidentialQuarter;
+            entity.TeachingAncillaryStaffResidentialQuarterAreaSqFt = model.TeachingAncillaryStaffResidentialQuarterAreaSqFt;
+            entity.OtherStaffResidentialQuarter = model.OtherStaffResidentialQuarter;
+            entity.OtherStaffResidentialQuarterAreaSqFt = model.OtherStaffResidentialQuarterAreaSqFt;
             entity.HospitalAreaSqm = model.HospitalAreaSqm;
             entity.Remarks = model.Remarks;
             entity.ModifiedOn = DateTime.Now;
@@ -832,7 +862,7 @@ namespace Medical_Affiliation.Controllers
                 var existingInfrastructure = await _context.DentalInfrastructures
                     .Where(x =>
                         x.CollegeCode == collegeCode &&
-                        x.AffiliationTypeId == AffTypeId &&
+                        x.AffiliationTypeId == affTypeId &&
                         x.CourseLevel.ToUpper() == selectedLevel &&
                         x.FacultyCode == facultyCode)
                     .ToListAsync();
@@ -843,7 +873,7 @@ namespace Medical_Affiliation.Controllers
                         .FirstOrDefault(x =>
                             x.RequirementId == item.RequirementId &&
                             x.CourseLevel.ToUpper() == selectedLevel &&
-                            x.AffiliationTypeId == AffTypeId &&
+                            x.AffiliationTypeId == affTypeId &&
                             x.SeatSlab == item.SeatSlab);
 
                     if (existingInfra == null)
@@ -852,7 +882,7 @@ namespace Medical_Affiliation.Controllers
                         {
                             FacultyCode = facultyCode,
 
-                            AffiliationTypeId = AffTypeId.Value, // update dynamically if needed
+                            AffiliationTypeId = affTypeId, // update dynamically if needed
 
                             CollegeCode = collegeCode,
 

@@ -74,4 +74,12 @@ public partial class AffHostelDetail
     public string? MenHostelAreaSqFt { get; set; }
 
     public string? WomenHostelAreaSqFt { get; set; }
+
+    public decimal? CommonRoomForMenArea { get; set; }
+
+    public decimal? CommonRoomForWomenArea { get; set; }
+
+    public string? GamesRecreationFacilities { get; set; }
+
+    public string? MedicalExaminationHealthServices { get; set; }
 }

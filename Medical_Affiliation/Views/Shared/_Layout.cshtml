@@ -4,6 +4,8 @@
 @{
     var facultyCode = HttpContextAccessor.HttpContext?.Session?.GetString("FacultyCode");
     var facultyIntCode = string.IsNullOrEmpty(facultyCode) ? 0 : Convert.ToInt64(facultyCode);
+
+    var isDental = facultyIntCode == 2;
     var CollegeName = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeName");
     var CollegeCode = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeCode");
     var typeOfAffiliation = HttpContextAccessor.HttpContext?.Session?.GetString("TypeOfAffiliation")
@@ -290,8 +292,16 @@
 
         <div class="page-shell">
             <div class="portal-sidebar-shell">
-                @await Html.PartialAsync("_ContinuousAffiliationSidebar")
-            </div>
+                    @if (!isDental)
+                    {
+                        @await Html.PartialAsync("_ContinuousAffiliationSidebar")
+                    }
+                    else
+                    {
+                        @await Html.PartialAsync("_ContinuousAffiliationDentalSidebar")
+
+                    }
+                </div>
 
             <section class="page-content">
                 <main class="portal-main-card">

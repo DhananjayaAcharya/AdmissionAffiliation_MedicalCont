@@ -122,4 +122,10 @@ public partial class AffInstitutionsDetail
     public string? GovAutonomousCertPath { get; set; }
 
     public string? GovAutonomousCertNumber { get; set; }
+
+    public string? NameOfAdministrativeAuthority { get; set; }
+
+    public string? AddressOfAdministrativeAuthority { get; set; }
+
+    public string? MembersOfGoverningBodyOrCouncilFilePath { get; set; }
 }

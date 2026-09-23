@@ -20,9 +20,10 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var facultyId = _userContext.FacultyId;
             var collegeCode = _userContext.CollegeCode;
+            var courseLevel = _userContext.CourseLevel;
             var academicRows = await _context.CaAcademicPerformances
                 .AsNoTracking()
-                .Where(x => x.FacultyId == facultyId && x.CollegeCode == collegeCode)
+                .Where(x => x.FacultyId == facultyId && x.CollegeCode == collegeCode && x.CourseLevel == courseLevel)
                 .Select(x => new AcademicPerformanceViewModel
                 {
                     YearOfStudyId = x.YearOfStudyId,

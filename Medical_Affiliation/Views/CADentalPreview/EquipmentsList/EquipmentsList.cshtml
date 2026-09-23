@@ -1,0 +1,112 @@
+﻿@model Medical_Affiliation.Models.EquipmentPreviewViewModel
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="general-header">
+        <div class="header-content">
+            <h2 class="academic-title academic-badge">
+                <i class="bi bi-tools"></i>
+                Department-wise Equipment
+            </h2>
+        </div>
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- DEPARTMENT EQUIPMENT -->
+    <!-- ====================================================== -->
+    @if (Model.Departments.Any())
+    {
+        foreach (var department in Model.Departments)
+        {
+            <div class="section-block">
+
+                <div class="section-header-block">
+                    <div class="section-title-text section-badge">
+                        <i class="bi bi-building"></i>
+                        @department.DepartmentName
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Equipment</th>
+                                <th>Specification</th>
+                                <th class="text-center">1 Unit Required</th>
+                                <th class="text-center">2 Unit Required</th>
+                                <th class="text-center">1 Unit Existing</th>
+                                <th class="text-center">2 Unit Existing</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in department.Equipments)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @item.EquipmentName
+                                    </td>
+
+                                    <td>
+                                        @(string.IsNullOrWhiteSpace(item.Specification)
+                                            ? "-"
+                                            : item.Specification)
+                                    </td>
+
+                                    <td class="text-center">
+                                        @(item.OneUnitReq ?? 0)
+                                    </td>
+
+                                    <td class="text-center">
+                                        @(item.TwoUnitReq ?? 0)
+                                    </td>
+
+                                    <td class="text-center">
+                                        @(item.OneUnitExisting ?? 0)
+                                    </td>
+
+                                    <td class="text-center">
+                                        @(item.TwoUnitExisting ?? 0)
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="section-block">
+
+            <div class="text-center text-muted py-4">
+
+                <i class="bi bi-info-circle"></i>
+
+                No equipment details available.
+
+            </div>
+
+        </div>
+    }
+
+</div>

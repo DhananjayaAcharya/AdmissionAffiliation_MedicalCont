@@ -1,0 +1,199 @@
+﻿@model List<DentalChairVm>
+
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css"
+      asp-append-version="true" />
+
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="preview-section-header">
+
+        <div class="preview-section-header-content">
+
+            <div class="preview-section-title">
+
+                <i class="bi bi-list-check"></i>
+
+                <div>
+                    <h3>
+                        Dental Chair Distribution
+                    </h3>
+
+                    <p class="section-description mb-0">
+                        Course-wise distribution of required and existing dental chairs.
+                    </p>
+                </div>
+
+            </div>
+
+            <a class="preview-section-edit"
+               href="@Url.Action(
+                    "ChairDistribution",
+                    "PhysicalInfrastructure",
+                    new
+                    {
+                        typeOfAffiliation = @AffiliationType
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+
+                <span>Edit section</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="general-body">
+
+        <!-- ====================================================== -->
+        <!-- CHAIR DISTRIBUTION -->
+        <!-- ====================================================== -->
+
+        <div class="section-block mb-4">
+
+            <div class="section-header-block mb-3">
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                    <div>
+                        <div class="section-title-text section-badge">
+                            <i class="bi bi-hospital"></i>
+                            Course-wise Chair Distribution
+                        </div>
+
+                        <p class="section-description">
+                            Required and existing dental chairs for each approved course.
+                        </p>
+                    </div>
+
+                    @if (Model?.Any() == true)
+                    {
+                        <span class="count-badge">
+                            @Model.Count Course@(Model.Count == 1 ? "" : "s")
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+
+            @if (Model?.Any() == true)
+            {
+                <div class="data-table-wrapper">
+
+                    <div class="table-responsive">
+
+                        <table class="table data-table align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Course</th>
+                                    <th class="text-center">Level</th>
+                                    <th class="text-center">Seat Slab</th>
+                                    <th class="text-center">Required Chairs</th>
+                                    <th class="text-center">Existing Chairs</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var chair in Model.Select((item, index) => new
+                                {
+                                    item,
+                                    index
+                                }))
+                                {
+                                    var isAvailable =
+                                        chair.item.ChairsExisting >= chair.item.ChairsRequired;
+
+                                    <tr>
+
+                                        <td>
+                                            @(chair.index + 1)
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                @(string.IsNullOrWhiteSpace(chair.item.CourseName)
+                                                    ? "—"
+                                                    : chair.item.CourseName)
+                                            </strong>
+                                        </td>
+
+                                        <td class="text-center">
+                                            @(string.IsNullOrWhiteSpace(chair.item.CourseLevel)
+                                                ? "—"
+                                                : chair.item.CourseLevel)
+                                        </td>
+
+                                        <td class="text-center">
+                                            @chair.item.SeatSlab
+                                        </td>
+
+                                        <td class="text-center">
+                                            @chair.item.ChairsRequired
+                                        </td>
+
+                                        <td class="text-center">
+
+                                            @if (isAvailable)
+                                            {
+                                                <span class="status-badge-maintained">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    @chair.item.ChairsExisting
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge-not-maintained">
+                                                    <i class="bi bi-exclamation-circle"></i>
+                                                    @chair.item.ChairsExisting
+                                                </span>
+                                            }
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <i class="bi bi-inbox"></i>
+
+                    <p>
+                        No dental chair distribution details available.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>

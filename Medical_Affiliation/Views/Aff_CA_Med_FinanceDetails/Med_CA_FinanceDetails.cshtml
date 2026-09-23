@@ -7,6 +7,7 @@
 
     var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
     var courseLevel = HttpContextAccessor.HttpContext.Session.GetString("CourseLevel");
+    var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
 
     bool isPG = !string.IsNullOrEmpty(courseLevel) && courseLevel.Trim().ToUpper() == "PG";
 }
@@ -388,6 +389,12 @@
         overflow: hidden;
     }
 
+    .fee-item{
+        margin: 2px 0;
+        font-size: 13px;
+        letter-spacing: 0.6px;
+    }
+
         .btn-save::after {
             content: '';
             position: absolute;
@@ -505,6 +512,774 @@
         background: white;
         border-radius: 0 0 6px 6px;
     }
+
+
+    /* =========================================================
+       ADDITIONAL FEE / DONATION FEE UI
+       ========================================================= */
+
+    .finance-section-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        box-shadow: 0 3px 14px rgba(15, 37, 69, 0.06);
+    }
+
+    /* Section Header */
+    .finance-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px 22px;
+        background: linear-gradient( 135deg, #f8f5ed 0%, #ffffff 100% );
+        border-bottom: 1px solid var(--border);
+    }
+
+    .finance-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--navy);
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+
+    .finance-section-title i {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--navy);
+        color: var(--gold-light);
+        font-size: 0.85rem;
+    }
+
+    .finance-section-subtitle {
+        margin-top: 5px;
+        padding-left: 44px;
+        color: var(--text-muted);
+        font-size: 0.76rem;
+        line-height: 1.5;
+    }
+
+    /* Body */
+    .finance-section-body {
+        padding: 22px;
+    }
+
+    /* Question */
+    .additional-fee-question {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 15px 18px;
+        margin-bottom: 18px;
+        background: #faf8f4;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+
+    .additional-fee-question-title {
+        color: var(--navy);
+        font-size: 0.82rem;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    .req {
+        color: var(--danger);
+        font-weight: 700;
+        margin-left: 2px;
+    }
+
+    /* Yes / No */
+    .additional-fee-radio-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .additional-fee-radio {
+        position: relative;
+    }
+
+    .additional-fee-radio input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .additional-fee-radio label {
+        min-width: 76px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 8px 14px;
+        border: 1px solid #d7d0c4;
+        border-radius: 6px;
+        background: #fff;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+
+    .additional-fee-radio label::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border: 1px solid #b8b0a3;
+        border-radius: 50%;
+        background: #fff;
+        transition: all 0.18s ease;
+    }
+
+    .additional-fee-radio input:checked + label {
+        background: var(--navy);
+        border-color: var(--navy);
+        color: #fff;
+        box-shadow: 0 3px 10px rgba(15, 37, 69, 0.18);
+    }
+
+    .additional-fee-radio input:checked + label::before {
+        border-color: var(--gold-light);
+        background: var(--gold-light);
+        box-shadow: inset 0 0 0 2px var(--navy);
+    }
+
+    /* Fee Details Container */
+    .additional-fee-details {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .additional-fee-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 13px 16px;
+        background: #f7f4ec;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .additional-fee-header h6 {
+        margin: 0;
+        color: var(--navy);
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .additional-fee-header h6 i {
+        color: var(--gold);
+        margin-right: 6px;
+    }
+
+    .additional-fee-header small {
+        display: block;
+        margin-top: 3px;
+        color: var(--text-muted);
+        font-size: 0.7rem;
+    }
+
+    /* Add Fee Button */
+    .btn-add-fee,
+    .btn-add-course {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 15px;
+        background: linear-gradient( 135deg, var(--navy), var(--navy-mid) );
+        color: #fff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.76rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        box-shadow: 0 2px 7px rgba(15, 37, 69, 0.16);
+    }
+
+    .btn-add-fee i,
+    .btn-add-course i {
+        color: var(--gold-light);
+    }
+
+    .btn-add-fee:hover,
+    .btn-add-course:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(15, 37, 69, 0.22);
+        color: #fff;
+    }
+
+    /* Donation Fee Table */
+    .additional-fee-table {
+        width: 100%;
+        margin: 0 !important;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .additional-fee-table thead th {
+        background: var(--navy);
+        color: #fff;
+        border: none !important;
+        padding: 11px 12px;
+        font-size: 0.69rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .additional-fee-table thead th:first-child {
+        border-radius: 0;
+    }
+
+    .additional-fee-table tbody tr {
+        background: #fff;
+        transition: background 0.15s ease;
+    }
+
+    .additional-fee-table tbody tr:hover {
+        background: #fcfaf6;
+    }
+
+    .additional-fee-table tbody td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #eee9df;
+        vertical-align: middle;
+    }
+
+    .additional-fee-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .additional-fee-table .form-control,
+    .additional-fee-table .form-select {
+        min-height: 37px;
+        font-size: 0.78rem;
+    }
+
+    .additional-fee-table .fee-amount {
+        font-weight: 600;
+    }
+
+    .additional-fee-table .fee-type {
+        min-width: 150px;
+    }
+
+    .fee-type-error {
+        min-height: 0;
+    }
+
+    .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    /* Remove Fee */
+    .btn-remove-fee,
+    .btn-remove-course {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e4c8c4;
+        border-radius: 6px;
+        background: #fff7f6;
+        color: var(--danger);
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+
+    .btn-remove-fee:hover,
+    .btn-remove-course:hover {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    /* Empty Fee State */
+    .additional-fee-empty,
+    .courses-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 85px;
+        padding: 18px;
+        border: 1px dashed #d8d1c4;
+        background: #fbfaf7;
+        color: var(--text-muted);
+        font-size: 0.76rem;
+        text-align: center;
+    }
+
+    .additional-fee-empty i,
+    .courses-empty i {
+        color: var(--gold);
+        font-size: 1rem;
+    }
+
+    .additional-fee-empty strong,
+    .courses-empty strong {
+        color: var(--navy);
+    }
+
+
+    /* =========================================================
+       COURSES OFFERED
+       ========================================================= */
+
+    .finance-section-card:has(.courses-offered-table) {
+        margin-top: 26px;
+    }
+
+    .finance-section-card:has(.courses-offered-table)
+    .finance-section-header {
+        padding: 18px 22px;
+    }
+
+    /* =========================================================
+       COURSE TABLE WRAPPER
+    ========================================================= */
+
+    .course-table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow-x: auto !important;
+        overflow-y: auto;
+        max-height: 450px;
+        background: #fff;
+        -webkit-overflow-scrolling: touch;
+    }
+
+        /* Make scrollbar clearly available */
+        .course-table-wrapper::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .course-table-wrapper::-webkit-scrollbar-track {
+            background: #f1eee7;
+            border-radius: 10px;
+        }
+
+        .course-table-wrapper::-webkit-scrollbar-thumb {
+            background: #b8b0a2;
+            border-radius: 10px;
+        }
+
+            .course-table-wrapper::-webkit-scrollbar-thumb:hover {
+                background: #8f8779;
+            }
+
+
+    /* =========================================================
+       COURSE TABLE
+    ========================================================= */
+
+    .courses-offered-table {
+        width: max-content !important;
+        min-width: 1750px;
+        margin: 0 !important;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+
+        /* =========================================================
+       COURSE HEADER
+    ========================================================= */
+
+        .courses-offered-table thead th {
+            background: var(--navy);
+            color: #fff;
+            padding: 11px 10px;
+            border: none !important;
+            font-size: 0.67rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            line-height: 1.35;
+            vertical-align: middle;
+            white-space: normal;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+            .courses-offered-table thead th .req {
+                color: var(--gold-light);
+            }
+
+
+        /* =========================================================
+       COURSE ROWS
+    ========================================================= */
+
+        .courses-offered-table tbody tr {
+            background: #fff;
+            transition: background 0.15s ease;
+        }
+
+            .courses-offered-table tbody tr:nth-child(even) {
+                background: #fcfbf8;
+            }
+
+            .courses-offered-table tbody tr:hover {
+                background: #f7f3e9;
+            }
+
+        .courses-offered-table tbody td {
+            padding: 10px 9px;
+            border-bottom: 1px solid #ebe6dc;
+            border-right: 1px solid #f0ece4;
+            vertical-align: middle;
+        }
+
+        .courses-offered-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .courses-offered-table tbody td:last-child {
+            border-right: none;
+        }
+
+
+        /* =========================================================
+       COURSE INPUTS
+    ========================================================= */
+
+        .courses-offered-table .form-control,
+        .courses-offered-table .form-select {
+            min-height: 36px;
+            padding: 7px 9px;
+            font-size: 0.75rem;
+            border-radius: 5px;
+        }
+
+
+        /* =========================================================
+       COURSE LEVEL
+    ========================================================= */
+
+        .courses-offered-table select[name*=".CourseLevel"] {
+            min-width: 105px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+
+        /* =========================================================
+       COURSE DROPDOWN
+       Displays: Course Code - Course Name
+    ========================================================= */
+
+        .courses-offered-table .course-code-select,
+        .courses-offered-table select[name*=".CourseCode"] {
+            min-width: 270px;
+            max-width: 320px;
+            font-weight: 500;
+            color: var(--navy);
+        }
+
+
+        /* =========================================================
+       REMOVE OLD COURSE NAME INPUT STYLING
+    ========================================================= */
+
+        /* Course Name is now shown inside Course dropdown,
+       so no separate CourseName input is required. */
+
+        .courses-offered-table input[name*=".CourseName"] {
+            display: none;
+        }
+
+
+        /* =========================================================
+       NUMERIC FIELDS
+    ========================================================= */
+
+        .courses-offered-table input[name*=".YearOfStarting"],
+        .courses-offered-table input[name*=".SanctionedAdmissions"],
+        .courses-offered-table input[name*=".AdmittedAdmissions"] {
+            min-width: 90px;
+            text-align: center;
+        }
+
+
+        /* =========================================================
+       REMARKS
+    ========================================================= */
+
+        .courses-offered-table textarea[name*=".Remarks"] {
+            min-width: 160px;
+            max-width: 220px;
+        }
+
+        .courses-offered-table textarea.form-control {
+            min-height: 62px;
+            resize: vertical;
+            line-height: 1.4;
+        }
+
+
+        /* =========================================================
+       COURSE PERMISSION / DOCUMENT CELLS
+
+       New column positions:
+
+       1  Course Level
+       2  Course
+       3  Year
+       4  Sanctioned
+       5  Admitted
+       6  Remarks
+       7  Karnataka Government
+       8  Council / Apex Body
+       9  Last RGUHS Affiliation
+       10 Government of India
+       11 Action
+    ========================================================= */
+
+        .courses-offered-table td:nth-child(7),
+        .courses-offered-table td:nth-child(8),
+        .courses-offered-table td:nth-child(9),
+        .courses-offered-table td:nth-child(10) {
+            background: #faf8f3;
+            min-width: 200px;
+        }
+
+
+            /* =========================================================
+       PERMISSION NUMBER
+    ========================================================= */
+
+            .courses-offered-table td:nth-child(7) input[type="text"],
+            .courses-offered-table td:nth-child(8) input[type="text"],
+            .courses-offered-table td:nth-child(9) input[type="text"],
+            .courses-offered-table td:nth-child(10) input[type="text"] {
+                width: 100%;
+                min-width: 180px;
+                background: #fff;
+                font-size: 0.73rem;
+            }
+
+
+        /* =========================================================
+       PDF UPLOAD
+    ========================================================= */
+
+        .courses-offered-table input[type="file"] {
+            width: 100%;
+            min-width: 180px;
+            padding: 5px 7px;
+            border: 1px dashed #cfc7b8;
+            border-radius: 5px;
+            background: #fff;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+
+
+        /* =========================================================
+       EXISTING DOCUMENT
+    ========================================================= */
+
+        .courses-offered-table .existing-document {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            white-space: normal;
+            word-break: break-word;
+        }
+
+            .courses-offered-table .existing-document i {
+                margin-right: 4px;
+            }
+
+
+        /* =========================================================
+       ACTION
+    ========================================================= */
+
+        .courses-offered-table td:last-child,
+        .courses-offered-table th:last-child {
+            min-width: 65px;
+            width: 65px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================= */
+
+    .courses-empty {
+        padding: 35px 20px;
+        text-align: center;
+    }
+
+    /* Existing PDF */
+    .existing-document {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        max-width: 170px;
+        margin-top: 7px;
+        padding: 5px 7px;
+        border-radius: 4px;
+        background: #f5f2eb;
+        border: 1px solid #e2dbcf;
+        color: var(--text-muted);
+        font-size: 0.64rem;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .existing-document i {
+        flex-shrink: 0;
+        color: var(--danger);
+    }
+
+
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @@media (max-width: 992px) {
+
+        .additional-fee-question {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .additional-fee-radio-group {
+            width: 100%;
+        }
+
+        .additional-fee-radio label {
+            min-width: 90px;
+        }
+
+        .finance-section-header {
+            align-items: flex-start;
+        }
+    }
+
+    @@media (max-width: 768px) {
+
+        .finance-section-header {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 16px;
+        }
+
+        .finance-section-body {
+            padding: 14px;
+        }
+
+        .finance-section-subtitle {
+            padding-left: 0;
+            margin-top: 7px;
+        }
+
+        .finance-section-title i {
+            width: 30px;
+            height: 30px;
+        }
+
+        .additional-fee-question {
+            padding: 13px;
+        }
+
+        .additional-fee-radio-group {
+            justify-content: flex-start;
+        }
+
+        .additional-fee-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .btn-add-fee,
+        .btn-add-course {
+            width: 100%;
+        }
+
+        .additional-fee-table {
+            min-width: 650px;
+        }
+
+        .course-table-wrapper {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .courses-offered-table {
+            min-width: 1550px;
+        }
+
+        .additional-fee-empty,
+        .courses-empty {
+            flex-wrap: wrap;
+            padding: 16px;
+        }
+    }
+
+
+    /* =========================================================
+       SMALL VISUAL DETAILS
+       ========================================================= */
+
+    .additional-fee-details,
+    .course-table-wrapper {
+        scrollbar-width: thin;
+        scrollbar-color: #c8c0b2 #f5f2eb;
+    }
+
+    .additional-fee-details::-webkit-scrollbar,
+    .course-table-wrapper::-webkit-scrollbar {
+        height: 7px;
+    }
+
+    .additional-fee-details::-webkit-scrollbar-track,
+    .course-table-wrapper::-webkit-scrollbar-track {
+        background: #f5f2eb;
+    }
+
+    .additional-fee-details::-webkit-scrollbar-thumb,
+    .course-table-wrapper::-webkit-scrollbar-thumb {
+        background: #c8c0b2;
+        border-radius: 10px;
+    }
+
+    .additional-fee-details::-webkit-scrollbar-thumb:hover,
+    .course-table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: var(--navy-mid);
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 <div class="page-shell">
@@ -616,28 +1391,94 @@
                                             <div class="section-block-title">c. Budget and Deposit</div>
 
                                             <div class="field-row cols-3">
-                                                <input name="Sections[@i].RecurrentAnnual" value="@item.RecurrentAnnual" class="form-control fee-input" placeholder="Recurrent" />
-                                                <input name="Sections[@i].NonRecurrentAnnual" value="@item.NonRecurrentAnnual" class="form-control fee-input" placeholder="Non-Recurrent" />
-                                                <input name="Sections[@i].Deposits" value="@item.Deposits" class="form-control fee-input" placeholder="Deposits" />
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Recurrent Annual</label>
+                                                    <input name="Sections[@i].RecurrentAnnual"
+                                                           value="@item.RecurrentAnnual"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Recurrent Annual" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Non-Recurrent Annual</label>
+                                                    <input name="Sections[@i].NonRecurrentAnnual"
+                                                           value="@item.NonRecurrentAnnual"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Non-Recurrent Annual" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Deposits</label>
+                                                    <input name="Sections[@i].Deposits"
+                                                           value="@item.Deposits"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Deposits" />
+                                                </div>
+
                                             </div>
                                         </div>
+
 
                                         <!-- ================= d. FEES ================= -->
                                         <div class="section-block">
                                             <div class="section-block-title">d. Fees Collected</div>
 
                                             <div class="field-row cols-5">
-                                                <input name="Sections[@i].TuitionFee" value="@item.TuitionFee" class="form-control fee-input" placeholder="Tuition" />
-                                                <input name="Sections[@i].SportsFee" value="@item.SportsFee" class="form-control fee-input" placeholder="Sports" />
-                                                <input name="Sections[@i].UnionFee" value="@item.UnionFee" class="form-control fee-input" placeholder="Union" />
-                                                <input name="Sections[@i].LibraryFee" value="@item.LibraryFee" class="form-control fee-input" placeholder="Library" />
-                                                <input name="Sections[@i].OtherFee" value="@item.OtherFee" class="form-control fee-input" placeholder="Other" />
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Tuition Fee</label>
+                                                    <input name="Sections[@i].TuitionFee"
+                                                           value="@item.TuitionFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Tuition Fee" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Sports Fee</label>
+                                                    <input name="Sections[@i].SportsFee"
+                                                           value="@item.SportsFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Sports Fee" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Union Fee</label>
+                                                    <input name="Sections[@i].UnionFee"
+                                                           value="@item.UnionFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Union Fee" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Library Fee</label>
+                                                    <input name="Sections[@i].LibraryFee"
+                                                           value="@item.LibraryFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Library Fee" />
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="fee-item">Other Fee</label>
+                                                    <input name="Sections[@i].OtherFee"
+                                                           value="@item.OtherFee"
+                                                           class="form-control fee-input"
+                                                           placeholder="Enter Other Fee" />
+                                                </div>
+
                                             </div>
 
-                                            <div class="total-fee-wrap mt-2">
+                                            <div class="total-fee-wrap mt-3">
                                                 <div class="total-fee-label">Total Fee</div>
-                                                <input readonly class="form-control totalFeeDisplay" />
-                                                <input type="hidden" name="Sections[@i].TotalFee" class="totalFeeHidden" value="@item.TotalFee" />
+
+                                                <input readonly
+                                                       class="form-control totalFeeDisplay"
+                                                       placeholder="Total Fee" />
+
+                                                <input type="hidden"
+                                                       name="Sections[@i].TotalFee"
+                                                       class="totalFeeHidden"
+                                                       value="@item.TotalFee" />
                                             </div>
                                         </div>
 
@@ -721,16 +1562,679 @@
 
                                     </div>
                                 </div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="alert alert-warning text-center mt-4">
-                            Courses are yet to be submitted by the college.
                         </div>
                     }
+                } else
+                {
+                    <div class="alert alert-warning text-center mt-4">
+                        Courses are yet to be submitted by the college.
+                    </div>
+                }
                 </div>
+
+                @if(facultyCode == "2"){
+
+                    <!-- =========================================================
+                         ADDITIONAL FEE DETAILS
+                         ========================================================= -->
+
+                    <div class="finance-section-card">
+
+                        <div class="finance-section-header">
+
+                            <div>
+                                <div class="finance-section-title">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    Additional Fee Details
+                                </div>
+
+                                <div class="finance-section-subtitle">
+                                    Whether any donation, capitation fee etc. is levied
+                                    apart from tuition fee.
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="finance-section-body">
+
+                            <!-- YES / NO -->
+                            <div class="additional-fee-question">
+
+                                <div class="additional-fee-question-title">
+                                    Whether any donation, capitation fee etc. is levied
+                                    apart from tuition fee?
+                                    <span class="req">*</span>
+                                </div>
+
+                                <div class="additional-fee-radio-group">
+
+                                    <div class="additional-fee-radio">
+
+                                        <input type="radio"
+                                               id="feeYes"
+                                               name="IsFeeLevied"
+                                               value="true"
+                                               @(Model.IsFeeLevied == true ? "checked" : "") />
+
+                                        <label for="feeYes">Yes</label>
+
+                                    </div>
+
+                                    <div class="additional-fee-radio">
+
+                                        <input type="radio"
+                                               id="feeNo"
+                                               name="IsFeeLevied"
+                                               value="false"
+                                               @(Model.IsFeeLevied == false ? "checked" : "") />
+
+                                        <label for="feeNo">No</label>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- FEE DETAILS -->
+                            <div id="additionalFeeDetails"
+                                 class="additional-fee-details"
+                                 style="@(Model.DonationFees != null &&
+                                                     Model.DonationFees.Any()
+                                                     ? ""
+                                                     : "display:none;")">
+
+                                <div class="additional-fee-header">
+
+                                    <div>
+                                        <h6>
+                                            <i class="fas fa-list"></i>
+                                            Fee Details
+                                        </h6>
+
+                                        <small>
+                                            Add each additional fee separately.
+                                        </small>
+                                    </div>
+
+                                    <button type="button"
+                                            class="btn-add-fee"
+                                            id="addFeeButton">
+
+                                        <i class="fas fa-plus"></i>
+                                        Add Fee
+
+                                    </button>
+
+                                </div>
+
+
+                                <div class="table-responsive">
+
+                                    <table class="table additional-fee-table">
+
+                                        <thead>
+                                            <tr>
+                                                <th style="width:30%;">
+                                                    Type of Fee
+                                                    <span class="req">*</span>
+                                                </th>
+
+                                                <th style="width:25%;">
+                                                    Fee Amount
+                                                    <span class="req">*</span>
+                                                </th>
+
+                                                <th style="width:10%;">
+                                                    Action
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="additionalFeeRows">
+
+                                            @if (Model.DonationFees != null &&
+                                                 Model.DonationFees.Any())
+                                            {
+                                                for (int i = 0;
+                                                     i < Model.DonationFees.Count;
+                                                     i++)
+                                                {
+                                                    <tr>
+
+                                                        <input type="hidden"
+                                                               name="DonationFees[@i].Id"
+                                                               value="@Model.DonationFees[i].Id" />
+
+                                                        <input type="hidden"
+                                                               name="DonationFees[@i].CollegeCode"
+                                                               value="@collegeCode" />
+
+                                                        <input type="hidden"
+                                                               name="DonationFees[@i].FacultyCode"
+                                                               value="@facultyCode" />
+
+                                                        <input type="hidden"
+                                                               name="DonationFees[@i].CourseLevel"
+                                                               value="@courseLevel" />
+
+
+                                                        <td>
+
+                                                            <select class="form-select fee-type"
+                                                                    name="DonationFees[@i].FeeType">
+
+                                                                <option value="">
+                                                                    -- Select Fee Type --
+                                                                </option>
+
+                                                                <option value="Donation"
+                                                                        selected="@(Model.DonationFees[i].FeeType == "Donation")">
+                                                                    Donation
+                                                                </option>
+
+                                                                <option value="Capitation Fee"
+                                                                        selected="@(Model.DonationFees[i].FeeType == "Capitation Fee")">
+                                                                    Capitation Fee
+                                                                </option>
+
+                                                                <option value="Other"
+                                                                        selected="@(Model.DonationFees[i].FeeType == "Other")">
+                                                                    Other
+                                                                </option>
+
+                                                            </select>
+
+                                                            <span class="text-danger fee-type-error"></span>
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            <input type="number"
+                                                                   step="0.01"
+                                                                   min="0"
+                                                                   class="form-control fee-amount"
+                                                                   name="DonationFees[@i].FeeAmount"
+                                                                   value="@Model.DonationFees[i].FeeAmount"
+                                                                   placeholder="Enter amount" />
+
+                                                        </td>
+
+
+                                                        <td class="text-center">
+
+                                                            <button type="button"
+                                                                    class="btn-remove-fee remove-fee-row"
+                                                                    title="Remove">
+
+                                                                <i class="fas fa-trash"></i>
+
+                                                            </button>
+
+                                                        </td>
+
+                                                    </tr>
+                                                }
+                                            }
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+
+                                <!-- Empty state -->
+
+                                <div id="noAdditionalFeeRows"
+                                     class="additional-fee-empty"
+                                     style="@(Model.DonationFees != null &&
+                                            Model.DonationFees.Any()
+                                            ? "display:none;"
+                                            : "")">
+
+                                    <i class="fas fa-receipt"></i>
+
+                                    <span>
+                                        No fee details added.
+                                        Click <strong>Add Fee</strong> to add one.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ============================================================
+                         COURSES OFFERED
+                         ============================================================ -->
+
+                    <div class="finance-section-card" id="coursesOfferedDetails"
+                         style="@(Model.CoursesOffered != null && Model.CoursesOffered.Any() ? "" : "display:none;")">
+
+                        <div class="finance-section-header">
+
+                            <div>
+                                <div class="finance-section-title">
+
+                                    <i class="fas fa-graduation-cap"></i>
+
+                                    Courses Offered
+
+                                </div>
+
+                                <div class="finance-section-subtitle">
+
+                                    Name of the courses offered, year of starting,
+                                    annual admissions and affiliation details.
+
+                                </div>
+                            </div>
+
+
+                            <button type="button"
+                                    class="btn-add-course"
+                                    id="addCourseButton">
+
+                                <i class="fas fa-plus"></i>
+
+                                Add Course
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="finance-section-body">
+
+                            <div class="course-table-wrapper">
+
+                                <div class="table-responsive">
+
+                                    <table class="table courses-offered-table">
+
+                                        <thead>
+
+                                            <tr>
+
+                                                <th>
+                                                    Course Level
+                                                    <span class="req">*</span>
+                                                </th>
+
+                                                <th>
+                                                    Course
+                                                    <span class="req">*</span>
+                                                </th>
+
+                                                <th>
+                                                    Year of Starting
+                                                </th>
+
+                                                <th>
+                                                    Sanctioned
+                                                </th>
+
+                                                <th>
+                                                    Admitted
+                                                </th>
+
+                                                <th>
+                                                    Remarks
+                                                </th>
+
+                                                <th style="min-width:180px;">
+                                                    Karnataka Government
+                                                </th>
+
+                                                <th style="min-width:180px;">
+                                                    Council / Apex Body
+                                                </th>
+
+                                                <th style="min-width:180px;">
+                                                    Last RGUHS Affiliation
+                                                </th>
+
+                                                <th style="min-width:180px;">
+                                                    Government of India
+                                                </th>
+
+                                                <th>
+                                                    Action
+                                                </th>
+
+                                            </tr>
+
+                                        </thead>
+
+
+                                        <tbody id="coursesOfferedRows">
+
+                                            @if (Model.CoursesOffered != null &&
+                                                 Model.CoursesOffered.Any())
+                                            {
+                                                for (int i = 0;
+                                                     i < Model.CoursesOffered.Count;
+                                                     i++)
+                                                {
+                                                    <tr>
+
+                                                        <input type="hidden"
+                                                               name="CoursesOffered[@i].Id"
+                                                               value="@Model.CoursesOffered[i].Id" />
+
+                                                        <input type="hidden"
+                                                               name="CoursesOffered[@i].CollegeCode"
+                                                               value="@collegeCode" />
+
+                                                        <input type="hidden"
+                                                               name="CoursesOffered[@i].FacultyCode"
+                                                               value="@facultyCode" />
+
+
+                                                        <!-- COURSE LEVEL -->
+
+                                                        <td>
+
+                                                            <select class="form-select course-level-select"
+                                                                    disabled>
+
+                                                                <option value="@courseLevel"
+                                                                        selected>
+                                                                    @courseLevel
+                                                                </option>
+
+                                                            </select>
+
+                                                            <input type="hidden"
+                                                                   name="CoursesOffered[@i].CourseLevel"
+                                                                   value="@courseLevel" />
+
+                                                        </td>
+
+
+
+                                                        <!-- COURSE -->
+
+                                                        <td>
+
+                                                            <select class="form-select course-code-select"
+                                                                    name="CoursesOffered[@i].CourseCode"
+                                                                    data-selected-code="@Model.CoursesOffered[i].CourseCode">
+
+                                                                <option value="">
+                                                                    -- Select Course --
+                                                                </option>
+
+                                                            </select>
+
+                                                        </td>
+
+
+                                                        <!-- STARTING YEAR -->
+
+                                                        <td>
+
+                                                            <input type="number"
+                                                                   class="form-control"
+                                                                   name="CoursesOffered[@i].YearOfStarting"
+                                                                   value="@Model.CoursesOffered[i].YearOfStarting"
+                                                                   min="1900"
+                                                                   max="2100"
+                                                                   placeholder="YYYY" />
+
+                                                        </td>
+
+
+                                                        <!-- SANCTIONED -->
+
+                                                        <td>
+
+                                                            <input type="number"
+                                                                   class="form-control"
+                                                                   name="CoursesOffered[@i].SanctionedAdmissions"
+                                                                   value="@Model.CoursesOffered[i].SanctionedAdmissions"
+                                                                   min="0"
+                                                                   placeholder="0" />
+
+                                                        </td>
+
+
+                                                        <!-- ADMITTED -->
+
+                                                        <td>
+
+                                                            <input type="number"
+                                                                   class="form-control"
+                                                                   name="CoursesOffered[@i].AdmittedAdmissions"
+                                                                   value="@Model.CoursesOffered[i].AdmittedAdmissions"
+                                                                   min="0"
+                                                                   placeholder="0" />
+
+                                                        </td>
+
+
+                                                        <!-- REMARKS -->
+
+                                                        <td>
+
+                                                            <textarea class="form-control"
+                                                                      name="CoursesOffered[@i].Remarks"
+                                                                      rows="2"
+                                                                      placeholder="Remarks">@Model.CoursesOffered[i].Remarks</textarea>
+
+                                                        </td>
+
+
+                                                        <!-- KARNATAKA GOVERNMENT -->
+
+                                                        <td>
+
+                                                            <input type="text"
+                                                                    class="form-control mb-2"
+                                                                    name="CoursesOffered[@i].GovtKarnatakaPermissionNumber"
+                                                                    value="@Model.CoursesOffered[i].KarnatakaGovernmentPermissionNo"
+                                                                    placeholder="Permission No." />
+
+                                                            <input type="file"
+                                                                    class="form-control"
+                                                                    name="CoursesOffered[@i].KarnatakaGovernmentPermissionFile"
+                                                                    accept=".pdf" />
+
+                                                            @if (!string.IsNullOrWhiteSpace(
+                                                                Model.CoursesOffered[i].KarnatakaGovernmentPermissionFileName))
+                                                            {
+                                                                <div class="existing-document mt-2">
+
+                                                                    <i class="fas fa-file-pdf"></i>
+
+                                                                    <a href="@Url.Action("ViewCourseDocument", "Aff_CA_Med_FinanceDetails",
+                                                                            new { id = Model.CoursesOffered[i].Id, documentType = "KarnatakaGovernment" })"
+                                                                        target="_blank"
+                                                                        class="btn btn-sm btn-outline-primary ms-1">
+
+                                                                        <i class="fas fa-eye"></i>
+                                                                        View File
+
+                                                                    </a>
+
+                                                                </div>
+                                                            }
+
+                                                        </td>
+
+
+                                                        <!-- COUNCIL -->
+
+                                                        <td>
+
+                                                            <input type="text"
+                                                                    class="form-control mb-2"
+                                                                    name="CoursesOffered[@i].CouncilPermissionNumber"
+                                                                    value="@Model.CoursesOffered[i].CouncilPermissionNo"
+                                                                    placeholder="Permission No." />
+
+                                                            <input type="file"
+                                                                    class="form-control"
+                                                                    name="CoursesOffered[@i].CouncilPermissionFile"
+                                                                    accept=".pdf" />
+
+                                                            @if (!string.IsNullOrWhiteSpace(
+                                                                Model.CoursesOffered[i].CouncilPermissionFileName))
+                                                            {
+                                                                <div class="existing-document mt-2">
+
+                                                                    <i class="fas fa-file-pdf"></i>
+
+                                                                    <a href="@Url.Action("ViewCourseDocument", "Aff_CA_Med_FinanceDetails",
+                                                                            new { id = Model.CoursesOffered[i].Id, documentType = "Council" })"
+                                                                        target="_blank"
+                                                                        class="btn btn-sm btn-outline-primary ms-1">
+
+                                                                        <i class="fas fa-eye"></i>
+                                                                        View File
+
+                                                                    </a>
+
+                                                                </div>
+                                                            }
+
+                                                        </td>
+
+
+                                                        <!-- RGUHS -->
+
+                                                        <td>
+
+                                                            <input type="text"
+                                                                    class="form-control mb-2"
+                                                                    name="CoursesOffered[@i].RguhslastAffiliationNumber"
+                                                                    value="@Model.CoursesOffered[i].RGUHSLastAffiliationNo"
+                                                                    placeholder="RGUHS Affiliation No." />
+
+                                                            <input type="file"
+                                                                    class="form-control"
+                                                                    name="CoursesOffered[@i].RGUHSLastAffiliationFile"
+                                                                    accept=".pdf" />
+
+                                                            @if (!string.IsNullOrWhiteSpace(
+                                                                Model.CoursesOffered[i].RGUHSLastAffiliationFileName))
+                                                            {
+                                                                <div class="existing-document mt-2">
+
+                                                                    <i class="fas fa-file-pdf"></i>
+
+                                                                    <a href="@Url.Action("ViewCourseDocument", "Aff_CA_Med_FinanceDetails",
+                                                                            new { id = Model.CoursesOffered[i].Id, documentType = "RGUHS" })"
+                                                                        target="_blank"
+                                                                        class="btn btn-sm btn-outline-primary ms-1">
+
+                                                                        <i class="fas fa-eye"></i>
+                                                                        View File
+
+                                                                    </a>
+
+                                                                </div>
+                                                            }
+
+                                                        </td>
+
+
+                                                        <!-- GOVERNMENT OF INDIA -->
+
+                                                        <td>
+
+                                                            <input type="text"
+                                                                    class="form-control mb-2"
+                                                                    name="CoursesOffered[@i].GovtIndiaPermissionNumber"
+                                                                    value="@Model.CoursesOffered[i].GovernmentOfIndiaPermissionNo"
+                                                                    placeholder="Permission No." />
+
+                                                            <input type="file"
+                                                                    class="form-control"
+                                                                    name="CoursesOffered[@i].GovernmentOfIndiaPermissionFile"
+                                                                    accept=".pdf" />
+
+                                                            @if (!string.IsNullOrWhiteSpace(
+                                                                Model.CoursesOffered[i].GovernmentOfIndiaPermissionFileName))
+                                                            {
+                                                                <div class="existing-document mt-2">
+
+                                                                    <i class="fas fa-file-pdf"></i>
+
+                                                                    <a href="@Url.Action("ViewCourseDocument", "Aff_CA_Med_FinanceDetails",
+                                                                            new { id = Model.CoursesOffered[i].Id, documentType = "GovernmentOfIndia" })"
+                                                                        target="_blank"
+                                                                        class="btn btn-sm btn-outline-primary ms-1">
+
+                                                                        <i class="fas fa-eye"></i>
+                                                                        View File
+
+                                                                    </a>
+
+                                                                </div>
+                                                            }
+
+                                                        </td>
+
+
+                                                        <!-- REMOVE -->
+
+                                                        <td class="text-center">
+
+                                                            <button type="button"
+                                                                    class="btn-remove-course remove-course-row"
+                                                                    title="Remove">
+
+                                                                <i class="fas fa-trash"></i>
+
+                                                            </button>
+
+                                                        </td>
+
+                                                    </tr>
+                                                }
+                                            }
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+
+                                <div id="noCoursesMessage"
+                                     class="courses-empty"
+                                     style="@(Model.CoursesOffered != null &&
+                                            Model.CoursesOffered.Any()
+                                            ? "display:none;"
+                                            : "")">
+
+                                    <i class="fas fa-graduation-cap"></i>
+
+                                    <strong>
+                                        No courses added
+                                    </strong>
+
+                                    <span>
+                                        Click <b>Add Course</b> to enter course details.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
 
                 <div class="form-footer">
 
@@ -956,7 +2460,1382 @@
 
     });
 </script>
-@if (TempData["Info"] != null)
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        /* =========================================================
+           ADDITIONAL FEE
+           ========================================================= */
+
+        // College and Faculty codes from session (for dynamic row creation)
+        const collegeCode = "@collegeCode";
+        const facultyCode = "@facultyCode";
+        const courseLevel = '@courseLevel';
+
+
+        const feeYes = document.getElementById("feeYes");
+        const feeNo = document.getElementById("feeNo");
+
+        const additionalFeeDetails = document.getElementById("additionalFeeDetails");
+
+        const coursesOfferedDetails = document.getElementById("coursesOfferedDetails");
+
+        const addFeeButton = document.getElementById("addFeeButton");
+
+        const feeRows = document.getElementById("additionalFeeRows");
+
+        const feeEmptyMessage = document.getElementById("noAdditionalFeeRows");
+
+
+        /* ---------------------------------------------------------
+           SHOW / HIDE ADDITIONAL FEE DETAILS
+           --------------------------------------------------------- */
+
+        function toggleAdditionalFee() {
+
+            if (!additionalFeeDetails) {
+                return;
+            }
+
+            if (feeYes && feeYes.checked) {
+
+                additionalFeeDetails.style.display = "block";
+                coursesOfferedDetails.style.display = "block";
+
+            } else {
+
+                additionalFeeDetails.style.display = "none";
+                coursesOfferedDetails.style.display = "none";
+            }
+
+            updateFeeEmptyMessage();
+        }
+
+
+        if (feeYes) {
+            feeYes.addEventListener("change", function () {
+                toggleAdditionalFee();
+            });
+        }
+
+        if (feeNo) {
+            feeNo.addEventListener("change", function () {
+                toggleAdditionalFee();
+            });
+        }
+
+
+        /* ---------------------------------------------------------
+           ADD ADDITIONAL FEE ROW
+           --------------------------------------------------------- */
+
+
+        if (addFeeButton) {
+
+            addFeeButton.addEventListener("click", function () {
+
+                if (!feeRows) {
+                    console.error("additionalFeeRows not found.");
+                    return;
+                }
+
+
+                const index = feeRows.querySelectorAll("tr").length;
+
+                const row = document.createElement("tr");
+
+
+                row.innerHTML = `
+
+                    <input type="hidden"
+                            name="DonationFees[${index}].Id"
+                            value="0" />
+
+                    <input type="hidden"
+                            name="DonationFees[${index}].CollegeCode"
+                            value="${collegeCode}" />
+
+                    <input type="hidden"
+                            name="DonationFees[${index}].FacultyCode"
+                            value="${facultyCode}" />
+
+                    <input type="hidden"
+                            name="DonationFees[${index}].CourseLevel"
+                            value="${courseLevel}" />
+
+                    <td>
+                        <select class="form-select fee-type"
+                                name="DonationFees[${index}].FeeType">
+
+                            <option value="">
+                                -- Select Fee Type --
+                            </option>
+
+                            <option value="Donation">
+                                Donation
+                            </option>
+
+                            <option value="Capitation Fee">
+                                Capitation Fee
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                        <span class="text-danger fee-type-error"></span>
+
+                    </td>
+
+
+                    <td>
+
+                        <input type="number"
+                               step="0.01"
+                               min="0"
+                               class="form-control fee-amount"
+                               name="DonationFees[${index}].FeeAmount"
+                               placeholder="Enter amount" />
+
+                    </td>
+
+
+                    <td class="text-center">
+
+                        <button type="button"
+                                class="btn-remove-fee remove-fee-row"
+                                title="Remove">
+
+                            <i class="fas fa-trash"></i>
+
+                        </button>
+
+                    </td>
+
+                `;
+
+
+                feeRows.appendChild(row);
+
+                updateFeeEmptyMessage();
+
+                updateFeeTypeOptions();
+
+            });
+        }
+
+
+        /* ---------------------------------------------------------
+           REMOVE ADDITIONAL FEE
+           --------------------------------------------------------- */
+
+        if (feeRows) {
+
+            feeRows.addEventListener("click", async function (e) {
+
+                const button =
+                    e.target.closest(".remove-fee-row");
+
+                if (!button) {
+                    return;
+                }
+
+                const row =
+                    button.closest("tr");
+
+                if (!row) {
+                    return;
+                }
+
+
+                // =====================================================
+                // GET ID
+                // =====================================================
+
+                const idInput =
+                    row.querySelector(
+                        'input[name$=".Id"]'
+                    );
+
+                const id =
+                    idInput
+                        ? parseInt(idInput.value || "0")
+                        : 0;
+
+
+                // =====================================================
+                // NEW UI ROW
+                // Id = 0
+                // Just remove from UI
+                // =====================================================
+
+                if (!id || id === 0) {
+
+                    row.remove();
+
+                    reindexAdditionalFees();
+
+                    updateFeeEmptyMessage();
+
+                    return;
+                }
+
+
+                // =====================================================
+                // EXISTING DATABASE RECORD
+                // Id > 0
+                // Delete through backend
+                // =====================================================
+
+                if (!confirm(
+                    "Are you sure you want to delete this fee?"
+                )) {
+                    return;
+                }
+
+
+                try {
+
+                    const token =
+                        document.querySelector(
+                            'input[name="__RequestVerificationToken"]'
+                        )?.value;
+
+
+                    const response = await fetch(
+                        '@Url.Action("DeleteAdditionalFee", "Aff_CA_Med_FinanceDetails")',
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/x-www-form-urlencoded; charset=UTF-8"
+                            },
+
+                            body:
+                                `id=${encodeURIComponent(id)}` +
+                                `&__RequestVerificationToken=${encodeURIComponent(token)}`
+                        }
+                    );
+
+
+                    const result =
+                        await response.json();
+
+
+                    if (result.success) {
+
+                        // Remove from UI after successful DB deletion
+                        row.remove();
+
+                        reindexAdditionalFees();
+
+                        updateFeeEmptyMessage();
+
+                    }
+                    else {
+
+                        alert(
+                            result.message ||
+                            "Unable to delete fee."
+                        );
+                    }
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Delete additional fee error:",
+                        error
+                    );
+
+                    alert(
+                        "An error occurred while deleting the fee."
+                    );
+                }
+
+            });
+        }
+
+
+        async function deleteExistingCourse(courseId, row) {
+
+            try {
+
+                const token =
+                    document.querySelector(
+                        'input[name="__RequestVerificationToken"]'
+                    )?.value;
+
+
+                const response =
+                    await fetch(
+                        '@Url.Action("DeleteCourseOffered", "Aff_CA_Med_FinanceDetails")',
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/x-www-form-urlencoded; charset=UTF-8"
+                            },
+
+                            body:
+                                `id=${encodeURIComponent(courseId)}` +
+                                `&__RequestVerificationToken=${encodeURIComponent(token)}`
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Failed to delete course."
+                    );
+                }
+
+
+                const result =
+                    await response.json();
+
+
+                if (result.success) {
+
+                    /*
+                       Backend soft delete succeeded.
+                       Now remove it from UI.
+                    */
+
+                    if (row) {
+                        row.remove();
+                    }
+
+
+                    reindexCourses();
+
+                    updateCourseEmptyMessage();
+                    updateAddCourseButton();
+                    updateAllCourseLevelOptions();
+
+                }
+                else {
+
+                    alert(
+                        result.message ||
+                        "Unable to remove course."
+                    );
+                }
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Delete course error:",
+                    error
+                );
+
+                alert(
+                    "Unable to remove the course. Please try again."
+                );
+            }
+        }
+
+        /* ---------------------------------------------------------
+           REINDEX ADDITIONAL FEES
+           --------------------------------------------------------- */
+
+        function reindexAdditionalFees() {
+
+            if (!feeRows) {
+                return;
+            }
+
+            const rows = feeRows.querySelectorAll("tr");
+
+
+            rows.forEach(function (row, index) {
+
+                row.querySelectorAll(
+                    "input[name], select[name], textarea[name]"
+                ).forEach(function (input) {
+
+                    const name = input.getAttribute("name");
+
+                    if (!name) {
+                        return;
+                    }
+
+                    input.setAttribute( "name", name.replace( /DonationFees\[\d+\]/, `DonationFees[${index}]`));
+                });
+            });
+        }
+
+
+        /* ---------------------------------------------------------
+           EMPTY FEE MESSAGE
+           --------------------------------------------------------- */
+
+        function updateFeeEmptyMessage() {
+
+            if (!feeRows || !feeEmptyMessage) {
+                return;
+            }
+
+            const hasRows = feeRows.querySelectorAll("tr").length > 0;
+
+
+            feeEmptyMessage.style.display = hasRows ? "none" : "flex";
+        }
+
+
+        /* =========================================================
+           COURSES OFFERED
+           ========================================================= */
+
+        const addCourseButton = document.getElementById("addCourseButton");
+
+        const courseRows = document.getElementById("coursesOfferedRows");
+
+        const courseEmptyMessage = document.getElementById("noCoursesMessage");
+
+
+        /* ---------------------------------------------------------
+           ADD COURSE
+           --------------------------------------------------------- */
+
+        if (addCourseButton) {
+
+            addCourseButton.addEventListener("click", function () {
+
+                if (!courseRows) {
+                    console.error("coursesOfferedRows not found.");
+                    return;
+                }
+
+                const index = courseRows.querySelectorAll("tr").length;
+
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+
+                    <!-- Hidden fields -->
+
+                    <input type="hidden"
+                            name="CoursesOffered[${index}].Id"
+                            value="0" />
+
+                    <input type="hidden"
+                            name="CoursesOffered[${index}].CollegeCode"
+                            value="${collegeCode}" />
+
+                    <input type="hidden"
+                            name="CoursesOffered[${index}].FacultyCode"
+                            value="${facultyCode}" />
+
+
+                    <!-- COURSE LEVEL -->
+
+                    <td>
+
+                        <select class="form-select course-level-select"
+                                disabled>
+
+                            <option value="${courseLevel}" selected>
+                                ${courseLevel}
+                            </option>
+
+                        </select>
+
+                        <input type="hidden"
+                                name="CoursesOffered[${index}].CourseLevel"
+                                value="${courseLevel}" />
+
+                    </td>
+
+
+                    <!-- COURSE CODE -->
+
+                    <td>
+
+                        <select class="form-select course-code-select"
+                                name="CoursesOffered[${index}].CourseCode">
+
+                            <option value="">
+                                -- Select Course --
+                            </option>
+
+                        </select>
+
+                    </td>
+
+                    <!-- STARTING YEAR -->
+
+                    <td>
+
+                        <input type="number"
+                                class="form-control"
+                                name="CoursesOffered[${index}].YearOfStarting"
+                                min="1900"
+                                max="2100"
+                                placeholder="YYYY" />
+
+                    </td>
+
+
+                    <!-- SANCTIONED -->
+
+                    <td>
+
+                        <input type="number"
+                                class="form-control"
+                                name="CoursesOffered[${index}].SanctionedAdmissions"
+                                min="0"
+                                placeholder="0" />
+
+                    </td>
+
+
+                    <!-- ADMITTED -->
+
+                    <td>
+
+                        <input type="number"
+                                class="form-control"
+                                name="CoursesOffered[${index}].AdmittedAdmissions"
+                                min="0"
+                                placeholder="0" />
+
+                    </td>
+
+
+                    <!-- REMARKS -->
+
+                    <td>
+
+                        <textarea class="form-control"
+                                    name="CoursesOffered[${index}].Remarks"
+                                    rows="2"
+                                    placeholder="Remarks"></textarea>
+
+                    </td>
+
+
+                    <!-- KARNATAKA GOVERNMENT -->
+
+                    <td>
+
+                        <input type="text"
+                                class="form-control mb-2"
+                                name="CoursesOffered[${index}].KarnatakaGovernmentPermissionNo"
+                                placeholder="Permission No." />
+
+                        <input type="file"
+                                class="form-control"
+                                name="CoursesOffered[${index}].KarnatakaGovernmentPermissionFile"
+                                accept=".pdf" />
+
+                    </td>
+
+
+                    <!-- COUNCIL -->
+
+                    <td>
+
+                        <input type="text"
+                                class="form-control mb-2"
+                                name="CoursesOffered[${index}].CouncilPermissionNo"
+                                placeholder="Permission No." />
+
+                        <input type="file"
+                                class="form-control"
+                                name="CoursesOffered[${index}].CouncilPermissionFile"
+                                accept=".pdf" />
+
+                    </td>
+
+
+                    <!-- RGUHS -->
+
+                    <td>
+
+                        <input type="text"
+                                class="form-control mb-2"
+                                name="CoursesOffered[${index}].RGUHSLastAffiliationNo"
+                                placeholder="RGUHS Affiliation No." />
+
+                        <input type="file"
+                                class="form-control"
+                                name="CoursesOffered[${index}].RGUHSLastAffiliationFile"
+                                accept=".pdf" />
+
+                    </td>
+
+
+                    <!-- GOVERNMENT OF INDIA -->
+
+                    <td>
+
+                        <input type="text"
+                                class="form-control mb-2"
+                                name="CoursesOffered[${index}].GovernmentOfIndiaPermissionNo"
+                                placeholder="Permission No." />
+
+                        <input type="file"
+                                class="form-control"
+                                name="CoursesOffered[${index}].GovernmentOfIndiaPermissionFile"
+                                accept=".pdf" />
+
+                    </td>
+
+
+                    <!-- DELETE -->
+
+                    <td class="text-center">
+
+                        <button type="button"
+                                class="btn-remove-course remove-course-row"
+                                title="Remove Course">
+
+                            <i class="fas fa-trash"></i>
+
+                        </button>
+
+                    </td>
+
+                `;
+
+                courseRows.appendChild(row);
+
+                // Setup level -> course loading
+                setupCourseRow(row);
+                updateAllCourseLevelOptions();
+                updateCourseEmptyMessage();
+
+            });
+
+        }
+
+
+        /* ---------------------------------------------------------
+           REMOVE COURSE
+           --------------------------------------------------------- */
+
+        if (courseRows) {
+
+            courseRows.addEventListener("click", async function (e) {
+
+                const button =
+                    e.target.closest(".remove-course-row");
+
+                if (!button) {
+                    return;
+                }
+
+                const row = button.closest("tr");
+
+                if (!row) {
+                    return;
+                }
+
+                const idInput =
+                    row.querySelector(
+                        'input[name$=".Id"]'
+                    );
+
+                const id =
+                    idInput ? parseInt(idInput.value || "0") : 0;
+
+
+                // =====================================================
+                // NEW UI ROW
+                // Id = 0
+                // Just remove from UI
+                // =====================================================
+
+                if (!id || id === 0) {
+
+                    row.remove();
+
+                    reindexCourses();
+
+                    updateCourseEmptyMessage();
+                    updateAddCourseButton();
+
+                    return;
+                }
+
+
+                // =====================================================
+                // EXISTING DB RECORD
+                // Id > 0
+                // Delete through backend
+                // =====================================================
+
+                if (!confirm("Are you sure you want to delete this course?")) {
+                    return;
+                }
+
+
+                try {
+
+                    const token =
+                        document.querySelector(
+                            'input[name="__RequestVerificationToken"]'
+                        )?.value;
+
+
+                    const response = await fetch(
+                        '@Url.Action("DeleteCourseOffered", "Aff_CA_Med_FinanceDetails")',
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/x-www-form-urlencoded; charset=UTF-8"
+                            },
+
+                            body:
+                                `id=${encodeURIComponent(id)}` +
+                                `&__RequestVerificationToken=${encodeURIComponent(token)}`
+                        }
+                    );
+
+
+                    const result =
+                        await response.json();
+
+
+                    if (result.success) {
+
+                        row.remove();
+
+                        reindexCourses();
+
+                        updateCourseEmptyMessage();
+
+                    }
+                    else {
+
+                        alert(
+                            result.message ||
+                            "Unable to delete course."
+                        );
+                    }
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Delete course error:",
+                        error
+                    );
+
+                    alert(
+                        "An error occurred while deleting the course."
+                    );
+                }
+
+            });
+        }
+
+
+
+        function updateAddCourseButton() {
+
+            if (!addCourseButton || !courseRows) {
+                return;
+            }
+
+            let ugExists = false;
+
+            courseRows.querySelectorAll("tr").forEach(function (row) {
+
+                const levelSelect =
+                    row.querySelector(".course-level-select");
+
+                if (!levelSelect) {
+                    return;
+                }
+
+                const level =
+                    levelSelect.value.trim().toUpperCase();
+
+                if (level === "UG") {
+                    ugExists = true;
+                }
+            });
+
+            // Hide Add Course if UG already exists
+            addCourseButton.style.display =
+                ugExists ? "none" : "inline-block";
+        }
+
+        /* ---------------------------------------------------------
+           REINDEX COURSES
+           --------------------------------------------------------- */
+
+        function reindexCourses() {
+
+            if (!courseRows) {
+                return;
+            }
+            const rows =  courseRows.querySelectorAll("tr");
+
+            rows.forEach(function (row, index) {
+
+                row.querySelectorAll(
+                    "input[name], select[name], textarea[name]"
+                ).forEach(function (input) {
+
+                    const name = input.getAttribute("name");
+
+                    if (!name) {
+                        return;
+                    }
+
+
+                    input.setAttribute( "name", name.replace(/CoursesOffered\[\d+\]/, `CoursesOffered[${index}]` ));
+
+                });
+
+            });
+        }
+
+
+        /* ---------------------------------------------------------
+           COURSE EMPTY MESSAGE
+           --------------------------------------------------------- */
+
+        function updateCourseEmptyMessage() {
+
+            if (!courseRows || !courseEmptyMessage) {
+                return;
+            }
+
+
+            const hasRows = courseRows.querySelectorAll("tr").length > 0;
+
+            courseEmptyMessage.style.display = hasRows ? "none" : "flex";
+        }
+
+
+        /* =========================================================
+           INITIALIZE
+           ========================================================= */
+
+        toggleAdditionalFee();
+
+        updateFeeEmptyMessage();
+
+        updateCourseEmptyMessage();
+        updateAddCourseButton();
+
+        updateFeeTypeOptions();
+
+
+        /* =========================================================
+            COURSE LEVEL -> COURSE LIST
+            ========================================================= */
+
+        async function loadCoursesByLevel(
+            level,
+            courseSelect,
+            selectedCode = "",
+            currentRow = null
+        ) {
+
+            if (!courseSelect) {
+                return;
+            }
+
+            courseSelect.innerHTML = `
+                <option value="">
+                    Loading courses...
+                </option>
+            `;
+
+
+            if (!level) {
+
+                courseSelect.innerHTML = `
+                    <option value="">
+                        -- Select Course --
+                    </option>
+                `;
+
+                return;
+            }
+
+
+            try {
+
+                const url =
+                    '@Url.Action("GetCoursesByLevel", "Aff_CA_Med_FinanceDetails")'
+                    + '?courseLevel='
+                    + encodeURIComponent(level);
+
+
+                const response =
+                    await fetch(url);
+
+
+                if (!response.ok) {
+                    throw new Error("Failed to load courses.");
+                }
+
+
+                const courses =
+                    await response.json();
+
+
+                courseSelect.innerHTML = `
+                    <option value="">
+                        -- Select Course --
+                    </option>
+                `;
+
+
+                if (!courses || courses.length === 0) {
+
+                    courseSelect.innerHTML = `
+                        <option value="">
+                            -- No courses available --
+                        </option>
+                    `;
+
+                    return;
+                }
+
+
+                /*
+                   Get courses already used in other rows
+                */
+
+                const usedCourseCodes =
+                    getUsedCourseCodes(
+                        level,
+                        currentRow
+                    );
+
+
+                courses.forEach(function (course) {
+
+                    const courseCode =
+                        String(course.courseCode).trim();
+
+
+                    /*
+                       Don't hide the currently saved course
+                       when editing an existing row.
+                    */
+
+                    const isCurrentSavedCourse =
+                        selectedCode &&
+                        courseCode ===
+                        String(selectedCode).trim();
+
+
+                    /*
+                       If this course is already used
+                       in another row, don't display it.
+                    */
+
+                    if (
+                        usedCourseCodes.includes(courseCode) &&
+                        !isCurrentSavedCourse
+                    ) {
+                        return;
+                    }
+
+
+                    const option =
+                        document.createElement("option");
+
+
+                    option.value =
+                        courseCode;
+
+
+                    option.textContent =
+                        course.courseName;
+
+
+                    if (
+                        selectedCode &&
+                        courseCode ===
+                        String(selectedCode).trim()
+                    ) {
+
+                        option.selected = true;
+                    }
+
+
+                    courseSelect.appendChild(option);
+
+                });
+
+
+                /*
+                   If everything has already been used
+                */
+
+                if (courseSelect.options.length === 1) {
+
+                    courseSelect.innerHTML = `
+                        <option value="">
+                            -- All courses already added --
+                        </option>
+                    `;
+
+                    return;
+                }
+
+
+                /*
+                   Explicitly select saved course
+                */
+
+                if (selectedCode) {
+
+                    const savedOption =
+                        Array.from(
+                            courseSelect.options
+                        ).find(function (option) {
+
+                            return String(option.value).trim()
+                                === String(selectedCode).trim();
+
+                        });
+
+
+                    if (savedOption) {
+
+                        courseSelect.value =
+                            savedOption.value;
+                    }
+                }
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Error loading courses:",
+                    error
+                );
+
+
+                courseSelect.innerHTML = `
+                    <option value="">
+                        -- Unable to load courses --
+                    </option>
+                `;
+            }
+        }
+
+        /* =========================================================
+           SETUP COURSE ROW
+           ========================================================= */
+
+        function setupCourseRow(row) {
+
+            if (!row) {
+                return;
+            }
+
+            const courseSelect =
+                row.querySelector(".course-code-select");
+
+            if (!courseSelect) {
+                return;
+            }
+
+            // CourseCode already saved in DB
+            const selectedCode =
+                courseSelect.dataset.selectedCode || "";
+
+            console.log("Session Course Level:", courseLevel);
+            console.log("Saved Course Code:", selectedCode);
+
+            // Load courses dynamically
+            loadCoursesByLevel(
+                courseLevel,
+                courseSelect,
+                selectedCode,
+                row
+            );
+
+            updateAddCourseButton();
+        }
+
+        /* =========================================================
+           INITIALIZE EXISTING COURSE ROWS
+        ========================================================= */
+
+        if (courseRows) {
+
+            courseRows
+                .querySelectorAll("tr")
+                .forEach(function (row) {
+                    setupCourseRow(row); 
+                });
+        }
+
+        /* =========================================================
+           ADDITIONAL FEE TYPE - PREVENT DUPLICATE TYPES
+           ========================================================= */
+
+        function updateFeeTypeOptions() {
+
+            if (!feeRows) {
+                return;
+            }
+
+            const selects =
+                feeRows.querySelectorAll(".fee-type");
+
+            // Get all currently selected fee types
+            const selectedTypes = [];
+
+            selects.forEach(function (select) {
+
+                const value = select.value;
+
+                if (value) {
+                    selectedTypes.push(value);
+                }
+            });
+
+            // Update every dropdown
+            selects.forEach(function (select) {
+
+                const currentValue = select.value;
+
+                select.querySelectorAll("option").forEach(function (option) {
+
+                    // Always keep placeholder enabled
+                    if (!option.value) {
+                        option.disabled = false;
+                        return;
+                    }
+
+                    // Don't disable the option selected in THIS row
+                    if (option.value === currentValue) {
+                        option.disabled = false;
+                        return;
+                    }
+
+                    // Disable if selected in another row
+                    option.disabled =
+                        selectedTypes.includes(option.value);
+
+                });
+
+            });
+        }
+
+        if (feeRows) {
+
+            feeRows.addEventListener("change", function (e) {
+
+                if (e.target.classList.contains("fee-type")) {
+
+                    updateFeeTypeOptions();
+
+                }
+
+            });
+        }
+
+
+        /* =========================================================
+           GET USED COURSE CODES
+           ========================================================= */
+
+        function getUsedCourseCodes(level, excludeRow = null) {
+
+            const usedCodes = [];
+
+            if (!courseRows || !level) {
+                return usedCodes;
+            }
+
+            const normalizedLevel =
+                String(level).trim().toUpperCase();
+
+            courseRows.querySelectorAll("tr").forEach(function (row) {
+
+                // Don't consider the current row
+                if (row === excludeRow) {
+                    return;
+                }
+
+                const levelSelect =
+                    row.querySelector(".course-level-select");
+
+                const courseSelect =
+                    row.querySelector(".course-code-select");
+
+                if (!levelSelect || !courseSelect) {
+                    return;
+                }
+
+                const rowLevel =
+                    String(levelSelect.value)
+                        .trim()
+                        .toUpperCase();
+
+                // Only check rows having the same level
+                if (rowLevel !== normalizedLevel) {
+                    return;
+                }
+
+                const code =
+                    String(courseSelect.value || "").trim();
+
+                if (code) {
+                    usedCodes.push(code);
+                }
+
+            });
+
+            return usedCodes;
+        }
+
+        courseSelect.addEventListener("change", function () {
+
+            const selectedLevel = levelSelect.value;
+
+            // Refresh other course dropdowns of the same level
+            courseRows.querySelectorAll("tr").forEach(function (otherRow) {
+
+                if (otherRow === row) {
+                    return;
+                }
+
+                const otherLevel =
+                    otherRow.querySelector(".course-level-select");
+
+                const otherCourse =
+                    otherRow.querySelector(".course-code-select");
+
+                if (!otherLevel || !otherCourse) {
+                    return;
+                }
+
+                if (
+                    otherLevel.value.trim().toUpperCase() ===
+                    selectedLevel.trim().toUpperCase()
+                ) {
+
+                    const currentValue =
+                        otherCourse.value;
+
+                    loadCoursesByLevel(
+                        selectedLevel,
+                        otherCourse,
+                        currentValue,
+                        otherRow
+                    );
+                }
+
+            });
+
+        });
+
+
+        /* =========================================================
+           CHECK WHETHER UG IS ALREADY USED
+           ========================================================= */
+
+        function isUGAlreadyUsed(excludeRow = null) {
+
+            if (!courseRows) {
+                return false;
+            }
+
+            return Array.from(
+                courseRows.querySelectorAll("tr")
+            ).some(function (row) {
+
+                if (row === excludeRow) {
+                    return false;
+                }
+
+                const levelSelect =
+                    row.querySelector(".course-level-select");
+
+                return levelSelect &&
+                    levelSelect.value.trim().toUpperCase() === "UG";
+            });
+        }
+
+
+        /* =========================================================
+           UPDATE COURSE LEVEL OPTIONS
+           ========================================================= */
+
+        function updateCourseLevelOptions(levelSelect, currentRow = null) {
+
+            if (!levelSelect) {
+                return;
+            }
+
+            const ugUsed =
+                isUGAlreadyUsed(currentRow);
+
+            const currentValue =
+                levelSelect.value;
+
+
+            Array.from(levelSelect.options).forEach(function (option) {
+
+                if (option.value === "UG") {
+
+                    option.disabled = ugUsed;
+                }
+
+            });
+
+
+            /*
+               If this is a new row and UG is already used,
+               don't allow UG to remain selected.
+            */
+
+            if (
+                ugUsed &&
+                currentValue === "UG"
+            ) {
+
+                levelSelect.value = "";
+            }
+        }
+
+
+        function updateAllCourseLevelOptions() {
+
+            if (!courseRows) {
+                return;
+            }
+
+            courseRows
+                .querySelectorAll(".course-level-select")
+                .forEach(function (select) {
+
+                    const row =
+                        select.closest("tr");
+
+                    updateCourseLevelOptions(
+                        select,
+                        row
+                    );
+
+                });
+        }
+    });
+</script>@if (TempData["Info"] != null)
 {
     <script>
         Swal.fire({ icon: 'success', title: 'Saved Successfully!', text: '@TempData["Info"]', timer: 5000, timerProgressBar: true });

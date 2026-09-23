@@ -41,19 +41,53 @@ public partial class AffiliationCollegeMaster
 
     public string? CollegeEmail { get; set; }
 
+    public virtual ICollection<ActionTakenDeficiencyReport> ActionTakenDeficiencyReports { get; set; } = new List<ActionTakenDeficiencyReport>();
+
+    public virtual ICollection<AdditionalInformationInAcademicActivity> AdditionalInformationInAcademicActivities { get; set; } = new List<AdditionalInformationInAcademicActivity>();
+
     public virtual ICollection<AffiliationFinalDeclaration> AffiliationFinalDeclarations { get; set; } = new List<AffiliationFinalDeclaration>();
 
     public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();
+
+    public virtual ICollection<AnimalHouseDetail> AnimalHouseDetails { get; set; } = new List<AnimalHouseDetail>();
+
+    public virtual ICollection<CollegeAdditionalFeeDetail> CollegeAdditionalFeeDetails { get; set; } = new List<CollegeAdditionalFeeDetail>();
+
+    public virtual ICollection<CollegeCoursesOffered> CollegeCoursesOffereds { get; set; } = new List<CollegeCoursesOffered>();
 
     public virtual ICollection<DentalChair> DentalChairs { get; set; } = new List<DentalChair>();
 
     public virtual ICollection<DentalCollegeLandBuildingDetail> DentalCollegeLandBuildingDetails { get; set; } = new List<DentalCollegeLandBuildingDetail>();
 
+    public virtual ICollection<DentalConferencesAttended> DentalConferencesAttendeds { get; set; } = new List<DentalConferencesAttended>();
+
+    public virtual ICollection<DentalConferencesConducted> DentalConferencesConducteds { get; set; } = new List<DentalConferencesConducted>();
+
+    public virtual ICollection<DentalFieldPracticeArea> DentalFieldPracticeAreas { get; set; } = new List<DentalFieldPracticeArea>();
+
     public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();
+
+    public virtual ICollection<DentalLibraryService> DentalLibraryServices { get; set; } = new List<DentalLibraryService>();
 
     public virtual ICollection<DentalService> DentalServices { get; set; } = new List<DentalService>();
 
     public virtual ICollection<DentalWardBedDistribution> DentalWardBedDistributions { get; set; } = new List<DentalWardBedDistribution>();
 
+    public virtual ICollection<DepartmentWiseResearchProject> DepartmentWiseResearchProjects { get; set; } = new List<DepartmentWiseResearchProject>();
+
+    public virtual ICollection<LibraryExpenditure> LibraryExpenditures { get; set; } = new List<LibraryExpenditure>();
+
+    public virtual ICollection<LibraryStaffDetail> LibraryStaffDetails { get; set; } = new List<LibraryStaffDetail>();
+
     public virtual ICollection<MedicalAlliedDisciplineDetail> MedicalAlliedDisciplineDetails { get; set; } = new List<MedicalAlliedDisciplineDetail>();
+
+    public virtual ICollection<OtherHealthScienceCollege> OtherHealthScienceCollegeCollegeCodeNavigations { get; set; } = new List<OtherHealthScienceCollege>();
+
+    public virtual ICollection<OtherHealthScienceCollege> OtherHealthScienceCollegeOtherCollegeCodeNavigations { get; set; } = new List<OtherHealthScienceCollege>();
+
+    public virtual ICollection<StaffShortageDetail> StaffShortageDetails { get; set; } = new List<StaffShortageDetail>();
+
+    public virtual ICollection<UserDetail> UserDetails { get; set; } = new List<UserDetail>();
+
+    public virtual ICollection<WorkShopDetail> WorkShopDetails { get; set; } = new List<WorkShopDetail>();
 }

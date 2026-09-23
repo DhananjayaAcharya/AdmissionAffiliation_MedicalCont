@@ -1,0 +1,70 @@
+﻿@model DentalInstitutionBasicDetailsDisplayVM
+
+<div class="general-body">
+    <div class="section-block">
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge">
+                <i class="bi bi-journal-bookmark"></i>
+                Affiliated Course Details
+            </div>
+            <p class="section-description">
+                Intake, permissions, recognition, and GoK order availability
+            </p>
+        </div>
+
+        @if (Model?.AffiliationCourseDetailVM != null)
+        {
+            var course = Model.AffiliationCourseDetailVM;
+
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <tbody>
+                        <tr>
+                            <th>Course Name</th>
+                            <td>@course.CourseName</td>
+                        </tr>
+                        <tr>
+                            <th>Intake 2025-26</th>
+                            <td>@course.IntakeDuring202526</td>
+                        </tr>
+                        <tr>
+                            <th>Intake Slab</th>
+                            <td>@course.IntakeSlab</td>
+                        </tr>
+                        <tr>
+                            <th>Permission Type</th>
+                            <td>@course.TypeofPermission</td>
+                        </tr>
+                        <tr>
+                            <th>Year of LoP</th>
+                            <td>@course.YearOfLop</td>
+                        </tr>
+                        <tr>
+                            <th>Date of Recognition</th>
+                            <td>@course.DateOfRecognition</td>
+                        </tr>
+                        <tr>
+                            <th>Year of EC/FC</th>
+                            <td>@course.YearOfObtainingEcAndFc</td>
+                        </tr>
+                        <tr>
+                            <th>Sanctioned Intake EC/FC</th>
+                            <td>@course.SanctionedIntakeEcFc</td>
+                        </tr>
+                        <tr>
+                            <th>GoK Order</th>
+                            <td>@(course.HasGokOrder ? "Available" : "—")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No affiliated course details available.</p>
+            </div>
+        }
+    </div>
+</div>

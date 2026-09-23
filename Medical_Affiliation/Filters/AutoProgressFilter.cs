@@ -23,6 +23,15 @@ public class AutoProgressFilter : IAsyncActionFilter
     }
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
+        var faculty = context.HttpContext.Session.GetString("FacultyCode");
+
+        // Only run for Medical
+        if (faculty != "1")
+        {
+            await next();
+            return;
+        }
+
         var result = await next();
 
         // ✅ Only POST (after save)

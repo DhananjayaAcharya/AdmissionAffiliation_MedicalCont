@@ -55,6 +55,24 @@ public partial class HospitalDetailsForAffiliation
 
     public bool? HasCriticalCareServices { get; set; }
 
+    public string? KpmecertificatePdfPath { get; set; }
+
+    public string? PollutionControlBoardCertificatePdfPath { get; set; }
+
+    public string? BioMedicalCertificatePdfPath { get; set; }
+
+    public string? DrugFreeCampusCertificationPdfPath { get; set; }
+
+    public string? ProposedPlansForFutureDevelopmentsPdfPath { get; set; }
+
+    public bool? HasAnatomyActRegistration { get; set; }
+
+    public string? AnatomyActRegistrationDetails { get; set; }
+
+    public string? AnatomyActRegistrationPdfPath { get; set; }
+
+    public bool? HasHospitalTieUp { get; set; }
+
     public virtual TypeOfAffiliation AffiliationType { get; set; } = null!;
 
     public virtual ICollection<DentalInfrastructure> DentalInfrastructures { get; set; } = new List<DentalInfrastructure>();
@@ -66,6 +84,8 @@ public partial class HospitalDetailsForAffiliation
     public virtual ICollection<HospitalDocumentsToBeUploaded> HospitalDocumentsToBeUploadeds { get; set; } = new List<HospitalDocumentsToBeUploaded>();
 
     public virtual ICollection<HospitalFacility> HospitalFacilities { get; set; } = new List<HospitalFacility>();
+
+    public virtual ICollection<HospitalTieUpDetail> HospitalTieUpDetails { get; set; } = new List<HospitalTieUpDetail>();
 
     public virtual ICollection<IndoorInfrastructureRequirementsCompliance> IndoorInfrastructureRequirementsCompliances { get; set; } = new List<IndoorInfrastructureRequirementsCompliance>();
 
