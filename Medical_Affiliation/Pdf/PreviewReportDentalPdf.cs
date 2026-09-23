@@ -84,6 +84,12 @@ public class PreviewReportDentalPdf : IDocument
                 // --- BED DISTRIBUTION ---
                 AddDentalBedDistributionSection(col);
 
+                // --- WORK SHOP DETAILS ---
+                AddWorkshopDetails(col);
+
+                // --- ANIMAL HOUSE DETAILS ---
+                AddAnimalHouseDetails(col);
+
                 if (_model.FacultyCode == "2")
                 {
                     AddDepartmentOfficesAndDeuSection(col);
@@ -2981,6 +2987,193 @@ public class PreviewReportDentalPdf : IDocument
                             .ToString() ?? "0");
             });
     }
+
+    private void AddWorkshopDetails(ColumnDescriptor col)
+    {
+        var workshops = _model?.WorkshopDetails;
+
+        if (workshops == null || !workshops.Any())
+            return;
+
+        AddMainHeading(col, "Workshop Details");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(45);  // Sl No
+                    columns.RelativeColumn(2);    // Staff
+                    columns.RelativeColumn(3);    // Equipment
+                    columns.RelativeColumn(4);    // Scope of Work
+                });
+
+                // =====================================================
+                // HEADER
+                // =====================================================
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Sl. No.")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Staff")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Equipment")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Scope of Work")
+                        .Bold();
+                });
+
+                // =====================================================
+                // DATA
+                // =====================================================
+
+                int slNo = 1;
+
+                foreach (var workshop in workshops)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(slNo.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(workshop.Staff ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(workshop.Equipment ?? "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(workshop.ScopeOfWork ?? "—");
+
+                    slNo++;
+                }
+            });
+    }
+
+    private void AddAnimalHouseDetails(ColumnDescriptor col)
+    {
+        var animalHouses = _model?.AnimalHouseDetails;
+
+        if (animalHouses == null || !animalHouses.Any())
+            return;
+
+        AddMainHeading(col, "Animal House Details");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(45);  // Sl No
+                    columns.RelativeColumn(2);    // Area
+                    columns.RelativeColumn(3);    // Staff
+                    columns.RelativeColumn(4);    // Type of Animals
+                });
+
+                // =====================================================
+                // HEADER
+                // =====================================================
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Sl. No.")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Area (Sq.m)")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Staff")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Type of Animals")
+                        .Bold();
+                });
+
+                // =====================================================
+                // DATA
+                // =====================================================
+
+                int slNo = 1;
+
+                foreach (var animalHouse in animalHouses)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(slNo.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(
+                            animalHouse.Area.HasValue
+                                ? animalHouse.Area.Value.ToString("0.##")
+                                : "—");
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(
+                            string.IsNullOrWhiteSpace(animalHouse.Staff)
+                                ? "—"
+                                : animalHouse.Staff);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(
+                            string.IsNullOrWhiteSpace(animalHouse.TypeOfAnimals)
+                                ? "—"
+                                : animalHouse.TypeOfAnimals);
+
+                    slNo++;
+                }
+            });
+    }
+
+
     private void AddDepartmentSections(ColumnDescriptor col)
     {
         var hospital = _model.CAHospitalAFfiliationCompVM;
