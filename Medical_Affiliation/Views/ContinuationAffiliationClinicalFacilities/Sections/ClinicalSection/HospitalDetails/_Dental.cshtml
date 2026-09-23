@@ -1,5 +1,668 @@
 ﻿@model ClinicalHospitalViewModel
 
+<style>
+    /* =========================================================
+        HOSPITAL CERTIFICATES & FUTURE DEVELOPMENT
+        ========================================================= */
+
+    .hospital-certificates-section {
+        margin-top: 1.5rem;
+    }
+
+    .hospital-certificates-section .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        border-left: 4px solid #198754;
+        border-radius: 8px;
+        background: linear-gradient( 135deg, #f0fdf4, #f8fafc );
+        color: #1f2937;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .hospital-certificates-section .section-title::before {
+        content: "\f56c";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: #198754;
+        font-size: 16px;
+    }
+
+
+    /* =========================================================
+        CERTIFICATE CARD
+        ========================================================= */
+
+    .hospital-certificate-card {
+        height: 100%;
+        padding: 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        transition: all 0.2s ease;
+    }
+
+    .hospital-certificate-card:hover {
+        border-color: #b7dec7;
+        box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+    }
+
+
+    /* =========================================================
+        LABEL
+        ========================================================= */
+
+    .hospital-certificate-card .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+        FILE INPUT
+        ========================================================= */
+
+    .hospital-certificate-card input[type="file"] {
+        min-height: 42px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #f8fafc;
+        font-size: 13px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .hospital-certificate-card input[type="file"]:hover {
+        background: #ffffff;
+        border-color: #94a3b8;
+    }
+
+    .hospital-certificate-card input[type="file"]:focus {
+        background: #ffffff;
+        border-color: #198754;
+        box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+        outline: none;
+    }
+
+
+    /* =========================================================
+        HELP TEXT
+        ========================================================= */
+
+    .hospital-certificate-card .text-muted {
+        display: block;
+        margin-top: 6px;
+        color: #64748b !important;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+        EXISTING DOCUMENT AREA
+        ========================================================= */
+
+    .hospital-existing-document {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 12px;
+        padding: 9px 11px;
+        border: 1px solid #dbeafe;
+        border-radius: 7px;
+        background: #f8fafc;
+    }
+
+    .hospital-existing-document .file-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .hospital-existing-document .file-info i {
+        color: #dc3545;
+        font-size: 16px;
+    }
+
+    .hospital-existing-document .file-label {
+        color: #475569;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+
+    /* =========================================================
+        VIEW BUTTON
+        ========================================================= */
+
+    .hospital-existing-document .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .hospital-existing-document .btn:hover {
+        transform: translateY(-1px);
+    }
+
+
+    /* =========================================================
+        FUTURE DEVELOPMENT CARD
+        ========================================================= */
+
+    .hospital-future-development-card {
+        border-left: 3px solid #0d6efd;
+    }
+
+    .hospital-future-development-card .form-label {
+        color: #1e3a8a;
+    }
+
+
+    /* =========================================================
+        MOBILE
+        ========================================================= */
+
+    @@media (max-width: 767.98px) {
+
+        .hospital-certificates-section .section-title {
+            padding: 12px 14px;
+            font-size: 15px;
+        }
+
+        .hospital-certificate-card {
+            padding: 15px;
+        }
+
+        .hospital-existing-document {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .hospital-existing-document .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+
+
+    /* ============================================================
+       ANATOMY ACT, 1969 REGISTRATION
+       ============================================================ */
+
+    .anatomy-act-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 8px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+
+    /* ------------------------------------------------------------
+       QUESTION
+       ------------------------------------------------------------ */
+
+    .anatomy-act-question {
+        padding-bottom: 4px;
+    }
+
+    .anatomy-act-question .form-label {
+        font-weight: 600;
+        color: #334155;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+
+
+    /* ------------------------------------------------------------
+       YES / NO OPTIONS
+       ------------------------------------------------------------ */
+
+    .anatomy-act-options {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        width: fit-content;
+    }
+
+    .anatomy-act-options .form-check {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin: 0;
+    }
+
+    .anatomy-act-options .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .anatomy-act-options .form-check-label {
+        font-weight: 500;
+        color: #334155;
+        cursor: pointer;
+        margin: 0;
+    }
+
+
+    /* ------------------------------------------------------------
+       DETAILS SECTION
+       ------------------------------------------------------------ */
+
+    .anatomy-act-details {
+        margin-top: 20px;
+        padding: 18px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        animation: anatomyActFadeIn 0.2s ease-in-out;
+    }
+
+
+    /* ------------------------------------------------------------
+        TEXTAREA
+    ------------------------------------------------------------ */
+
+    .anatomy-act-details textarea {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    .anatomy-act-details textarea,
+    .anatomy-act-details input[type="file"] {
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+    }
+
+    .anatomy-act-details textarea:focus,
+    .anatomy-act-details input[type="file"]:focus {
+        border-color: #64748b;
+        box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+        outline: none;
+    }
+
+
+    /* ------------------------------------------------------------
+        FILE HELP TEXT
+        ------------------------------------------------------------ */
+
+    .anatomy-act-details small.text-muted {
+        display: block;
+        margin-top: 6px;
+        color: #64748b !important;
+        font-size: 12px;
+    }
+
+
+    /* ------------------------------------------------------------
+        EXISTING FILE BUTTON
+        ------------------------------------------------------------ */
+
+    .anatomy-act-details .btn-outline-success {
+        border-radius: 7px;
+        font-weight: 500;
+        padding: 6px 12px;
+    }
+
+
+    /* ------------------------------------------------------------
+       REQUIRED STAR
+       ------------------------------------------------------------ */
+
+    .anatomy-act-card .req {
+        color: #dc2626;
+        font-weight: 600;
+    }
+
+
+    /* ------------------------------------------------------------
+       VALIDATION
+       ------------------------------------------------------------ */
+
+    .anatomy-act-card .text-danger {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+    }
+
+
+    /* ------------------------------------------------------------
+       ANIMATION
+       ------------------------------------------------------------ */
+
+    @@keyframes anatomyActFadeIn {
+
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    /* ------------------------------------------------------------
+       MOBILE
+       ------------------------------------------------------------ */
+
+    @@media (max-width: 768px) {
+
+        .anatomy-act-card {
+            padding: 15px;
+        }
+
+        .anatomy-act-options {
+            width: 100%;
+            gap: 20px;
+        }
+
+        .anatomy-act-details {
+            padding: 14px;
+        }
+    }
+
+
+     /* ============================================================
+       HOSPITAL TIE-UP SECTION
+       ============================================================ */
+
+    .tieup-section {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 24px;
+    }
+
+    .tieup-section-header {
+        margin-bottom: 18px;
+    }
+
+    .tieup-section .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .tieup-description {
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.6;
+    }
+
+    .tieup-examples {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #64748b;
+        font-style: italic;
+    }
+
+
+    /* ============================================================
+       YES / NO QUESTION
+       ============================================================ */
+
+    .tieup-question-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-bottom: 20px;
+    }
+
+    .tieup-question-card .form-label {
+        margin-bottom: 10px;
+        color: #334155;
+    }
+
+    .tieup-radio-group {
+        display: flex;
+        gap: 14px;
+    }
+
+    .tieup-radio-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 90px;
+        padding: 8px 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tieup-radio-option:hover {
+        border-color: #2563eb;
+        background: #f8fbff;
+    }
+
+    .tieup-radio-option input {
+        margin: 0;
+        cursor: pointer;
+    }
+
+
+    /* ============================================================
+       DETAILS CONTAINER
+       ============================================================ */
+
+    .tieup-details-container {
+        border: 1px solid #dbe3ec;
+        border-radius: 10px;
+        background: #fafcff;
+        padding: 18px;
+    }
+
+    .tieup-details-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .tieup-details-header h6 {
+        font-weight: 700;
+        color: #334155;
+    }
+
+    .tieup-details-header small {
+        color: #64748b;
+    }
+
+    .tieup-add-btn {
+        white-space: nowrap;
+        border-radius: 7px;
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+
+    /* ============================================================
+       TABLE
+       ============================================================ */
+
+    .hospital-tieup-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .hospital-tieup-table thead th {
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 12px 10px;
+        border-bottom: 1px solid #cbd5e1;
+        white-space: nowrap;
+    }
+
+    .hospital-tieup-table tbody td {
+        padding: 10px;
+        vertical-align: top;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .hospital-tieup-table .form-control,
+    .hospital-tieup-table .form-select {
+        font-size: 13px;
+        border-radius: 6px;
+        border-color: #d1d5db;
+    }
+
+    .hospital-tieup-table textarea {
+        resize: vertical;
+        min-height: 70px;
+    }
+
+    .hospital-tieup-table .form-control:focus,
+    .hospital-tieup-table .form-select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 0.15rem rgba(37, 99, 235, 0.10);
+    }
+
+
+    /* ============================================================
+       EXISTING DOCUMENT
+       ============================================================ */
+
+    .existing-tieup-document {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        font-size: 12px;
+    }
+
+    .existing-tieup-document > i {
+        color: #dc2626;
+    }
+
+    .existing-tieup-document .btn {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+
+    /* ============================================================
+       REMOVE BUTTON
+       ============================================================ */
+
+    .btn-remove-tieup {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        background: #fff;
+        color: #dc2626;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-remove-tieup:hover {
+        background: #fef2f2;
+        border-color: #ef4444;
+        color: #b91c1c;
+    }
+
+
+    /* ============================================================
+       EMPTY MESSAGE
+       ============================================================ */
+
+    .tieup-empty-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 80px;
+        margin-top: 14px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        background: #fff;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .tieup-empty-message i {
+        font-size: 18px;
+        color: #94a3b8;
+    }
+
+
+    /* ============================================================
+       REQUIRED
+       ============================================================ */
+
+    .tieup-section .req {
+        color: #dc2626;
+        font-weight: 700;
+    }
+
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+
+    @@media (max-width: 768px) {
+
+        .tieup-section {
+            padding: 15px;
+        }
+
+        .tieup-details-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .tieup-add-btn {
+            width: 100%;
+        }
+
+        .tieup-radio-group {
+            flex-wrap: wrap;
+        }
+
+        .tieup-radio-option {
+            flex: 1;
+        }
+
+    }
+</style>
+
 <div class="form-section">
     <div class="section-title">Affiliated Hospital Information </div>
 
@@ -152,6 +815,770 @@
                     </a>
                 </div>
             }
+
+
+
+            @* ============================================================
+               CERTIFICATES & FUTURE DEVELOPMENT DOCUMENTS
+               ============================================================ *@
+
+            <div class="col-12 mt-4 hospital-certificates-section">
+
+                <div class="section-title">
+                    Hospital Certificates & Future Development
+                </div>
+
+            </div>
+
+
+            @* ============================================================
+               1. KPME CERTIFICATE
+               ============================================================ *@
+
+            <div class="col-md-6">
+
+                <div class="hospital-certificate-card">
+                    <label class="form-label">
+                        KPME Certificate
+                    </label>
+
+                    <input asp-for="Form.KPMECertificateFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
+
+                    <small class="text-muted">
+                        Upload KPME Certificate PDF
+                    </small>
+
+                    @if (!string.IsNullOrEmpty(Model.Form.KPMECertificatePath))
+                    {
+                        <div class="mt-2">
+
+                            <a href="@Url.Action(
+                                       "ViewHospitalCertificate",
+                                       "ContinuationAffiliationClinicalFacilities",
+                                       new
+                                       {
+                                           id = Model.Form.HospitalDetailsId,
+                                           type = "kpme"
+                                       })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
+
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing KPME Certificate
+
+                            </a>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            @* ============================================================
+               2. POLLUTION CONTROL BOARD CERTIFICATE
+               ============================================================ *@
+
+            <div class="col-md-6">
+
+                <div class="hospital-certificate-card">
+                
+                    <label class="form-label">
+                        Pollution Control Board Certificate
+                    </label>
+
+                    <input asp-for="Form.PollutionControlBoardCertificateFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
+
+                    <small class="text-muted">
+                        Upload Pollution Control Board Certificate PDF
+                    </small>
+
+                    @if (!string.IsNullOrEmpty(Model.Form.PollutionControlBoardCertificatePath))
+                    {
+                        <div class="mt-2">
+
+                            <a href="@Url.Action(
+                                "ViewHospitalCertificate",
+                                "ContinuationAffiliationClinicalFacilities",
+                                new
+                                {
+                                    id = Model.Form.HospitalDetailsId,
+                                    type = "pollution"
+                                })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
+
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing Certificate
+
+                            </a>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            @* ============================================================
+               3. BIO-MEDICAL WASTE CERTIFICATE
+               ============================================================ *@
+
+            <div class="col-md-6">
+
+                <div class="hospital-certificate-card">
+                    <label class="form-label">
+                        Bio-Medical Certificate
+                    </label>
+
+                    <input asp-for="Form.BioMedicalCertificateFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
+
+                    <small class="text-muted">
+                        Upload Bio-Medical Certificate PDF
+                    </small>
+
+                    @if (!string.IsNullOrEmpty(Model.Form.BioMedicalCertificatePath))
+                    {
+                        <div class="mt-2">
+
+                            <a href="@Url.Action(
+                                       "ViewHospitalCertificate",
+                                       "ContinuationAffiliationClinicalFacilities",
+                                       new
+                                       {
+                                           id = Model.Form.HospitalDetailsId,
+                                           type = "biomedical"
+                                       })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
+
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing Certificate
+
+                            </a>
+
+                        </div>
+                    }
+                </div>
+
+            </div>
+
+
+            @* ============================================================
+               4. DRUG FREE CAMPUS CERTIFICATION
+               ============================================================ *@
+
+            <div class="col-md-6">
+                <div class="hospital-certificate-card">
+                    <label class="form-label">
+                        Drug Free Campus Certification
+                    </label>
+
+                    <input asp-for="Form.DrugFreeCampusCertificationFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
+
+                    <small class="text-muted">
+                        Upload Drug Free Campus Certification PDF
+                    </small>
+
+                    @if (!string.IsNullOrEmpty(Model.Form.DrugFreeCampusCertificationPath))
+                    {
+                        <div class="mt-2">
+
+                            <a href="@Url.Action(
+                                    "ViewHospitalCertificate",
+                                    "ContinuationAffiliationClinicalFacilities",
+                                    new
+                                    {
+                                        id = Model.Form.HospitalDetailsId,
+                                        type = "drugfree"
+                                    })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
+
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing Certification
+
+                            </a>
+
+                        </div>
+                    }
+
+                </div>
+
+
+            </div>
+
+            @* ============================================================
+               5. PROPOSED PLANS FOR FUTURE DEVELOPMENTS
+               ============================================================ *@
+
+            <div class="col-md-6">
+                <div class="hospital-certificate-card hospital-future-development-card">
+                    <label class="form-label">
+                        Proposed Plans for Future Developments
+                    </label>
+
+                    <input asp-for="Form.ProposedPlansForFutureDevelopmentsFile"
+                           type="file"
+                           class="form-control"
+                           accept=".pdf" />
+
+                    <small class="text-muted">
+                        Upload Proposed Plans for Future Developments PDF
+                    </small>
+
+                    @if (!string.IsNullOrEmpty(Model.Form.ProposedPlansForFutureDevelopmentsPath))
+                    {
+                        <div class="mt-2">
+
+                            <a href="@Url.Action(
+                                    "ViewHospitalCertificate",
+                                    "ContinuationAffiliationClinicalFacilities",
+                                    new
+                                    {
+                                        id = Model.Form.HospitalDetailsId,
+                                        type = "proposedplans"
+                                    })"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
+
+                                <i class="fas fa-file-pdf"></i>
+                                View Existing Future Development Plan
+
+                            </a>
+
+                        </div>
+                    }
+
+
+                </div>
+
+            </div>
+
+            
+            @* ============================================================
+                ANATOMY ACT, 1969 REGISTRATION
+                ============================================================ *@
+
+            <div class="col-12 mt-4">
+
+                <div class="section-title">
+                    Anatomy Act, 1969 Registration
+                </div>
+
+            </div>
+
+            <div class="col-12">
+
+                <div class="anatomy-act-card">
+
+                    <div class="anatomy-act-question">
+
+                        <label class="form-label anatomy-question-label">
+                            For institutions having course requiring human cadaver
+                            dissection, please furnish details regarding registration
+                            under Anatomy Act, 1969.
+                            <span class="req">*</span>
+                        </label>
+
+
+                        <div class="anatomy-act-options">
+
+                            <div class="form-check">
+
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Form.HasAnatomyActRegistration"
+                                       value="true"
+                                       id="anatomyActYes" />
+
+                                <label class="form-check-label"
+                                       for="anatomyActYes">
+                                    Yes
+                                </label>
+
+                            </div>
+
+
+                            <div class="form-check">
+
+                                <input class="form-check-input"
+                                       type="radio"
+                                       asp-for="Form.HasAnatomyActRegistration"
+                                       value="false"
+                                       id="anatomyActNo" />
+
+                                <label class="form-check-label"
+                                       for="anatomyActNo">
+                                    No
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <span asp-validation-for="Form.HasAnatomyActRegistration"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    @* ========================================================
+                        DETAILS - SHOWN ONLY WHEN YES
+                        ======================================================== *@
+
+                    <div id="anatomyActDetails"
+                         class="anatomy-act-details">
+
+                        <div class="row g-4">
+
+
+                            @* ==================================================
+                                REGISTRATION DETAILS
+                                ================================================== *@
+
+                            <div class="col-md-12">
+
+                                <div class="anatomy-field-card">
+
+                                    <label class="form-label">
+
+                                        Anatomy Act Registration Details
+
+                                    </label>
+
+                                    <textarea asp-for="Form.AnatomyActRegistrationDetails"
+                                              class="form-control anatomy-textarea"
+                                              rows="5"
+                                              placeholder="Enter registration details">
+                                            </textarea>
+
+                                    <span asp-validation-for="Form.AnatomyActRegistrationDetails"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            @* ==================================================
+                                REGISTRATION CERTIFICATE
+                                ================================================== *@
+
+                            <div class="col-md-12">
+
+                                <div class="anatomy-field-card">
+
+                                    <label class="form-label">
+
+                                        Anatomy Act Registration Certificate
+
+                                    </label>
+
+                                    <input asp-for="Form.AnatomyActRegistrationPdfFile"
+                                           type="file"
+                                           class="form-control"
+                                           accept=".pdf" />
+
+                                    <div class="anatomy-file-help">
+
+                                        <i class="fas fa-info-circle"></i>
+
+                                        Upload Anatomy Act, 1969 Registration
+                                        Certificate in PDF format.
+
+                                    </div>
+
+
+                                    @* Existing document *@
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.Form.AnatomyActRegistrationPdfPath))
+                                    {
+
+                                        <div class="anatomy-existing-file">
+
+                                            <div class="existing-file-info">
+
+                                                <i class="fas fa-file-pdf"></i>
+
+                                                <span>
+                                                    Existing registration certificate
+                                                </span>
+
+                                            </div>
+
+
+                                            <a href="@Url.Action(
+                                                    "ViewHospitalCertificate",
+                                                    "ContinuationAffiliationClinicalFacilities",
+                                                    new
+                                                    {
+                                                        id = Model.Form.HospitalDetailsId,
+                                                        type = "anatomyact"
+                                                    })"
+                                               target="_blank"
+                                               class="btn btn-sm btn-outline-success">
+
+                                                <i class="fas fa-eye"></i>
+
+                                                View Certificate
+
+                                            </a>
+
+                                        </div>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            @* ============================================================
+               HOSPITAL TIE-UP DETAILS
+               ============================================================ *@
+
+            <div class="col-12 mt-4">
+
+                <div class="tieup-section">
+
+                    <div class="tieup-section-header">
+                        <div>
+                            <div class="section-title mb-1">
+                                Details of Tie-up with Other Hospital
+                            </div>
+
+                            <div class="tieup-description">
+                                Where necessary, furnish details of tie-up with
+                                other hospitals and attach supporting documents.
+                            </div>
+
+                            <div class="tieup-examples">
+                                Examples: Psychiatry and Mental Health, Tuberculosis,
+                                Leprosy, Burns, etc.
+                            </div>
+                        </div>
+                    </div>
+
+
+                    @* ========================================================
+                       HAS TIE-UP
+                       ======================================================== *@
+
+                    <div class="tieup-question-card">
+
+                        <label class="form-label fw-semibold">
+                            Does the institution have a tie-up with other hospital?
+                            <span class="req">*</span>
+                        </label>
+
+                        <div class="tieup-radio-group">
+
+                            <label class="tieup-radio-option">
+                                <input type="radio"
+                                       asp-for="Form.HasHospitalTieUp"
+                                       value="true"
+                                       id="hospitalTieUpYes" />
+
+                                <span>Yes</span>
+                            </label>
+
+                            <label class="tieup-radio-option">
+                                <input type="radio"
+                                       asp-for="Form.HasHospitalTieUp"
+                                       value="false"
+                                       id="hospitalTieUpNo" />
+
+                                <span>No</span>
+                            </label>
+
+                        </div>
+
+                        <span asp-validation-for="Form.HasHospitalTieUp"
+                              class="text-danger"></span>
+
+                    </div>
+
+
+                    @* ========================================================
+                       TIE-UP DETAILS
+                       ======================================================== *@
+
+                    <div id="hospitalTieUpDetails"
+                         class="tieup-details-container"
+                         style="display:none;">
+
+                        <div class="tieup-details-header">
+
+                            <div>
+                                <h6 class="mb-1">
+                                    Tie-up Hospital Details
+                                </h6>
+
+                                <small>
+                                    Add details of hospitals used for clinical
+                                    teaching or other required services.
+                                </small>
+                            </div>
+
+                            <button type="button"
+                                    id="addHospitalTieUpButton"
+                                    class="btn btn-primary tieup-add-btn">
+
+                                <i class="fas fa-plus"></i>
+                                Add Tie-up
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="table-responsive">
+
+                            <table class="table hospital-tieup-table">
+
+                                <thead>
+                                    <tr>
+
+                                        <th style="width:18%;">
+                                            Tie-up Type
+                                            <span class="req">*</span>
+                                        </th>
+
+                                        <th style="width:18%;">
+                                            Hospital Name
+                                            <span class="req">*</span>
+                                        </th>
+
+                                        <th style="width:20%;">
+                                            Hospital Address
+                                        </th>
+
+                                        <th style="width:22%;">
+                                            Tie-up Details
+                                        </th>
+
+                                        <th style="width:18%;">
+                                            Supporting Document
+                                        </th>
+
+                                        <th style="width:5%;">
+                                            Action
+                                        </th>
+
+                                    </tr>
+                                </thead>
+
+
+                                <tbody id="hospitalTieUpRows">
+
+                                    @if (Model.Form.HospitalTieUps != null &&
+                                         Model.Form.HospitalTieUps.Any())
+                                    {
+                                        for (int i = 0;
+                                             i < Model.Form.HospitalTieUps.Count;
+                                             i++)
+                                        {
+                                            <tr>
+
+                                                <input type="hidden"
+                                                       name="Form.HospitalTieUps[@i].Id"
+                                                       value="@Model.Form.HospitalTieUps[i].Id" />
+
+                                                <input type="hidden"
+                                                       name="Form.HospitalTieUps[@i].HospitalDetailsId"
+                                                       value="@Model.Form.HospitalDetailsId" />
+
+                                                <input type="hidden"
+                                                       name="Form.HospitalTieUps[@i].CollegeCode"
+                                                       value="@Model.Form.CollegeCode" />
+
+                                                <input type="hidden"
+                                                       name="Form.HospitalTieUps[@i].FacultyCode"
+                                                       value="@Model.Form.FacultyCode" />
+
+
+                                                @* TIE-UP TYPE *@
+
+                                                <td>
+
+                                                    <select class="form-select tieup-type"
+                                                            name="Form.HospitalTieUps[@i].TieUpType">
+
+                                                        <option value="">
+                                                            -- Select Type --
+                                                        </option>
+
+                                                        <option value="Psychiatry and Mental Health"
+                                                                selected="@(Model.Form.HospitalTieUps[i].TieUpType == "Psychiatry and Mental Health" ? "selected" : null)">
+                                                            Psychiatry and Mental Health
+                                                        </option>
+
+                                                        <option value="Tuberculosis"
+                                                                selected="@(Model.Form.HospitalTieUps[i].TieUpType == "Tuberculosis" ? "selected" : null)">
+                                                            Tuberculosis
+                                                        </option>
+
+                                                        <option value="Leprosy"
+                                                                selected="@(Model.Form.HospitalTieUps[i].TieUpType == "Leprosy" ? "selected" : null)">
+                                                            Leprosy
+                                                        </option>
+
+                                                        <option value="Burns"
+                                                                selected="@(Model.Form.HospitalTieUps[i].TieUpType == "Burns" ? "selected" : null)">
+                                                            Burns
+                                                        </option>
+
+                                                        <option value="Other"
+                                                                selected="@(Model.Form.HospitalTieUps[i].TieUpType == "Other" ? "selected" : null)">
+                                                            Other
+                                                        </option>
+
+                                                    </select>
+
+                                                </td>
+
+
+                                                @* HOSPITAL NAME *@
+
+                                                <td>
+
+                                                    <input type="text"
+                                                           class="form-control"
+                                                           name="Form.HospitalTieUps[@i].HospitalName"
+                                                           value="@Model.Form.HospitalTieUps[i].HospitalName"
+                                                           placeholder="Enter hospital name" />
+
+                                                </td>
+
+
+                                                @* HOSPITAL ADDRESS *@
+
+                                                <td>
+
+                                                    <textarea class="form-control"
+                                                              name="Form.HospitalTieUps[@i].HospitalAddress"
+                                                              rows="2"
+                                                              placeholder="Enter hospital address">@Model.Form.HospitalTieUps[i].HospitalAddress</textarea>
+
+                                                </td>
+
+
+                                                @* TIE-UP DETAILS *@
+
+                                                <td>
+
+                                                    <textarea class="form-control"
+                                                              name="Form.HospitalTieUps[@i].TieUpDetails"
+                                                              rows="2"
+                                                              placeholder="Enter details of tie-up">@Model.Form.HospitalTieUps[i].TieUpDetails</textarea>
+
+                                                </td>
+
+
+                                                @* SUPPORTING DOCUMENT *@
+
+                                                <td>
+
+                                                    <input type="file"
+                                                           class="form-control"
+                                                           name="Form.HospitalTieUps[@i].SupportingDocumentFile"
+                                                           accept=".pdf" />
+
+                                                    @if (!string.IsNullOrWhiteSpace(
+                                                        Model.Form.HospitalTieUps[i].SupportingDocumentPath))
+                                                    {
+                                                        <div class="existing-tieup-document mt-2">
+
+                                                            <i class="fas fa-file-pdf"></i>
+
+                                                            <a href="@Url.Action(
+                                                                "ViewHospitalTieUpDocument",
+                                                                "ContinuationAffiliationClinicalFacilities",
+                                                                new
+                                                                {
+                                                                    id = Model.Form.HospitalTieUps[i].Id
+                                                                })"
+                                                               target="_blank"
+                                                               class="btn btn-sm btn-outline-success">
+
+                                                                <i class="fas fa-eye"></i>
+                                                                View File
+
+                                                            </a>
+
+                                                        </div>
+                                                    }
+
+                                                </td>
+
+
+                                                @* DELETE *@
+
+                                                <td class="text-center">
+
+                                                    <button type="button"
+                                                            class="btn-remove-tieup remove-tieup-row"
+                                                            title="Remove Tie-up">
+
+                                                        <i class="fas fa-trash"></i>
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                        <div id="noHospitalTieUpMessage"
+                             class="tieup-empty-message">
+
+                            <i class="fas fa-hospital"></i>
+
+                            <span>
+                                No hospital tie-up details added yet.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
         </div>
 
         <div class="text-center mt-3">
@@ -238,4 +1665,507 @@
         });
     });
 
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        document.querySelectorAll('input[type="file"]').forEach(function(input) {
+
+            input.addEventListener("change", function() {
+
+                const file = this.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                const maxSize = 2 * 1024 * 1024; // 2 MB
+
+                // PDF validation
+                // if (file.type !== "application/pdf") {
+                //     alert("Only PDF files are allowed.");
+                //     this.value = "";
+                //     return;
+                // }
+
+                // 2 MB size validation
+                if (file.size > maxSize) {
+                    alert("File size must not exceed 2 MB.");
+                    this.value = "";
+                    return;
+                }
+
+            });
+
+        });
+
+    });
+</script>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const anatomyYes =
+            document.getElementById("anatomyActYes");
+
+        const anatomyNo =
+            document.getElementById("anatomyActNo");
+
+        const anatomyDetails =
+            document.getElementById("anatomyActDetails");
+
+
+        function toggleAnatomyActDetails() {
+
+            if (!anatomyDetails) {
+                return;
+            }
+
+
+            if (anatomyYes && anatomyYes.checked) {
+
+                anatomyDetails.style.display = "block";
+
+            }
+            else {
+
+                anatomyDetails.style.display = "none";
+
+            }
+
+        }
+
+
+        if (anatomyYes) {
+
+            anatomyYes.addEventListener(
+                "change",
+                toggleAnatomyActDetails
+            );
+
+        }
+
+
+        if (anatomyNo) {
+
+            anatomyNo.addEventListener(
+                "change",
+                toggleAnatomyActDetails
+            );
+
+        }
+
+
+        // Important when editing existing data
+        toggleAnatomyActDetails();
+
+
+          /* ============================================================
+           HOSPITAL TIE-UP
+           ============================================================ */
+
+        const tieUpYes =
+            document.getElementById("hospitalTieUpYes");
+
+        const tieUpNo =
+            document.getElementById("hospitalTieUpNo");
+
+        const tieUpDetailsSection =
+            document.getElementById("hospitalTieUpDetails");
+
+        const addHospitalTieUpButton =
+            document.getElementById("addHospitalTieUpButton");
+
+        const hospitalTieUpRows =
+            document.getElementById("hospitalTieUpRows");
+
+        const noHospitalTieUpMessage =
+            document.getElementById("noHospitalTieUpMessage");
+
+
+        /* ============================================================
+           TOGGLE TIE-UP DETAILS
+           ============================================================ */
+
+        function toggleHospitalTieUp() {
+
+            if (!tieUpDetailsSection) {
+                return;
+            }
+
+            if (tieUpYes && tieUpYes.checked) {
+
+                tieUpDetailsSection.style.display = "block";
+
+                updateHospitalTieUpEmptyMessage();
+
+            }
+            else {
+
+                tieUpDetailsSection.style.display = "none";
+
+            }
+        }
+
+
+        /* ============================================================
+           UPDATE EMPTY MESSAGE
+           ============================================================ */
+
+        function updateHospitalTieUpEmptyMessage() {
+
+            if (!hospitalTieUpRows ||
+                !noHospitalTieUpMessage) {
+                return;
+            }
+
+            const rows =
+                hospitalTieUpRows.querySelectorAll("tr");
+
+            noHospitalTieUpMessage.style.display =
+                rows.length > 0 ? "none" : "flex";
+        }
+
+
+        /* ============================================================
+           ADD HOSPITAL TIE-UP
+           ============================================================ */
+
+        if (addHospitalTieUpButton) {
+
+            addHospitalTieUpButton.addEventListener(
+                "click",
+                function () {
+
+                    if (!hospitalTieUpRows) {
+                        return;
+                    }
+
+                    const index =
+                        hospitalTieUpRows.querySelectorAll("tr").length;
+
+                    const row =
+                        document.createElement("tr");
+
+                    row.innerHTML = `
+
+                        <input type="hidden"
+                               name="Form.HospitalTieUps[${index}].Id"
+                               value="0" />
+
+                        <input type="hidden"
+                               name="Form.HospitalTieUps[${index}].HospitalDetailsId"
+                               value="${document.querySelector('[name="Form.HospitalDetailsId"]')?.value || 0}" />
+
+                        <input type="hidden"
+                               name="Form.HospitalTieUps[${index}].CollegeCode"
+                               value="${document.querySelector('[name="Form.CollegeCode"]')?.value || ''}" />
+
+                        <input type="hidden"
+                               name="Form.HospitalTieUps[${index}].FacultyCode"
+                               value="${document.querySelector('[name="Form.FacultyCode"]')?.value || ''}" />
+
+
+                        <!-- TIE-UP TYPE -->
+
+                        <td>
+
+                            <select class="form-select tieup-type"
+                                    name="Form.HospitalTieUps[${index}].TieUpType">
+
+                                <option value="">
+                                    -- Select Type --
+                                </option>
+
+                                <option value="Psychiatry and Mental Health">
+                                    Psychiatry and Mental Health
+                                </option>
+
+                                <option value="Tuberculosis">
+                                    Tuberculosis
+                                </option>
+
+                                <option value="Leprosy">
+                                    Leprosy
+                                </option>
+
+                                <option value="Burns">
+                                    Burns
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </td>
+
+
+                        <!-- HOSPITAL NAME -->
+
+                        <td>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Form.HospitalTieUps[${index}].HospitalName"
+                                   placeholder="Enter hospital name" />
+
+                        </td>
+
+
+                        <!-- HOSPITAL ADDRESS -->
+
+                        <td>
+
+                            <textarea class="form-control"
+                                      name="Form.HospitalTieUps[${index}].HospitalAddress"
+                                      rows="2"
+                                      placeholder="Enter hospital address"></textarea>
+
+                        </td>
+
+
+                        <!-- TIE-UP DETAILS -->
+
+                        <td>
+
+                            <textarea class="form-control"
+                                      name="Form.HospitalTieUps[${index}].TieUpDetails"
+                                      rows="2"
+                                      placeholder="Enter details of tie-up"></textarea>
+
+                        </td>
+
+
+                        <!-- SUPPORTING DOCUMENT -->
+
+                        <td>
+
+                            <input type="file"
+                                   class="form-control"
+                                   name="Form.HospitalTieUps[${index}].SupportingDocumentFile"
+                                   accept=".pdf" />
+
+                        </td>
+
+
+                        <!-- DELETE -->
+
+                        <td class="text-center">
+
+                            <button type="button"
+                                    class="btn-remove-tieup remove-tieup-row"
+                                    title="Remove Tie-up">
+
+                                <i class="fas fa-trash"></i>
+
+                            </button>
+
+                        </td>
+
+                    `;
+
+                    hospitalTieUpRows.appendChild(row);
+                    const tieUpTypeSelect = row.querySelector(".tieup-type");
+
+                    if (tieUpTypeSelect) {
+                        tieUpTypeSelect.value = "";
+                    }
+
+                    updateHospitalTieUpEmptyMessage();
+
+                }
+            );
+
+        }
+
+
+        /* ============================================================
+           REMOVE HOSPITAL TIE-UP
+           ============================================================ */
+
+        if (hospitalTieUpRows) {
+
+            hospitalTieUpRows.addEventListener(
+                "click",
+                function (e) {
+
+                    const button =
+                        e.target.closest(".remove-tieup-row");
+
+                    if (!button) {
+                        return;
+                    }
+
+                    const row =
+                        button.closest("tr");
+
+                    if (!row) {
+                        return;
+                    }
+
+                    /*
+                     * If Id = 0, it is a newly added row.
+                     * Just remove it from UI.
+                     */
+
+                    const idInput =
+                        row.querySelector(
+                            'input[name$=".Id"]'
+                        );
+
+                    const id =
+                        idInput
+                            ? parseInt(idInput.value || "0")
+                            : 0;
+
+
+                    if (id === 0) {
+
+                        row.remove();
+
+                        reindexHospitalTieUps();
+
+                        updateHospitalTieUpEmptyMessage();
+
+                    }
+                    else {
+
+                        /*
+                         * Existing database record.
+                         *
+                         * Don't simply remove it from UI.
+                         * Call your backend delete method.
+                         */
+
+                        const deleteUrl =
+                            '@Url.Action(
+                                "DeleteHospitalTieUp",
+                                "ContinuationAffiliationClinicalFacilities"
+                                )'
+                            + '?id='
+                            + id;
+
+                        fetch(deleteUrl, {
+                            method: "POST",
+                            headers: {
+                                "RequestVerificationToken":
+                                    document.querySelector(
+                                        'input[name="__RequestVerificationToken"]'
+                                    )?.value
+                            }
+                        })
+                        .then(response => {
+
+                            if (!response.ok) {
+                                throw new Error(
+                                    "Failed to delete tie-up."
+                                );
+                            }
+
+                            row.remove();
+
+                            reindexHospitalTieUps();
+
+                            updateHospitalTieUpEmptyMessage();
+
+                        })
+                        .catch(error => {
+
+                            console.error(
+                                "Error deleting hospital tie-up:",
+                                error
+                            );
+
+                            alert(
+                                "Unable to delete hospital tie-up."
+                            );
+
+                        });
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* ============================================================
+           REINDEX TIE-UP ROWS
+           ============================================================ */
+
+        function reindexHospitalTieUps() {
+
+            if (!hospitalTieUpRows) {
+                return;
+            }
+
+            const rows =
+                hospitalTieUpRows.querySelectorAll("tr");
+
+            rows.forEach(function (row, index) {
+
+                row.querySelectorAll(
+                    "input[name], select[name], textarea[name]"
+                )
+                .forEach(function (input) {
+
+                    const name =
+                        input.getAttribute("name");
+
+                    if (!name) {
+                        return;
+                    }
+
+                    input.setAttribute(
+                        "name",
+                        name.replace(
+                            /Form\.HospitalTieUps\[\d+\]/,
+                            `Form.HospitalTieUps[${index}]`
+                        )
+                    );
+
+                });
+
+            });
+
+        }
+
+
+        /* ============================================================
+           CHANGE EVENTS
+           ============================================================ */
+
+        if (tieUpYes) {
+
+            tieUpYes.addEventListener(
+                "change",
+                toggleHospitalTieUp
+            );
+
+        }
+
+        if (tieUpNo) {
+
+            tieUpNo.addEventListener(
+                "change",
+                toggleHospitalTieUp
+            );
+
+        }
+
+
+        /* ============================================================
+           INITIALIZE
+           ============================================================ */
+
+        toggleHospitalTieUp();
+
+        updateHospitalTieUpEmptyMessage();
+
+    });
 </script>

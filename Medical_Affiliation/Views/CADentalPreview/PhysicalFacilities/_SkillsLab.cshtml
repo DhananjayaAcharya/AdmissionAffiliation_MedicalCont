@@ -1,0 +1,151 @@
+﻿@model SkillsLabDisplayViewModel
+
+@if (Model != null)
+{
+    <div class="general-body">
+        <div class="section-block">
+
+            <!-- Header -->
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-tools"></i>
+                    Medical Skills Laboratory
+                </div>
+
+                <p class="section-description">
+                    Infrastructure, facilities, and compliance details of the medical skills lab
+                </p>
+            </div>
+
+            <!-- Core Metrics -->
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <label class="field-label">Annual MBBS Intake</label>
+                    <div class="field-value fw-semibold">
+                        @Model.AnnualMbbsIntake
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Total Area Available (sqm)</label>
+                    <div class="field-value">
+                        @Model.TotalAreaAvailableSqm
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Total Area Required (sqm)</label>
+                    <div class="field-value fw-semibold
+                            @(Model.TotalAreaAvailableSqm < Model.TotalAreaRequiredSqm ? "text-danger" : "text-success")">
+                        @Model.TotalAreaRequiredSqm
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Area Deficiency (sqm)</label>
+                    <div class="field-value fw-semibold
+                            @(Model.TotalAreaDeficiencySqm > 0 ? "text-danger" : "text-success")">
+                        @Model.TotalAreaDeficiencySqm
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Examination Rooms</label>
+                    <div class="field-value">
+                        @Model.NumberOfExaminationRooms
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label">Skill Stations</label>
+                    <div class="field-value">
+                        @Model.NumberOfSkillStations
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Compliance / Facilities -->
+            <div class="row g-4">
+
+                @* Boolean helper *@
+                @{
+                    string Badge(bool? v) =>
+                    v == true ? "status-badge-maintained" : "status-badge-not-maintained";
+                }
+
+            <div class="col-md-4">
+                <span class="status-label">Six Weeks Training Before Clinical</span><br />
+                <span class="@Badge(Model.SixWeeksTrainingCompletedBeforeClinical)">
+                    @(Model.SixWeeksTrainingCompletedBeforeClinical == true ? "Yes" : "No")
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <span class="status-label">Minimum 4 Exam Rooms</span><br />
+                <span class="@Badge(Model.HasMinFourExamRooms)">
+                    @(Model.HasMinFourExamRooms == true ? "Yes" : "No")
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <span class="status-label">Demo Room for Small Groups</span><br />
+                <span class="@Badge(Model.HasDemoRoomSmallGroups)">
+                    @(Model.HasDemoRoomSmallGroups == true ? "Yes" : "No")
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <span class="status-label">Debrief / Review Area</span><br />
+                <span class="@Badge(Model.HasDebriefArea)">
+                    @(Model.HasDebriefArea == true ? "Yes" : "No")
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <span class="status-label">Coordinator & Staff Rooms</span><br />
+                <span class="@Badge(Model.HasFacultyCoordinatorRoom == true && Model.HasSupportStaffRoom == true)">
+                    @((Model.HasFacultyCoordinatorRoom == true && Model.HasSupportStaffRoom == true) ? "Yes" : "No")
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <span class="status-label">Storage for Mannequins</span><br />
+                <span class="@Badge(Model.HasStorageForMannequins)">
+                    @(Model.HasStorageForMannequins == true ? "Yes" : "No")
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <span class="status-label">Video Recording Facility</span><br />
+                <span class="@Badge(Model.HasVideoRecordingFacility)">
+                    @(Model.HasVideoRecordingFacility == true ? "Yes" : "No")
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <span class="status-label">Trainers & Mannequins (CBME)</span><br />
+                <span class="@Badge(Model.HasRequiredTrainersAndMannequins)">
+                    @(Model.HasRequiredTrainersAndMannequins == true ? "Yes" : "No")
+                </span>
+            </div>
+
+            <div class="col-md-4">
+                <span class="status-label">AV / Internet / E-Learning</span><br />
+                <span class="@Badge(Model.TeachingAreasHaveAV == true && Model.TeachingAreasHaveInternet == true && Model.SkillsLabEnabledForELearning == true)">
+                    @((Model.TeachingAreasHaveAV == true &&
+                                        Model.TeachingAreasHaveInternet == true &&
+                                        Model.SkillsLabEnabledForELearning == true)
+                                        ? "Compliant"
+                                        : "Not Compliant")
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}

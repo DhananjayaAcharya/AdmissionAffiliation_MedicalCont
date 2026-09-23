@@ -16,6 +16,9 @@ namespace Medical_Affiliation.Models
         public List<SelectListItem> Designations { get; set; } = new();
         public List<FacultyExperienceVm> FacultyRows { get; set; } = new();
 
+        // Staff Shortage
+        public List<StaffShortageVm> StaffShortages { get; set; } = new();
+
         //public List<DentalFacultyTeachingVm> FacultyRows { get; set; } = new();
     }
 
@@ -123,4 +126,29 @@ namespace Medical_Affiliation.Models
 
         public decimal Experience { get; set; }
     }
+
+    // =========================================================
+    // STAFF SHORTAGE
+    // =========================================================
+
+    public class StaffShortageVm
+    {
+        public int Id { get; set; }
+
+        // Parent College
+        public string? CollegeCode { get; set; }
+
+        // Faculty Master reference
+        public int? FacultyId { get; set; }
+
+        // Post / Designation
+        public string? PostName { get; set; }
+
+        // Reason for shortage
+        public string? Reason { get; set; }
+
+        // Arrangement made for shortage
+        public string? Arrangements { get; set; }
+    }
+
 }

@@ -543,6 +543,14 @@ public class InstitutionViewModel
     public List<SelectListItem> CourseList { get; set; }
     public List<SelectListItem> institutetypelist { get; set; }
     public List<SelectListItem> Institutestatuslist { get; set; }
+    public bool? HasOtherHealthScienceColleges { get; set; }
+
+    public List<OtherHealthScienceCollegeVM> OtherHealthScienceColleges { get; set; }
+        = new();
+
+    public List<Faculty> Faculties { get; set; }
+        = new();
+    public List<SelectListItem> Courses { get; set; }
 
     public string? GovAutonomousCertNumber { get; set; }
 
@@ -550,12 +558,141 @@ public class InstitutionViewModel
     public IFormFile? GovAutonomousCertFile { get; set; }
 
     public bool hasGovAutoCertFile { get; set; }
+    public bool hasGoverningBodyFile { get; set; }
+
+
+    [StringLength(250)]
+    public string? NameOfAdministrativeAuthority { get; set; }
+
+    public string? AddressOfAdministrativeAuthority { get; set; }
+
+    [StringLength(500)]
+    public string? MembersOfGoverningBodyOrCouncilFilePath { get; set; }
+
+    [NotMapped]
+    public IFormFile? MembersOfGoverningBodyOrCouncilFile { get; set; }
 
     // public string GovernmentCertifiedNumber { get; set; }
 
 
 
 }
+
+
+public class OtherHealthScienceCollegeVM
+{
+    public int Id { get; set; }
+
+    // Parent college
+    public string? CollegeCode { get; set; }
+
+    // Faculty selected from Faculty master
+    public int? OtherFacultyId { get; set; }
+
+    // Other Health Science College
+    public string? OtherCollegeCode { get; set; }
+
+    // Course selected from MstCourse
+    public int? OtherCourseCode { get; set; }
+
+    // Dropdown data
+    public List<SelectListItem> FacultyList { get; set; }
+        = new();
+
+    public List<SelectListItem> CollegeList { get; set; }
+        = new();
+
+    public List<SelectListItem> CourseList { get; set; }
+        = new();
+}
+
+public class OtherHealthScienceCollegeRowVM
+{
+    public int Id { get; set; }
+
+    public int? OtherFacultyId { get; set; }
+
+    public string? OtherCollegeCode { get; set; }
+
+    public int? OtherCourseCode { get; set; }
+
+    public List<SelectListItem> CollegeList { get; set; } = new();
+
+    public List<SelectListItem> CourseList { get; set; } = new();
+}
+//public class InstitutionViewModel
+//{
+//    // Keys (from Session)
+//    public string CollegeCode { get; set; }
+//    public string FacultyCode { get; set; }
+
+//    public string? CourseLevel { get; set; }
+//    public string TypeOfInstitution { get; set; }
+//    public string NameOfInstitution { get; set; }
+//    public string Address { get; set; }
+//    public string VillageTownCity { get; set; }
+//    public string Taluk { get; set; }
+//    public string District { get; set; }
+//    public string PinCode { get; set; }
+//    public string MobileNumber { get; set; }
+//    public string StdCode { get; set; }
+//    public string Fax { get; set; }
+//    public string Website { get; set; }
+//    public string SurveyNoPidNo { get; set; }
+//    public bool MinorityInstitute { get; set; }
+//    public bool AttachedToMedicalClg { get; set; }
+//    public bool RuralInstitute { get; set; }
+//    public string YearOfEstablishment { get; set; }
+//    public string EmailId { get; set; }
+//    public string AltLandlineMobile { get; set; }
+//    public string AltEmailId { get; set; }
+//    public string HeadOfInstitution { get; set; }
+//    public string HeadAddress { get; set; }
+//    public string FinancingAuthority { get; set; }
+//    public string StatusOfCollege { get; set; }
+//    public string CourseApplied { get; set; }
+
+//    public string? DocumentName { get; set; }
+//    public string? DocumentContentType { get; set; }
+//    // DocumentData will be handled via IFormFile in controller, not in ViewModel
+
+//    public string NodalOfficer_Name { get; set; }
+//    public string NodalOfficer_Mob_Number { get; set; }
+//    public string NodalOfficer_Email { get; set; }
+
+//    public string Principal_Name { get; set; }
+//    public string Principal_Mob_No { get; set; }
+//    public string Principal_Email { get; set; }
+
+//    public string HeadOfInstitution_Mob_NO { get; set; }
+//    public string HeadOfInstitution_Email { get; set; }
+
+//    public string College_URL { get; set; }
+
+//    public string TrustName { get; set; }
+//    public string TrustAddress { get; set; }
+//    public DateOnly? TrustEstablishmentDate { get; set; }
+//    public string TrustPresidentName { get; set; }
+//    public string TrustPresidentContactNo { get; set; }
+
+//    public string DeanName { get; set; }
+//    public string DeanMobileNumber { get; set; }
+//    public string DeanEmailId { get; set; }
+
+//    public string PrincipalMobileNumber { get; set; }
+//    public string PrincipalEmailId { get; set; }
+
+//    public string MinorityCategory { get; set; }
+//    public string RunningCourse { get; set; }
+
+//    // Dropdown data
+//    public List<SelectListItem> TalukList { get; set; }
+//    public List<SelectListItem> DistrictList { get; set; }
+//    public List<SelectListItem> CourseList { get; set; }
+//    public List<SelectListItem> institutetypelist { get; set; }
+//    public List<SelectListItem> Institutestatuslist { get; set; }
+
+//}
 
 public class AcademicReportViewModel
 {

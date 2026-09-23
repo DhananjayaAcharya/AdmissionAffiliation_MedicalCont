@@ -5,6 +5,8 @@
     ViewData["Title"] = "Institution Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var collegeName = HttpContextAccessor.HttpContext.Session.GetString("CollegeName");
+    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
+
 }
 
 <!DOCTYPE html>
@@ -248,6 +250,253 @@
 
         .col-4 {
             grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        /* ==========================================
+            OTHER HEALTH SCIENCE COLLEGE QUESTION
+            ========================================== */
+
+        .other-health-question {
+            margin-top: 18px;
+        }
+
+        .ohsc-question-card {
+            border: 1px solid #dbe3ef;
+            border-radius: 14px;
+            background: #ffffff;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(30, 50, 80, 0.06);
+        }
+
+
+        /* HEADER */
+
+        .ohsc-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 22px;
+            background: linear-gradient( 135deg, #f3f7ff, #eef4ff );
+            border-bottom: 1px solid #dce6f5;
+        }
+
+        .ohsc-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e2ebff;
+            color: #315bb5;
+            font-size: 20px;
+        }
+
+        .ohsc-heading {
+            flex: 1;
+        }
+
+        .ohsc-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .ohsc-title .req {
+            color: #dc2626;
+        }
+
+        .ohsc-subtitle {
+            margin-top: 3px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+
+        /* QUESTION */
+
+        .ohsc-question {
+            display: flex;
+            gap: 14px;
+            padding: 20px 22px 14px;
+        }
+
+        .ohsc-question-number {
+            min-width: 38px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .ohsc-question-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        .ohsc-help-text {
+            margin-top: 5px;
+            font-size: 12.5px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+
+        /* OPTIONS */
+
+        .ohsc-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            padding: 8px 22px 20px;
+        }
+
+        .ohsc-option {
+            position: relative;
+        }
+
+        .ohsc-radio {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+
+        /* CHOICE */
+
+        .ohsc-choice {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-height: 70px;
+            padding: 12px 16px;
+            border: 1.5px solid #dbe3ef;
+            border-radius: 11px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ohsc-choice:hover {
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 50, 80, 0.07);
+        }
+
+
+        /* ICON */
+
+        .ohsc-choice-icon {
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 15px;
+        }
+
+
+            /* CONTENT */
+
+        .ohsc-choice-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .ohsc-choice-content strong {
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .ohsc-choice-content small {
+            font-size: 11.5px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+
+        /* YES */
+
+        .yes-choice .ohsc-choice-icon {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+
+        /* NO */
+
+        .no-choice .ohsc-choice-icon {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+
+        /* SELECTED YES */
+
+        .ohsc-radio:checked + .yes-choice {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.08);
+        }
+
+        .ohsc-radio:checked + .yes-choice .ohsc-choice-icon {
+            background: #22c55e;
+            color: #fff;
+        }
+
+
+        /* SELECTED NO */
+
+        .ohsc-radio:checked + .no-choice {
+            border-color: #ef4444;
+            background: #fef2f2;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.08);
+        }
+
+        .ohsc-radio:checked + .no-choice .ohsc-choice-icon {
+            background: #ef4444;
+            color: #fff;
+        }
+
+
+        /* VALIDATION */
+
+        .validation-message {
+            display: block;
+            padding: 0 22px 16px;
+        }
+
+
+        /* MOBILE */
+
+        @@media (max-width: 768px) {
+
+            .ohsc-options {
+                grid-template-columns: 1fr;
+            }
+
+            .ohsc-question {
+                padding: 16px;
+            }
+
+            .ohsc-options {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .ohsc-header {
+                padding: 16px;
+            }
         }
 
         @@media (max-width:1024px) {
@@ -1153,6 +1402,409 @@
                 </div>
             </div>
 
+            @if(facultyCode == "2"){
+
+                <!-- 7. ADMINISTRATIVE AUTHORITY -->
+                <div class="section-card" id="card-administrative-authority">
+
+                    <div class="section-header sh-blue">
+                        <div class="icon-wrap">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2L3 7v2h18V7l-9-5zm-7 9v8H3v2h18v-2h-2v-8h-2v8h-2v-8h-2v8h-2v-8H9v8H7v-8H5z" />
+                            </svg>
+                        </div>
+
+                        <h2>Administrative Authority &amp; Governing Body</h2>
+                    </div>
+
+                    <div class="section-body">
+
+                        <div class="field-grid col-2">
+
+                            <!-- ADMINISTRATIVE AUTHORITY NAME -->
+                            <div class="field-wrap"
+                                 data-required
+                                 data-label="Name of Administrative Authority">
+
+                                <label asp-for="NameOfAdministrativeAuthority">
+                                    Name of Administrative Authority
+                                    <span class="req">*</span>
+                                </label>
+
+                                <input asp-for="NameOfAdministrativeAuthority"
+                                       placeholder="Enter name of administrative authority" />
+
+                            </div>
+
+
+                            <!-- ADMINISTRATIVE AUTHORITY ADDRESS -->
+                            <div class="field-wrap"
+                                 data-required
+                                 data-label="Address of Administrative Authority">
+
+                                <label asp-for="AddressOfAdministrativeAuthority">
+                                    Address of Administrative Authority
+                                    <span class="req">*</span>
+                                </label>
+
+                                <textarea asp-for="AddressOfAdministrativeAuthority"
+                                          rows="3"
+                                          placeholder="Enter address of administrative authority"></textarea>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- GOVERNING BODY / COUNCIL DOCUMENT -->
+                        <div style="margin-top:16px;">
+
+                            <label>
+                                Upload Members of Governing Body / Council Document
+                                <span class="req">*</span>
+                            </label>
+
+                            <div class="file-drop">
+
+                                <div class="file-drop-inner">
+
+                                    <input type="file"
+                                           id="membersGoverningBodyFile"
+                                           asp-for="MembersOfGoverningBodyOrCouncilFile"
+                                           accept=".pdf,.jpg,.jpeg,.png" />
+
+                                    <div class="file-drop-icon">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                                        </svg>
+                                    </div>
+
+                                    <p>
+                                        <strong>Click to upload</strong>
+                                        or drag &amp; drop
+                                    </p>
+
+                                    <p style="margin-top:4px;">
+                                        PDF, JPG, PNG — max 2 MB
+                                    </p>
+
+                                    <p id="membersGoverningBodyFileName"
+                                       style="margin-top:8px; color:green;">
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- EXISTING DOCUMENT -->
+                            @if (Model.hasGoverningBodyFile)
+                            {
+                                <div style="margin-top:10px;">
+
+                                    <a href="@Url.Action(
+                                        "ViewGoverningBodyDocument",
+                                        "ContinuesAffiliation_Facultybased",
+                                        new { id = Model.CollegeCode })"
+                                       target="_blank"
+                                       class="btn btn-ghost">
+
+                                        📄 View Members of Governing Body / Council Document
+
+                                    </a>
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 5B. OTHER HEALTH SCIENCE COLLEGES -->
+                <div class="section-card" id="card-other-health-science-colleges">
+
+                    <div class="section-header sh-blue">
+                        <div class="icon-wrap">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2L3 7v2h18V7l-9-5zm-7 9v8H3v2H3v-2h18v2h-2v-8h-2v8h-2v-8h-2v8h-2v-8H9v8H7v-8H5z" />
+                            </svg>
+                        </div>
+
+                        <h2>Other Health Science Colleges</h2>
+                    </div>
+
+                    <div class="section-body">
+
+                        <!-- YES / NO -->
+                        <!-- OTHER HEALTH SCIENCE COLLEGES -->
+                        <div class="field-wrap other-health-question"
+                             data-required
+                             data-label="Other Health Science Colleges">
+
+                            <div class="ohsc-question-card">
+
+                                <!-- Header -->
+                                <div class="ohsc-header">
+
+                                    <div class="ohsc-icon">
+                                        <i class="fas fa-hospital-user"></i>
+                                    </div>
+
+                                    <div class="ohsc-heading">
+
+                                        <div class="ohsc-title">
+                                            Is the same management running any other
+                                            Health Science Colleges?
+                                        </div>
+
+                                        <div class="ohsc-subtitle">
+                                            Select <strong>Yes</strong> if the management operates
+                                            other Health Science Colleges. You will be asked to
+                                            provide their college and course details.
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- YES / NO -->
+                                <div class="ohsc-options">
+
+                                    <!-- YES -->
+                                    <div class="ohsc-option">
+
+                                        <input type="radio"
+                                               asp-for="HasOtherHealthScienceColleges"
+                                               value="true"
+                                               id="otherHealthCollegeYes"
+                                               class="ohsc-radio" />
+
+                                        <label for="otherHealthCollegeYes"
+                                               class="ohsc-choice yes-choice">
+
+                                            <span class="ohsc-choice-icon">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+
+                                            <span class="ohsc-choice-content">
+
+                                                <strong>Yes</strong>
+
+                                                <small>
+                                                    Other colleges are operated by the same management
+                                                </small>
+
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+
+                                    <!-- NO -->
+                                    <div class="ohsc-option">
+
+                                        <input type="radio"
+                                               asp-for="HasOtherHealthScienceColleges"
+                                               value="false"
+                                               id="otherHealthCollegeNo"
+                                               class="ohsc-radio" />
+
+                                        <label for="otherHealthCollegeNo"
+                                               class="ohsc-choice no-choice">
+
+                                            <span class="ohsc-choice-icon">
+                                                <i class="fas fa-times"></i>
+                                            </span>
+
+                                            <span class="ohsc-choice-content">
+
+                                                <strong>No</strong>
+
+                                                <small>
+                                                    No other Health Science Colleges
+                                                </small>
+
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+
+                                <span asp-validation-for="HasOtherHealthScienceColleges"
+                                      class="text-danger validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <!-- DETAILS SECTION -->
+                        <div id="otherHealthScienceCollegeDetails"
+                             style="display:@(Model.HasOtherHealthScienceColleges == true ? "block" : "none"); margin-top:20px;">
+
+                            <div class="section-card">
+
+                                <div class="section-header sh-blue">
+
+                                    <div class="icon-wrap">
+                                        <i class="fas fa-hospital"></i>
+                                    </div>
+
+                                    <h2>Other Health Science Colleges</h2>
+
+                                </div>
+
+                                <div class="section-body">
+
+                                    <div id="otherHealthScienceCollegeContainer">
+
+                                        @if (Model.OtherHealthScienceColleges != null &&
+                                             Model.OtherHealthScienceColleges.Any())
+                                        {
+                                            for (int i = 0; i < Model.OtherHealthScienceColleges.Count; i++)
+                                            {
+                                                <div class="other-college-row border rounded p-3 mb-3">
+
+                                                    <div class="row g-3">
+
+                                                        <!-- FACULTY -->
+                                                        <div class="col-md-4">
+
+                                                            <label class="form-label">
+                                                                Faculty
+                                                                <span class="req">*</span>
+                                                            </label>
+
+                                                            <select class="form-select faculty-dropdown"
+                                                                    name="OtherHealthScienceColleges[@i].OtherFacultyId"
+                                                                    data-index="@i">
+
+                                                                <option value="">
+                                                                    -- Select Faculty --
+                                                                </option>
+
+                                                                @foreach (var faculty in Model.OtherHealthScienceColleges[i].FacultyList)
+                                                                {
+                                                                    <option value="@faculty.Value"
+                                                                            selected="@(faculty.Value == Model.OtherHealthScienceColleges[i].OtherFacultyId?.ToString())">
+                                                                        @faculty.Text
+                                                                    </option>
+                                                                }
+
+                                                            </select>
+
+                                                        </div>
+
+
+                                                        <!-- COLLEGE -->
+                                                        <div class="col-md-4">
+
+                                                            <label class="form-label">
+                                                                College
+                                                                <span class="req">*</span>
+                                                            </label>
+
+                                                            <select class="form-select college-dropdown"
+                                                                    name="OtherHealthScienceColleges[@i].OtherCollegeCode"
+                                                                    data-index="@i">
+
+                                                                <option value="">
+                                                                    -- Select College --
+                                                                </option>
+
+                                                                @foreach (var college in Model.OtherHealthScienceColleges[i].CollegeList)
+                                                                {
+                                                                    <option value="@college.Value"
+                                                                            selected="@(college.Value == Model.OtherHealthScienceColleges[i].OtherCollegeCode)">
+                                                                        @college.Text
+                                                                    </option>
+                                                                }
+
+                                                            </select>
+
+                                                        </div>
+
+
+                                                        <!-- COURSE -->
+                                                        <div class="col-md-3">
+
+                                                            <label class="form-label">
+                                                                Course
+                                                                <span class="req">*</span>
+                                                            </label>
+
+                                                            <select class="form-select course-dropdown"
+                                                                    name="OtherHealthScienceColleges[@i].OtherCourseCode"
+                                                                    data-index="@i">
+
+                                                                <option value="">
+                                                                    -- Select Course --
+                                                                </option>
+
+                                                                @foreach (var course in Model.OtherHealthScienceColleges[i].CourseList)
+                                                                {
+                                                                    <option value="@course.Value"
+                                                                            selected="@(course.Value == Model.OtherHealthScienceColleges[i].OtherCourseCode?.ToString())">
+                                                                        @course.Text
+                                                                    </option>
+                                                                }
+
+                                                            </select>
+
+                                                        </div>
+
+
+                                                        <!-- REMOVE -->
+                                                        <div class="col-md-1 d-flex align-items-end">
+
+                                                            <button type="button"
+                                                                    class="btn btn-outline-danger remove-other-college">
+
+                                                                <i class="fas fa-trash"></i>
+
+                                                            </button>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                            }
+                                        }
+
+                                    </div>
+
+
+                                    <!-- ADD -->
+                                    <div class="mt-3">
+
+                                        <button type="button"
+                                                id="addOtherHealthScienceCollege"
+                                                class="btn btn-primary">
+
+                                            <i class="fas fa-plus"></i>
+                                            Add College
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            }
+
             <!-- FOOTER -->
             <div class="form-footer">
                 <a asp-action="Dashboard" asp-controller="Collegelogin" class="btn btn-ghost">Cancel</a>
@@ -1307,6 +1959,548 @@
                 }
             }
         </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                // =========================================================
+                // ELEMENTS
+                // =========================================================
+
+                const yesRadio = document.getElementById("otherHealthCollegeYes");
+                const noRadio = document.getElementById("otherHealthCollegeNo");
+
+                const details =
+                    document.getElementById("otherHealthScienceCollegeDetails");
+
+                const rowsContainer =
+                    document.getElementById("otherHealthScienceCollegeContainer");
+
+                // IMPORTANT:
+                // This matches your current UI button ID
+                const addButton =
+                    document.getElementById("addOtherHealthScienceCollege");
+
+
+                // =========================================================
+                // YES / NO TOGGLE
+                // =========================================================
+
+                function toggleOtherHealthCollege() {
+
+                    if (!details) return;
+
+                    if (yesRadio && yesRadio.checked) {
+
+                        details.style.display = "block";
+
+                    } else {
+
+                        details.style.display = "none";
+                    }
+                }
+
+                yesRadio?.addEventListener(
+                    "change",
+                    toggleOtherHealthCollege
+                );
+
+                noRadio?.addEventListener(
+                    "change",
+                    toggleOtherHealthCollege
+                );
+
+                toggleOtherHealthCollege();
+
+
+                // =========================================================
+                // FACULTY OPTIONS
+                // =========================================================
+
+                function getFacultyOptions() {
+
+                    let options = "";
+
+                    @foreach (var faculty in Model.Faculties)
+                    {
+                        <text>
+                            options += `
+                                <option value="@faculty.FacultyId">
+                                    @Html.Raw(faculty.FacultyName)
+                                </option>
+                            `;
+                        </text>
+                    }
+
+                    return options;
+                }
+
+
+                // =========================================================
+                // GET NEXT INDEX
+                // =========================================================
+
+                function getNextIndex() {
+
+                    if (!rowsContainer) {
+                        return 0;
+                    }
+
+                    return rowsContainer.querySelectorAll(
+                        ".other-college-row"
+                    ).length;
+                }
+
+
+                // =========================================================
+                // ADD COLLEGE
+                // =========================================================
+
+                addButton?.addEventListener("click", async function() {
+
+                    if (!rowsContainer) return;
+
+                    const index = getNextIndex();
+
+                    try {
+
+                        // =====================================================
+                        // LOAD FACULTY FROM API
+                        // =====================================================
+
+                        const response = await fetch(
+                            '@Url.Action("GetFacultiesForOtherHealthScienceColleges", "ContinuesAffiliation_Facultybased")'
+                        );
+
+                        if (!response.ok) {
+                            throw new Error("Unable to load faculties.");
+                        }
+
+                        const faculties = await response.json();
+
+
+                        // =====================================================
+                        // CREATE FACULTY OPTIONS
+                        // =====================================================
+
+                        let facultyOptions = `
+                        <option value="">
+                            -- Select Faculty --
+                        </option>
+                    `;
+
+                        faculties.forEach(function(item) {
+
+                            facultyOptions += `
+                            <option value="${item.value}">
+                                ${item.text}
+                            </option>
+                        `;
+
+                        });
+
+
+                        // =====================================================
+                        // CREATE ROW
+                        // =====================================================
+
+                        const row = document.createElement("div");
+
+                        row.className =
+                            "other-college-row border rounded p-3 mb-3";
+
+
+                        row.innerHTML = `
+
+                        <div class="row g-3">
+
+                            <!-- FACULTY -->
+                            <div class="col-md-4">
+
+                                <label class="form-label">
+                                    Faculty
+                                    <span class="req">*</span>
+                                </label>
+
+                                <select
+                                    class="form-select faculty-dropdown"
+                                    name="OtherHealthScienceColleges[${index}].OtherFacultyId"
+                                    data-index="${index}">
+
+                                    ${facultyOptions}
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- COLLEGE -->
+                            <div class="col-md-4">
+
+                                <label class="form-label">
+                                    College
+                                    <span class="req">*</span>
+                                </label>
+
+                                <select
+                                    class="form-select college-dropdown"
+                                    name="OtherHealthScienceColleges[${index}].OtherCollegeCode"
+                                    data-index="${index}">
+
+                                    <option value="">
+                                        -- Select College --
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- COURSE -->
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Course
+                                    <span class="req">*</span>
+                                </label>
+
+                                <select
+                                    class="form-select course-dropdown"
+                                    name="OtherHealthScienceColleges[${index}].OtherCourseCode"
+                                    data-index="${index}">
+
+                                    <option value="">
+                                        -- Select Course --
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- REMOVE -->
+                            <div class="col-md-1 d-flex align-items-end">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger remove-other-college"
+                                    title="Remove">
+
+                                    <i class="fas fa-trash"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+                    `;
+
+
+                        rowsContainer.appendChild(row);
+
+                    }
+                    catch (error) {
+
+                        console.error(
+                            "Faculty loading error:",
+                            error
+                        );
+
+                        alert("Unable to load faculty list.");
+
+                    }
+
+                });
+
+
+                // =========================================================
+                // FACULTY CHANGE
+                // LOAD COLLEGES + COURSES
+                // =========================================================
+
+                document.addEventListener("change", async function (e) {
+
+                    if (!e.target.classList.contains("faculty-dropdown")) {
+                        return;
+                    }
+
+                    const facultyDropdown = e.target;
+
+                    const facultyId =
+                        facultyDropdown.value;
+
+                    const row =
+                        facultyDropdown.closest(".other-college-row");
+
+                    if (!row) return;
+
+                    const collegeDropdown =
+                        row.querySelector(".college-dropdown");
+
+                    const courseDropdown =
+                        row.querySelector(".course-dropdown");
+
+                    if (!collegeDropdown || !courseDropdown) {
+                        return;
+                    }
+
+
+                    // -----------------------------------------------------
+                    // CLEAR COLLEGE + COURSE
+                    // -----------------------------------------------------
+
+                    collegeDropdown.innerHTML =
+                        '<option value="">-- Select College --</option>';
+
+                    courseDropdown.innerHTML =
+                        '<option value="">-- Select Course --</option>';
+
+
+                    if (!facultyId) {
+                        return;
+                    }
+
+
+                    // =====================================================
+                    // LOAD COLLEGES
+                    // =====================================================
+
+                    try {
+
+                        const collegeUrl =
+                            '@Url.Action(
+                                "GetOtherHealthScienceColleges",
+                                "ContinuesAffiliation_Facultybased"
+                            )'
+                            + '?facultyId='
+                            + encodeURIComponent(facultyId);
+
+
+                        const response =
+                            await fetch(collegeUrl);
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                "Unable to load colleges."
+                            );
+
+                        }
+
+
+                        const colleges =
+                            await response.json();
+
+
+                        colleges.forEach(function (item) {
+
+                            const option =
+                                document.createElement("option");
+
+                            option.value =
+                                item.value;
+
+                            option.textContent =
+                                item.text;
+
+                            collegeDropdown.appendChild(
+                                option
+                            );
+
+                        });
+
+                    }
+                    catch (error) {
+
+                        console.error(
+                            "College loading error:",
+                            error
+                        );
+
+                        alert(
+                            "Unable to load colleges."
+                        );
+
+                    }
+
+
+                    // =====================================================
+                    // LOAD COURSES
+                    // =====================================================
+
+                    try {
+
+                        const courseUrl =
+                            '@Url.Action(
+                                "GetOtherHealthScienceCourses",
+                                "ContinuesAffiliation_Facultybased"
+                            )'
+                            + '?facultyId='
+                            + encodeURIComponent(facultyId);
+
+
+                        const response =
+                            await fetch(courseUrl);
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                "Unable to load courses."
+                            );
+
+                        }
+
+
+                        const courses =
+                            await response.json();
+
+
+                        courses.forEach(function (item) {
+
+                            const option =
+                                document.createElement("option");
+
+                            option.value =
+                                item.value;
+
+                            option.textContent =
+                                item.text;
+
+                            courseDropdown.appendChild(
+                                option
+                            );
+
+                        });
+
+                    }
+                    catch (error) {
+
+                        console.error(
+                            "Course loading error:",
+                            error
+                        );
+
+                        alert(
+                            "Unable to load courses."
+                        );
+
+                    }
+
+                });
+
+
+                // =========================================================
+                // REMOVE COLLEGE
+                // =========================================================
+
+                document.addEventListener("click", function (e) {
+
+                    const removeButton =
+                        e.target.closest(
+                            ".remove-other-college"
+                        );
+
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const row =
+                        removeButton.closest(
+                            ".other-college-row"
+                        );
+
+                    if (!row) {
+                        return;
+                    }
+
+                    row.remove();
+
+                    reindexRows();
+
+                });
+
+
+                // =========================================================
+                // REINDEX ROWS
+                // =========================================================
+
+                function reindexRows() {
+
+                    if (!rowsContainer) {
+                        return;
+                    }
+
+                    const rows =
+                        rowsContainer.querySelectorAll(
+                            ".other-college-row"
+                        );
+
+
+                    rows.forEach(function (row, index) {
+
+                        const faculty =
+                            row.querySelector(
+                                ".faculty-dropdown"
+                            );
+
+                        const college =
+                            row.querySelector(
+                                ".college-dropdown"
+                            );
+
+                        const course =
+                            row.querySelector(
+                                ".course-dropdown"
+                            );
+
+
+                        // FACULTY
+                        if (faculty) {
+
+                            faculty.name =
+                                `OtherHealthScienceColleges[${index}].OtherFacultyId`;
+
+                            faculty.dataset.index =
+                                index;
+                        }
+
+
+                        // COLLEGE
+                        if (college) {
+
+                            college.name =
+                                `OtherHealthScienceColleges[${index}].OtherCollegeCode`;
+
+                            college.dataset.index =
+                                index;
+                        }
+
+
+                        // COURSE
+                        if (course) {
+
+                            course.name =
+                                `OtherHealthScienceColleges[${index}].OtherCourseCode`;
+
+                            course.dataset.index =
+                                index;
+                        }
+
+                    });
+
+                }
+
+
+                // =========================================================
+                // INITIAL REINDEX
+                // =========================================================
+
+                reindexRows();
+
+            });
+            </script>
 
         <script>
             $(document).ready(function () {

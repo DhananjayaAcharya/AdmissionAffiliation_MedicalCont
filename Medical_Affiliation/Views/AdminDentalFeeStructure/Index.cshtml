@@ -1,0 +1,556 @@
+@model Medical_Affiliation.Models.AdminDentalFeeStructurePageViewModel
+
+@{
+    ViewData["Title"] = "Dental Fee Structures";
+    var isEditing = Model.Form.Id > 0;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<style>
+
+    .page-wrapper { padding-top :0; }
+    .page-wrapper:has(.dental-fee-page) .page-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0 1.25rem 2rem;
+    }
+    .page-wrapper:has(.dental-fee-page) .portal-sidebar-shell { display: none; }
+    .page-wrapper:has(.dental-fee-page) .page-content,
+    .page-wrapper:has(.dental-fee-page) .portal-main-card {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin-left: 0;
+    }
+    .dental-fee-page { min-height: calc(100vh - 8rem); padding: 1.5rem 0 3rem; background: #f4f8fb; color: #18324b; }
+    .dental-fee-page .page-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: 1.5rem 1.75rem; color: #fff; border-radius: .75rem; background: linear-gradient(120deg, #0e4d80, #1769aa); box-shadow: 0 .75rem 1.75rem rgba(24, 50, 75, .14); }
+    .dental-fee-page .page-header h1 { margin: 0; font-size: 1.8rem; }
+    .dental-fee-page .page-header p { margin: .4rem 0 0; color: rgba(255,255,255,.78); }
+    .dental-fee-page .back-link { color: #fff; text-decoration: none; font-weight: 600; white-space: nowrap; }
+    .dental-fee-page .panel { border: 1px solid #dce7f0; border-radius: .7rem; box-shadow: 0 .5rem 1.5rem rgba(34,67,96,.07); }
+    .dental-fee-page .panel-title { color: #18324b; font-weight: 700; }
+    .dental-fee-page .form-label { color: #526b80; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+    .dental-fee-page .form-control, .dental-fee-page .form-select { border-color: #dce7f0; border-radius: .4rem; }
+    .dental-fee-page .form-control:focus, .dental-fee-page .form-select:focus { border-color: #6daed5; box-shadow: 0 0 0 .2rem rgba(23,105,170,.12); }
+    .dental-fee-page thead th { color: #62798d; background: #f1f6fa; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; }
+    .dental-fee-page tbody tr { border-color: #edf2f6; }
+    .dental-fee-page tbody tr:hover { background: #f8fbfd; }
+    .dental-fee-page .table { min-width: 980px; }
+    .dental-fee-page .table th,
+    .dental-fee-page .table td { white-space: nowrap; }
+    .dental-fee-page .table td:first-child { min-width: 9rem; }
+    .dental-fee-page .table td:nth-child(2) { min-width: 13rem; }
+    .dental-fee-page .table td:nth-child(3) { min-width: 13rem; }
+    .dental-fee-page .table td:nth-child(4) { min-width: 7rem; }
+    .dental-fee-page .table td:nth-child(5) { min-width: 8rem; }
+    .dental-fee-page .table td:nth-child(6) { min-width: 7rem; }
+    .dental-fee-page .btn-primary { background: #1769aa; border-color: #1769aa; }
+    .dental-fee-page .btn-primary:hover { background: #0e4d80; border-color: #0e4d80; }
+    @@media (max-width: 767.98px) {
+        .dental-fee-page .page-header { align-items: start; flex-direction: column; padding: 1.25rem; }
+    }
+</style>
+
+<div class="dental-fee-page">
+    <div class="container-fluid">
+        <div class="page-header">
+            <div>
+                <h1>Dental Fee Structures</h1>
+                <p>Create, edit, and delete MstDentalFeeStructure records.</p>
+            </div>
+            <a class="back-link" asp-controller="Admin" asp-action="AdminDashboard">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back to dashboard
+            </a>
+        </div>
+
+        <div class="panel border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="panel-title mb-0">@(isEditing ? "Edit fee structure" : "Add fee structure")</h5>
+                    @if (isEditing)
+                    {
+                        <a asp-action="Index" class="small text-decoration-none">Clear</a>
+                    }
+                </div>
+
+                <form asp-action="@(isEditing ? "Edit" : "Create")" method="post">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="Form.Id" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="Form.FacultyCode" class="form-label"></label>
+                            <select asp-for="Form.FacultyCode" asp-items="Model.Faculties" class="form-select" id="facultyCode">
+                                <option value="">-- Select faculty --</option>
+                            </select>
+                            <span asp-validation-for="Form.FacultyCode" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Form.AffiliationTypeId" class="form-label"></label>
+                            <select asp-for="Form.AffiliationTypeId" asp-items="Model.AffiliationTypes" class="form-select" id="affiliationTypeId" disabled="@(Model.Form.FacultyCode <= 0 || string.IsNullOrWhiteSpace(Model.Form.CourseLevel) ? "disabled" : null)">
+                                <option value="">-- Select affiliation type --</option>
+                            </select>
+                            <span asp-validation-for="Form.AffiliationTypeId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Form.CourseLevel" class="form-label"></label>
+                            <select asp-for="Form.CourseLevel" class="form-select" id="courseLevelInput">
+                                <option value="">-- Select --</option>
+                                <option value="UG">UG</option>
+                                <option value="PG">PG</option>
+                                <option value="SS">SS</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label asp-for="Form.FeeTypeId" class="form-label"></label>
+                            <select asp-for="Form.FeeTypeId" asp-items="Model.FeeTypes" class="form-select" id="feeTypeDropdown" disabled="@(Model.Form.FacultyCode <= 0 || !Model.Form.AffiliationTypeId.HasValue || string.IsNullOrWhiteSpace(Model.Form.CourseLevel) ? "disabled" : null)">
+                                <option value="">-- Select fee type --</option>
+                            </select>
+                            <span asp-validation-for="Form.FeeTypeId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Form.AmountToBePaid" class="form-label"></label>
+                            <input asp-for="Form.AmountToBePaid" class="form-control" step="0.01" />
+                            <span asp-validation-for="Form.AmountToBePaid" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Form.CalculationType" class="form-label"></label>
+                            <select asp-for="Form.CalculationType" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="Fixed">Fixed</option>
+                                <option value="Per Seat">Per Seat</option>
+                                <option value="Per Course">Per Course</option>
+                                <option value="Percentage">Percentage</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-save me-1" aria-hidden="true"></i>
+                                @(isEditing ? "Update" : "Save")
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel border-0">
+            <div class="card-body p-0">
+                <div class="p-4 border-bottom d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                    <h5 class="panel-title mb-0">MstDentalFeeStructure records</h5>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <div class="input-group input-group-sm" style="max-width: 22rem;">
+                            <span class="input-group-text bg-white"><i class="bi bi-search" aria-hidden="true"></i></span>
+                            <input id="feeStructureSearch" class="form-control" placeholder="Search fee structures..." aria-label="Search fee structures" />
+                        </div>
+                        <label class="form-check d-flex align-items-center gap-1 small text-nowrap mb-0">
+                            <input id="includeInactiveFilter" name="includeInactive" value="true" type="checkbox" class="form-check-input" @(Model.IncludeInactive ? "checked" : "") />
+                            Include inactive
+                        </label>
+                        <button id="clearFeeStructureSearch" class="btn btn-sm btn-outline-secondary" type="button" title="Clear search">
+                            <i class="bi bi-x-lg" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Faculty</th>
+                                <th>Fee type</th>
+                                <th>Affiliation</th>
+                                <th>Level</th>
+                                <th class="text-end">Amount</th>
+                                <th>Calculation</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feeStructureTableBody">
+                            @if (Model.FeeStructures.Count == 0)
+                            {
+                                <tr><td colspan="8" class="text-center text-muted py-5">No records found.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var item in Model.FeeStructures)
+                                {
+                                    <tr class="fee-structure-row"
+                                        data-id="@item.Id"
+                                        data-faculty-code="@item.FacultyCode"
+                                        data-fee-type-id="@item.FeeTypeId"
+                                        data-affiliation-type-id="@item.AffiliationTypeId"
+                                        data-course-level="@item.CourseLevel"
+                                        data-amount="@item.AmountToBePaid.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                        data-calculation-type="@item.CalculationType">
+                                        <td class="ps-4">@item.FacultyName</td>
+                                        <td>@item.FeeType</td>
+                                        <td>@item.AffiliationType</td>
+                                        <td>@item.CourseLevel</td>
+                                        <td class="text-end">@item.AmountToBePaid.ToString("N2")</td>
+                                        <td>@item.CalculationType</td>
+                                        <td><span class="badge @(item.IsActive ? "text-bg-success" : "text-bg-secondary")">@(item.IsActive ? "Active" : "Inactive")</span></td>
+                                        <td class="text-end pe-4">
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-fee-row" title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i></button>
+                                            <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="@(item.IsActive ? "Deactivate" : "Activate")">
+                                                    <i class="bi @(item.IsActive ? "bi-pause" : "bi-play")" aria-hidden="true"></i>
+                                                </button>
+                                            </form>
+                                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this fee structure?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 border-top">
+                        <span id="feePaginationInfo" class="text-muted small"></span>
+                        <nav aria-label="Fee structure pages">
+                            <ul id="feePagination" class="pagination pagination-sm mb-0"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const facultySelect = document.getElementById("facultyCode");
+        const affiliationSelect = document.getElementById("affiliationTypeId");
+        const courseLevelSelect = document.getElementById("courseLevelInput");
+        const feeTypeSelect = document.getElementById("feeTypeDropdown");
+        const affiliationUrl = "@Url.Action("GetAffiliationTypes", "AdminDentalFeeStructure")";
+        const feeTypeUrl = "@Url.Action("GetFeeTypes", "AdminDentalFeeStructure")";
+
+        function setOptions(select, placeholder, options, selectedValue = "") {
+            select.innerHTML = `<option value="">${placeholder}</option>`;
+            options.forEach(option => {
+                const element = document.createElement("option");
+                element.value = option.id;
+                element.textContent = option.name ?? option.feeType;
+                element.selected = String(option.id) === String(selectedValue);
+                select.appendChild(element);
+            });
+        }
+
+        function restoreSelectedOption(select, value, text) {
+            if (!value || Array.from(select.options).some(option => option.value === String(value))) return;
+
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = text || value;
+            option.selected = true;
+            select.appendChild(option);
+        }
+
+        async function refreshAffiliationTypes() {
+            const facultyCode = facultySelect.value;
+            const courseLevel = courseLevelSelect.value;
+            const selectedAffiliationType = affiliationSelect.value;
+            const selectedFeeType = feeTypeSelect.value;
+            const selectedAffiliationText = affiliationSelect.selectedOptions[0]?.textContent;
+            const selectedFeeTypeText = feeTypeSelect.selectedOptions[0]?.textContent;
+            affiliationSelect.disabled = true;
+            feeTypeSelect.disabled = true;
+            setOptions(affiliationSelect, "-- Select affiliation type --", []);
+            setOptions(feeTypeSelect, "-- Select fee type --", []);
+
+            if (!facultyCode || !courseLevel) {
+                affiliationSelect.disabled = true;
+                feeTypeSelect.disabled = true;
+                return;
+            }
+
+            try {
+                const response = await fetch(`${affiliationUrl}?facultyCode=${encodeURIComponent(facultyCode)}&courseLevel=${encodeURIComponent(courseLevel)}`);
+                if (!response.ok) throw new Error("Unable to load affiliation types.");
+
+                setOptions(affiliationSelect, "-- Select affiliation type --", await response.json(), selectedAffiliationType);
+                restoreSelectedOption(affiliationSelect, selectedAffiliationType, selectedAffiliationText);
+                affiliationSelect.disabled = false;
+                await refreshFeeTypes(selectedFeeType, selectedFeeTypeText);
+            } catch (error) {
+                restoreSelectedOption(affiliationSelect, selectedAffiliationType, selectedAffiliationText);
+                restoreSelectedOption(feeTypeSelect, selectedFeeType, selectedFeeTypeText);
+            }
+        }
+
+        async function refreshFeeTypes(selectedValue = feeTypeSelect.value, selectedText = "") {
+            const facultyCode = facultySelect.value;
+            const affiliationTypeId = affiliationSelect.value;
+            const courseLevel = courseLevelSelect.value;
+            feeTypeSelect.disabled = true;
+            setOptions(feeTypeSelect, "-- Select fee type --", []);
+
+            if (!facultyCode || !affiliationTypeId || !courseLevel) return;
+
+            try {
+                const response = await fetch(`${feeTypeUrl}?facultyCode=${encodeURIComponent(facultyCode)}&affiliationTypeId=${encodeURIComponent(affiliationTypeId)}&courseLevel=${encodeURIComponent(courseLevel)}`);
+                if (!response.ok) throw new Error("Unable to load fee types.");
+
+                setOptions(feeTypeSelect, "-- Select fee type --", await response.json(), selectedValue);
+                restoreSelectedOption(feeTypeSelect, selectedValue, selectedText);
+                feeTypeSelect.disabled = false;
+            } catch (error) {
+                restoreSelectedOption(feeTypeSelect, selectedValue, selectedText);
+                feeTypeSelect.disabled = false;
+            }
+        }
+
+        facultySelect.addEventListener("change", refreshAffiliationTypes);
+        courseLevelSelect.addEventListener("change", refreshAffiliationTypes);
+        affiliationSelect.addEventListener("change", refreshFeeTypes);
+
+        if (facultySelect.value && courseLevelSelect.value) {
+            refreshAffiliationTypes();
+        }
+    </script>
+    <script>
+        const feeTableBody = document.getElementById("feeStructureTableBody");
+        const feeSearch = document.getElementById("feeStructureSearch");
+        const clearFeeSearch = document.getElementById("clearFeeStructureSearch");
+        const feePagination = document.getElementById("feePagination");
+        const feePaginationInfo = document.getElementById("feePaginationInfo");
+        const includeInactiveFilter = document.getElementById("includeInactiveFilter");
+        const feePageSize = 10;
+        let feePage = 1;
+
+        const facultyOptions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Faculties.Select(x => new { value = x.Value, text = x.Text })));
+        const affiliationOptions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AffiliationTypes.Select(x => new { value = x.Value, text = x.Text })));
+        const feeTypeOptions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FeeTypes.Select(x => new { value = x.Value, text = x.Text })));
+        const courseLevels = ["UG", "PG", "SS"];
+        const calculationTypes = ["Fixed", "Per Seat", "Per Course", "Percentage"];
+
+        function matchingRows() {
+            const term = feeSearch.value.trim().toLowerCase();
+            return Array.from(feeTableBody.querySelectorAll(".fee-structure-row")).filter(row =>
+                !term || row.textContent.toLowerCase().includes(term));
+        }
+
+        function renderFeePagination() {
+            const rows = matchingRows();
+            const pageCount = Math.max(1, Math.ceil(rows.length / feePageSize));
+            feePage = Math.min(feePage, pageCount);
+            const first = rows.length === 0 ? 0 : (feePage - 1) * feePageSize + 1;
+            const last = Math.min(feePage * feePageSize, rows.length);
+            feePaginationInfo.textContent = `Showing ${first}-${last} of ${rows.length} records`;
+            feePagination.innerHTML = "";
+
+            for (let page = 1; page <= pageCount; page++) {
+                const item = document.createElement("li");
+                item.className = `page-item${page === feePage ? " active" : ""}`;
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "page-link";
+                button.textContent = page;
+                button.addEventListener("click", () => {
+                    feePage = page;
+                    renderFeePagination();
+                });
+                item.appendChild(button);
+                feePagination.appendChild(item);
+            }
+
+            Array.from(feeTableBody.querySelectorAll(".fee-structure-row")).forEach(row => row.style.display = "none");
+            rows.slice((feePage - 1) * feePageSize, feePage * feePageSize)
+                .forEach(row => row.style.display = "table-row");
+        }
+
+        function addOptions(select, options, selectedValue) {
+            select.innerHTML = "";
+            options.forEach(option => {
+                const element = document.createElement("option");
+                element.value = option.value;
+                element.textContent = option.text;
+                element.selected = String(option.value) === String(selectedValue ?? "");
+                select.appendChild(element);
+            });
+        }
+
+        function createSelect(options, selectedValue, className) {
+            const select = document.createElement("select");
+            select.className = `form-select form-select-sm ${className}`;
+            addOptions(select, options, selectedValue);
+            return select;
+        }
+
+        async function refreshInlineAffiliations(row, selectedAffiliation = "") {
+
+            const faculty = row.querySelector(".inline-faculty").value;
+            const level = row.querySelector(".inline-level").value;
+            const affiliation = row.querySelector(".inline-affiliation");
+
+            addOptions(affiliation, [], "");
+
+            if (!faculty || !level) {
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    `${affiliationUrl}?facultyCode=${encodeURIComponent(faculty)}&courseLevel=${encodeURIComponent(level)}`
+                );
+
+                if (!response.ok) {
+                    throw new Error("Unable to load affiliation types.");
+                }
+
+                const data = await response.json();
+
+                const options = data.map(option => ({
+                    value: option.id,
+                    text: `${option.name} - ${option.academicYear}`
+                }));
+
+                addOptions(
+                    affiliation,
+                    options,
+                    selectedAffiliation
+                );
+
+            } catch (error) {
+                console.error("Inline affiliation loading error:", error);
+            }
+        }
+
+        function beginInlineEdit(row) {
+            if (row.classList.contains("editing")) return;
+            row.classList.add("editing");
+            row.dataset.originalHtml = row.innerHTML;
+
+            const cells = row.cells;
+            const faculty = createSelect(facultyOptions, row.dataset.facultyCode, "inline-faculty");
+            const feeTypeText = cells[1].textContent.trim();
+            const feeTypeInput = document.createElement("input");
+            feeTypeInput.type = "hidden";
+            feeTypeInput.className = "inline-fee-type";
+            feeTypeInput.value = row.dataset.feeTypeId;
+
+            const affiliation = createSelect(
+                affiliationOptions,
+                row.dataset.affiliationTypeId,
+                "inline-affiliation"
+            );
+            const level = createSelect(courseLevels.map(x => ({ value: x, text: x })), row.dataset.courseLevel, "inline-level");
+            const calculation = createSelect(calculationTypes.map(x => ({ value: x, text: x })), row.dataset.calculationType, "inline-calculation");
+            const amount = document.createElement("input");
+            amount.type = "number";
+            amount.step = "0.01";
+            amount.min = "0.01";
+            amount.value = row.dataset.amount;
+            amount.className = "form-control form-control-sm inline-amount";
+
+            cells[0].innerHTML = "";
+            cells[0].appendChild(faculty);
+            cells[1].innerHTML = "";
+            cells[1].append(feeTypeText, feeTypeInput);
+            cells[2].innerHTML = "";
+            cells[2].appendChild(affiliation);
+            cells[3].innerHTML = "";
+            cells[3].appendChild(level);
+            cells[4].innerHTML = "";
+            cells[4].appendChild(amount);
+            cells[5].innerHTML = "";
+            cells[5].appendChild(calculation);
+            cells[7].innerHTML = `
+                <button type="button" class="btn btn-sm btn-success save-fee-row" title="Save"><i class="bi bi-check-lg"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary cancel-fee-row" title="Cancel"><i class="bi bi-x-lg"></i></button>`;
+
+            faculty.addEventListener("change", () => {
+                refreshInlineAffiliations(row);
+            });
+
+            level.addEventListener("change", () => {
+                refreshInlineAffiliations(row);
+            });
+        }
+
+        function cancelInlineEdit(row) {
+            row.innerHTML = row.dataset.originalHtml;
+            row.classList.remove("editing");
+            delete row.dataset.originalHtml;
+            renderFeePagination();
+        }
+
+        function submitInlineEdit(row) {
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "@Url.Action("Edit", "AdminDentalFeeStructure")";
+            const values = {
+                "Form.Id": row.dataset.id,
+                "Form.FacultyCode": row.querySelector(".inline-faculty").value,
+                "Form.FeeTypeId": row.querySelector(".inline-fee-type").value,
+                "Form.CourseLevel": row.querySelector(".inline-level").value,
+                "Form.AmountToBePaid": row.querySelector(".inline-amount").value,
+                "Form.CalculationType": row.querySelector(".inline-calculation").value,
+                "Form.AffiliationTypeId": row.querySelector(".inline-affiliation").value
+            };
+
+            Object.entries(values).forEach(([name, value]) => {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            });
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token) form.appendChild(token.cloneNode(true));
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        feeSearch.addEventListener("input", () => {
+            feePage = 1;
+            renderFeePagination();
+        });
+
+        clearFeeSearch.addEventListener("click", () => {
+            feeSearch.value = "";
+            feePage = 1;
+            renderFeePagination();
+            feeSearch.focus();
+        });
+
+        includeInactiveFilter.addEventListener("change", () => {
+            window.location.href = includeInactiveFilter.checked ? "?includeInactive=true" : window.location.pathname;
+        });
+
+        feeTableBody.addEventListener("click", event => {
+            const editButton = event.target.closest(".edit-fee-row");
+            const saveButton = event.target.closest(".save-fee-row");
+            const cancelButton = event.target.closest(".cancel-fee-row");
+            const row = event.target.closest(".fee-structure-row");
+            if (!row) return;
+            if (editButton) beginInlineEdit(row);
+            if (saveButton) submitInlineEdit(row);
+            if (cancelButton) cancelInlineEdit(row);
+        });
+
+        renderFeePagination();
+    </script>
+    @if (TempData["Success"] is string successMessage)
+    {
+        <script>
+            Swal.fire({ icon: "success", text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(successMessage)), toast: true, position: "top-end", showConfirmButton: false, timer: 2500, timerProgressBar: true });
+        </script>
+    }
+}

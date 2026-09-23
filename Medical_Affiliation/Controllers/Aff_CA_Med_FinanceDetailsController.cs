@@ -21,7 +21,7 @@ namespace Medical_Affiliation.Controllers
         {
 
 
-            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            var selectedCourseLevel = HttpContext.Session.GetString("CourseLevel");
 
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
@@ -91,17 +91,289 @@ namespace Medical_Affiliation.Controllers
                     AccountBooksMaintained = data?.AccountBooksMaintained ?? "",
                     AccountsAudited = data?.AccountsAudited ?? "",
                     DonationLevied = data?.DonationLevied ?? "",
+                    
 
                     GoverningCouncilPdfName = data?.GoverningCouncilPdfName,
                     AccountSummaryPdfName = data?.AccountSummaryPdfName,
                     AuditedStatementPdfName = data?.AuditedStatementPdfName,
                     DonationPdfName = data?.DonationPdfName
                 });
+
+            }
+
+            // ============================================================
+            // 2. Donation / Capitation Fee Details
+            // Question 6
+            //
+            // Only load records for the current college + faculty.
+            // CourseLevel is stored with each record.
+            // ============================================================
+
+            vm.DonationFees = await _context.CollegeAdditionalFeeDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId.ToString() == facultyCode &&
+                    !x.IsDeleted && 
+                    x.CourseLevel == selectedCourseLevel)
+                .Select(x => new DonationFeeDetailVm
+                {
+                    Id = x.Id,
+
+                    CollegeCode = x.CollegeCode,
+
+                    FacultyCode = x.FacultyId.ToString(),
+
+                    CourseLevel = x.CourseLevel,
+
+                    FeeType = x.FeeType,
+
+                    FeeAmount = x.FeeAmount
+                })
+                .ToListAsync();
+
+            // ============================================================
+            // 3. Courses Offered
+            // Question 6
+            //
+            // Course level based.
+            // ============================================================
+
+            vm.CoursesOffered = await _context.CollegeCoursesOffereds
+            .Where(x =>
+                x.CollegeCode == collegeCode &&
+                x.FacultyId.ToString() == facultyCode &&
+                !x.IsDeleted &&
+                x.CourseLevel == selectedCourseLevel)
+            .OrderBy(x => x.CourseLevel)
+            .ThenBy(x => x.CourseName)
+            .Select(x => new CollegeCourseOfferedVm
+            {
+                // =====================================================
+                // BASIC DETAILS
+                // =====================================================
+
+                Id = x.Id,
+
+                CollegeCode = x.CollegeCode,
+
+                FacultyCode = x.FacultyId.ToString(),
+
+                CourseLevel = x.CourseLevel,
+
+                CourseCode = x.CourseCode,
+
+                CourseName = x.CourseName,
+
+
+                // =====================================================
+                // ADMISSION DETAILS
+                // =====================================================
+
+                YearOfStarting = x.YearOfStarting,
+
+                SanctionedAdmissions = x.SanctionedAdmissions,
+
+                AdmittedAdmissions = x.AdmittedAdmissions,
+
+                Remarks = x.Remarks,
+
+
+                // =====================================================
+                // GOVERNMENT OF KARNATAKA
+                // =====================================================
+
+                KarnatakaGovernmentPermissionNo =
+                    x.GovtKarnatakaPermissionNumber,
+
+                KarnatakaGovernmentPermissionFileName =
+                    x.GovtKarnatakaDocumentName,
+
+
+                // =====================================================
+                // COUNCIL / APEX BODY
+                // =====================================================
+
+                CouncilPermissionNo =
+                    x.CouncilPermissionNumber,
+
+                CouncilPermissionFileName =
+                    x.CouncilDocumentName,
+
+
+                // =====================================================
+                // LAST RGUHS AFFILIATION
+                // =====================================================
+
+                RGUHSLastAffiliationNo =
+                    x.RguhslastAffiliationNumber,
+
+                RGUHSLastAffiliationFileName =
+                    x.RguhslastAffiliationDocumentName,
+
+
+                // =====================================================
+                // GOVERNMENT OF INDIA
+                // =====================================================
+
+                GovernmentOfIndiaPermissionNo =
+                    x.GovtIndiaPermissionNumber,
+
+                GovernmentOfIndiaPermissionFileName =
+                    x.GovtIndiaDocumentName
+            })
+            .ToListAsync();
+
+            vm.IsFeeLevied = await _context.CollegeAdditionalFeeDetails
+                .AnyAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId.ToString() == facultyCode &&
+                    !x.IsDeleted &&
+                    levels.Contains(x.CourseLevel));
+
+            // ============================================================
+            // 4. If a particular course level was selected,
+            //    keep only that level's data.
+            // ============================================================
+
+            if (levels.Count == 1)
+            {
+                var selectedLevel = levels[0];
+
+                vm.Sections = vm.Sections
+                    .Where(x =>
+                        x.CourseLevel.Trim().ToUpper() == selectedLevel)
+                    .ToList();
+
+                vm.DonationFees = vm.DonationFees
+                    .Where(x =>
+                        x.CourseLevel.Trim().ToUpper() == selectedLevel)
+                    .ToList();
+
+                vm.CoursesOffered = vm.CoursesOffered
+                    .Where(x =>
+                        x.CourseLevel.Trim().ToUpper() == selectedLevel)
+                    .ToList();
             }
 
             //ModelState.Clear()/*;*/
             return View("Med_CA_FinanceDetails", vm);
             //return View("Med_CA_FinanceDetails", new Med_CA_AccountAndFeeDetailsPageVM()); // Simplified for brevity, keep your full code
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCoursesByLevel(string courseLevel)
+        {
+            if (string.IsNullOrWhiteSpace(courseLevel))
+            {
+                return Json(new List<object>());
+            }
+
+            var courses = await _context.MstCourses
+                .Where(x => x.CourseLevel == courseLevel && x.FacultyCode == 2)
+                .OrderBy(x => x.CourseName)
+                .Select(x => new
+                {
+                    id = x.Id,
+                    courseCode = x.CourseCode,
+                    courseName = x.CourseName,
+                    courseLevel = x.CourseLevel
+                })
+                .ToListAsync();
+
+            return Json(courses);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewCourseDocument(int id, string documentType)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrEmpty(collegeCode) ||
+                string.IsNullOrEmpty(facultyCode))
+            {
+                return Unauthorized();
+            }
+
+            var course = await _context.CollegeCoursesOffereds
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId.ToString() == facultyCode &&
+                    !x.IsDeleted);
+
+            if (course == null)
+                return NotFound();
+
+            string? fileName = documentType switch
+            {
+                "KarnatakaGovernment" =>
+                    course.GovtKarnatakaDocumentName,
+
+                "Council" =>
+                    course.CouncilDocumentPath,
+
+                "RGUHS" =>
+                    course.RguhslastAffiliationDocumentName,
+
+                "GovernmentOfIndia" =>
+                    course.GovtIndiaDocumentName,
+
+                _ => null
+            };
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                return NotFound();
+
+            // Use your actual document storage path here
+            var filePath = Path.Combine(
+                BaseMedicalPath,
+                fileName
+            );
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound();
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+
+            return File(
+                fileBytes,
+                "application/pdf",
+                enableRangeProcessing: true
+            );
+        }
+
+        private void DeletePhysicalFileIfExists(string? filePath)
+        {
+            if (!string.IsNullOrWhiteSpace(filePath) &&
+                System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
+
+        // ===============================
+        // 🔥 Helper: is this section untouched by the user?
+        // ===============================
+        private bool IsSectionEmpty(Med_CA_AccountAndFeeDetailsViewModel item)
+        {
+            return string.IsNullOrWhiteSpace(item.AuthorityNameAddress)
+                && string.IsNullOrWhiteSpace(item.AuthorityContact)
+                && !item.RecurrentAnnual.HasValue
+                && !item.NonRecurrentAnnual.HasValue
+                && !item.Deposits.HasValue
+                && !item.TuitionFee.HasValue
+                && !item.SportsFee.HasValue
+                && !item.UnionFee.HasValue
+                && !item.LibraryFee.HasValue
+                && !item.OtherFee.HasValue
+                && string.IsNullOrWhiteSpace(item.AccountBooksMaintained)
+                && string.IsNullOrWhiteSpace(item.AccountsAudited)
+                && string.IsNullOrWhiteSpace(item.DonationLevied)
+                && (item.GoverningCouncilPdf == null || item.GoverningCouncilPdf.Length == 0)
+                && (item.AccountSummaryPdf == null || item.AccountSummaryPdf.Length == 0)
+                && (item.AuditedStatementPdf == null || item.AuditedStatementPdf.Length == 0)
+                && (item.DonationPdf == null || item.DonationPdf.Length == 0);
         }
 
         [HttpPost]
@@ -115,6 +387,7 @@ namespace Medical_Affiliation.Controllers
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var selectedCourseLevel = HttpContext.Session.GetString("CourseLevel");
 
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Login");
@@ -315,50 +588,422 @@ namespace Medical_Affiliation.Controllers
                         db.DonationPdfName = item.DonationPdf.FileName;
                     }
                 }
+
+                // --------------------------------------------------------
+                // Donation fields
+                // NOTE:
+                // Question 6 / additional fee is handled separately below.
+                // --------------------------------------------------------
+
+                db.DonationLevied = null;
+                db.DonationPdfPath = null;
+                db.DonationPdfName = null;
+
             }
 
-            // ===============================
-            // SAVE ALL
-            // ===============================
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                ModelState.AddModelError(string.Empty,
-                    "Failed to save. Please check that all required fields are filled in for every section.");
+            // ============================================================
+            // 2. ADDITIONAL FEE / DONATION / CAPITATION
+            // ============================================================
+            //
+            // Only save when fee is actually levied.
+            //
+            // If IsFeeLevied = false:
+            //     existing record is SOFT DELETED.
+            //
+            // If IsFeeLevied = true:
+            //     create/update active record.
+            //
+            // ============================================================
 
-                return View("Med_CA_FinanceDetails", model);
+
+            // ============================================================
+            // 2. ADDITIONAL FEES - INSERT / UPDATE MULTIPLE ROWS
+            // ============================================================
+
+            if (model.DonationFees != null &&
+                model.DonationFees.Any())
+            {
+                foreach (var fee in model.DonationFees)
+                {
+                    // Ignore invalid rows
+                    if (string.IsNullOrWhiteSpace(fee.FeeType))
+                        continue;
+
+                    var feeCourseLevel = fee.CourseLevel?
+                        .Trim()
+                        .ToUpperInvariant();
+
+                    if (string.IsNullOrWhiteSpace(feeCourseLevel))
+                        continue;
+
+
+                    CollegeAdditionalFeeDetail? dbFee = null;
+
+
+                    // ========================================================
+                    // EXISTING FEE
+                    // Id > 0 = existing database record
+                    // ========================================================
+
+                    if (fee.Id > 0)
+                    {
+                        dbFee = await _context.CollegeAdditionalFeeDetails
+                            .FirstOrDefaultAsync(x =>
+                                x.Id == fee.Id &&
+                                x.CollegeCode == collegeCode &&
+                                x.CourseLevel == feeCourseLevel &&
+                                x.FacultyId.ToString() == facultyCode &&
+                                !x.IsDeleted);
+                    }
+
+
+                    // ========================================================
+                    // NEW FEE
+                    // Id = 0 = newly added UI row
+                    // ========================================================
+
+                    if (dbFee == null)
+                    {
+                        dbFee = new CollegeAdditionalFeeDetail
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyId = int.Parse(facultyCode),
+                            CourseLevel = feeCourseLevel,
+                            CreatedOn = DateTime.Now,
+                            IsDeleted = false
+                        };
+
+                        _context.CollegeAdditionalFeeDetails.Add(dbFee);
+                    }
+
+
+                    // ========================================================
+                    // UPDATE COMMON FIELDS
+                    // ========================================================
+
+                    dbFee.CourseLevel = feeCourseLevel;
+
+                    dbFee.IsFeeLevied = model.IsFeeLevied;
+
+                    dbFee.FeeType = fee.FeeType;
+
+                    dbFee.FeeAmount = fee.FeeAmount;
+
+                    dbFee.IsDeleted = false;
+
+                    dbFee.ModifiedOn = DateTime.Now;
+                }
             }
+
+
+            // ============================================================
+            // 3. COURSES OFFERED - INSERT / UPDATE MULTIPLE ROWS
+            // ============================================================
+
+            if (model.CoursesOffered != null &&
+                model.CoursesOffered.Any())
+            {
+                foreach (var course in model.CoursesOffered)
+                {
+                    var courseLevel = course.CourseLevel?
+                        .Trim()
+                        .ToUpperInvariant();
+
+                    if (string.IsNullOrWhiteSpace(courseLevel))
+                        continue;
+
+                    if (string.IsNullOrWhiteSpace(course.CourseCode))
+                        continue;
+
+
+                    CollegeCoursesOffered? dbCourse = null;
+
+
+                    // ========================================================
+                    // EXISTING COURSE
+                    // ========================================================
+
+                    if (course.Id > 0)
+                    {
+                        dbCourse = await _context.CollegeCoursesOffereds
+                            .FirstOrDefaultAsync(x =>
+                                x.Id == course.Id &&
+                                x.CollegeCode == collegeCode &&
+                                x.CourseLevel == courseLevel &&
+                                x.FacultyId.ToString() == facultyCode &&
+                                !x.IsDeleted);
+                    }
+
+
+                    // ========================================================
+                    // NEW COURSE
+                    // ========================================================
+
+                    if (dbCourse == null)
+                    {
+                        dbCourse = new CollegeCoursesOffered
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyId = int.Parse(facultyCode),
+                            CreatedOn = DateTime.Now,
+                            CourseLevel = courseLevel,
+                            IsDeleted = false
+                        };
+
+                        _context.CollegeCoursesOffereds.Add(dbCourse);
+                    }
+
+
+                    // ========================================================
+                    // GET COURSE NAME FROM MASTER
+                    // ========================================================
+
+                    var courseMaster = await _context.MstCourses
+                        .FirstOrDefaultAsync(x =>
+                            x.CourseCode.ToString() == course.CourseCode &&
+                            x.CourseLevel == courseLevel &&
+                            x.FacultyCode == int.Parse(facultyCode));
+
+
+                    // ========================================================
+                    // COMMON COURSE FIELDS
+                    // ========================================================
+
+                    dbCourse.CourseCode =
+                        course.CourseCode;
+
+                    dbCourse.CourseName =
+                        courseMaster?.CourseName ?? course.CourseName;
+
+                    dbCourse.YearOfStarting =
+                        course.YearOfStarting;
+
+                    dbCourse.SanctionedAdmissions =
+                        course.SanctionedAdmissions;
+
+                    dbCourse.AdmittedAdmissions =
+                        course.AdmittedAdmissions;
+
+                    dbCourse.Remarks =
+                        course.Remarks;
+
+                    dbCourse.IsDeleted = false;
+
+                    dbCourse.ModifiedOn = DateTime.Now;
+
+
+                    // ========================================================
+                    // GOVERNMENT OF KARNATAKA
+                    // ========================================================
+
+                    dbCourse.GovtKarnatakaPermissionNumber =
+                        course.KarnatakaGovernmentPermissionNo;
+
+                    if (course.KarnatakaGovernmentPermissionFile != null &&
+                        course.KarnatakaGovernmentPermissionFile.Length > 0)
+                    {
+                        var path = await SaveFinanceFileAsync(
+                            course.KarnatakaGovernmentPermissionFile,
+                            "CourseDocuments/GovernmentKarnataka");
+
+                        DeletePhysicalFileIfExists(
+                            dbCourse.GovtKarnatakaDocumentPath);
+
+                        dbCourse.GovtKarnatakaDocumentPath = path;
+
+                        dbCourse.GovtKarnatakaDocumentName =
+                            course.KarnatakaGovernmentPermissionFile.FileName;
+
+                        dbCourse.GovtKarnatakaDocumentContentType =
+                            course.KarnatakaGovernmentPermissionFile.ContentType;
+                    }
+
+
+                    // ========================================================
+                    // COUNCIL / APEX BODY
+                    // ========================================================
+
+                    dbCourse.CouncilPermissionNumber =
+                        course.CouncilPermissionNo;
+
+                    if (course.CouncilPermissionFile != null &&
+                        course.CouncilPermissionFile.Length > 0)
+                    {
+                        var path = await SaveFinanceFileAsync(
+                            course.CouncilPermissionFile,
+                            "CourseDocuments/Council");
+
+                        DeletePhysicalFileIfExists(
+                            dbCourse.CouncilDocumentPath);
+
+                        dbCourse.CouncilDocumentPath = path;
+
+                        dbCourse.CouncilDocumentName =
+                            course.CouncilPermissionFile.FileName;
+
+                        dbCourse.CouncilDocumentContentType =
+                            course.CouncilPermissionFile.ContentType;
+                    }
+
+
+                    // ========================================================
+                    // LAST RGUHS AFFILIATION
+                    // ========================================================
+
+                    dbCourse.RguhslastAffiliationNumber =
+                        course.RGUHSLastAffiliationNo;
+
+                    if (course.RGUHSLastAffiliationFile != null &&
+                        course.RGUHSLastAffiliationFile.Length > 0)
+                    {
+                        var path = await SaveFinanceFileAsync(
+                            course.RGUHSLastAffiliationFile,
+                            "CourseDocuments/RGUHS");
+
+                        DeletePhysicalFileIfExists(
+                            dbCourse.RguhslastAffiliationDocumentPath);
+
+                        dbCourse.RguhslastAffiliationDocumentPath = path;
+
+                        dbCourse.RguhslastAffiliationDocumentName =
+                            course.RGUHSLastAffiliationFile.FileName;
+
+                        dbCourse.RguhslastAffiliationDocumentContentType =
+                            course.RGUHSLastAffiliationFile.ContentType;
+                    }
+
+
+                    // ========================================================
+                    // GOVERNMENT OF INDIA
+                    // ========================================================
+
+                    dbCourse.GovtIndiaPermissionNumber =
+                        course.GovernmentOfIndiaPermissionNo;
+
+                    if (course.GovernmentOfIndiaPermissionFile != null &&
+                        course.GovernmentOfIndiaPermissionFile.Length > 0)
+                    {
+                        var path = await SaveFinanceFileAsync(
+                            course.GovernmentOfIndiaPermissionFile,
+                            "CourseDocuments/GovernmentIndia");
+
+                        DeletePhysicalFileIfExists(
+                            dbCourse.GovtIndiaDocumentPath);
+
+                        dbCourse.GovtIndiaDocumentPath = path;
+
+                        dbCourse.GovtIndiaDocumentName =
+                            course.GovernmentOfIndiaPermissionFile.FileName;
+
+                        dbCourse.GovtIndiaDocumentContentType =
+                            course.GovernmentOfIndiaPermissionFile.ContentType;
+                    }
+                }
+            }
+
+
+            // ============================================================
+            // SAVE ALL CHANGES ONCE
+            // ============================================================
+
+            await _context.SaveChangesAsync();
 
             ContinuousAffiliationController.MarkDone(HttpContext, "FinancialDetails");
 
-            return RedirectToAction("CA_Med_StaffDetails", "CA_Med_StaffDetails");
+            return RedirectToAction(nameof(Med_CA_AccountAndFeeDetails));
         }
 
-        // ===============================
-        // 🔥 Helper: is this section untouched by the user?
-        // ===============================
-        private bool IsSectionEmpty(Med_CA_AccountAndFeeDetailsViewModel item)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCourseOffered(int id)
         {
-            return string.IsNullOrWhiteSpace(item.AuthorityNameAddress)
-                && string.IsNullOrWhiteSpace(item.AuthorityContact)
-                && !item.RecurrentAnnual.HasValue
-                && !item.NonRecurrentAnnual.HasValue
-                && !item.Deposits.HasValue
-                && !item.TuitionFee.HasValue
-                && !item.SportsFee.HasValue
-                && !item.UnionFee.HasValue
-                && !item.LibraryFee.HasValue
-                && !item.OtherFee.HasValue
-                && string.IsNullOrWhiteSpace(item.AccountBooksMaintained)
-                && string.IsNullOrWhiteSpace(item.AccountsAudited)
-                && string.IsNullOrWhiteSpace(item.DonationLevied)
-                && (item.GoverningCouncilPdf == null || item.GoverningCouncilPdf.Length == 0)
-                && (item.AccountSummaryPdf == null || item.AccountSummaryPdf.Length == 0)
-                && (item.AuditedStatementPdf == null || item.AuditedStatementPdf.Length == 0)
-                && (item.DonationPdf == null || item.DonationPdf.Length == 0);
+            var collegeCode = CollegeCode;
+            var facultyCode = FacultyCode;
+
+            if (string.IsNullOrWhiteSpace(collegeCode) ||
+                string.IsNullOrWhiteSpace(facultyCode))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Session expired."
+                });
+            }
+
+            var course = await _context.CollegeCoursesOffereds
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId.ToString() == facultyCode &&
+                    !x.IsDeleted);
+
+            if (course == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Course record not found."
+                });
+            }
+
+            course.IsDeleted = true;
+            course.ModifiedOn = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = "Course removed successfully."
+            });
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAdditionalFee(int id)
+        {
+            var collegeCode = CollegeCode;
+            var facultyCode = FacultyCode;
+
+            if (string.IsNullOrWhiteSpace(collegeCode) ||
+                string.IsNullOrWhiteSpace(facultyCode))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Invalid session."
+                });
+            }
+
+            var fee = await _context.CollegeAdditionalFeeDetails
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId.ToString() == facultyCode &&
+                    !x.IsDeleted);
+
+            if (fee == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Fee record not found."
+                });
+            }
+
+            // Soft delete
+            fee.IsDeleted = true;
+            fee.ModifiedOn = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = "Additional fee deleted successfully."
+            });
         }
 
         // View PDF actions (keep these)

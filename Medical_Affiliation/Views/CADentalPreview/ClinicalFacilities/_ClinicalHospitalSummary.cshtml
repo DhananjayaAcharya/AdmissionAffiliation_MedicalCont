@@ -1,0 +1,507 @@
+﻿@model Medical_Affiliation.Models.ClinicalDentalHospitalDisplayViewModel
+
+<!-- ===================== CLINICAL HOSPITAL SUMMARY ===================== -->
+
+<div class="general-body ">
+    <div class="section-block mt-4">
+
+        <!-- HEADER -->
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-hospital"></i>
+                Clinical Hospital Summary
+            </div>
+
+            <p class="section-description">
+                Key details and operational statistics of the hospital
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Detail</th>
+                        <th class="text-center">Value / Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (Model != null)
+                    {
+                        <tr>
+                            <td>Hospital Name</td>
+                            <td class="text-center">@Model.HospitalName</td>
+                        </tr>
+
+                        <tr>
+                            <td>Location</td>
+                            <td class="text-center">
+                                @Model.Location, @Model.TalukName, @Model.DistrictName
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Hospital Type</td>
+                            <td class="text-center">@Model.HospitalType</td>
+                        </tr>
+
+                        <tr>
+                            <td>Hospital Owned By</td>
+                            <td class="text-center">@Model.HospitalOwnedBy</td>
+                        </tr>
+
+                        <tr>
+                            <td>Hospital Owner Name</td>
+                            <td class="text-center">@Model.OwnerName</td>
+                        </tr>
+
+                        <tr>
+                            <td>Owner is a Trust Member</td>
+                            <td class="text-center">
+                                @if (Model.IsOwnerAmemberOfTrust)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle"></i> Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        <i class="bi bi-x-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Total Beds</td>
+                            <td class="text-center">@Model.TotalBeds</td>
+                        </tr>
+
+                        <tr>
+                            <td>OPD / Day</td>
+                            <td class="text-center">@Model.OpdPerDay</td>
+                        </tr>
+
+                        <tr>
+                            <td>IPD Occupancy (%)</td>
+                            <td class="text-center">@Model.IpdOccupancyPercent<span>%</span></td>
+                        </tr>
+
+                        <tr>
+                            <td>KPME Certificate Exists</td>
+                            <td class="text-center">
+                                @if (Model.IsKPMECertificateExists)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle"></i> Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        <i class="bi bi-x-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Pollution Control Board Certificate Exists</td>
+                            <td class="text-center">
+                                @if (Model.IsPollutionControlBoardCertificateExists)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle"></i> Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        <i class="bi bi-x-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Bio-Medical Certificate Exists</td>
+                            <td class="text-center">
+                                @if (Model.IsBioMedicalCertificateExists)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle"></i> Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        <i class="bi bi-x-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Drug Free Campus Certification</td>
+                            <td class="text-center">
+                                @if (Model.IsDrugFreeCampusCertificationExists)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle"></i> Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        <i class="bi bi-x-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Proposed Plans for Future Developments Exists</td>
+                            <td class="text-center">
+                                @if (Model.IsProposedPlansForFutureDevelopmentsExists)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle"></i> Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        <i class="bi bi-x-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Anatomy Act, 1969 Registration</td>
+                            <td class="text-center">
+                                @if (Model.IsRegisteredUnderAnatomyAct)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle"></i> Yes
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">
+                                        <i class="bi bi-x-circle"></i> No
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+
+                        @if (Model.IsRegisteredUnderAnatomyAct)
+                        {
+                            <tr>
+                                <td>Anatomy Act Registration Details</td>
+                                <td class="text-center">
+                                    @Model.AnatomyActRegistrationDetails
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Anatomy Act Registration Certificate</td>
+                                <td class="text-center">
+                                    @if (!string.IsNullOrWhiteSpace(Model.AnatomyActRegistrationCertificatePath))
+                                    {
+                                        <span class="status-badge-maintained">
+                                            <i class="bi bi-check-circle"></i> Yes
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge-not-maintained">
+                                            <i class="bi bi-x-circle"></i> No
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">
+                                Clinical hospital details not available
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- ===================== HOSPITAL TIE-UPS ===================== -->
+
+    @if (Model?.HospitalTieUps?.Any() == true)
+    {
+        <div class="section-block mt-4">
+
+            <div class="section-header-block mb-3">
+
+                <div class="section-title-text section-badge">
+
+                    <i class="bi bi-link-45deg"></i>
+
+                    Hospital Tie-Ups
+
+                </div>
+
+                <p class="section-description">
+                    Details of hospitals and institutions associated
+                    through clinical teaching or service tie-ups.
+                </p>
+
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <div class="table-responsive">
+
+                    <table class="table data-table align-middle">
+
+                        <thead>
+
+                            <tr>
+                                <th style="width:5%;">#</th>
+                                <th>Tie-Up Type</th>
+                                <th>Hospital Name</th>
+                                <th>Hospital Address</th>
+                                <th>Tie-Up Details</th>
+                                <th class="text-center">
+                                    Supporting Document
+                                </th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var tieUp in Model.HospitalTieUps
+                                .Select((item, index) => new
+                                {
+                                    item,
+                                    index
+                                }))
+                            {
+                                <tr>
+
+                                    <td>
+                                        @(tieUp.index + 1)
+                                    </td>
+
+
+                                    <td>
+                                        @(string.IsNullOrWhiteSpace(tieUp.item.TieUpType) ? "—" : tieUp.item.TieUpType)
+                                    </td>
+
+
+                                    <td>
+                                        @(string.IsNullOrWhiteSpace(tieUp.item.HospitalName) ? "—" : tieUp.item.HospitalName)
+                                    </td>
+
+
+                                    <td>
+                                        @(string.IsNullOrWhiteSpace(tieUp.item.HospitalAddress) ? "—" : tieUp.item.HospitalAddress)
+                                    </td>
+
+
+                                    <td>
+                                        @(string.IsNullOrWhiteSpace(tieUp.item.TieUpDetails) ? "—" : tieUp.item.TieUpDetails)
+                                    </td>
+
+
+                                    <td class="text-center">
+
+                                        @if (!string.IsNullOrWhiteSpace(tieUp.item.SupportingDocumentPath))
+                                        {
+                                            <span class="status-badge-maintained me-2">
+                                                <i class="bi bi-check-circle"></i>
+                                                Uploaded
+                                            </span>
+
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="openDocumentViewer(
+                                                        '@Url.Action(
+                                                            "ViewHospitalTieUpDocument",
+                                                            "ContinuesAffiliation_Facultybased",
+                                                            new { id = tieUp.item.Id }
+                                                        )',
+                                                        'Hospital Tie-Up Document'
+                                                    )">
+
+                                                <i class="bi bi-eye me-1"></i>
+                                                View
+
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge-not-maintained">
+                                                <i class="bi bi-x-circle"></i>
+                                                Not Uploaded
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="section-block mt-4">
+
+            <div class="section-header-block mb-3">
+
+                <div class="section-title-text section-badge">
+
+                    <i class="bi bi-link-45deg"></i>
+
+                    Hospital Tie-Ups
+
+                </div>
+
+            </div>
+
+            <div class="text-muted text-center py-3">
+                No hospital tie-up details available.
+            </div>
+
+        </div>
+    }
+
+<!-- ===================== HOSPITAL FACILITIES ===================== -->
+
+    @if (Model?.HospitalFacilities?.AvailableFacilities?.Any() == true)
+    {
+        <div class="section-block mt-4">
+
+            <div class="section-header-block mb-3">
+
+                <div class="section-title-text section-badge">
+
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+
+                    Hospital Facilities
+
+                </div>
+
+                <p class="section-description">
+                    Facilities available in the clinical hospital.
+                </p>
+
+            </div>
+
+            <div class="data-table-wrapper">
+
+                <div class="table-responsive">
+
+                    <table class="table data-table align-middle">
+
+                        <thead>
+                            <tr>
+                                <th style="width: 8%;">#</th>
+                                <th>Facility</th>
+                                <th class="text-center">
+                                    Status
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var facility in Model.HospitalFacilities.AvailableFacilities
+                                .Select((item, index) => new
+                                {
+                                    item,
+                                    index
+                                }))
+                            {
+                                <tr>
+
+                                    <td>
+                                        @(facility.index + 1)
+                                    </td>
+
+                                    <td>
+                                        @facility.item.Text
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        @if (Model.HospitalFacilities.SelectedFacilityIds.Contains(int.Parse(facility.item.Value)))
+                                        {
+                                            <span class="status-badge-maintained">
+                                                <i class="bi bi-check-circle"></i>
+                                                Available
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge-not-maintained">
+                                                <i class="bi bi-x-circle"></i>
+                                                Not Available
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="section-block mt-4">
+
+            <div class="section-header-block mb-3">
+
+                <div class="section-title-text section-badge">
+
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+
+                    Hospital Facilities
+
+                </div>
+
+            </div>
+
+            <div class="text-muted text-center py-3">
+                No hospital facility details available.
+            </div>
+
+        </div>
+    }
+
+
+
+</div>

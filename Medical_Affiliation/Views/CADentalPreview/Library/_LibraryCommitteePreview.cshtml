@@ -1,0 +1,83 @@
+﻿@model MedicalLibraryDisplayViewModel
+
+<!-- ===================== LIBRARY COMMITTEE DETAILS ===================== -->
+
+<div class="general-body">
+    <div class="section-block">
+
+        <!-- HEADER -->
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-people"></i>
+                Library Committee
+            </div>
+
+            <p class="section-description">
+                Details of library committee constitution and documents
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Committee Name</th>
+                        <th class="text-center">Present</th>
+                        <th class="text-center">Document</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.librarayCommitteeVM.Committees != null && Model.librarayCommitteeVM.Committees.Any())
+                    {
+                        foreach (var committee in Model.librarayCommitteeVM.Committees)
+                        {
+                            <tr>
+                                <td>
+                                    @committee.CommitteeName
+                                </td>
+
+                                <td class="text-center">
+                                    @if (committee.IsPresent)
+                                    {
+                                        <span class="status-badge-maintained">Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge-not-maintained">No</span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    @if (committee.HasCommitteePdf)
+                                    {
+                                        <a class="status-badge-maintained"
+                                           href="@Url.Action("ViewLibraryCommitteePdf", "CAPreview",
+                                                                                      new { id = committee.Id })"
+                               target="_blank">
+                                View
+                            </a>
+                                                        }
+                                    else
+                                    {
+                                        <span class="status-badge-not-maintained">
+                                            Not Uploaded
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">
+                                No library committee details available
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

@@ -258,6 +258,7 @@ namespace Medical_Affiliation.Models
         public string CollegeCode { get; set; }
         public string FacultyCode { get; set; }
 
+        [ValidateNever]
         public string? CourseLevel { get; set; }
         public int AffiliationTypeId { get; set; }
         public string AffiliationType { get; set; }
@@ -286,8 +287,124 @@ namespace Medical_Affiliation.Models
         //public List<SelectListItem> HospitalOwnedByList { get; set; }
         public string? HospitalTypeId { get; set; }
         public string? HospitalOwnedById { get; set; }
+
+        // KPME Certificate
+
+        public IFormFile? KPMECertificateFile { get; set; }
+
+        public string? KPMECertificatePath { get; set; }
+
+
+        // Pollution Control Board Certificate
+
+        public IFormFile? PollutionControlBoardCertificateFile { get; set; }
+
+        public string? PollutionControlBoardCertificatePath { get; set; }
+
+
+        // Bio-Medical Waste Certificate
+
+        public IFormFile? BioMedicalCertificateFile { get; set; }
+
+        public string? BioMedicalCertificatePath { get; set; }
+
+
+        // Drug Free Campus Certification
+
+        public IFormFile? DrugFreeCampusCertificationFile { get; set; }
+
+        public string? DrugFreeCampusCertificationPath { get; set; }
+
+
+        // Proposed Plans for Future Developments
+
+        public IFormFile? ProposedPlansForFutureDevelopmentsFile { get; set; }
+
+        public string? ProposedPlansForFutureDevelopmentsPath { get; set; }
+
+        // ============================================================
+        // ANATOMY ACT, 1969 REGISTRATION
+        // ============================================================
+
+        /// <summary>
+        /// Registration details under the Anatomy Act, 1969.
+        /// </summary>
+        public bool? HasAnatomyActRegistration { get; set; }
+        public string? AnatomyActRegistrationDetails { get; set; }
+        public IFormFile? AnatomyActRegistrationPdfFile { get; set; }
+        public string? AnatomyActRegistrationPdfPath { get; set; }
+
+        // ============================================================
+        // TIE-UP WITH OTHER HOSPITALS
+        // ============================================================
+
+        /// <summary>
+        /// Indicates whether the institution has a tie-up
+        /// with another hospital for teaching/clinical requirements.
+        /// </summary>
+        public bool? HasHospitalTieUp { get; set; }
+
+        /// <summary>
+        /// Details of hospitals with which the institution
+        /// has a tie-up.
+        /// </summary>
+        public List<HospitalTieUpDetailVM> HospitalTieUps { get; set; }
+            = new List<HospitalTieUpDetailVM>();
     }
 
+    public class HospitalTieUpDetailVM
+    {
+        public int Id { get; set; }
+
+        public int HospitalDetailsId { get; set; }
+
+        public string CollegeCode { get; set; }
+
+        public int FacultyCode { get; set; }
+
+        public string CourseLevel { get; set; }
+
+
+        // ============================================================
+        // TIE-UP DETAILS
+        // ============================================================
+
+        /// <summary>
+        /// Type of clinical teaching/service tie-up.
+        /// Example: Psychiatry, Tuberculosis, Leprosy, Burns, etc.
+        /// </summary>
+        public string? TieUpType { get; set; }
+
+        public string? HospitalName { get; set; }
+
+        public string? HospitalAddress { get; set; }
+
+        public string? TieUpDetails { get; set; }
+
+
+        // ============================================================
+        // SUPPORTING DOCUMENT
+        // ============================================================
+
+        public IFormFile? SupportingDocumentFile { get; set; }
+
+        public string? SupportingDocumentPath { get; set; }
+
+        public string? SupportingDocumentName { get; set; }
+
+        public string? SupportingDocumentContentType { get; set; }
+
+
+        // ============================================================
+        // STATUS / AUDIT
+        // ============================================================
+
+        public bool IsDeleted { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
+        public DateTime? ModifiedOn { get; set; }
+    }
 
     public class ClinicalCapacityViewModel
     {

@@ -52,7 +52,10 @@ namespace Medical_Affiliation.Models
 
         public IFormFile? DeuMembersListFile { get; set; }
         public bool HasDeuMembersListFile { get; set; }
-
+        // NEW
+        public string? DEUYearOfStarting { get; set; } 
+        // NEW
+        public string? NatureOfActivities { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (HasMedicalEducationUnit == true)
@@ -114,6 +117,20 @@ namespace Medical_Affiliation.Models
                 if (DentalEducationUnitHasInternet == null)
                     yield return new ValidationResult("Select Internet facilities.",
                         new[] { nameof(DentalEducationUnitHasInternet) });
+
+                // DEU Year of Starting
+
+                if (string.IsNullOrWhiteSpace(DEUYearOfStarting)) 
+                { yield return new ValidationResult("DEU Year of Starting is required.", 
+                    new[] { nameof(DEUYearOfStarting) }); 
+                }
+
+
+                // DEU Nature of Activities
+                if (string.IsNullOrWhiteSpace(NatureOfActivities)) 
+                { yield return new ValidationResult("Nature of Activities is required.", 
+                    new[] { nameof(NatureOfActivities) }); 
+                }
 
                 if (string.IsNullOrWhiteSpace(DeuCoordinatorName))
                     yield return new ValidationResult("Coordinator name is required.",

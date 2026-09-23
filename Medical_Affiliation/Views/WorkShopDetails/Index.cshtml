@@ -1,0 +1,907 @@
+﻿@model Medical_Affiliation.Models.WorkShopDetailsViewModel
+
+@{
+    ViewData["Title"] = "Workshop Details";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+
+    var isEditing = Model.WorkShopDetailsId > 0;
+}
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<style>
+    .workshop-details-page {
+        min-height: calc(100vh - 8rem);
+        padding: 1.5rem 0 3rem;
+        background: #f4f8fb;
+        color: #18324b;
+    }
+
+        .workshop-details-page .page-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            padding: 1.5rem 1.75rem;
+            color: #fff;
+            border-radius: .75rem;
+            background: linear-gradient(120deg, #0e4d80, #1769aa);
+        }
+
+            .workshop-details-page .page-heading h1 {
+                margin: 0;
+                font-size: 1.8rem;
+                font-weight: 600;
+            }
+
+            .workshop-details-page .page-heading p {
+                margin: .35rem 0 0;
+                color: rgba(255, 255, 255, .78);
+            }
+
+        .workshop-details-page .panel {
+            border: 1px solid #dce7f0;
+            border-radius: .7rem;
+            background: #fff;
+            box-shadow: 0 .5rem 1.5rem rgba(34, 67, 96, .07);
+        }
+
+        .workshop-details-page .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #18324b;
+        }
+
+        .workshop-details-page .form-label {
+            color: #526b80;
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .workshop-details-page .session-box {
+            background: #f5f9fc;
+            border: 1px solid #dce7f0;
+            border-radius: .6rem;
+            padding: .85rem 1rem;
+            height: 100%;
+        }
+
+        .workshop-details-page .session-label {
+            display: block;
+            margin-bottom: .25rem;
+            color: #71869a;
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .workshop-details-page .session-value {
+            display: block;
+            color: #18324b;
+            font-size: .95rem;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .workshop-details-page textarea {
+            min-height: 125px;
+            resize: vertical;
+        }
+
+        .workshop-details-page .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .workshop-details-page .form-control:focus {
+            border-color: #1769aa;
+            box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .12);
+        }
+
+        .workshop-details-page .table th {
+            color: #62798d;
+            background: #f1f6fa;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            white-space: nowrap;
+        }
+
+        .workshop-details-page .table td {
+            vertical-align: middle;
+        }
+
+        .workshop-details-page .table tbody tr:hover {
+            background: #f8fbfd;
+        }
+
+        .workshop-details-page .badge-level {
+            background: #eef5fa;
+            color: #1769aa;
+            border: 1px solid #d7e7f2;
+            font-weight: 600;
+        }
+
+        .workshop-details-page .record-text {
+            max-width: 220px;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .workshop-details-page .action-btn {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .workshop-details-page .btn-primary {
+            background-color: #1769aa;
+            border-color: #1769aa;
+        }
+
+            .workshop-details-page .btn-primary:hover {
+                background-color: #0e4d80;
+                border-color: #0e4d80;
+            }
+
+        .workshop-details-page .session-info-title {
+            color: #1769aa;
+            font-size: .85rem;
+            font-weight: 700;
+            margin-bottom: .75rem;
+        }
+
+    @@media (max-width: 767.98px) {
+
+        .workshop-details-page .page-heading {
+            align-items: start;
+            flex-direction: column;
+            padding: 1.25rem;
+        }
+
+            .workshop-details-page .page-heading h1 {
+                font-size: 1.5rem;
+            }
+
+        .workshop-details-page .record-text {
+            max-width: 160px;
+        }
+    }
+</style>
+
+
+<div class="workshop-details-page">
+
+    <div class="container-fluid">
+
+        <!-- ========================================================= -->
+        <!-- PAGE HEADER -->
+        <!-- ========================================================= -->
+
+        <div class="page-heading">
+
+            <div>
+                <h1>
+                    <i class="bi bi-tools me-2"></i>
+                    Workshop Details
+                </h1>
+
+                <p>
+                    Maintain workshop staff, equipment and scope of work details.
+                </p>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.CollegeCode))
+            {
+                <span class="small">
+                    College: @Model.CollegeCode
+                </span>
+            }
+
+        </div>
+
+
+
+        <!-- ========================================================= -->
+        <!-- ADD / EDIT FORM -->
+        <!-- ========================================================= -->
+
+        <div class="panel border-0 mb-4">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h5 class="section-title mb-1">
+
+                            <i class="bi bi-pencil-square me-1"></i>
+
+                            @(isEditing
+                                ? "Edit Workshop Details"
+                                : "Add Workshop Details")
+
+                        </h5>
+
+                        <small class="text-muted">
+                            Enter the workshop information for the current selection.
+                        </small>
+
+                    </div>
+
+
+                    @if (isEditing)
+                    {
+                        <a asp-action="Index"
+                           class="btn btn-sm btn-outline-secondary">
+
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel
+
+                        </a>
+                    }
+
+                </div>
+
+
+                <form id="workshopForm"
+                      asp-action="@(isEditing ? "Edit" : "Create")"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    @if (isEditing)
+                    {
+                        <input asp-for="WorkShopDetailsId"
+                               type="hidden" />
+                    }
+
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger small mb-3">
+                    </div>
+
+
+                    <div class="row g-4">
+
+                        <!-- ================================================= -->
+                        <!-- STAFF -->
+                        <!-- ================================================= -->
+
+                        <div class="col-md-12">
+
+                            <label asp-for="Staff"
+                                   class="form-label required">
+
+                                <i class="bi bi-people me-1"></i>
+                                Staff
+
+                            </label>
+
+                            <textarea asp-for="Staff"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Enter workshop staff details..."></textarea>
+
+                            <span asp-validation-for="Staff"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- EQUIPMENT -->
+                        <!-- ================================================= -->
+
+                        <div class="col-md-12">
+
+                            <label asp-for="Equipment"
+                                   class="form-label required">
+
+                                <i class="bi bi-wrench-adjustable me-1"></i>
+                                Equipment
+
+                            </label>
+
+                            <textarea asp-for="Equipment"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Enter workshop equipment details..."></textarea>
+
+                            <span asp-validation-for="Equipment"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- SCOPE OF WORK -->
+                        <!-- ================================================= -->
+
+                        <div class="col-md-12">
+
+                            <label asp-for="ScopeOfWork"
+                                   class="form-label required">
+
+                                <i class="bi bi-list-check me-1"></i>
+                                Scope of Work
+
+                            </label>
+
+                            <textarea asp-for="ScopeOfWork"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Enter scope of work details..."></textarea>
+
+                            <span asp-validation-for="ScopeOfWork"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ================================================= -->
+                        <!-- SAVE BUTTON -->
+                        <!-- ================================================= -->
+
+                        <div class="col-md-4 ms-auto">
+
+                            <button type="submit"
+                                    class="btn btn-primary w-100"
+                                    id="saveWorkshopBtn">
+
+                                <i class="bi bi-save me-1"></i>
+
+                                @(isEditing
+                                    ? "Update Workshop"
+                                    : "Save Workshop")
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- WORKSHOP RECORDS -->
+        <!-- ========================================================= -->
+
+        <div class="panel border-0">
+
+            <div class="card-body p-0">
+
+                <div class="p-4 border-bottom">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <h5 class="section-title mb-1">
+
+                                <i class="bi bi-table me-1"></i>
+                                Workshop Records
+
+                            </h5>
+
+                            <small class="text-muted">
+                                Records for the current affiliation selection.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+
+                                <th class="ps-4">
+                                    Staff
+                                </th>
+
+                                <th>
+                                    Equipment
+                                </th>
+
+                                <th>
+                                    Scope of Work
+                                </th>
+
+                                <th class="text-end pe-4">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @if (Model.WorkshopRecords == null ||
+                                 !Model.WorkshopRecords.Any())
+                            {
+                                <tr>
+
+                                    <td colspan="4"
+                                        class="text-center text-muted py-5">
+
+                                        <div class="mb-2">
+                                            <i class="bi bi-inbox fs-2"></i>
+                                        </div>
+
+                                        No workshop records found.
+
+                                    </td>
+
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var item in Model.WorkshopRecords)
+                                {
+                                    <tr>
+
+                                        <!-- Staff -->
+
+                                        <td class="ps-4">
+
+                                            <div class="record-text">
+
+                                                @item.Staff
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- Equipment -->
+
+                                        <td>
+
+                                            <div class="record-text">
+
+                                                @item.Equipment
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- Scope of Work -->
+
+                                        <td>
+
+                                            <div class="record-text">
+
+                                                @item.ScopeOfWork
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- Actions -->
+
+                                        <td class="text-end pe-4">
+
+                                            <a asp-action="Edit"
+                                               asp-route-id="@item.WorkShopDetailsId"
+                                               class="btn btn-sm btn-outline-primary action-btn me-1"
+                                               title="Edit">
+
+                                                <i class="bi bi-pencil"></i>
+
+                                            </a>
+
+
+                                            <form asp-action="Delete"
+                                                  asp-route-id="@item.WorkShopDetailsId"
+                                                  method="post"
+                                                  class="d-inline delete-workshop-form">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger action-btn"
+                                                        title="Remove">
+
+                                                    <i class="bi bi-trash"></i>
+
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const form = document.getElementById("workshopForm");
+
+            const isEditing = @isEditing.ToString().ToLower();
+
+
+            // ============================================================
+            // SAVE / UPDATE
+            // ============================================================
+
+            if (form) {
+
+                form.addEventListener("submit", function(event) {
+
+                    let errors = [];
+
+
+                    const staff =
+                        document.getElementById("Staff");
+
+                    const equipment =
+                        document.getElementById("Equipment");
+
+                    const scopeOfWork =
+                        document.getElementById("ScopeOfWork");
+
+
+                    // Staff validation
+
+                    if (!staff || !staff.value.trim()) {
+
+                        errors.push(
+                            "Please enter Staff details."
+                        );
+
+                    }
+
+
+                    // Equipment validation
+
+                    if (!equipment || !equipment.value.trim()) {
+
+                        errors.push(
+                            "Please enter Equipment details."
+                        );
+
+                    }
+
+
+                    // Scope validation
+
+                    if (!scopeOfWork || !scopeOfWork.value.trim()) {
+
+                        errors.push(
+                            "Please enter Scope of Work."
+                        );
+
+                    }
+
+
+                    // ====================================================
+                    // VALIDATION ERROR
+                    // ====================================================
+
+                    if (errors.length > 0) {
+
+                        event.preventDefault();
+
+                        Swal.fire({
+
+                            icon: "warning",
+
+                            title: "Validation Required",
+
+                            html: errors.map(function(error) {
+
+                                return '<div class="text-start mb-1">• '
+                                    + error +
+                                    '</div>';
+
+                            }).join(""),
+
+                            confirmButtonText: "OK",
+
+                            confirmButtonColor: "#1769aa"
+
+                        });
+
+                        return;
+                    }
+
+
+                    // ====================================================
+                    // CONFIRM SAVE / UPDATE
+                    // ====================================================
+
+                    event.preventDefault();
+
+
+                    Swal.fire({
+
+                        icon: "question",
+
+                        title: isEditing
+                            ? "Update Workshop Details?"
+                            : "Save Workshop Details?",
+
+                        text: isEditing
+                            ? "Are you sure you want to update this record?"
+                            : "Are you sure you want to save this record?",
+
+                        showCancelButton: true,
+
+                        confirmButtonText: isEditing
+                            ? "Yes, Update"
+                            : "Yes, Save",
+
+                        cancelButtonText: "Cancel",
+
+                        reverseButtons: true,
+
+                        confirmButtonColor: "#1769aa"
+
+                    }).then(function(result) {
+
+                        if (result.isConfirmed) {
+
+                            const button =
+                                document.getElementById(
+                                    "saveWorkshopBtn"
+                                );
+
+
+                            button.disabled = true;
+
+
+                            button.innerHTML =
+                                '<span class="spinner-border spinner-border-sm me-1"></span>' +
+                                (
+                                    isEditing
+                                        ? "Updating..."
+                                        : "Saving..."
+                                );
+
+
+                            form.submit();
+
+                        }
+
+                    });
+
+                });
+
+            }
+
+
+            // ============================================================
+            // DELETE CONFIRMATION
+            // ============================================================
+
+            document
+                .querySelectorAll(".delete-workshop-form")
+                .forEach(function(deleteForm) {
+
+                    deleteForm.addEventListener(
+                        "submit",
+                        function(event) {
+
+                            event.preventDefault();
+
+
+                            Swal.fire({
+
+                                icon: "warning",
+
+                                title: "Remove Workshop Record?",
+
+                                text:
+                                    "Are you sure you want to remove this workshop record?",
+
+                                showCancelButton: true,
+
+                                confirmButtonText:
+                                    "Yes, Remove",
+
+                                cancelButtonText:
+                                    "Cancel",
+
+                                reverseButtons: true,
+
+                                confirmButtonColor:
+                                    "#dc3545"
+
+                            }).then(function(result) {
+
+                                if (result.isConfirmed) {
+
+                                    deleteForm.submit();
+
+                                }
+
+                            });
+
+                        });
+
+                });
+
+
+            // ============================================================
+            // SERVER VALIDATION SUMMARY
+            // ============================================================
+
+            const validationSummary =
+                document.querySelector(
+                    "[data-valmsg-summary='true']"
+                );
+
+
+            if (validationSummary) {
+
+                const errorItems =
+                    validationSummary.querySelectorAll("li");
+
+
+                if (errorItems.length > 0) {
+
+                    let messages = [];
+
+
+                    errorItems.forEach(function(item) {
+
+                        const message =
+                            item.textContent.trim();
+
+
+                        if (message) {
+
+                            messages.push(message);
+
+                        }
+
+                    });
+
+
+                    if (messages.length > 0) {
+
+                        Swal.fire({
+
+                            icon: "error",
+
+                            title: "Unable to Save",
+
+                            html: messages.map(function(message) {
+
+                                return '<div class="text-start mb-1">• '
+                                    + message +
+                                    '</div>';
+
+                            }).join(""),
+
+                            confirmButtonText: "OK",
+
+                            confirmButtonColor: "#1769aa"
+
+                        });
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    </script>
+
+
+    <!-- ============================================================= -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ============================================================= -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+
+            Swal.fire({
+
+                icon: "success",
+
+                title: "Success",
+
+                text: @Html.Raw(
+                                System.Text.Json.JsonSerializer.Serialize(
+                                TempData["SuccessMessage"]?.ToString()
+                                )
+                                ),
+
+                confirmButtonText: "OK",
+
+                confirmButtonColor: "#1769aa"
+
+            });
+
+        </script>
+    }
+
+
+    <!-- ============================================================= -->
+    <!-- ERROR MESSAGE -->
+    <!-- ============================================================= -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+
+            Swal.fire({
+
+                icon: "error",
+
+                title: "Error",
+
+                text: @Html.Raw(
+                                System.Text.Json.JsonSerializer.Serialize(
+                                TempData["ErrorMessage"]?.ToString()
+                                )
+                                ),
+
+                confirmButtonText: "OK",
+
+                confirmButtonColor: "#dc3545"
+
+            });
+
+        </script>
+    }
+
+}

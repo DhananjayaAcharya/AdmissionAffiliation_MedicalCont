@@ -1,0 +1,76 @@
+﻿@model MedicalLibraryDisplayViewModel
+
+<div class="general-body">
+    <div class="section-block">
+
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-collection"></i>
+                Library Items
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="table data-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th class="text-center">Current (Indian)</th>
+                        <th class="text-center">Current (Foreign)</th>
+                        <th class="text-center">Previous (Indian)</th>
+                        <th class="text-center">Previous (Foreign)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model?.LibraryItemListVM.Items != null && Model.LibraryItemListVM.Items.Any())
+                    {
+                        @foreach (var item in Model.LibraryItemListVM.Items)
+                        {
+                            <tr>
+                                <td>@item.ItemName</td>
+
+                                <!-- CURRENT INDIAN -->
+                                <td class="text-center">
+                                    @(item.HasIndianForeignSplit
+                                                                ? item.CurrentIndian.ToString()
+                                                                : (item.CurrentIndian + item.CurrentForeign).ToString())
+                                </td>
+
+                                <!-- CURRENT FOREIGN -->
+                                <td class="text-center">
+                                    @(item.HasIndianForeignSplit
+                                                                ? item.CurrentForeign.ToString()
+                                                                : "—")
+                                </td>
+
+                                <!-- PREVIOUS INDIAN -->
+                                <td class="text-center">
+                                    @(item.HasIndianForeignSplit
+                                                                ? item.PreviousIndian.ToString()
+                                                                : (item.PreviousIndian + item.PreviousForeign).ToString())
+                                </td>
+
+                                <!-- PREVIOUS FOREIGN -->
+                                <td class="text-center">
+                                    @(item.HasIndianForeignSplit
+                                                                ? item.PreviousForeign.ToString()
+                                                                : "—")
+                                </td>
+                            </tr>
+                        }
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                No library item details available
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,80 @@
+﻿@model Medical_Affiliation.Models.SkillsLabEquipmentViewModel
+
+@if (Model != null && Model.Items.Any())
+{
+    <div class="general-body">
+        <div class="section-block">
+            <!-- Header -->
+            <div class="section-header-block mb-3">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-tools"></i>
+                    Medical Skills Lab Equipment
+                </div>
+
+                <p class="section-description">
+                    Requirement-wise availability and compliance of skills laboratory equipment
+                </p>
+            </div>
+
+            <!-- Equipment Table -->
+            <div class="data-table-wrapper">
+                <table class="table data-table requirements-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th class="text-center">Required</th>
+                            <th class="text-center">Available</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-center">Compliance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="document-name">
+                                    @item.Name
+                                </td>
+
+                                <td class="text-center">
+                                    @(item.IsRequired ? "Yes" : "No")
+                                </td>
+
+                                <td class="text-center">
+                                    @(item.IsAvailable ? "Yes" : "No")
+                                </td>
+
+                                <td class="text-center">
+                                    @(item.Quantity?.ToString() ?? "-")
+                                </td>
+
+                                <td class="text-center">
+                                    @if (item.IsRequired && !item.IsAvailable)
+                                    {
+                                        <span class="status-badge-not-maintained">
+                                            Not Compliant
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge-maintained">
+                                            Compliant
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No skills lab equipment data available.</p>
+    </div>
+}

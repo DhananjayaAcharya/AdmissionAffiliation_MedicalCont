@@ -461,6 +461,20 @@ namespace Medical_Affiliation.Models
 
     }
 
+    public class DentalLibraryDisplayViewModel {
+        public string CollegeCode { get; set; } = null!;
+        public CA_Aff_MedicalLibraryViewModel1 caAffMedicalLibraryvm {  get; set; }
+        public CaMedLibCommitteeListDisplayViewModel librarayCommitteeVM { get; set; }
+        public CaMedLibraryGeneralDisplayViewModel LibraryGeneralVM { get; set; }
+        public CaMedLibraryItemListDisplayViewModel LibraryItemListVM {  get; set; }
+        public CaMedLibraryBuildingDisplayViewModel LibraryBuildingVM { get; set; }
+        public CaMedLibTechnicalProcessListDisplayViewModel LibraryTechListVM { get; set; }
+        public CaMedLibraryFinanceDisplayViewModel LibraryFinancVM { get; set; }
+        public CaMedLibraryEquipmentListDisplayViewModel LibraryEquipmentListVM { get; set; }
+        public CaMedResearchPublicationsDisplayViewModel ResearchPublicationsDisplayViewModel { get; set; }
+
+    }
+
     public class FinanceViewModel
     {
         public string CollegeCode { get; set; } = null!;

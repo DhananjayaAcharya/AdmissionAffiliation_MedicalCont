@@ -1,0 +1,177 @@
+﻿@model List<Medical_Affiliation.Models.AnimalHouseDetail>
+
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+}
+
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<link rel="stylesheet" href="~/css/preview-section-header.css" asp-append-version="true" />
+
+<div class="general-section">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <div class="preview-section-header">
+
+        <div class="preview-section-header-content">
+
+            <div class="preview-section-title">
+
+                <i class="bi bi-list-check"></i>
+
+                <div>
+                    <h3>
+                        Animal House Details
+                    </h3>
+
+                </div>
+
+            </div>
+
+            <a class="preview-section-edit"
+               href="@Url.Action(
+                    "Index",
+                    "AnimalHouseDetail",
+                    new
+                    {
+                        typeOfAffiliation = @AffiliationType
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+
+                <span>Edit section</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- ANIMAL HOUSE DETAILS -->
+    <!-- ====================================================== -->
+
+    <div class="section-block">
+
+        <div class="section-header-block mb-3">
+
+            <div class="section-title-text section-badge">
+                <i class="bi bi-house-heart-fill"></i>
+                Animal House Information
+            </div>
+
+            <p class="section-description">
+                Details of the animal house, including area, staff and types of animals maintained.
+            </p>
+
+        </div>
+
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="data-table-wrapper">
+
+                <table class="table data-table table-bordered align-middle">
+
+                    <thead>
+                        <tr>
+
+                            <th class="text-center" style="width: 80px;">
+                                Sl.No
+                            </th>
+
+                            <th class="text-center">
+                                Area
+                            </th>
+
+                            <th>
+                                Staff
+                            </th>
+
+                            <th>
+                                Type of Animals
+                            </th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @{
+                            var serialNo = 1;
+                        }
+
+                        @foreach (var animalHouse in Model)
+                        {
+                            <tr>
+
+                                <td class="text-center">
+                                    @serialNo
+                                </td>
+
+                                <td class="text-center">
+                                    @if (animalHouse.Area.HasValue)
+                                    {
+                                        @($"{animalHouse.Area.Value:N2} Sq. Ft.")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(animalHouse.Staff))
+                                    {
+                                        @animalHouse.Staff
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(animalHouse.TypeOfAnimals))
+                                    {
+                                        @animalHouse.TypeOfAnimals
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+
+                            </tr>
+
+                            serialNo++;
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted py-4">
+
+                <i class="bi bi-info-circle"
+                   style="font-size: 2rem;"></i>
+
+                <p class="mt-2 mb-0">
+                    No animal house details available.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>

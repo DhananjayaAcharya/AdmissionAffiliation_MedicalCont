@@ -8,6 +8,12 @@
     var CollegeCode = HttpContextAccessor.HttpContext?.Session?.GetString("CollegeCode")
         ?? HttpContextAccessor.HttpContext?.User?.FindFirst("CollegeCode")?.Value;
 
+
+    var facultyCode = HttpContextAccessor.HttpContext?.Session?.GetString("FacultyCode");
+    var facultyIntCode = string.IsNullOrEmpty(facultyCode) ? 0 : Convert.ToInt64(facultyCode);
+
+    var isDental = facultyIntCode == 2;
+
     // FIX: removed Session.GetString("AffiliationType") from this chain.
     // AffiliationType is stored via Session.SetInt32(), never as a string.
     // Reading an int key with GetString() returns garbled non-null text
@@ -110,6 +116,8 @@
                 border-radius: 1.15rem;
                 box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
                 border: 1px solid rgba(13, 71, 161, 0.12);
+                height: calc(100vh - 8.6rem);
+                box-sizing: border-box;
             }
 
             /* Let every page use the full main column after the sidebar collapses. */
@@ -456,7 +464,16 @@
     </header>
 
     <div class="ca-shell">
-        @await Html.PartialAsync("_ContinuousAffiliationSidebar")
+        @* @await Html.PartialAsync("_ContinuousAffiliationSidebar") *@
+        @if (!isDental)
+        {
+            @await Html.PartialAsync("_ContinuousAffiliationSidebar")
+        }
+        else
+        {
+            @await Html.PartialAsync("_ContinuousAffiliationDentalSidebar")
+
+        }
         <div class="ca-main">
             <main class="ca-body">
                 @RenderBody()

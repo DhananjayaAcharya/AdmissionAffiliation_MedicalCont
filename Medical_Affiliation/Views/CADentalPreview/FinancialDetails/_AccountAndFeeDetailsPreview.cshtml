@@ -1,0 +1,172 @@
+﻿@model Medical_Affiliation.Models.FinanceViewModel
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<!-- ===================== ACCOUNTS & FEE DETAILS ===================== -->
+
+<div class="general-body">
+    <div class="section-block">
+
+        <!-- HEADER -->
+        <div class="section-header-block mb-3">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-cash-stack"></i>
+                Accounts & Fee Details
+            </div>
+
+            <p class="section-description">
+                Financial details, audited accounts and governing council approvals
+            </p>
+        </div>
+
+        @if (Model != null)
+        {
+            var acc = Model.medCaAccountAndFee;
+
+            <!-- AUTHORITY DETAILS -->
+            <div class="data-table-wrapper mb-4">
+                <table class="table data-table align-middle">
+                    <tbody>
+                        <tr>
+                            <th>Authority Name & Address</th>
+                            <td>@acc.AuthorityNameAddress</td>
+                        </tr>
+                        <tr>
+                            <th>Authority Contact</th>
+                            <td>@acc.AuthorityContact</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FEE STRUCTURE -->
+            <div class="data-table-wrapper mb-4">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Fee Component</th>
+                            <th class="text-end">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Recurrent Annual</td><td class="text-end">₹@acc.RecurrentAnnual</td></tr>
+                        <tr><td>Non-Recurrent Annual</td><td class="text-end">₹@acc.NonRecurrentAnnual</td></tr>
+                        <tr><td>Deposits</td><td class="text-end">₹@acc.Deposits</td></tr>
+                        <tr><td>Tuition Fee</td><td class="text-end">₹@acc.TuitionFee</td></tr>
+                        <tr><td>Sports Fee</td><td class="text-end">₹@acc.SportsFee</td></tr>
+                        <tr><td>Union Fee</td><td class="text-end">₹@acc.UnionFee</td></tr>
+                        <tr><td>Library Fee</td><td class="text-end">₹@acc.LibraryFee</td></tr>
+                        <tr><td>Other Fee</td><td class="text-end">₹@acc.OtherFee</td></tr>
+                        <tr class="fw-bold">
+                            <td>Total Fee</td>
+                            <td class="text-end">@acc.TotalFee</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ACCOUNTS & DOCUMENTS -->
+            <div class="data-table-wrapper mb-4">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            @* <th class="text-center">Status</th> *@
+                            <th class="text-center">View</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <!-- Governing Council -->
+                        <tr>
+                            <td>Governing Council Approval</td>
+                            @* <td class="text-center">
+                                @if (acc.HasGoverningCouncilPdf)
+                                {
+                                    <span class="status-badge-maintained">Uploaded</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">Not Uploaded</span>
+                                }
+                            </td> *@
+                            <td class="text-center">
+                                @if (string.IsNullOrEmpty(acc.GoverningCouncilPdfName) || acc.HasGoverningCouncilPdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                       href="@Url.Action("ViewGoverningCouncilPdf", "CAPreview", new { id = acc.Id })"
+                                       target="_blank">View</a>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <!-- Account Summary -->
+                        <tr>
+                            <td>Account Summary</td>
+                            @* <td class="text-center">
+                                @if (acc.HasAccountSummaryPdf)
+                                {
+                                    <span class="status-badge-maintained">Uploaded</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">Not Uploaded</span>
+                                }
+                            </td> *@
+                            <td class="text-center">
+                                @if (string.IsNullOrEmpty(acc.AccountSummaryPdfName) || acc.HasAccountSummaryPdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                       href="@Url.Action("ViewAccountSummaryPdf", "CAPreview", new { id = acc.Id })"
+                                       target="_blank">View</a>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <!-- Audited Statement -->
+                        <tr>
+                            <td>Audited Statement</td>
+                            @* <td class="text-center">
+                                @if (acc.HasAuditedStatementPdf)
+                                {
+                                    <span class="status-badge-maintained">Uploaded</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">Not Uploaded</span>
+                                }
+                            </td> *@
+                            <td class="text-center">
+                                @if (acc.HasAuditedStatementPdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                       href="@Url.Action("ViewAuditedStatementPdf", "CAPreview", new { id = acc.Id })"
+                                       target="_blank">View</a>
+                                }
+                                else
+                                {
+                                    <span class="status-badge-not-maintained">Not Uploaded</span>
+                                }
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                Accounts & Fee details not submitted.
+            </div>
+        }
+
+    </div>
+</div>

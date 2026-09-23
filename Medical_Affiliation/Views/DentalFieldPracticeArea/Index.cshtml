@@ -1,0 +1,847 @@
+﻿
+@model DentalFieldPracticeAreaViewModel
+
+@{
+    ViewData["Title"] = "Field Practice Area";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+
+    // Faculty-specific Field Types
+    var ruralField = Model.FieldTypes
+        .FirstOrDefault(x => x.Value == "3");
+
+    var urbanField = Model.FieldTypes
+        .FirstOrDefault(x => x.Value == "4");
+
+    // Saved records
+    var ruralRecord = Model.DentalFieldPracticeRecords
+        .FirstOrDefault(x => x.FieldTypeId == 3);
+
+    var urbanRecord = Model.DentalFieldPracticeRecords
+        .FirstOrDefault(x => x.FieldTypeId == 4);
+}
+
+<style>
+
+    .page-wrapper {
+        padding-top: 0
+    }
+    /* ============================================================
+           PAGE WRAPPER
+           Keeps content below the fixed layout/header
+           ============================================================ */
+
+    .field-practice-page {
+        min-height: calc(100vh - 80px);
+    }
+
+    /* ============================================================
+           MAIN CARD
+           ============================================================ */
+
+    .practice-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    /* ============================================================
+           PAGE TITLE
+           ============================================================ */
+
+    .practice-header {
+        padding: 20px 24px;
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+        .practice-header h4 {
+            margin: 0;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .practice-header p {
+            margin: 5px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+    /* ============================================================
+           RURAL / URBAN SECTION
+           ============================================================ */
+
+    .field-section {
+        margin-bottom: 28px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .field-section-header {
+        padding: 14px 18px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .field-section-header h5 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+    .field-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #e0e7ff;
+        color: #3730a3;
+    }
+
+    .field-section-body {
+        padding: 22px;
+    }
+
+    /* ============================================================
+           FORM LABELS
+           ============================================================ */
+
+    .field-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+
+    .required-star {
+        color: #dc2626;
+        margin-left: 2px;
+    }
+
+    /* ============================================================
+           INPUTS
+           ============================================================ */
+
+    .field-input,
+    .field-textarea {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        background: #fff;
+    }
+
+        .field-input:focus,
+        .field-textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+    .field-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* ============================================================
+           FILE AREA
+           ============================================================ */
+
+    .file-box {
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .existing-file {
+        margin-top: 8px;
+        font-size: 13px;
+    }
+
+        .existing-file a {
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+    /* ============================================================
+           SAVE / UPDATE BUTTON
+           ============================================================ */
+
+    .save-button-wrapper {
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .save-field-btn {
+        min-width: 130px;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 10px 22px;
+    }
+
+    /* ============================================================
+           VALIDATION
+           ============================================================ */
+
+    .validation-message {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+
+    @@media (max-width: 768px) {
+
+        .field-practice-page {
+            padding-top: 70px;
+        }
+
+        .field-section-body {
+            padding: 15px;
+        }
+
+        .practice-header {
+            padding: 16px;
+        }
+
+        .field-section-header {
+            padding: 12px 15px;
+        }
+
+        .save-button-wrapper {
+            text-align: center;
+        }
+
+        .save-field-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="field-practice-page">
+
+    <div class="container-fluid">
+
+        <!-- ========================================================
+             PAGE HEADER
+             ======================================================== -->
+
+        <div class="practice-card">
+
+            <div class="practice-header">
+
+                <h4>
+                    <i class="bi bi-hospital me-2"></i>
+                    Field Practice Area
+                </h4>
+
+                <p>
+                    Field Practice Area (Health Centres) for Community Health Planning
+                </p>
+
+            </div>
+
+
+            <div class="p-4">
+
+                <!-- ====================================================
+                     RURAL FIELD
+                     ==================================================== -->
+
+                <div class="field-section">
+
+                    <div class="field-section-header">
+
+                        <h5>
+                            <i class="bi bi-tree me-2"></i>
+                            Rural Field Practice Area
+                        </h5>
+
+                        <span class="field-badge">
+                            Rural
+                        </span>
+
+                    </div>
+
+
+                    <div class="field-section-body">
+
+                        <form id="ruralFieldForm"
+                              asp-controller="DentalFieldPracticeArea"
+                              asp-action="@(ruralRecord != null ? "Edit" : "Create")"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <!-- Hidden values -->
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@(ruralRecord?.DentalFieldPracticeAreaId ?? 0)" />
+
+                            <input type="hidden"
+                                   name="fieldTypeId"
+                                   value="3" />
+
+
+                            <!-- a. Location -->
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        a. Location
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="location"
+                                           class="field-input"
+                                           maxlength="250"
+                                           value="@ruralRecord?.Location"
+                                           placeholder="Enter location" />
+
+                                </div>
+
+
+                                <!-- Address -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        Address
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="address"
+                                           class="field-input"
+                                           maxlength="500"
+                                           value="@ruralRecord?.Address"
+                                           placeholder="Enter complete address" />
+
+                                </div>
+
+
+                                <!-- b. Managed By -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        b. Managed By
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="managedBy"
+                                           class="field-input"
+                                           maxlength="250"
+                                           value="@ruralRecord?.ManagedBy"
+                                           placeholder="Enter managing authority/person" />
+
+                                </div>
+
+
+                                <!-- c. Staff -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        c. Staff – List of Personnel Working
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <div class="file-box">
+
+                                        <input type="file"
+                                               name="staffListFile"
+                                               class="form-control"
+                                               accept=".pdf" />
+
+                                        @if (ruralRecord != null &&
+                                             !string.IsNullOrWhiteSpace(ruralRecord.StaffList))
+                                        {
+                                            <div class="existing-file">
+
+                                                <a href="@Url.Action(
+                                                                                                       "ViewStaffList",
+                                                                                                       "DentalFieldPracticeArea",
+                                                                                                       new { id = ruralRecord.DentalFieldPracticeAreaId }
+                                                                                                   )"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-outline-primary">
+
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                    View Saved Staff List
+                                                </a>
+
+                                                <span class="text-muted ms-2">
+                                                    Upload a new PDF to replace it.
+                                                </span>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- d. Population -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        d. Population Served
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="number"
+                                           name="populationServed"
+                                           class="field-input"
+                                           min="1"
+                                           value="@ruralRecord?.PopulationServed"
+                                           placeholder="Enter population served" />
+
+                                </div>
+
+
+                                <!-- e. Activities -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        e. Activities and Services Provided
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="activitiesAndServices"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Outdoor, Indoor, Outreach, Domiciliary, Emergency">@ruralRecord?.ActivitiesAndServices</textarea>
+
+                                </div>
+
+
+                                <!-- f. Records -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        f. Records Maintained by the Centres
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="recordsMaintained"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Family folders, types of registers, etc.">@ruralRecord?.RecordsMaintained</textarea>
+
+                                </div>
+
+
+                                <!-- g. Equipment -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        g. Equipment Available
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="equipmentsAvailable"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter equipment available">@ruralRecord?.EquipmentsAvailable</textarea>
+
+                                </div>
+
+
+                                <!-- h(i) Training -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(i). Residential / Non-Residential Training Activities
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="trainingActivities"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter details of training activities">@ruralRecord?.TrainingActivities</textarea>
+
+                                </div>
+
+
+                                <!-- h(ii) Supervision -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(ii). How Supervision is Done
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="supervisionMethod"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter supervision method">@ruralRecord?.SupervisionMethod</textarea>
+
+                                </div>
+
+
+                                <!-- h(iii) Accommodation -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(iii). Accommodation Available for Trainees and Supervisors
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="traineeSupervisorAccommodation"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter accommodation details">@ruralRecord?.TraineeSupervisorAccommodation</textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Button -->
+
+                            <div class="save-button-wrapper">
+
+                                <button type="submit"
+                                        class="btn btn-primary save-field-btn">
+
+                                    <i class="bi @(ruralRecord != null ? "bi-pencil-square" : "bi-save") me-1"></i>
+
+                                    @(ruralRecord != null ? "Update Rural Details" : "Save Rural Details")
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ====================================================
+                     URBAN FIELD
+                     ==================================================== -->
+
+                <div class="field-section">
+
+                    <div class="field-section-header">
+
+                        <h5>
+                            <i class="bi bi-building me-2"></i>
+                            Urban Field Practice Area
+                        </h5>
+
+                        <span class="field-badge">
+                            Urban
+                        </span>
+
+                    </div>
+
+
+                    <div class="field-section-body">
+
+                        <form id="urbanFieldForm"
+                              asp-controller="DentalFieldPracticeArea"
+                              asp-action="@(urbanRecord != null ? "Edit" : "Create")"
+                              method="post"
+                              enctype="multipart/form-data">
+
+                            @Html.AntiForgeryToken()
+
+                            <!-- Hidden values -->
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@(urbanRecord?.DentalFieldPracticeAreaId ?? 0)" />
+
+                            <input type="hidden"
+                                   name="fieldTypeId"
+                                   value="4" />
+
+
+                            <div class="row g-3">
+
+                                <!-- a. Location -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        a. Location
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="location"
+                                           class="field-input"
+                                           maxlength="250"
+                                           value="@urbanRecord?.Location"
+                                           placeholder="Enter location" />
+
+                                </div>
+
+
+                                <!-- Address -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        Address
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="address"
+                                           class="field-input"
+                                           maxlength="500"
+                                           value="@urbanRecord?.Address"
+                                           placeholder="Enter complete address" />
+
+                                </div>
+
+
+                                <!-- b. Managed By -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        b. Managed By
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                           name="managedBy"
+                                           class="field-input"
+                                           maxlength="250"
+                                           value="@urbanRecord?.ManagedBy"
+                                           placeholder="Enter managing authority/person" />
+
+                                </div>
+
+
+                                <!-- c. Staff -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        c. Staff – List of Personnel Working
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <div class="file-box">
+
+                                        <input type="file"
+                                               name="staffListFile"
+                                               class="form-control"
+                                               accept=".pdf" />
+
+                                        @if (urbanRecord != null &&
+                                             !string.IsNullOrWhiteSpace(urbanRecord.StaffList))
+                                        {
+                                            <div class="existing-file">
+
+                                                <a href="@Url.Action(
+                                                                                                       "ViewStaffList",
+                                                                                                       "DentalFieldPracticeArea",
+                                                                                                       new { id = urbanRecord.DentalFieldPracticeAreaId }
+                                                                                                   )"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-outline-primary">
+
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                    View Saved Staff List
+                                                </a>
+
+                                                <span class="text-muted ms-2">
+                                                    Upload a new PDF to replace it.
+                                                </span>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- d. Population -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        d. Population Served
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input type="number"
+                                           name="populationServed"
+                                           class="field-input"
+                                           min="1"
+                                           value="@urbanRecord?.PopulationServed"
+                                           placeholder="Enter population served" />
+
+                                </div>
+
+
+                                <!-- e. Activities -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        e. Activities and Services Provided
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="activitiesAndServices"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Outdoor, Indoor, Outreach, Domiciliary, Emergency">@urbanRecord?.ActivitiesAndServices</textarea>
+
+                                </div>
+
+
+                                <!-- f. Records -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        f. Records Maintained by the Centres
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="recordsMaintained"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Family folders, types of registers, etc.">@urbanRecord?.RecordsMaintained</textarea>
+
+                                </div>
+
+
+                                <!-- g. Equipment -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        g. Equipment Available
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="equipmentsAvailable"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter equipment available">@urbanRecord?.EquipmentsAvailable</textarea>
+
+                                </div>
+
+
+                                <!-- h(i) Training -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(i). Residential / Non-Residential Training Activities
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="trainingActivities"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter details of training activities">@urbanRecord?.TrainingActivities</textarea>
+
+                                </div>
+
+
+                                <!-- h(ii) Supervision -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(ii). How Supervision is Done
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="supervisionMethod"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter supervision method">@urbanRecord?.SupervisionMethod</textarea>
+
+                                </div>
+
+
+                                <!-- h(iii) Accommodation -->
+
+                                <div class="col-md-6">
+
+                                    <label class="field-label">
+                                        h(iii). Accommodation Available for Trainees and Supervisors
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <textarea name="traineeSupervisorAccommodation"
+                                              class="field-textarea"
+                                              maxlength="2000"
+                                              placeholder="Enter accommodation details">@urbanRecord?.TraineeSupervisorAccommodation</textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Button -->
+
+                            <div class="save-button-wrapper">
+
+                                <button type="submit"
+                                        class="btn btn-primary save-field-btn">
+
+                                    <i class="bi @(urbanRecord != null ? "bi-pencil-square" : "bi-save") me-1"></i>
+
+                                    @(urbanRecord != null ? "Update Urban Details" : "Save Urban Details")
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

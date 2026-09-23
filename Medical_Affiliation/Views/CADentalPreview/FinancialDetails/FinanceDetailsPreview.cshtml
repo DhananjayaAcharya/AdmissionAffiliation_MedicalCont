@@ -1,0 +1,22 @@
+﻿@model FinanceViewModel
+
+<div class="general-section">
+    <div class="general-header">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h2 class="general-title academic-badge">Finance Details</h2>
+                </div>
+
+                <a class="edit-button"
+                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode })">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
+                </a>
+            </div>
+        </div>
+    </div>
+        @await Html.PartialAsync("FinancialDetails/_AccountAndFeeDetailsPreview", Model)
+        @await Html.PartialAsync("FinancialDetails/_StaffParticularsPreview", Model)
+    </div>
+</div>

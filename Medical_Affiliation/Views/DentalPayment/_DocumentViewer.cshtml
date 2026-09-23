@@ -1,0 +1,30 @@
+﻿@model Medical_Affiliation.Models.DentalDocumentViewerViewModel
+
+@if (Model.FileType == ".pdf")
+{
+    <iframe src="@Model.FileUrl"
+            class="receipt-document-frame"
+            title="Transaction Receipt">
+    </iframe>
+}
+else if (
+    Model.FileType == ".jpg" ||
+    Model.FileType == ".jpeg" ||
+    Model.FileType == ".png")
+{
+    <div class="receipt-image-container">
+
+        <img src="@Model.FileUrl"
+             class="receipt-document-image"
+             alt="Transaction Receipt" />
+
+    </div>
+}
+else
+{
+    <div class="alert alert-danger m-3">
+        Unsupported document type.
+    </div>
+}
+
+

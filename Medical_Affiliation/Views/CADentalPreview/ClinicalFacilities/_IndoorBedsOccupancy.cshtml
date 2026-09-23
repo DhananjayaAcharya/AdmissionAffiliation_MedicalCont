@@ -1,0 +1,64 @@
+﻿@model List<IndoorBedsOccupancyItemVM>
+<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+    <!-- Body -->
+<div class="general-body">
+    @if (Model != null && Model.Any())
+    {
+        <div class="section-block">
+            <div class="section-header-block">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-hospital-bed"></i>
+                    Indoor Beds Occupancy
+                </div>
+                <p class="section-description">
+                    Department-wise indoor beds occupancy as per intake norms
+                </p>
+
+            </div>
+            <div class="data-table-wrapper">
+                <table class="table data-table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th class="text-end">Seat Slab</th>
+                            <th class="text-end">RGUHS Intake</th>
+                            <th class="text-end">College Intake</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="year-cell">
+                                    @item.DepartmentName
+                                </td>
+
+                                <td class="text-end">
+                                    @item.SeatSlab
+                                </td>
+
+                                <td class="text-end fw-semibold">
+                                    @item.RGUHSintake
+                                </td>
+
+                                <td class="text-end fw-semibold">
+                                    @item.CollegeIntake
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p class="mb-0">No indoor beds occupancy data available.</p>
+        </div>
+    }
+
+</div>

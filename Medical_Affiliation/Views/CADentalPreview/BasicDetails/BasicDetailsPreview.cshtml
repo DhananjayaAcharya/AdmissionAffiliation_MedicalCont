@@ -1,0 +1,119 @@
+﻿@model DentalInstitutionBasicDetailsDisplayVM
+
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css" />
+
+<div class="preview-section">
+
+    <!-- HEADER -->
+    <div class="preview-section-header">
+
+        <div class="preview-section-header-content">
+
+            <h2 class="preview-section-title">
+                <i class="bi bi-building me-2"></i>
+                Basic Details
+            </h2>
+
+            <a class="preview-section-edit"
+               href="@Url.Action(
+                    "Aff_InstituteDetails",
+                    "ContinuesAffiliation_Facultybased",
+                    new
+                    {
+                        typeOfAffiliation = "Continuation of Affiliation"
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+                <span>Edit section</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- INSTITUTION DETAILS -->
+    @if (Model != null)
+    {
+        <div id="institution-details">
+            @await Html.PartialAsync(
+                "BasicDetails/_InstitutionDetails",
+                Model)
+        </div>
+    }
+
+
+    <!-- TRUST MEMBERS -->
+    @if (Model != null)
+    {
+        <div id="trust-members">
+            @await Html.PartialAsync(
+                "BasicDetails/_TrustMembersDetails",
+                Model)
+        </div>
+    }
+
+
+    <!-- SANCTIONED INTAKE -->
+    @if (Model != null && FacultyCode == "1")
+    {
+        <div id="sanctioned-intake">
+            @await Html.PartialAsync(
+                "BasicDetails/_AffiliatedSanctionedIntake",
+                Model)
+        </div>
+    }
+
+
+    <!-- COURSE INTAKE -->
+    @if (Model != null && FacultyCode == "1")
+    {
+        <div id="course-intake">
+            @await Html.PartialAsync(
+                "BasicDetails/_AffCourseDetails",
+                Model)
+        </div>
+    }
+
+
+    <!-- UG INTAKE -->
+    @if (Model != null && FacultyCode == "1")
+    {
+        <div id="ug-intake">
+            @await Html.PartialAsync(
+                "BasicDetails/_AffiliatedUgCourseDetails",
+                Model)
+        </div>
+    }
+
+
+    <!-- DEAN / DIRECTOR -->
+    @if (Model != null)
+    {
+        <div id="dean-director-details">
+            @await Html.PartialAsync(
+                "BasicDetails/_DeanOrDirectorDetails",
+                Model)
+        </div>
+    }
+
+
+    <!-- PRINCIPAL -->
+    @if (Model != null)
+    {
+        <div id="principal-details">
+            @await Html.PartialAsync(
+                "BasicDetails/_PrincipalDetails",
+                Model)
+        </div>
+    }
+
+</div>
