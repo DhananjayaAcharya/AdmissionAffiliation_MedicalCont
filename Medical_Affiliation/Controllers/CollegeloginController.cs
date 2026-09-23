@@ -159,9 +159,20 @@ namespace Admission_Affiliation.Controllers
                 TempData["LoginError"] = "College record not found.";
                 return RedirectToAction("Login", "Login");
             }
-            var detail = _context.DentalCollegeLandBuildingDetails
-                            .AsNoTracking()
-                            .FirstOrDefault(d => d.CollegeCode == collegeCode);
+            //var detail = _context.DentalCollegeLandBuildingDetails
+            //                .AsNoTracking()
+            //                .FirstOrDefault(d => d.CollegeCode == collegeCode);
+
+            var facultyCode = college.FacultyCode;
+
+            DentalCollegeLandBuildingDetail? detail = null;
+
+            if (facultyCode == "2")
+            {
+                detail = _context.DentalCollegeLandBuildingDetails
+                    .AsNoTracking()
+                    .FirstOrDefault(d => d.CollegeCode == collegeCode);
+            }
 
             // Load profile if exists (logo, contact info)
             // Case-insensitive, trimmed match to guard against data-entry mismatches
@@ -299,6 +310,10 @@ namespace Admission_Affiliation.Controllers
                 TempData["Error"] = "College not found.";
                 return RedirectToAction("Dashboard", "CollegeLogin");
             }
+            // -------------------------------------------------
+            // 3. Get FacultyCode from database
+            // -------------------------------------------------
+            var facultyCode = college.FacultyCode;
 
             // -------------------------------------------------
             // 3️⃣  Update the college’s administrative data
@@ -309,26 +324,29 @@ namespace Admission_Affiliation.Controllers
             // -------------------------------------------------
             // 4️⃣  Load (or create) the DentalCollegeLandBuildingDetail
             // -------------------------------------------------
-            var detail = await _context.DentalCollegeLandBuildingDetails
-                .FirstOrDefaultAsync(d => d.CollegeCode == CollegeCode);
 
-            if (detail == null)
+
+            // -------------------------------------------------
+            // 5. Dental-specific handling
+            // -------------------------------------------------
+            if (facultyCode == "2")
             {
-                // If there is no detail row yet, create a new one.
-                // Adjust the property names if your table uses a different PK.
-                detail = new DentalCollegeLandBuildingDetail
-                {
-                    CollegeCode = CollegeCode
-                };
-                _context.DentalCollegeLandBuildingDetails.Add(detail);
-            }
+                var detail = await _context.DentalCollegeLandBuildingDetails
+                    .FirstOrDefaultAsync(d => d.CollegeCode == CollegeCode);
 
-            // -------------------------------------------------
-            // 5️⃣  Store the latitude / longitude (and keep the
-            //     district/taluk values in sync if you wish)
-            // -------------------------------------------------
-            detail.Latitude = Latitude.Value;
-            detail.Longitude = Longitude.Value;
+                if (detail == null)
+                {
+                    detail = new DentalCollegeLandBuildingDetail
+                    {
+                        CollegeCode = CollegeCode
+                    };
+
+                    _context.DentalCollegeLandBuildingDetails.Add(detail);
+                }
+
+                detail.Latitude = Latitude.Value;
+                detail.Longitude = Longitude.Value;
+            }
 
             // Optional: keep the district/taluk also on the detail record
             // (uncomment if you store them there as well)
@@ -343,6 +361,8 @@ namespace Admission_Affiliation.Controllers
             //TempData["Success"] = "Location details (coordinates, district & taluk) updated successfully.";l
             return RedirectToAction("Dashboard", "CollegeLogin");
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken] // optional for Logout
         public async Task<IActionResult> Logout()
