@@ -65,7 +65,7 @@ public class PreviewReportDentalPdf : IDocument
                 AddAcademicIntakeSection(col);
 
                 // --- TEACHING FACULTY DETAILS ---
-                AddTeachingFacultyDetailsSection(col);
+                AddFacultyRepositoryDetailsSection(col);
 
                 //--- AFFILIATED SANCTIONED INTAKE - Aff_SanctionedIntakeForCourse ---
                 AddSanctionedIntakeSection(col);
@@ -547,7 +547,7 @@ public class PreviewReportDentalPdf : IDocument
             });
     }
 
-    private void AddTeachingFacultyDetailsSection(ColumnDescriptor col)
+    private void AddFacultyRepositoryDetailsSection(ColumnDescriptor col)
     {
         var teachingFaculty = _model?.TeachingFacultyDetailsVM;
 
@@ -556,7 +556,7 @@ public class PreviewReportDentalPdf : IDocument
             !teachingFaculty.FacultyDetails.Any())
             return;
 
-        AddMainHeading(col, "Teaching Faculty Details");
+        AddMainHeading(col, "Faculty Repository Details");
 
         col.Item()
             .PaddingTop(8)
@@ -2203,11 +2203,6 @@ public class PreviewReportDentalPdf : IDocument
 
                             text.EmptyLine();
 
-                            text.Span(
-                                string.IsNullOrWhiteSpace(item.CourseCode)
-                                    ? "—"
-                                    : item.CourseCode)
-                                .FontSize(8);
                         });
 
                     // AY 2025-26 Existing
@@ -2593,7 +2588,160 @@ public class PreviewReportDentalPdf : IDocument
                 AddRow(
                     "Supporting Documents Uploaded",
                     h.IsSupportingDocExists ? "Yes" : "No");
+
+
+                // --------------------------------------------------
+                // Certificates
+                // --------------------------------------------------
+
+                AddRow(
+                    "KPME Certificate",
+                    h.IsKPMECertificateExists ? "Yes" : "No");
+
+                AddRow(
+                    "Pollution Control Board Certificate",
+                    h.IsPollutionControlBoardCertificateExists ? "Yes" : "No");
+
+                AddRow(
+                    "Bio-Medical Waste Certificate",
+                    h.IsBioMedicalCertificateExists ? "Yes" : "No");
+
+                AddRow(
+                    "Drug Free Campus Certification",
+                    h.IsDrugFreeCampusCertificationExists ? "Yes" : "No");
+
+
+                // --------------------------------------------------
+                // Proposed Plans
+                // --------------------------------------------------
+
+                AddRow(
+                    "Proposed Plans for Future Developments",
+                    h.IsProposedPlansForFutureDevelopmentsExists ? "Yes" : "No");
+
+
+                // --------------------------------------------------
+                // Anatomy Act
+                // --------------------------------------------------
+
+                AddRow(
+                    "Registered Under Anatomy Act",
+                    h.IsRegisteredUnderAnatomyAct ? "Yes" : "No");
+
+                AddRow(
+                    "Anatomy Act Registration Details",
+                    h.AnatomyActRegistrationDetails ?? "—");
+
+
+                // --------------------------------------------------
+                // Tie-Up
+                // --------------------------------------------------
+
+                AddRow(
+                    "Hospital Tie-Up",
+                    h.hasTieUp ? "Yes" : "No");
             });
+
+
+            // --------------------------------------------------
+            // Hospital Tie-Up Details
+            // --------------------------------------------------
+
+            if (h.hasTieUp && h.HospitalTieUps != null && h.HospitalTieUps.Any())
+            {
+                AddSubHeading(col, "Hospital Tie-Up Details");
+
+                col.Item().PaddingTop(5).Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(1);
+                        columns.RelativeColumn(1.2f);
+                        columns.RelativeColumn(1.5f);
+                        columns.RelativeColumn(1.5f);
+                        columns.RelativeColumn(1.2f);
+                    });
+
+                    // ==============================
+                    // HEADER
+                    // ==============================
+
+                    table.Cell()
+                        .Border(1)
+                        .Background("#E5E7EB")
+                        .Padding(5)
+                        .Text("Tie-Up Type")
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Background("#E5E7EB")
+                        .Padding(5)
+                        .Text("Hospital Name")
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Background("#E5E7EB")
+                        .Padding(5)
+                        .Text("Hospital Address")
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Background("#E5E7EB")
+                        .Padding(5)
+                        .Text("Tie-Up Details")
+                        .Bold();
+
+                    table.Cell()
+                        .Border(1)
+                        .Background("#E5E7EB")
+                        .Padding(5)
+                        .Text("Supporting Document")
+                        .Bold();
+
+
+                    // ==============================
+                    // DATA
+                    // ==============================
+
+                    foreach (var tieUp in h.HospitalTieUps)
+                    {
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(tieUp.TieUpType ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(tieUp.HospitalName ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(tieUp.HospitalAddress ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(tieUp.TieUpDetails ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(tieUp.SupportingDocumentName ?? "—");
+                    }
+                });
+            }
+            else if (h.hasTieUp)
+            {
+                col.Item()
+                    .PaddingTop(5)
+                    .Text("No hospital tie-up details available.")
+                    .Italic();
+            }
         }
 
 
@@ -5811,11 +5959,11 @@ public class PreviewReportDentalPdf : IDocument
 
             AddRow(
                 "Men Hostel Area (Sq.ft)",
-                hostel.MenHostelAreaSqFt.ToString());
+                hostel?.MenHostelAreaSqFt?.ToString() ?? "-");
 
             AddRow(
                 "Women Hostel Area (Sq.ft)",
-                hostel.WomenHostelAreaSqFt.ToString());
+                hostel?.WomenHostelAreaSqFt?.ToString() ?? "-");
 
             AddRow(
                 "Possession Proof",
@@ -6112,39 +6260,57 @@ public class PreviewReportDentalPdf : IDocument
 
     private void AddPaymentSection(ColumnDescriptor col)
     {
-        var payment = _model?.PaymentVM;
+        var payment = _model?.DentalPaymentVM;
 
-        if (payment == null || payment.Id <= 0)
+        if (payment == null || !payment.PaymentId.HasValue || payment.PaymentId <= 0)
             return;
 
         // ===== MAIN HEADING =====
-        col.Item().PaddingTop(25)
+        col.Item()
+            .PaddingTop(25)
             .AlignCenter()
             .Text("Payment Details")
             .FontSize(14)
             .Bold();
 
         // ===== TABLE =====
-        col.Item().PaddingTop(10).Table(table =>
-        {
-            table.ColumnsDefinition(columns =>
+        col.Item()
+            .PaddingTop(10)
+            .Table(table =>
             {
-                columns.RelativeColumn(3); // Label
-                columns.RelativeColumn(4); // Value
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3); // Label
+                    columns.RelativeColumn(4); // Value
+                });
+
+                // Amount Paid
+                AddTextRow(
+                    table,
+                    "Amount Paid",
+                    payment.AmountPaid > 0
+                        ? $"₹ {payment.AmountPaid:N2}"
+                        : "—"
+                );
+
+                // Transaction ID
+                AddTextRow(
+                    table,
+                    "Transaction ID",
+                    !string.IsNullOrWhiteSpace(payment.TransactionId)
+                        ? payment.TransactionId
+                        : "—"
+                );
+
+                // Supporting Document
+                AddTextRow(
+                    table,
+                    "Supporting Document",
+                    !string.IsNullOrWhiteSpace(payment.TransactionReceiptPath)
+                        ? "Available"
+                        : "—"
+                );
             });
-
-            AddTextRow(table, "Amount Paid", payment.Amount);
-            AddTextRow(table,
-                "Payment Date",
-                payment.PaymentDate != default
-                    ? payment.PaymentDate.ToString("dd MMM yyyy")
-                    : "—");
-            AddTextRow(table, "Transaction Reference", payment.TransactionReferenceNo ?? "—");
-
-            AddTextRow(table,
-                "Supporting Document",
-                payment.HasDocument ? "Available" : "—");
-        });
     }
 
     private void AddNonTeachingStaffSection(ColumnDescriptor col)
