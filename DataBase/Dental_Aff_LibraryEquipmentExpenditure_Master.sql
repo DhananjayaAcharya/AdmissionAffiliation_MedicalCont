@@ -1,7 +1,7 @@
 
 
 
-UPDATE dbo.AffiliationCollegeMaster
+UPDATE dbo.Affiliation_College_Master
 SET CollegeEmail = CASE CollegeCode
 
     WHEN 'D001' THEN 'den.d405@rguhs.ac.in'

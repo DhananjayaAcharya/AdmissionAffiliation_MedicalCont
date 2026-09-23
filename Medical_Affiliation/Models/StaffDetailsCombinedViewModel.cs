@@ -19,10 +19,15 @@ namespace Medical_Affiliation.Models
 
         // ✅ File inputs (needed for validation + asp-for binding)
         public IFormFile? ExaminerDetailsPdf { get; set; }
+        public IFormFile? ExaminerDetailsPdf2 { get; set; }
+        public IFormFile? ExaminerDetailsPdf3 { get; set; }
+        public IFormFile? ExaminerDetailsPdf4 { get; set; }
+        public IFormFile? ExaminerDetailsPdf5 { get; set; }
         public IFormFile? AEBASLastThreeMonthsPdf { get; set; }
         public IFormFile? AEBASInspectionDayPdf { get; set; }
         public IFormFile? ProvidentFundPdf { get; set; }
         public IFormFile? ESIPdf { get; set; }
+        public IFormFile? TeachersUpdatedPdf { get; set; }
 
         public List<string> ExistingCourseLevels { get; set; } = new();
 
@@ -55,8 +60,14 @@ namespace Medical_Affiliation.Models
         [Required(ErrorMessage = "Please select Examiner Details Attached")]
         public string? ExaminerDetailsAttached { get; set; }
 
+        public string? TeachersUpdatedPdfName { get; set; }
+
         // Saved File Names (for view button)
         public string? ExaminerDetailsPdfName { get; set; }
+        public string? ExaminerDetailsPdfName2 { get; set; }
+        public string? ExaminerDetailsPdfName3 { get; set; }
+        public string? ExaminerDetailsPdfName4 { get; set; }
+        public string? ExaminerDetailsPdfName5 { get; set; }
         public string? AEBASLastThreeMonthsPdfName { get; set; }
         public string? AEBASInspectionDayPdfName { get; set; }
 

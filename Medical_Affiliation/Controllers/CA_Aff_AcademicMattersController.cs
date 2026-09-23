@@ -27,7 +27,7 @@ namespace Medical_Affiliation.Controllers
         {
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            int facultyId = Convert.ToInt32(FacultyCode ?? "1");
+            int facultyId = Convert.ToInt32(FacultyCode ?? HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
