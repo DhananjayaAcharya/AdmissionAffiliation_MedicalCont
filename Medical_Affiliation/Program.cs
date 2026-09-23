@@ -161,6 +161,7 @@ builder.Services.AddScoped<IHumanResourcesPreviewService, HumanResourcesPreviewS
 builder.Services.AddScoped<ITeachingFacultyDetailsService, TeachingFacultyDetailsService>();
 builder.Services.AddScoped<IWorkShopDetailsService, WorkShopDetailsService>();
 builder.Services.AddScoped<IAnimalHouseService, AnimalHouseService>();
+builder.Services.AddScoped<ICAEquipmentPreviewService, CAEquipmentPreviewService>();
 
 builder.Services.AddScoped<ICALibraryService, CALibraryService>();
 builder.Services.AddScoped<ICADentalLibraryService, CADentalLibraryService>();

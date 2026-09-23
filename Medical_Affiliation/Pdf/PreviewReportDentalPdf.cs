@@ -1412,19 +1412,35 @@ public class PreviewReportDentalPdf : IDocument
     {
         var equipment = _model?.EquipmentPreviewVM;
 
-        if (equipment?.Departments == null || !equipment.Departments.Any())
+        if (equipment?.Departments == null ||
+            !equipment.Departments.Any())
+        {
             return;
+        }
 
         AddMainHeading(col, "Equipment Details");
 
         foreach (var department in equipment.Departments)
         {
-            if (department.Equipments == null || !department.Equipments.Any())
+            if (department.Equipments == null ||
+                !department.Equipments.Any())
+            {
                 continue;
+            }
+
+            // =========================================================
+            // DEPARTMENT HEADING
+            // =========================================================
 
             AddSubHeading(
                 col,
-                department.DepartmentName ?? "Department");
+                string.IsNullOrWhiteSpace(department.DepartmentName)
+                    ? "Department"
+                    : department.DepartmentName);
+
+            // =========================================================
+            // EQUIPMENT TABLE
+            // =========================================================
 
             col.Item()
                 .PaddingTop(5)
@@ -1440,6 +1456,10 @@ public class PreviewReportDentalPdf : IDocument
                         columns.ConstantColumn(65);    // Two Unit Required
                         columns.ConstantColumn(65);    // Two Unit Existing
                     });
+
+                    // =================================================
+                    // HEADER
+                    // =================================================
 
                     table.Header(header =>
                     {
@@ -1491,6 +1511,10 @@ public class PreviewReportDentalPdf : IDocument
                             .Bold();
                     });
 
+                    // =================================================
+                    // DATA
+                    // =================================================
+
                     int slNo = 1;
 
                     foreach (var item in department.Equipments)
@@ -1504,42 +1528,53 @@ public class PreviewReportDentalPdf : IDocument
                         table.Cell()
                             .Border(1)
                             .Padding(5)
-                            .Text(item.EquipmentName ?? "—");
+                            .Text(
+                                string.IsNullOrWhiteSpace(item.EquipmentName)
+                                    ? "—"
+                                    : item.EquipmentName);
 
                         table.Cell()
                             .Border(1)
                             .Padding(5)
-                            .Text(item.Specification ?? "—");
-
-                        table.Cell()
-                            .Border(1)
-                            .Padding(5)
-                            .AlignCenter()
-                            .Text(item.OneUnitReq?.ToString() ?? "—");
-
-                        table.Cell()
-                            .Border(1)
-                            .Padding(5)
-                            .AlignCenter()
-                            .Text(item.OneUnitExisting?.ToString() ?? "—");
+                            .Text(
+                                string.IsNullOrWhiteSpace(item.Specification)
+                                    ? "—"
+                                    : item.Specification);
 
                         table.Cell()
                             .Border(1)
                             .Padding(5)
                             .AlignCenter()
-                            .Text(item.TwoUnitReq?.ToString() ?? "—");
+                            .Text(
+                                item.OneUnitReq?.ToString() ?? "—");
 
                         table.Cell()
                             .Border(1)
                             .Padding(5)
                             .AlignCenter()
-                            .Text(item.TwoUnitExisting?.ToString() ?? "—");
+                            .Text(
+                                item.OneUnitExisting?.ToString() ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text(
+                                item.TwoUnitReq?.ToString() ?? "—");
+
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .AlignCenter()
+                            .Text(
+                                item.TwoUnitExisting?.ToString() ?? "—");
 
                         slNo++;
                     }
                 });
         }
     }
+
 
     private void AddSanctionedIntakeSection(ColumnDescriptor col)
     {

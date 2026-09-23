@@ -1,6 +1,12 @@
 ﻿@model Medical_Affiliation.Models.EquipmentPreviewViewModel
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
 
-<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css" />
 
 <div class="general-section">
 
@@ -8,14 +14,34 @@
     <!-- HEADER -->
     <!-- ====================================================== -->
 
-    <div class="general-header">
-        <div class="header-content">
-            <h2 class="academic-title academic-badge">
-                <i class="bi bi-tools"></i>
+
+    <div class="preview-section-header">
+
+        <div class="preview-section-header-content">
+
+            <h2 class="preview-section-title">
+                <i class="bi bi-building me-2"></i>
                 Department-wise Equipment
             </h2>
+
+            <a class="preview-section-edit"
+               href="@Url.Action(
+                    "EquipmentList",
+                    "Dental",
+                    new
+                    {
+                        typeOfAffiliation = @AffiliationType
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+                <span>Edit section</span>
+
+            </a>
+
         </div>
+
     </div>
+
 
     <!-- ====================================================== -->
     <!-- DEPARTMENT EQUIPMENT -->
