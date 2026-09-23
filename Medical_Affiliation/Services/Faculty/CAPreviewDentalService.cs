@@ -21,6 +21,8 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICALandClassEquipmentService _landClassEqService;
         private readonly ICADentalLandBuildingPreviewService _cADentalLandBuildingPreviewService;
 
+        private readonly ICADentalBedDistributionService _cADentalBedDistributionService;
+
         private readonly ICAAcademicIntakeService _academicIntakeService;
         private readonly IUserContext _userContext;
         private readonly ICAHostelPreviewService _hostelPreviewService;
@@ -58,7 +60,8 @@ namespace Medical_Affiliation.Services.Faculty
             IAnimalHouseService animalHouseService,
             IUGPgIntakeDetailsService ugPgIntakeDetailsService,
             ICATrustMemberDetailsPreviewService cATrustMemberDetailsPreviewService,
-            IUserContext userContext, 
+            IUserContext userContext,
+            ICADentalBedDistributionService cADentalBedDistributionService,
             ApplicationDbContext dbContext)
         {
             _basicDetailsService = basicDetailsService;
@@ -82,6 +85,7 @@ namespace Medical_Affiliation.Services.Faculty
             _workshopService = workShopDetailsService;
             _dentalLibraryService = dentalLibraryService;
             _animalHouseService = animalHouseService;
+            _cADentalBedDistributionService = cADentalBedDistributionService;
             _context = dbContext;
         }
 
@@ -119,6 +123,7 @@ namespace Medical_Affiliation.Services.Faculty
                 WorkshopDetails = await _workshopService.GetWorkshopDetailsAsync(),
                 AnimalHouseDetails = await _animalHouseService.GetAnimalHouseDetails(),
                 DentalLibraryDisplay = await _dentalLibraryService.GetLibraryAsync(),
+                DentalBedDistributionVM = await _cADentalBedDistributionService.GetDentalBedDistributionAsync(),
 
             };
 

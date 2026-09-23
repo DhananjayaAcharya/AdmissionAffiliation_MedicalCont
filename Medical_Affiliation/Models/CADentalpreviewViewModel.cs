@@ -14,6 +14,8 @@ namespace Medical_Affiliation.Models
         public DentalCollegeLandBuildingViewModel? DentalLandBuildingPreview { get; set; }
         public MedicalUGBedDistributionVM? MedicalUGBedDistributionVM { get; set; }
 
+        public CADentalBedDistributionPreviewViewModel? DentalBedDistributionVM { get; set; }
+
         public CATrustMemberDetailsDisplayVM? TrustMemberDetailsVM { get; set; }
 
         public CATrustDetailsDisplayVM? TrustDetailsVM { get; set; }
@@ -98,6 +100,12 @@ namespace Medical_Affiliation.Models
         //    = new();
     }
 
+    public class CADentalBedDistributionPreviewViewModel
+    {
+        public int Id { get; set; }
+
+        public int? OralMaxillofacialSurgery { get; set; }
+    }
 
     public class InstitutionPreviewViewModel
     {

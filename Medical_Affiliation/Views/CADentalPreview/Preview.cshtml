@@ -677,21 +677,25 @@
                         </a>
                     </li>
                 }
-                @if (Model.MedicalUGBedDistributionVM != null && FacultyCode == "2")
+
+                @if (Model.DentalChairDistribution != null &&
+                     Model.DentalChairDistribution.Any() &&
+                     FacultyCode == "2")
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dental-chair-distribution-group">
+                            <i class="bi bi-grid-3x3-gap"></i>
+                            <span>Dental Chair Distribution</span>
+                        </a>
+                    </li>
+                }
+
+                @if (Model.DentalBedDistributionVM != null && FacultyCode == "2")
                 {
                     <li class="nav-item">
                         <a class="nav-link" href="#bed-distribution-group">
                             <i class="bi bi-hospital"></i>
                             <span>Bed Distribution</span>
-                        </a>
-                    </li>
-                }
-                @if (Model.DentalChairDistribution != null && FacultyCode == "2")
-                {
-                    <li class="nav-item">
-                        <a class="nav-link" href="#chair-distribution-group">
-                            <i class="bi bi-person-wheelchair"></i>
-                            <span>Chair Distribution</span>
                         </a>
                     </li>
                 }
@@ -977,10 +981,6 @@
                 <div id="chair-distribution-group">
                     @await Html.PartialAsync("DentalChairDistribution/ChairDistribution", Model.DentalChairDistribution)
                 </div>
-            }
-            <!-- Section Separator -->
-            @if (Model.DentalChairDistribution != null && FacultyCode == "2")
-            {
                 <div class="section-separator"></div>
             }
 
@@ -1014,10 +1014,10 @@
                 <div class="section-separator"></div>
             }
 
-            @if (Model.MedicalUGBedDistributionVM != null && FacultyCode == "2")
+            @if (Model.DentalBedDistributionVM != null && FacultyCode == "2")
             {
                 <div id="bed-distribution-group">
-                    @await Html.PartialAsync(partialViewName: "UGBedDistribution/UGBedDistribution", Model.MedicalUGBedDistributionVM)
+                    @await Html.PartialAsync("UGBedDistribution/UGBedDistribution",  Model.DentalBedDistributionVM)
                 </div>
             }
 
@@ -1043,10 +1043,6 @@
                 <div class="section-separator"></div>
             }
 
-            @if (Model.MedicalUGBedDistributionVM != null && FacultyCode == "2")
-            {
-                <div class="section-separator"></div>
-            }
             @if (Model.DepartmentOfficesMeuVM != null)
             {
                 <div id="department-education-unit-group">

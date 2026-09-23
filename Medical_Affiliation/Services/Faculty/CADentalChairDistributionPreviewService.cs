@@ -23,7 +23,7 @@ namespace Medical_Affiliation.Services.Faculty
             var courseLevel = _userContext.CourseLevel;
             var affiliationTypeId = _userContext.TypeOfAffiliation;
 
-            return await _context.DentalChairs
+            var dentalChairs = await _context.DentalChairs
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.CourseLevel == courseLevel &&
@@ -42,6 +42,8 @@ namespace Medical_Affiliation.Services.Faculty
                     ChairsExisting = x.ChairsExisting ?? 0
                 })
                 .ToListAsync();
+
+            return dentalChairs; 
         }
     }
 }
