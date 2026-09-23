@@ -1397,6 +1397,18 @@
                 font-size: 13.5px;
                 font-weight: 600;
             }
+
+        #locationModal {
+            z-index: 1060 !important;
+        }
+
+        body > .modal-backdrop {
+            z-index: 1055 !important;
+        }
+
+        body > .modal {
+            z-index: 1060 !important;
+        }
     </style>
 </head>
 <body>
@@ -2104,13 +2116,31 @@
         }
 
         // Location modal auto-show
-        @if (TempData["ShowLocationPopup"] != null && (bool)TempData["ShowLocationPopup"])
+               @if (TempData["ShowLocationPopup"] != null && (bool)TempData["ShowLocationPopup"])
         {
-            <text>
-                document.addEventListener('DOMContentLoaded', function () {
-                new bootstrap.Modal(document.getElementById('locationModal')).show();
-                });
-            </text>
+                <text>
+                    document.addEventListener('DOMContentLoaded', function () {
+
+                        var locationModal = document.getElementById('locationModal');
+
+                        if (locationModal) {
+
+                            // Move modal directly under body
+                            if (locationModal.parentElement !== document.body) {
+                                document.body.appendChild(locationModal);
+                            }
+
+                            var modalInstance =
+                                bootstrap.Modal.getOrCreateInstance(locationModal, {
+                                    backdrop: 'static',
+                                    keyboard: false
+                                });
+
+                            modalInstance.show();
+                        }
+
+                    });
+                </text>
         }
 
         // District → Taluk cascade

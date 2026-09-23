@@ -286,6 +286,8 @@ namespace Medical_Affiliation.Controllers
 
             return RedirectToAction("Dashboard", "CollegeLogin");
         }
+
+
         private void SetCaptcha(AdmissionLoginViewModel model)
         {
             model.CaptchaCode = GenerateCaptchaCode();
