@@ -36,6 +36,7 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICADentalPaymentService _caDentalpaymentService;
         private readonly ICAVehiclePreviewService _vehiclePreviewService;
         private readonly ICADeclarationService _cADeclarationService;
+        private readonly ICADepartmentOfficesMeuService _cADepartmentOfficesMeuService;
         private readonly ApplicationDbContext _context;
 
 
@@ -62,6 +63,7 @@ namespace Medical_Affiliation.Services.Faculty
             ICATrustMemberDetailsPreviewService cATrustMemberDetailsPreviewService,
             IUserContext userContext,
             ICADentalBedDistributionService cADentalBedDistributionService,
+            ICADepartmentOfficesMeuService cADepartmentOfficesMeuService,
             ApplicationDbContext dbContext)
         {
             _basicDetailsService = basicDetailsService;
@@ -86,6 +88,7 @@ namespace Medical_Affiliation.Services.Faculty
             _dentalLibraryService = dentalLibraryService;
             _animalHouseService = animalHouseService;
             _cADentalBedDistributionService = cADentalBedDistributionService;
+            _cADepartmentOfficesMeuService = cADepartmentOfficesMeuService;
             _context = dbContext;
         }
 
@@ -124,6 +127,7 @@ namespace Medical_Affiliation.Services.Faculty
                 AnimalHouseDetails = await _animalHouseService.GetAnimalHouseDetails(),
                 DentalLibraryDisplay = await _dentalLibraryService.GetLibraryAsync(),
                 DentalBedDistributionVM = await _cADentalBedDistributionService.GetDentalBedDistributionAsync(),
+                DepartmentOfficesMeuVM = await _cADepartmentOfficesMeuService.GetDepartmentOfficesMeuAsync(),
 
             };
 

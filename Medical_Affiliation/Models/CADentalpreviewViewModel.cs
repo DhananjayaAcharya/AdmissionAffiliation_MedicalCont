@@ -69,6 +69,7 @@ namespace Medical_Affiliation.Models
         public UGPgIntakeDetailsPreviewViewModel? UGPgIntakeDetailsVM { get; set; }
 
         public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
+
         //public
 
     }

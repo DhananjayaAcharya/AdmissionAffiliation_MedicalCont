@@ -144,6 +144,7 @@ builder.Services.AddScoped<IFacultyHospitalHandler, DentalHospitalHandler>();
 builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
 builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
 builder.Services.AddScoped<ICADentalBedDistributionService, CADentalBedDistributionService>();
+builder.Services.AddScoped<ICADepartmentOfficesMeuService, CADepartmentOfficesMeuService>();
 
 builder.Services.AddScoped<ICAAcademicIntakeService, CAAcademicIntakeService>();
 builder.Services.AddScoped<IInstitutionPreviewService, InstitutionPreviewService>();

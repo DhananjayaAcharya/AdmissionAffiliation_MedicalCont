@@ -82,7 +82,7 @@ public class PreviewReportDentalPdf : IDocument
                 AddDentalChairDistributionSection(col);
 
                 // --- BED DISTRIBUTION ---
-                AddMedicalUGBedDistributionSection(col);
+                AddDentalBedDistributionSection(col);
 
                 if (_model.FacultyCode == "2")
                 {
@@ -114,7 +114,7 @@ public class PreviewReportDentalPdf : IDocument
                     AddMuseumsSection(col);
 
                     // --- Department MEU ---
-                    AddDepartmentOfficesAndMeuSection(col);
+                    AddDepartmentOfficesAndDeuSection(col);
 
 
                     //--- SKILL LAB SECTION ----
@@ -2895,158 +2895,57 @@ public class PreviewReportDentalPdf : IDocument
         }
     }
 
-    private void AddMedicalUGBedDistributionSection(ColumnDescriptor col)
+    private void AddDentalBedDistributionSection(ColumnDescriptor col)
     {
-        var bedDistribution = _model?.MedicalUGBedDistributionVM;
+        var bedDistribution = _model?.DentalBedDistributionVM;
 
         if (bedDistribution == null)
             return;
 
-        // =========================================================
-        // MEDICAL
-        // =========================================================
+        AddMainHeading(col, "Dental Bed Distribution");
 
-        if (bedDistribution.Medical != null)
-        {
-            AddMainHeading(col, "Medical UG Bed Distribution");
+        AddSubHeading(col, "Oral & Maxillofacial Surgery");
 
-            // Existing medical PDF rendering here...
-        }
-
-        // =========================================================
-        // DENTAL
-        // =========================================================
-
-        if (bedDistribution.Dental != null)
-        {
-            AddMainHeading(col, "Bed Distribution");
-
-            AddSubHeading(col, "A. Oral & Maxillofacial Surgery");
-
-            col.Item()
-                .PaddingTop(5)
-                .Table(table =>
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
                 {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn(2);
-                        columns.RelativeColumn(1);
-                    });
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(1);
+                });
 
-                    table.Cell()
+                table.Header(header =>
+                {
+                    header.Cell()
                         .Border(1)
                         .Padding(5)
-                        .Text("Oral & Maxillofacial Surgery")
+                        .Text("Bed Type")
                         .Bold();
 
-                    table.Cell()
+                    header.Cell()
                         .Border(1)
                         .Padding(5)
                         .AlignCenter()
-                        .Text(
-                            bedDistribution.Dental
-                                .OralMaxillofacialSurgery?
-                                .ToString() ?? "0");
+                        .Text("Beds")
+                        .Bold();
                 });
 
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .Text("Oral & Maxillofacial Surgery");
 
-            // =====================================================
-            // DENTAL WARDS
-            // =====================================================
-
-            //if (bedDistribution.Dental.DentalWards?.Any() == true)
-            //{
-            //    AddSubHeading(col, "Dental Ward Bed Distribution");
-
-            //    col.Item()
-            //        .PaddingTop(5)
-            //        .Table(table =>
-            //        {
-            //            table.ColumnsDefinition(columns =>
-            //            {
-            //                columns.ConstantColumn(45);  // Sl No
-            //                columns.RelativeColumn(2);   // Ward
-            //                columns.ConstantColumn(80);  // Seat Slab
-            //                columns.ConstantColumn(90);  // Required
-            //                columns.ConstantColumn(90);  // Present
-            //            });
-
-            //            table.Header(header =>
-            //            {
-            //                header.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .AlignCenter()
-            //                    .Text("Sl. No.")
-            //                    .Bold();
-
-            //                header.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .Text("Ward")
-            //                    .Bold();
-
-            //                header.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .AlignCenter()
-            //                    .Text("Seat Slab")
-            //                    .Bold();
-
-            //                header.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .AlignCenter()
-            //                    .Text("Beds Required")
-            //                    .Bold();
-
-            //                header.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .AlignCenter()
-            //                    .Text("Beds Present")
-            //                    .Bold();
-            //            });
-
-            //            int slNo = 1;
-
-            //            foreach (var ward in bedDistribution.Dental.DentalWards)
-            //            {
-            //                table.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .AlignCenter()
-            //                    .Text(slNo++.ToString());
-
-            //                table.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .Text(ward.WardName ?? "—");
-
-            //                table.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .AlignCenter()
-            //                    .Text(ward.SeatSlab.ToString());
-
-            //                table.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .AlignCenter()
-            //                    .Text(ward.BedsRequired.ToString());
-
-            //                table.Cell()
-            //                    .Border(1)
-            //                    .Padding(5)
-            //                    .AlignCenter()
-            //                    .Text(
-            //                        ward.BedsPresent?.ToString() ?? "0");
-            //            }
-            //        });
-            //}
-        }
+                table.Cell()
+                    .Border(1)
+                    .Padding(5)
+                    .AlignCenter()
+                    .Text(
+                        bedDistribution.OralMaxillofacialSurgery?
+                            .ToString() ?? "0");
+            });
     }
-
     private void AddDepartmentSections(ColumnDescriptor col)
     {
         var hospital = _model.CAHospitalAFfiliationCompVM;
@@ -3512,7 +3411,6 @@ public class PreviewReportDentalPdf : IDocument
             });
         }
     }
-
     private void AddDepartmentOfficesAndDeuSection(ColumnDescriptor col)
     {
         var model = _model?.DepartmentOfficesMeuVM;
@@ -3520,7 +3418,11 @@ public class PreviewReportDentalPdf : IDocument
         if (model == null)
             return;
 
-        AddMainHeading(col, "Department Offices & Education Unit");
+        // =========================================================
+        // MAIN HEADING
+        // =========================================================
+
+        AddMainHeading(col, "Department Offices & Dental Education Unit");
 
         // =========================================================
         // DEPARTMENT OFFICE REQUIREMENTS
@@ -3614,12 +3516,23 @@ public class PreviewReportDentalPdf : IDocument
                         .Text(value);
                 }
 
-                AddRow(
-                    "Dental Education Unit Available",
-                    model.Dental.HasDentalEducationUnit == true ? "Yes" : "No");
+                // =====================================================
+                // DEU AVAILABILITY
+                // =====================================================
 
                 AddRow(
-                    "DEU Area (Sq.m)",
+                    "Dental Education Unit Available",
+                    model.Dental.HasDentalEducationUnit == true
+                        ? "Yes"
+                        : "No");
+
+
+                // =====================================================
+                // DEU DETAILS
+                // =====================================================
+
+                AddRow(
+                    "Dental Education Unit Area (Sq.m)",
                     FormatValue(model.Dental.DentalEducationUnitAreaSqm));
 
                 AddRow(
@@ -3634,235 +3547,63 @@ public class PreviewReportDentalPdf : IDocument
                         ? "Yes"
                         : "No");
 
+
+                // =====================================================
+                // COORDINATOR DETAILS
+                // =====================================================
+
                 AddRow(
                     "Coordinator Name",
-                    model.Dental.DeuCoordinatorName ?? "—");
+                    string.IsNullOrWhiteSpace(
+                        model.Dental.DeuCoordinatorName)
+                        ? "—"
+                        : model.Dental.DeuCoordinatorName);
 
                 AddRow(
                     "Coordinator Designation / Department",
-                    model.Dental.DeuCoordinatorDesignationDepartment ?? "—");
+                    string.IsNullOrWhiteSpace(
+                        model.Dental.DeuCoordinatorDesignationDepartment)
+                        ? "—"
+                        : model.Dental.DeuCoordinatorDesignationDepartment);
 
                 AddRow(
                     "Coordinator Phone",
-                    model.Dental.DeuCoordinatorPhone ?? "—");
+                    string.IsNullOrWhiteSpace(
+                        model.Dental.DeuCoordinatorPhone)
+                        ? "—"
+                        : model.Dental.DeuCoordinatorPhone);
 
                 AddRow(
                     "Coordinator Email",
-                    model.Dental.DeuCoordinatorEmail ?? "—");
+                    string.IsNullOrWhiteSpace(
+                        model.Dental.DeuCoordinatorEmail)
+                        ? "—"
+                        : model.Dental.DeuCoordinatorEmail);
+
+
+                // =====================================================
+                // ACTIVITIES
+                // =====================================================
 
                 AddRow(
                     "Activities During Last Academic Year",
-                    model.Dental.DeuActivitiesLastAcademicYear ?? "—");
+                    string.IsNullOrWhiteSpace(
+                        model.Dental.DeuActivitiesLastAcademicYear)
+                        ? "—"
+                        : model.Dental.DeuActivitiesLastAcademicYear);
+
+
+                // =====================================================
+                // MEMBERS LIST
+                // =====================================================
 
                 AddRow(
                     "Members List Uploaded",
-                    model.Dental.HasDeuMembersListFile == true
+                    model.Dental.HasDeuMembersListFile
                         ? "Yes"
                         : "No");
             });
         }
-
-
-        // =========================================================
-        // MEDICAL EDUCATION UNIT
-        // =========================================================
-
-        if (model.Medical != null)
-        {
-            AddSubHeading(col, "Medical Education Unit");
-
-            col.Item().PaddingTop(5).Table(table =>
-            {
-                table.ColumnsDefinition(columns =>
-                {
-                    columns.RelativeColumn(3);
-                    columns.RelativeColumn(1);
-                });
-
-                void AddRow(string label, string value)
-                {
-                    table.Cell()
-                        .Border(1)
-                        .Padding(5)
-                        .Text(label)
-                        .Bold();
-
-                    table.Cell()
-                        .Border(1)
-                        .Padding(5)
-                        .Text(value);
-                }
-
-                AddRow(
-                    "Medical Education Unit Available",
-                    model.Medical.HasMedicalEducationUnit == true ? "Yes" : "No");
-
-                AddRow(
-                    "MEU Area (Sq.m)",
-                    FormatValue(model.Medical.MedicalEducationUnitAreaSqm));
-
-                AddRow(
-                    "Audio Visual Facility",
-                    model.Medical.MedicalEducationUnitHasAudioVisual == true
-                        ? "Yes"
-                        : "No");
-
-                AddRow(
-                    "Internet Facility",
-                    model.Medical.MedicalEducationUnitHasInternet == true
-                        ? "Yes"
-                        : "No");
-
-                AddRow(
-                    "Coordinator Name",
-                    model.Medical.MeuCoordinatorName ?? "—");
-
-                AddRow(
-                    "Coordinator Designation / Department",
-                    model.Medical.MeuCoordinatorDesignationDepartment ?? "—");
-
-                AddRow(
-                    "Coordinator Phone",
-                    model.Medical.MeuCoordinatorPhone ?? "—");
-
-                AddRow(
-                    "Coordinator Email",
-                    model.Medical.MeuCoordinatorEmail ?? "—");
-
-                AddRow(
-                    "Activities During Last Academic Year",
-                    model.Medical.MeuActivitiesLastAcademicYear ?? "—");
-
-                AddRow(
-                    "Members List Uploaded",
-                    model.Medical.HasMeuMembersListFile == true
-                        ? "Yes"
-                        : "No");
-            });
-        }
-    }
-
-    private void AddDepartmentOfficesAndMeuSection(ColumnDescriptor col)
-    {
-        var vm = _model.PhysicalFacilities.DeptOfficeMeu;
-        if (vm == null)
-            return;
-
-        // ===== MAIN HEADING =====
-        col.Item().PaddingTop(30).Column(col2 =>
-        {
-            col2.Item()
-                .AlignCenter()
-                .Text("Department Offices & Medical Education Unit (MEU)")
-                .FontSize(14)
-                .Bold();
-        });
-
-        // ============================================================
-        // 1.8 Department Offices, Rooms for Staff
-        // ============================================================
-        AddSubHeading(col, "Department Offices and Staff Rooms", 185);
-
-        col.Item().PaddingTop(8).Table(table =>
-        {
-            table.ColumnsDefinition(c =>
-            {
-                c.RelativeColumn(4);
-                c.ConstantColumn(90);
-            });
-
-            AddYesNoNullableRow(table,
-                "HOD room with office space and record maintenance available",
-                vm.HasHodRoomWithOfficeAndRecords);
-
-            AddYesNoNullableRow(table,
-                "Rooms available for faculty and residents",
-                vm.HasRoomsForFacultyAndResidents);
-
-            AddYesNoNullableRow(table,
-                "Faculty rooms have communication, computer and internet facilities",
-                vm.FacultyRoomsHaveCommunicationComputerInternet);
-
-            AddYesNoNullableRow(table,
-                "Rooms available for non-teaching staff",
-                vm.HasRoomsForNonTeachingStaff);
-        });
-
-        // ============================================================
-        // 1.9 Medical Education Unit (MEU)
-        // ============================================================
-        AddSubHeading(col, "Medical Education Unit (MEU)", 158);
-
-        col.Item().PaddingTop(8).Table(table =>
-        {
-            table.ColumnsDefinition(c =>
-            {
-                c.RelativeColumn(4);
-                c.ConstantColumn(90);
-            });
-
-            AddYesNoNullableRow(table,
-                "Medical Education Unit available",
-                vm.HasMedicalEducationUnit);
-
-            AddTextRow(table,
-                "Medical Education Unit area (Sq.m)",
-                vm.MedicalEducationUnitAreaSqm);
-
-            AddYesNoNullableRow(table,
-                "MEU equipped with Audio-Visual facilities",
-                vm.MedicalEducationUnitHasAudioVisual);
-
-            AddYesNoNullableRow(table,
-                "MEU has Internet connectivity",
-                vm.MedicalEducationUnitHasInternet);
-        });
-
-        // ============================================================
-        // 3. MEU – Coordinator Details
-        // ============================================================
-        AddSubHeading(col, "MEU Coordinator Details", 135);
-
-        col.Item().PaddingTop(8).Table(table =>
-        {
-            table.ColumnsDefinition(c =>
-            {
-                c.RelativeColumn(3);
-                c.RelativeColumn(4);
-            });
-
-            AddTextRow(table, "Coordinator Name", vm.MeuCoordinatorName);
-            AddTextRow(table, "Designation / Department",
-                vm.MeuCoordinatorDesignationDepartment);
-            AddTextRow(table, "Phone Number", vm.MeuCoordinatorPhone);
-            AddTextRow(table, "Email Address", vm.MeuCoordinatorEmail);
-        });
-
-        // ============================================================
-        // MEU Members & Activities
-        // ============================================================
-        AddSubHeading(col, "MEU Members and Activities", 155);
-
-        col.Item().PaddingTop(8).Table(table =>
-        {
-            table.ColumnsDefinition(c =>
-            {
-                c.RelativeColumn(3);
-                c.RelativeColumn(4);
-            });
-
-            AddTextRow(table,
-                "MEU Members List (Description)",
-                vm.MeuMembersListDescription);
-
-            AddTextRow(table,
-                "MEU Activities during last academic year",
-                vm.MeuActivitiesLastAcademicYear);
-
-            AddTextRow(table,
-                "Members List Document Uploaded",
-                vm.HasMeuMembersListFile ? "Yes" : "No");
-        });
     }
 
     private void AddSmallGroupTeachingSection(ColumnDescriptor col)
@@ -5811,11 +5552,11 @@ public class PreviewReportDentalPdf : IDocument
 
             AddRow(
                 "Men Hostel Area (Sq.ft)",
-                hostel.MenHostelAreaSqFt.ToString());
+                hostel?.MenHostelAreaSqFt?.ToString() ?? "-");
 
             AddRow(
                 "Women Hostel Area (Sq.ft)",
-                hostel.WomenHostelAreaSqFt.ToString());
+                hostel?.WomenHostelAreaSqFt?.ToString());
 
             AddRow(
                 "Possession Proof",
