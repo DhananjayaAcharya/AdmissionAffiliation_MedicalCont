@@ -1140,8 +1140,16 @@
          }
 
          items.forEach(item => {
+
+             /* ---------- Sub‑menu (UG / PG) – only for enabled rows ---------- */
+             const facultyCode = "@facultyCode";
+
              const hasRoute = !!affiliationBaseUrlMap[item.typeId];
-             const isDisabled = !hasRoute;               // disabled when we have no URL for it
+             const isDisabled =
+                    !hasRoute ||
+                    (facultyCode === "2" && item.typeId.toString() === "3");
+
+            @* const isDisabled = !hasRoute; *@
 
              /* ---------- Parent row (affiliation type) ---------- */
              const parentDiv = document.createElement("div");
@@ -1155,8 +1163,7 @@
              parentDiv.addEventListener("click", toggleUgPgSubmenu);
              panel.appendChild(parentDiv);
 
-             /* ---------- Sub‑menu (UG / PG) – only for enabled rows ---------- */
-             const facultyCode = "@facultyCode";
+             
 
             const showSubMenu =
                 facultyCode === "1" ||
