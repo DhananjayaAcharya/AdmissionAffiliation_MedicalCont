@@ -1204,11 +1204,22 @@
                 }
                 levels.forEach(level => {
                     const normalizedLevel = level.trim().toLowerCase();
-                    const levelItem = document.createElement(normalizedLevel === "ug" ? "a" : "span");
-                    levelItem.className = `affiliation-subitem${normalizedLevel === "ug" ? "" : " readonly"}`;
+
+                    const isPg = normalizedLevel === "pg";
+                    const isClickable =
+                        normalizedLevel === "ug" ||
+                        (isPg && facultyCode === "2");
+
+                    const levelItem = document.createElement(
+                        isClickable ? "a" : "span"
+                    );
+
+                    levelItem.className =
+                        `affiliation-subitem${isClickable ? "" : " readonly"}`;
+
                     levelItem.textContent = normalizedLevel.toUpperCase();
 
-                    if (normalizedLevel === "ug") {
+                    if (isClickable) {
                         levelItem.href = "#";
                         levelItem.dataset.level = normalizedLevel;
                         levelItem.addEventListener("click", navigateToLevel);
