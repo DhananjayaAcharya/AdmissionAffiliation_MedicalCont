@@ -248,13 +248,10 @@ namespace Admission_Affiliation.Controllers
             ViewBag.CollegeWebsite = profile?.CgpWebsite;
             ViewBag.EstablishedYear = profile?.CgpEstablishedYear;
 
-            TempData["ShowWelcomePopup"] = string.IsNullOrEmpty(college.ChangedPassword);
+            TempData["ShowWelcomePopup"] = true;
             TempData["CollegeName"] = college.CollegeName ?? collegeName;
             TempData["ShowAffiliationNotification"] = true;
-            if (string.IsNullOrEmpty(college.DistrictId) || string.IsNullOrEmpty(college.TalukId))
-            {
-                TempData["ShowLocationPopup"] = true;
-            }
+            ViewBag.ShowAffiliationNotification = true;
 
             return View(model);
         }
