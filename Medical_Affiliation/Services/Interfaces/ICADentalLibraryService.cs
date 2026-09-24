@@ -4,7 +4,7 @@ namespace Medical_Affiliation.Services.Interfaces
 {
     public interface ICADentalLibraryService
     {
-        Task<DentalLibraryDisplayViewModel> GetLibraryAsync();
+        Task<DentalLibraryPreviewVM> GetLibraryAsync();
         //Task<AccountAndFew>
     }
 

@@ -45,6 +45,8 @@ namespace Medical_Affiliation.Services.Faculty
 
             courseLevel = courseLevel?.Trim().ToUpperInvariant();
 
+            var affilitionType = await _context.TypeOfAffiliations.Where(e => e.TypeId == affiliationTypeId).Select(e => e.TypeDescription).FirstOrDefaultAsync();
+
 
             // =====================================================
             // RETURN EMPTY MODEL IF REQUIRED DETAILS ARE MISSING
@@ -121,8 +123,10 @@ namespace Medical_Affiliation.Services.Faculty
                 CollegeCode = collegeCode,
 
                 FacultyCode = facultyCode,
+                CourseLevel = courseLevel,
 
                 AffiliationTypeId = affiliationTypeId,
+                AffiliationCategory = affilitionType,
 
                 PaymentId = payment?.Id,
 

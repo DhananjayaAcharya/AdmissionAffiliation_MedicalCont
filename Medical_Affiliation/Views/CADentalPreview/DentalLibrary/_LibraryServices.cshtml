@@ -1,0 +1,82 @@
+﻿@model List<Medical_Affiliation.Models.DentalLibraryServicePreviewVM>
+
+@if (Model != null && Model.Any())
+{
+    <div class="section-block">
+
+        <div class="section-header-block">
+
+            <div class="section-title-text section-badge">
+                <i class="bi bi-journal-bookmark"></i>
+                Library Services
+            </div>
+
+            <p class="section-description">
+                Library services available in the institution
+            </p>
+
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th style="width:70px;">Sl. No.</th>
+                        <th>Service</th>
+                        <th class="text-center" style="width:180px;">
+                            Availability
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @{
+                        var slNo = 1;
+                    }
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                @slNo
+                            </td>
+
+                            <td class="fw-semibold">
+                                @item.ServiceName
+                            </td>
+
+                            <td class="text-center">
+
+                                @if (item.IsAvailable)
+                                {
+                                    <span class="status-badge-maintained">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Available
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">
+                                        Not Available
+                                    </span>
+                                }
+
+                            </td>
+
+                        </tr>
+
+                        slNo++;
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

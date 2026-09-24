@@ -1,8 +1,15 @@
-﻿@model Medical_Affiliation.Models.MedicalLibraryPreviewVM
+﻿@model Medical_Affiliation.Models.DentalLibraryPreviewVM
+
 @{
-    var isMedical = Model.facultyCode == 1;
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+
 }
-<link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css" />
+
+@* <link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" /> *@
 
 <div class="general-section">
 
@@ -10,68 +17,38 @@
     <!-- HEADER -->
     <!-- ====================================================== -->
 
-    <div class="general-header">
-        <div class="header-content">
-            <h2 class="academic-title academic-badge">
-                <i class="bi bi-book"></i>
-                Dental Library
-            </h2>
+    <div class="preview-section-header">
+
+       <div class="preview-section-header-content">
+
+            <h3 class="preview-section-title">
+                <i class="bi bi-building me-2"></i>
+                Library Details
+            </h3>
+
+            <a class="preview-section-edit"
+                href="@Url.Action(
+                    "CA_Med_StaffDetails",
+                    "CA_Aff_MedicalLibrary",
+                    new
+                    {
+                        typeOfAffiliation = @AffiliationType
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+                <span>Edit section</span>
+
+            </a>
+
         </div>
+
     </div>
 
-    <!-- ====================================================== -->
-    <!-- USAGE REPORT -->
-    <!-- ====================================================== -->
-
-    @if (isMedical)
-    {
-        <div class="section-block">
-                <div class="section-header-block">
-                    <div class="section-title-text section-badge">
-                        <i class="bi bi-file-earmark-text"></i>
-                        Usage Report
-                    </div>
-                </div>
-
-                <table class="table data-table">
-
-                    <tbody>
-
-                        <tr>
-
-                            <th>Usage Report Uploaded</th>
-
-                            <td class="text-center">
-
-                                @if (Model.HasUsageReport)
-                                {
-                                    <a asp-controller="@Model.UsageReportViewController"
-                                       asp-action="@Model.UsageReportViewAction"
-                                       target="_blank"
-                                       class="btn btn-sm btn-outline-primary">
-                                        View Report
-                                    </a>
-                                }
-                                else
-                                {
-                                    <span>No</span>
-                                }
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-        </div>
-    }
-
+    
     <!-- ====================================================== -->
     <!-- LIBRARY STAFF -->
     <!-- ====================================================== -->
-    @if (Model.LibraryStaff.Any())
+    @* @if (Model.LibraryStaff.Any())
     {
         <div class="section-block">
 
@@ -122,7 +99,7 @@
             </div>
 
         </div>
-    }
+    } *@
 
     <!-- ====================================================== -->
     <!-- DEPARTMENT LIBRARIES -->
@@ -150,6 +127,8 @@
                             <th>Total Books</th>
                             <th>Books Added</th>
                             <th>Current Journals</th>
+                            <th>Library Staff 1</th>
+                            <th>Library Staff 2</th>
                             <th>Titles</th>
                             <th>International Journals</th>
                             <th>Back Volumes</th>
@@ -169,6 +148,27 @@
                                 <td>@item.TotalBooks</td>
                                 <td>@item.BooksAddedInYear</td>
                                 <td>@item.CurrentJournals</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.LibraryStaff1))
+                                    {
+                                        @item.LibraryStaff1
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.LibraryStaff2))
+                                    {
+                                        @item.LibraryStaff2
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
                                 <td>@item.Titles</td>
                                 <td>@item.InternationalJournals</td>
                                 <td>@item.BackVolumes</td>
@@ -189,7 +189,7 @@
     <!-- ====================================================== -->
     <!-- OTHER DETAILS -->
     <!-- ====================================================== -->
-    @if (Model.OtherDetails != null)
+    @* @if (Model.OtherDetails != null)
     {
         <div class="section-block">
 
@@ -253,12 +253,13 @@
             </table>
 
         </div>
-    }
+    } *@
 
     <!-- ====================================================== -->
     <!-- DENTAL LIBRARY RECORDS -->
     <!-- ====================================================== -->
-    @if (Model.DentalLibraryRecords.Any())
+
+    @if (Model.DentalLibraryRecords != null && Model.DentalLibraryRecords.Any())
     {
         <div class="section-block">
 
@@ -267,21 +268,23 @@
                     <i class="bi bi-folder2-open"></i>
                     Dental Library Records
                 </div>
+
+                <p class="section-description">
+                    Dental library documents and records
+                </p>
             </div>
 
             <div class="data-table-wrapper">
 
-                <table class="table data-table">
+                <table class="table data-table table-hover align-middle">
 
                     <thead>
-
                         <tr>
-
                             <th>Record</th>
-                            <th class="text-center">Document</th>
-
+                            <th class="text-center" style="width: 180px;">
+                                Document
+                            </th>
                         </tr>
-
                     </thead>
 
                     <tbody>
@@ -290,23 +293,28 @@
                         {
                             <tr>
 
-                                <td>@item.RecordName</td>
+                                <td class="fw-semibold">
+                                    @item.RecordName
+                                </td>
 
                                 <td class="text-center">
 
                                     @if (item.HasDocument)
                                     {
-                                        <a asp-controller="CA_Aff_MedicalLibrary"
-                                           asp-action="ViewDentalLibraryRecord"
-                                           asp-route-recordId="@item.RecordId"
-                                           target="_blank"
-                                           class="btn btn-sm btn-outline-primary">
+                                        <a asp-controller="@item.ViewController"
+                                            asp-action="@item.ViewAction"
+                                            asp-route-recordId="@item.RecordId"
+                                            target="_blank"
+                                            class="status-badge-maintained text-decoration-none">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i>
                                             View
                                         </a>
                                     }
                                     else
                                     {
-                                        <span>No</span>
+                                        <span class="text-muted fst-italic">
+                                            Not Uploaded
+                                        </span>
                                     }
 
                                 </td>
@@ -322,7 +330,15 @@
 
         </div>
     }
-
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-folder-x"></i>
+            <p class="mb-0">
+                No dental library records available.
+            </p>
+        </div>
+    }
 
 
     @if (Model.ResearchPublications != null)
@@ -330,9 +346,25 @@
         @await Html.PartialAsync( "DentalLibrary/_ResearchPublications", Model.ResearchPublications)
     }
 
+
     @if (Model.LibraryInformation != null)
     {
         @await Html.PartialAsync("DentalLibrary/_LibraryInformation", Model.LibraryInformation)
+    }
+
+    @if (Model.Expenditures != null && Model.Expenditures.Any())
+    {
+        @await Html.PartialAsync("DentalLibrary/_LibraryExpenditures", Model.Expenditures)
+    }
+
+    @if (Model.Services != null && Model.Services.Any())
+    {
+        @await Html.PartialAsync("DentalLibrary/_LibraryServices", Model.Services)
+    }
+
+    @if (Model.LibraryStaff != null && Model.LibraryStaff.Any())
+    {
+        @await Html.PartialAsync("DentalLibrary/_LibraryStaff", Model.LibraryStaff)
     }
 
 </div>

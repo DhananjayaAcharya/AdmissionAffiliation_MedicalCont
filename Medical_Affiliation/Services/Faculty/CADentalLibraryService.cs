@@ -1,4 +1,5 @@
 ﻿
+using DocumentFormat.OpenXml.Bibliography;
 using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
@@ -20,177 +21,473 @@ namespace Medical_Affiliation.Services.Faculty
         }
 
         [HttpGet]
-        public async Task<DentalLibraryDisplayViewModel> GetLibraryAsync()
+        public async Task<DentalLibraryPreviewVM> GetLibraryAsync()
         {
             string collegeCode = _userContext.CollegeCode;
             int facultyCode = _userContext.FacultyId;
             int affiliationType = _userContext.TypeOfAffiliation;
-            var courseLevel = _userContext.CourseLevel;
+            string? courseLevel = _userContext.CourseLevel;
 
-            var model = new DentalLibraryDisplayViewModel
+            var model = new DentalLibraryPreviewVM
             {
-                CollegeCode = collegeCode,
-                //FacultyCode = facultyCode,
-                //AffiliationType = affiliationType
-                caAffMedicalLibraryvm = new CA_Aff_MedicalLibraryViewModel1(),
-                librarayCommitteeVM = new CaMedLibCommitteeListDisplayViewModel()
+                facultyCode = facultyCode
             };
 
-            // ===================== 1. LIBRARY SERVICES =====================
-            var savedServices = _context.CaMedicalLibraryServices
-                .AsNoTracking()
+            var general = await _context.CaMedLibraryGenerals
                 .Where(x => x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            x.CourseLevel == courseLevel &&
-                            x.AffiliationType == affiliationType)
-                .ToList();
+                            x.FacultyCode == facultyCode.ToString())
+                .OrderBy(x => x.CourseLevel)
+                .FirstOrDefaultAsync();
 
-            var masterServices = _context.CaMstMediLibraryServices
-                .OrderBy(s => s.ServiceId)
-                .ToList();
+            var itemsMaster = await _context.CaMstMedLibraryItems
+                .Where(x => x.FacultyCode == facultyCode.ToString())
+                .OrderBy(x => x.SlNo)
+                .ToListAsync();
 
-            model.caAffMedicalLibraryvm.LibraryServices = masterServices.Select(m =>
-            {
-                var saved = savedServices.FirstOrDefault(s => s.ServiceId == m.ServiceId);
-                return new LibraryServiceRowViewModel1
-                {
-                    ServiceId = m.ServiceId,
-                    IsAvailable = saved?.IsAvailable,
-                    ServiceName = m.ServiceName,
-
-                    ExistingFileName = saved?.UploadedFileName,
-                    HasPdf = saved?.UploadedPdfPath != null,
-                    LibraryServiceId = saved?.LibraryServiceId ?? 0
-
-                };
-            }).ToList();
-
-            // ===================== 2. USAGE REPORT =====================
-            var usage = _context.CaMedicalLibraryUsageReports
-                .FirstOrDefault(x => x.CollegeCode == collegeCode &&
-                                     x.CourseLevel == courseLevel &&
-                                     x.FacultyCode == facultyCode &&
-                                     x.AffiliationType == affiliationType);
-
-            if (usage != null)
-            {
-                model.caAffMedicalLibraryvm.ExistingUsageReportFileName = usage.UploadedFileName;
-                model.caAffMedicalLibraryvm.UsageReportId = usage.UsageReportId;
-            }
-
-            // ===================== 3. LIBRARY STAFF =====================
-            var savedStaff = _context.CaMedicalLibraryStaffs
+            var savedItems = await _context.CaMedLibraryItems
                 .Where(x => x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            x.CourseLevel == courseLevel &&
-                            x.AffiliationType == affiliationType)
-                .ToList();
+                            x.FacultyCode == facultyCode.ToString())
+                .GroupBy(x => x.SlNo)
+                .Select(g => g.First())
+                .ToListAsync();
 
-            model.caAffMedicalLibraryvm.LibraryStaff = savedStaff.Select(s => new LibraryStaffViewModel1
+            var building = await _context.CaMedLibraryBuildings
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode.ToString());
+
+            var techMaster = await _context.CaMstMedLibTechnicalProcesses
+                .Where(x => x.FacultyCode == facultyCode.ToString())
+                .OrderBy(x => x.SlNo)
+                .ToListAsync();
+
+            var savedTech = await _context.CaMedLibTechnicalProcesses
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode.ToString())
+                .GroupBy(x => x.SlNo)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            var equipMaster = await _context.CaMstMedLibraryEquipments
+                .Where(x => x.FacultyCode == facultyCode.ToString())
+                .OrderBy(x => x.SlNo)
+                .ToListAsync();
+
+            var savedEquip = await _context.CaMedLibraryEquipments
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode.ToString())
+                .GroupBy(x => x.SlNo)
+                .Select(g => g.First())
+                .ToListAsync();
+
+            var finance = await _context.CaMedLibraryFinances
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode.ToString())
+                .OrderBy(x => x.CourseLevel)
+                .FirstOrDefaultAsync();
+
+            var bindery = savedEquip
+                .FirstOrDefault(x => x.EquipmentName == "Bindery");
+
+            model.LibraryInformation = new LibraryInformationPreviewVM
             {
-                Id = s.Id,
-                StaffName = s.StaffName,
-                Designation = s.Designation,
-                Qualification = s.Qualification,
-                Experience = s.Experience,
-                Category = s.Category
-            }).ToList();
-
-            // ===================== 4. DEPARTMENTAL LIBRARY (FIXED) =====================
-            //var savedDepartments = _context.CaMedicalDepartmentLibraries
-            //    .Where(x => x.CollegeCode == "M404" &&
-            //                x.FacultyCode == facultyCode &&
-            //                x.AffiliationType == affiliationType)
-            //    .ToList();
-
-
-            var savedDepartmentList = (from cmdl in _context.CaMedicalDepartmentLibraries
-                                       join deptMaster in _context.DepartmentMasters
-                                       on cmdl.DepartmentCode equals deptMaster.DepartmentCode
-                                       where cmdl.CollegeCode == collegeCode &&
-                                           cmdl.FacultyCode == facultyCode &&
-                                           cmdl.CourseLevel == courseLevel &&
-                                           cmdl.AffiliationType == affiliationType
-                                       select new { cmdl, deptMaster })
-                        .ToList();
-
-            // If data exists → load only saved rows
-            if (savedDepartmentList.Any())
-            {
-                model.caAffMedicalLibraryvm.DepartmentLibraries = savedDepartmentList.Select(s =>
+                General = new LibraryGeneralPreviewVM
                 {
-                    string staff1 = "";
-                    string staff2 = "";
+                    LibraryEmailId = general?.LibraryEmailId,
+                    DigitalLibrary = general?.DigitalLibrary,
+                    HelinetServices = general?.HelinetServices,
+                    DepartmentWiseLibrary = general?.DepartmentWiseLibrary
+                },
 
-                    if (!string.IsNullOrWhiteSpace(s.cmdl.LibraryStaff))
+                Items = itemsMaster.Select(m =>
+                {
+                    var saved = savedItems.FirstOrDefault(x => x.SlNo == m.SlNo);
+
+                    return new LibraryItemPreviewVM
                     {
-                        var parts = s.cmdl.LibraryStaff.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                        SlNo = m.SlNo,
+                        ItemName = m.ItemName,
+                        CurrentForeign = saved?.CurrentForeign ?? 0,
+                        CurrentIndian = saved?.CurrentIndian ?? 0,
+                        PreviousForeign = saved?.PreviousForeign ?? 0,
+                        PreviousIndian = saved?.PreviousIndian ?? 0
+                    };
+                }).ToList(),
 
-                        if (parts.Length > 0)
-                            staff1 = parts[0].Trim();
+                Building = new LibraryBuildingPreviewVM
+                {
+                    IsIndependent = building?.IsIndependent,
+                    AreaSqMtrs = building?.AreaSqMtrs
+                },
 
-                        if (parts.Length > 1)
-                            staff2 = parts[1].Trim();
-                    }
+                TechnicalProcesses = techMaster.Select(m =>
+                {
+                    var saved = savedTech.FirstOrDefault(x => x.SlNo == m.SlNo);
 
-                    return new DepartmentLibraryViewModel1
+                    return new LibraryTechnicalProcessPreviewVM
+                    {
+                        SlNo = m.SlNo,
+                        ProcessName = m.ProcessName,
+                        Value = saved?.Value
+                    };
+                }).ToList(),
+
+                Equipments = equipMaster.Select(m =>
+                {
+                    var saved = savedEquip.FirstOrDefault(x => x.SlNo == m.SlNo);
+
+                    return new LibraryEquipmentPreviewVM
+                    {
+                        SlNo = m.SlNo,
+                        EquipmentName = m.EquipmentName,
+                        HasEquipment = saved?.HasEquipment
+                    };
+                }).ToList(),
+
+                Finance = new LibraryFinancePreviewVM
+                {
+                    TotalBudgetLakhs = finance?.TotalBudgetLakhs,
+                    ExpenditureBooksLakhs = finance?.ExpenditureBooksLakhs
+                },
+
+                BinderyValue = bindery?.HasEquipment
+            };
+
+            // ============================================================
+            // 1. USAGE REPORT
+            // ============================================================
+
+            //var usageReport = await _context.CaMedicalLibraryUsageReports
+            //    .AsNoTracking()
+            //    .FirstOrDefaultAsync(x =>
+            //        x.CollegeCode == collegeCode &&
+            //        x.CourseLevel == courseLevel &&
+            //        x.FacultyCode == facultyCode &&
+            //        x.AffiliationType == affiliationType);
+
+            //if (usageReport != null &&
+            //    !string.IsNullOrWhiteSpace(usageReport.UploadedFileName))
+            //{
+            //    model.HasUsageReport = true;
+
+            //    // Use the controller/action which is already handling
+            //    // the medical library usage report.
+            //    model.UsageReportViewController = "CA_Aff_MedicalLibrary";
+            //    model.UsageReportViewAction = "ViewUsageReport";
+            //}
+
+
+            // ============================================================
+            // 2. DEPARTMENT LIBRARIES
+            // ============================================================
+
+            var savedDepartmentList = await (
+                from cmdl in _context.CaMedicalDepartmentLibraries
+                join deptMaster in _context.DepartmentMasters
+                    on cmdl.DepartmentCode equals deptMaster.DepartmentCode
+                where cmdl.CollegeCode == collegeCode
+                      && cmdl.FacultyCode == facultyCode
+                      && cmdl.CourseLevel == courseLevel
+                      && cmdl.AffiliationType == affiliationType
+                select new
+                {
+                    cmdl,
+                    deptMaster
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            model.DepartmentLibraries = savedDepartmentList
+                .Select(s =>
+                {
+                    var staffParts = (s.cmdl.LibraryStaff ?? string.Empty)
+                        .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .ToArray();
+
+                    return new DepartmentLibraryPreviewVM
                     {
                         DepartmentCode = s.cmdl.DepartmentCode,
+                        DepartmentName = s.deptMaster.DepartmentName,
+
                         TotalBooks = s.cmdl.TotalBooks,
                         BooksAddedInYear = s.cmdl.BooksAddedInYear,
                         CurrentJournals = s.cmdl.CurrentJournals,
-                        LibraryStaff1 = staff1,
-                        LibraryStaff2 = staff2,
-                        DepartmentName = s.deptMaster.DepartmentName
+
+                        LibraryStaff1 = staffParts.Length > 0
+                            ? staffParts[0]
+                            : null,
+
+                        LibraryStaff2 = staffParts.Length > 1
+                            ? staffParts[1]
+                            : null,
+
+                        Titles = s.cmdl.Titles,
+                        InternationalJournals = s.cmdl.InternationalJournals,
+                        BackVolumes = s.cmdl.BackVolumes,
+                        PrintJournalPercentage = s.cmdl.PrintJournalPercentage
                     };
-                }).ToList();
+                })
+                .ToList();
 
-            }
 
 
-            // ===================== 5. OTHER DETAILS =====================
-            var otherDetails = _context.CaMedicalLibraryOtherDetails
-                .FirstOrDefault(x => x.CollegeCode == collegeCode &&
-                                     x.FacultyCode == facultyCode &&
-                                     x.CourseLevel == courseLevel &&
-                                     x.AffiliationType == affiliationType);
+            // ============================================================
+            // 3. DENTAL LIBRARY RECORDS
+            // ============================================================
 
-            if (otherDetails != null)
-            {
-                model.caAffMedicalLibraryvm.OtherDetails = new MedicalLibraryOtherDetailsViewModel1
+            model.DentalLibraryRecords = await (
+                from record in _context.CaDentalLibraryRecords
+                join master in _context.CaMstDentalLibraryRecords
+                    on record.RecordId equals master.RecordId
+                where record.CollegeCode == collegeCode
+                      && record.FacultyCode == facultyCode
+                      && record.CourseLevel == courseLevel
+                      && record.AffiliationType == affiliationType
+                orderby master.DisplayOrder
+                select new DentalLibraryRecordPreviewVM
                 {
-                    DigitalValuationId = otherDetails.DigitalValuationId,
-                    HasDigitalValuationCentre = otherDetails.HasDigitalValuationCentre,
-                    NoOfSystems = otherDetails.NoOfSystems,
-                    HasStableInternet = otherDetails.HasStableInternet,
-                    HasCccameraSystem = otherDetails.HasCccameraSystem,
-                    UploadedFileName = otherDetails.UploadedFileName,
-                    SpecialFeaturesQuestion = otherDetails.SpecialFeaturesAchievementsPdfPath != null ? "Yes" : "No",
-                    HasSpecialFeaturesPdf = otherDetails.SpecialFeaturesAchievementsPdfPath != null,
-                    CreatedDate = otherDetails.CreatedDate,
-                    HasSpecialFeatures = otherDetails.SpecialFeaturesQuestion == "Yes",
+                    RecordId = record.RecordId,
+
+                    // Name comes from master table
+                    RecordName = master.RecordName,
+
+                    // FilePath is the actual uploaded document path
+                    HasDocument = !string.IsNullOrEmpty(record.FilePath),
+
+                    ViewController = "CA_Aff_MedicalLibrary",
+                    ViewAction = "ViewDentalLibraryRecord"
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+
+            var mainDataList = await _context.CaMedResearchPublicationsDetails
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode.ToString())
+                .ToListAsync();
+
+            var commonData = mainDataList
+                .FirstOrDefault(x =>
+                    x.CourseLevel != null &&
+                    x.CourseLevel.Trim().ToUpper() == "ALL")
+                ?? mainDataList.FirstOrDefault();
+
+
+            var savedDeptPublications = await _context.DeptWisePublications
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode)
+                .ToListAsync();
+
+            var savedDeptResearchProjects = await _context.DepartmentWiseResearchProjects
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.CourseLevel == courseLevel &&
+                            x.TypeId == affiliationType &&
+                            x.FacultyCode == facultyCode)
+                .ToListAsync();
+
+
+            var departments = await _context.DepartmentMasters
+                .Where(x => x.FacultyCode == facultyCode)
+                .OrderBy(x => x.DepartmentName)
+                .ToListAsync();
+
+            model.ResearchPublications = commonData == null
+                ? null
+                : new ResearchPublicationsPreviewVM
+                {
+                    // ================= Publications =================
+                    PublicationsNo = commonData.PublicationsNo ?? 0,
+
+                    HasPublicationsPdf =
+                        !string.IsNullOrWhiteSpace(commonData.PublicationsPdfPath),
+
+                    // ================= Clinical Trials =================
+                    HasClinicalTrialsPdf =
+                        !string.IsNullOrWhiteSpace(commonData.ClinicalTrialsPdfPath),
+
+                    // ================= Student Projects =================
+                    StudentsRGUHSFunded =
+                        commonData.StudentsRguhsfunded,
+
+                    StudentsExternalBodyFunding =
+                        commonData.StudentsExternalBodyFunding,
+
+                    HasStudentProjectsPdf =
+                        !string.IsNullOrWhiteSpace(commonData.StudentsProjectsPdfPath),
+
+                    // ================= Faculty Projects =================
+                    FacultyRGUHSFunded =
+                        commonData.FacultyRguhsfunded,
+
+                    FacultyExternalBodyFunding =
+                        commonData.FacultyExternalBodyFunding,
+
+                    HasFacultyProjectsPdf =
+                        !string.IsNullOrWhiteSpace(commonData.FacultyProjectsPdfPath),
+
+                    // ================= Department-wise Publications =================
+                    DepartmentPublications = departments
+                        .Select(d =>
+                        {
+                            var saved = savedDeptPublications
+                                .FirstOrDefault(x =>
+                                    x.DeptCode == d.DepartmentCode);
+
+                            return new DepartmentPublicationPreviewVM
+                            {
+                                Id = saved?.Id ?? 0,
+
+                                DepartmentCode = d.DepartmentCode,
+
+                                DepartmentName = d.DepartmentName,
+
+                                PublicationsCount =
+                                    saved?.PublicationsCount ?? 0,
+
+                                HasDocument =
+                                    !string.IsNullOrWhiteSpace(
+                                        saved?.PublicationPath)
+                            };
+                        })
+                        .ToList(),
+
+                    DepartmentWiseResearchProjects = departments
+                    .Select(d =>
+                    {
+                        var saved = savedDeptResearchProjects
+                            .FirstOrDefault(x =>
+                                x.DepartmentCode == d.DepartmentCode);
+
+                        return new DepartmentWiseResearchProjectPreviewVM
+                        {
+                            Id = saved?.Id ?? 0,
+
+                            DepartmentCode = d.DepartmentCode,
+
+                            DepartmentName = d.DepartmentName,
+
+                            NoOfResearchProjectsLast3Years =
+                                saved?.NoOfResearchProjectsLast3Years ?? 0,
+
+                            PdfFilePath = saved?.PdfFilePath,
+
+                            HasDocument =
+                                !string.IsNullOrWhiteSpace(saved?.PdfFilePath)
+                        };
+                    })
+                    .ToList(),
                 };
 
-            }
+            var masterExpenditures = await _context.MstLibraryExpenditures
+                .AsNoTracking()
+                .Where(x => x.IsActive &&
+                            x.FacultyId == facultyCode &&
+                            x.TypeId == affiliationType)
+                .OrderBy(x => x.ItemName)
+                .ToListAsync();
+
+            var savedExpenditures = await _context.LibraryExpenditures
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.CourseLevel == courseLevel &&
+                            x.IsActive)
+                .ToDictionaryAsync(x => x.ItemId, x => x.ExpenditureProposed);
+
+            var masterServices = await _context.MstDentalLibraryServices
+                .AsNoTracking()
+                .Where(x => x.IsActive &&
+                            x.FacultyId == facultyCode &&
+                            x.TypeId == affiliationType)
+                .OrderBy(x => x.ServiceName)
+                .ToListAsync();
+
+            var savedServices = await _context.DentalLibraryServices
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.CourseLevel == courseLevel &&
+                            x.IsActive)
+                .ToDictionaryAsync(x => x.ServiceId, x => x.IsAvailable);
 
 
-            bool hasLibraryServicePdf = model.caAffMedicalLibraryvm.LibraryServices.Any(s => !string.IsNullOrEmpty(s.ExistingFileName));
+            //var otherActivities = await _context.CaMedLibOtherAcademicActivities
+            //            .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString() && x.CourseLevel == courseLevel)
+            //            .Join(
+            //                _context.CaMstMedOtherAcademicActivities,
+            //                saved => saved.ActivityId,
+            //                master => master.Id,
+            //                (saved, master) => new CA_Med_Lib_OtherAcademicActivitiesVM
+            //                {
+            //                    Id = saved.Id,
+            //                    ActivityId = saved.ActivityId,
+            //                    ActivityName = master.ActivityName,
+            //                    DepartmentCode = saved.DepartmentCode,
+            //                    DepartmentWise = saved.DepartmentWise,
+            //                    ActivityPdfName = saved.ActivityPdfName
+            //                })
+            //            .ToListAsync();
+            model.Expenditures = masterExpenditures
+                .Select(item => new DentalLibraryExpenditurePreviewVM
+                {
+                    ItemId = item.LibraryExpenditureId,
 
-            bool hasUsageReportPdf =
-                !string.IsNullOrEmpty(model.caAffMedicalLibraryvm.ExistingUsageReportFileName);
+                    ItemName = item.ItemName,
 
-            bool hasSpecialFeaturesPdf =
-                model.caAffMedicalLibraryvm.OtherDetails?.HasSpecialFeaturesPdf == true;
+                    ExpenditureProposed =
+                        savedExpenditures.GetValueOrDefault(
+                            item.LibraryExpenditureId)
+                })
+                .ToList();
 
-            model.caAffMedicalLibraryvm.IsFirstLogin = !(hasLibraryServicePdf || hasUsageReportPdf || hasSpecialFeaturesPdf);
-            model.librarayCommitteeVM = await GetLibCommittee();
-            model.LibraryGeneralVM = await GetLibraryGeneral();
-            model.LibraryItemListVM = await GetLibraryItems();
-            model.LibraryBuildingVM = await GetLibraryBuilding();
-            model.LibraryTechListVM = await GetLibraryTechnicalProcess();
-            model.LibraryFinancVM = await GetLibraryFinance();
-            model.LibraryEquipmentListVM = await GetLibraryEquipment();
-            model.ResearchPublicationsDisplayViewModel = await GetResearchPublications();
+            model.Services = masterServices
+                .Select(service => new DentalLibraryServicePreviewVM
+                {
+                    ServiceId = service.DentalLibraryServiceId,
+
+                    ServiceName = service.ServiceName,
+
+                    IsAvailable =
+                        savedServices.GetValueOrDefault(
+                            service.DentalLibraryServiceId)
+                })
+                .ToList();
+
+            var libraryStaff = await _context.LibraryStaffDetails
+                .AsNoTracking()
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId == facultyCode &&
+                    x.TypeId == affiliationType &&
+                    x.IsActive)
+                .ToListAsync();
+
+
+            model.LibraryStaff = libraryStaff
+                .Select(x => new DentalLibraryStaffPreviewVM
+                {
+                    LibraryStaffId = x.LibraryStaffId,
+
+                    Name = x.Name,
+
+                    Designation = x.Designation,
+
+                    Qualification = x.Qualification,
+
+                    ExperienceFrom = x.ExperienceFrom,
+
+                    ExperienceTo = x.ExperienceTo,
+
+                    PayScale = x.PayScale,
+
+                    Category = x.Category,
+
+                    // ExperienceTo is null => currently working
+                    CurrentlyWorking = !x.ExperienceTo.HasValue
+                })
+                .ToList();
+
             return model;
         }
 

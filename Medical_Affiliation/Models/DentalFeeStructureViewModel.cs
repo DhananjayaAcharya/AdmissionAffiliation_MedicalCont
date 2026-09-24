@@ -7,6 +7,7 @@ public class DentalFeeStructureViewModel
 {
     public string CollegeCode { get; set; } = null!;
     public int FacultyCode { get; set; }
+    public string CourseLevel { get; set; }
 
     public int AffiliationTypeId { get; set; }
 

@@ -351,3 +351,84 @@
         </div>
     }
 }
+
+
+                                            <!-- ====================================================== -->
+<!-- DEPARTMENT-WISE RESEARCH PROJECTS -->
+<!-- ====================================================== -->
+
+@if (Model.DepartmentWiseResearchProjects.Any())
+{
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-flask"></i>
+                Department-wise Research Projects
+            </div>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table">
+
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th class="text-center">
+                            Research Projects
+                            <br />
+                            <small>(Last 3 Years)</small>
+                        </th>
+                        <th class="text-center">Document</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model.DepartmentWiseResearchProjects)
+                    {
+                        <tr>
+
+                            <td>
+                                @item.DepartmentName
+                            </td>
+
+                            <td class="text-center">
+                                @item.NoOfResearchProjectsLast3Years
+                            </td>
+
+                            <td class="text-center">
+
+                                @if (item.HasDocument)
+                                {
+                                    <a asp-controller="CA_Med_ResearchPublications"
+                                       asp-action="ViewDepartmentResearchProjectPdf"
+                                       asp-route-id="@item.Id"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+
+                                        <i class="bi bi-eye"></i>
+                                        View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        No
+                                    </span>
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

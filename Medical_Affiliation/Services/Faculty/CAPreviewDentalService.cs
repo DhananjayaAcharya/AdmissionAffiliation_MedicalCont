@@ -39,6 +39,8 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICADepartmentOfficesMeuService _cADepartmentOfficesMeuService;
         private readonly ICAEquipmentPreviewService _cAEquipmentPreviewService;
         private readonly ICADentalFieldPracticeAreaService _caDentalFieldPracticeAreaService;
+        private readonly ICADentalStaffDetailsPreviewService _cADentalStaffDetailsPreviewService;
+        private readonly ICAFinanceService _cAFinanceService;
         private readonly ApplicationDbContext _context;
 
 
@@ -68,6 +70,8 @@ namespace Medical_Affiliation.Services.Faculty
             ICADepartmentOfficesMeuService cADepartmentOfficesMeuService,
             ICAEquipmentPreviewService cAEquipmentPreviewService,
             ICADentalFieldPracticeAreaService cADentalFieldPracticeAreaService,
+            ICAFinanceService cAFinanceService,
+            ICADentalStaffDetailsPreviewService cADentalStaffDetailsPreviewService,
             ApplicationDbContext dbContext)
         {
             _basicDetailsService = basicDetailsService;
@@ -95,6 +99,8 @@ namespace Medical_Affiliation.Services.Faculty
             _cADepartmentOfficesMeuService = cADepartmentOfficesMeuService;
             _cAEquipmentPreviewService = cAEquipmentPreviewService;
             _caDentalFieldPracticeAreaService = cADentalFieldPracticeAreaService;
+            _cADentalStaffDetailsPreviewService = cADentalStaffDetailsPreviewService;
+            _cAFinanceService = cAFinanceService;
             _context = dbContext;
         }
 
@@ -137,6 +143,8 @@ namespace Medical_Affiliation.Services.Faculty
                 EquipmentPreviewVM = await _cAEquipmentPreviewService.GetEquipmentPreviewAsync(),
                 
                 FiedPracticeArea = await _caDentalFieldPracticeAreaService.GetFieldPracticeAreaAsync(),
+                DentalStaffDetailsVM = await _cADentalStaffDetailsPreviewService.GetDentalStaffDetailsPreviewAsync(),
+                FinanceVm = await _cAFinanceService.GetFinanceDetails()
             };
 
             return vm;

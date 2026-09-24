@@ -638,15 +638,15 @@
                         </a>
                     </li>
                 }
-                @if (Model.LibraryDisplay != null)
+                @* @if (Model.DentalLibraryDisplay != null)
                 {
                     <li class="nav-item">
-                        <a class="nav-link @(Model.LibraryDisplay == null ? "active" : "")" href="#library-group">
+                        <a class="nav-link @(Model.DentalLibraryDisplay == null ? "active" : "")" href="#library-group">
                             <i class="bi bi-hospital"></i>
                             <span>Library Display</span>
                         </a>
                     </li>
-                }
+                } *@
                 @if (Model.DentalLandBuildingPreview != null && FacultyCode == "2")
                 {
                     <li class="nav-item">
@@ -720,7 +720,7 @@
                     </li>
                 }
 
-                @if (Model.DentalLibraryPreviewVM != null && FacultyCode == "2")
+                @if (Model.DentalLibraryDisplay != null && FacultyCode == "2")
                 {
                     <li class="nav-item">
                         <a class="nav-link" href="#dental-library-group">
@@ -759,21 +759,31 @@
                         </a>
                     </li>
                 }
-                @if (Model.HumanResourcesVM?.FacultyDetails != null)
+
+                @if (Model.DentalStaffDetailsVM != null)
                 {
                     <li class="nav-item">
-                        <a class="nav-link" href="#human-resources-group">
+                        <a class="nav-link" href="#dental-staff-details-group">
                             <i class="bi bi-people-fill"></i>
-                            <span>Human Resources</span>
+                            <span>Staff Details</span>
                         </a>
                     </li>
                 }
                 @if (Model.FinanceVm != null)
                 {
                     <li class="nav-item">
-                        <a class="nav-link @(Model.FinanceVm == null ? "active" : "")" href="#finance-group">
-                            <i class="bi bi-hospital"></i>
-                            <span>Finance Display</span>
+                        <a class="nav-link" href="#finance-group">
+                            <i class="bi bi-cash-stack"></i>
+                            <span>Finance</span>
+                        </a>
+                    </li>
+                }
+                @if (Model.HumanResourcesVM?.FacultyDetails != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#human-resources-group">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Human Resources</span>
                         </a>
                     </li>
                 }
@@ -862,6 +872,15 @@
                     @await Html.PartialAsync(
                         "UgPgIntakeData/_UgCourseDetails",
                         Model.UGPgIntakeDetailsVM.UgCourseDetails)
+                </div>
+
+                <div class="section-separator"></div>
+            }
+
+            @if (Model.DentalStaffDetailsVM != null)
+            {
+                <div id="dental-staff-details-group">
+                    @await Html.PartialAsync("StaffDetails/StaffDetailsDental", Model.DentalStaffDetailsVM)
                 </div>
 
                 <div class="section-separator"></div>
@@ -1072,10 +1091,10 @@
             }
 
 
-            @if (Model.DentalLibraryPreviewVM != null)
+            @if (Model.DentalLibraryDisplay != null)
             {
                 <div id="dental-library-group">
-                    @await Html.PartialAsync("DentalLibrary/LibraryDetails", Model.DentalLibraryPreviewVM)
+                    @await Html.PartialAsync("DentalLibrary/LibraryDetails", Model.DentalLibraryDisplay )
                 </div>
 
                 <div class="section-separator"></div>
@@ -1089,10 +1108,10 @@
             } *@
 
             <!-- Section Separator -->
-            @if (Model.LibraryDisplay != null)
+            @* @if (Model.LibraryDisplay != null)
             {
                 <div class="section-separator"></div>
-            }
+            } *@
             @if (Model.VehiclePreviewVM != null)
             {
                 <div id="vehicle-group">

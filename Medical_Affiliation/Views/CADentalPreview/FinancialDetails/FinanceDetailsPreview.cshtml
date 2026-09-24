@@ -1,22 +1,42 @@
 ﻿@model FinanceViewModel
 
-<div class="general-section">
-    <div class="general-header">
-        <div class="header-content">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h2 class="general-title academic-badge">Finance Details</h2>
-                </div>
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
 
-                <a class="edit-button"
-                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode })">
-                    <i class="bi bi-pencil-square"></i>
-                    <span>Edit section</span>
-                </a>
-            </div>
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css" />
+
+
+<div class="general-section">
+    <div class="preview-section-header">
+
+       <div class="preview-section-header-content">
+
+            <h3 class="preview-section-title">
+                <i class="bi bi-building me-2"></i>
+                Finance Details
+            </h3>
+
+            <a class="preview-section-edit"
+                href="@Url.Action(
+                    "CA_Med_StaffDetails",
+                    "CA_Med_StaffDetails",
+                    new
+                    {
+                        typeOfAffiliation = @AffiliationType
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+                <span>Edit section</span>
+
+            </a>
+
         </div>
+
     </div>
-        @await Html.PartialAsync("FinancialDetails/_AccountAndFeeDetailsPreview", Model)
-        @await Html.PartialAsync("FinancialDetails/_StaffParticularsPreview", Model)
-    </div>
+    @await Html.PartialAsync("FinancialDetails/_AccountAndFeeDetailsPreview", Model)
+    @await Html.PartialAsync("FinancialDetails/_StaffParticularsPreview", Model)
 </div>

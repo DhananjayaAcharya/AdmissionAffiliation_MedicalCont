@@ -87,18 +87,42 @@
                         <tr>
                             <td>Examiner Details Attached</td>
                             <td class="text-center">
-                                @if (other.HasExaminerDetailsPdf)
+                                @if (other.ExaminerDetailsAttached)
                                 {
-                                    <a class="status-badge-maintained"
-                                       href="@Url.Action("ViewExaminerDetailsPdf", "CAPreview", new { id = other.Id })"
-                                       target="_blank">View</a>
+                                    <span class="status-badge-maintained">
+                                        Yes
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="text-muted">Not Uploaded</span>
+                                    <span class="status-badge-not-maintained">
+                                        No
+                                    </span>
                                 }
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Examiner Details Document</td>
+                            <td class="text-center">
+                                @if (other.HasExaminerDetailsPdf)
+                                {
+                                    <a class="status-badge-maintained"
+                                       href="@Url.Action("ViewExaminerDetailsPdf", "CAPreview",
+                                           new { id = other.Id })"
+                                       target="_blank">
+                                        <i class="bi bi-eye me-1"></i>
+                                        View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Not Uploaded
+                                    </span>
+                                }
+                            </td>
+                        </tr>
 
                         <tr>
                             <td>AEBAS – Last Three Months</td>

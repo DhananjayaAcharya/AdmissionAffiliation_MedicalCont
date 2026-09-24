@@ -1003,9 +1003,7 @@
                                 <input type="text"
                                        class="form-control"
                                        name="AmountPaid"
-                                       value="@(Model.AmountPaid > 0
-                                                                        ? Model.AmountPaid.ToString("N2")
-                                                                        : grandTotal.ToString("N2"))"
+                                       value="@grandTotal.ToString("N2")"
                                        readonly />
 
                             </div>

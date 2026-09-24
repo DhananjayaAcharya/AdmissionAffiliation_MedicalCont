@@ -90,7 +90,7 @@
                                 }
                             </td> *@
                             <td class="text-center">
-                                @if (string.IsNullOrEmpty(acc.GoverningCouncilPdfName) || acc.HasGoverningCouncilPdf)
+                                @if (acc.HasGoverningCouncilPdf)
                                 {
                                     <a class="status-badge-maintained"
                                        href="@Url.Action("ViewGoverningCouncilPdf", "CAPreview", new { id = acc.Id })"
@@ -117,7 +117,7 @@
                                 }
                             </td> *@
                             <td class="text-center">
-                                @if (string.IsNullOrEmpty(acc.AccountSummaryPdfName) || acc.HasAccountSummaryPdf)
+                                @if (acc.HasAccountSummaryPdf)
                                 {
                                     <a class="status-badge-maintained"
                                        href="@Url.Action("ViewAccountSummaryPdf", "CAPreview", new { id = acc.Id })"

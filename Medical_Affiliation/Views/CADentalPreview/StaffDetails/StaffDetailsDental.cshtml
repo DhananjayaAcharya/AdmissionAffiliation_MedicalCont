@@ -1,0 +1,474 @@
+﻿@model DentalStaffDetailsPreviewVM
+
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css" />
+
+<div class="preview-section-header">
+
+<div class="preview-section-header-content">
+
+    <h2 class="preview-section-title">
+        <i class="bi bi-building me-2"></i>
+        Department-wise Equipment
+    </h2>
+
+    <a class="preview-section-edit"
+        href="@Url.Action(
+            "CA_Med_StaffDetails",
+            "CA_Med_StaffDetails",
+            new
+            {
+                typeOfAffiliation = @AffiliationType
+            })">
+
+        <i class="bi bi-pencil-square"></i>
+        <span>Edit section</span>
+
+    </a>
+
+</div>
+
+</div>
+
+
+<div class="general-body">
+
+    <!-- ============================================================
+         DENTAL STAFF DETAILS
+    ============================================================ -->
+
+
+
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+                <div>
+                    <div class="section-title-text department-badge">
+                        <i class="bi bi-people-fill"></i>
+                        Dental Staff Details
+                    </div>
+
+                    <p class="section-description">
+                        Staff pay scale and other staff-related details
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- ========================================================
+             SECTION 1 : STAFF PAY SCALE
+        ======================================================== -->
+
+        <div class="section-block">
+
+            <div class="section-header-block">
+
+                <div class="section-title-text">
+                    <i class="bi bi-cash-stack"></i>
+                    Staff Pay Scale
+                </div>
+
+                <p class="section-description">
+                    Designation-wise pay scale details
+                </p>
+
+            </div>
+
+
+            @if (Model?.StaffPayScaleList != null &&
+                 Model.StaffPayScaleList.Any())
+            {
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th style="width:100px;" class="text-center">
+                                    Sl. No.
+                                </th>
+
+                                <th>
+                                    Designation
+                                </th>
+
+                                <th class="text-end">
+                                    Pay Scale
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                int slNo = 1;
+                            }
+
+                            @foreach (var staff in Model.StaffPayScaleList)
+                            {
+                                <tr>
+
+                                    <td class="text-center fw-semibold">
+                                        @slNo
+                                    </td>
+
+                                    <td>
+                                        <span class="fw-semibold text-primary">
+                                            @staff.Designation
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        @if (staff.PayScale.HasValue)
+                                        {
+                                            <span class="fw-semibold">
+                                                @staff.PayScale.Value.ToString("0.##")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted fst-italic">
+                                                Not provided
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+
+                                slNo++;
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-people"></i>
+
+                    <p class="mb-0">
+                        No staff pay scale details available.
+                    </p>
+                </div>
+            }
+
+        </div>
+
+
+        <!-- ========================================================
+             SECTION 2 : OTHER STAFF PARTICULARS
+        ======================================================== -->
+
+        <div class="section-block">
+
+            <div class="section-header-block">
+
+                <div class="section-title-text">
+                    <i class="bi bi-person-vcard"></i>
+                    Other Staff Particulars
+                </div>
+
+                <p class="section-description">
+                    Staff records, registers and supporting documents
+                </p>
+
+            </div>
+
+
+            @if (Model?.StaffOther != null)
+            {
+                <div class="data-table-wrapper">
+
+                    <table class="table data-table table-hover align-middle">
+
+                        <tbody>
+
+                            <!-- =================================================
+                                 TEACHERS UPDATED IN EMS
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold" style="width:40%;">
+                                    Teachers Updated in EMS
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.StaffOther.TeachersUpdatedInEMS))
+                                    {
+                                        @Model.StaffOther.TeachersUpdatedInEMS
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not provided
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 EXAMINER DETAILS ATTACHED
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold">
+                                    Examiner Details Attached
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.StaffOther.ExaminerDetailsAttached))
+                                    {
+                                        @Model.StaffOther.ExaminerDetailsAttached
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not provided
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 EXAMINER DETAILS PDF
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold">
+                                    Examiner Details Document
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(Model.ExaminerDetailsPdfName))
+                                    {
+                                        <a href="@Url.Action(
+                                            "ViewStaffOtherPdf",
+                                            "CA_Med_StaffDetails",
+                                            new { type = "Examiner", mode = "view" })"
+                                           target="_blank"
+                                           class="download-button">
+                                            <i class="bi bi-eye me-1"></i>
+                                            View PDF
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not Uploaded
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 SERVICE REGISTER
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold">
+                                    Service Register Maintained
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.StaffOther.ServiceRegisterMaintained))
+                                    {
+                                        @Model.StaffOther.ServiceRegisterMaintained
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not provided
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 ACQUITTANCE REGISTER
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold">
+                                    Acquittance Register Maintained
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.StaffOther.AcquittanceRegisterMaintained))
+                                    {
+                                        @Model.StaffOther.AcquittanceRegisterMaintained
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not provided
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 AEBAS LAST THREE MONTHS PDF
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold">
+                                    AEBAS – Last Three Months
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(Model.AEBASLastThreeMonthsPdfName))
+                                    {
+                                        <a href="@Url.Action(
+                                            "ViewStaffOtherPdf",
+                                            "CA_Med_StaffDetails",
+                                            new { type = "AEBAS3Months", mode = "view" })"
+                                           target="_blank"
+                                           class="download-button">
+                                            <i class="bi bi-eye me-1"></i>
+                                            View PDF
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not Uploaded
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 AEBAS INSPECTION DAY PDF
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold">
+                                    AEBAS – Inspection Day
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(Model.AEBASInspectionDayPdfName))
+                                    {
+                                        <a href="@Url.Action(
+                                            "ViewStaffOtherPdf",
+                                            "CA_Med_StaffDetails",
+                                            new { type = "AEBASInspection", mode = "view" })"
+                                           target="_blank"
+                                           class="download-button">
+                                            <i class="bi bi-eye me-1"></i>
+                                            View PDF
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not Uploaded
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 PROVIDENT FUND PDF
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold">
+                                    Provident Fund
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(Model.ProvidentFundPdfName))
+                                    {
+                                        <a href="@Url.Action(
+                                            "ViewStaffOtherPdf",
+                                            "CA_Med_StaffDetails",
+                                            new { type = "PF", mode = "view" })"
+                                           target="_blank"
+                                           class="download-button">
+                                            <i class="bi bi-eye me-1"></i>
+                                            View PDF
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not Uploaded
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 ESI PDF
+                            ================================================== -->
+                            <tr>
+                                <td class="fw-semibold">
+                                    ESI
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(Model.ESIPdfName))
+                                    {
+                                        <a href="@Url.Action(
+                                            "ViewStaffOtherPdf",
+                                            "CA_Med_StaffDetails",
+                                            new { type = "ESI", mode = "view" })"
+                                           target="_blank"
+                                           class="download-button">
+                                            <i class="bi bi-eye me-1"></i>
+                                            View PDF
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">
+                                            Not Uploaded
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <i class="bi bi-person-x"></i>
+
+                    <p class="mb-0">
+                        No staff particulars available.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>

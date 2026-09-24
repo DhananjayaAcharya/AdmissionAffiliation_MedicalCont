@@ -106,14 +106,16 @@ namespace Medical_Affiliation.Services.Faculty
                                      TeachersUpdatedInEms = other.TeachersUpdatedInEms == "Y",
                                      ExaminerDetailsAttached = other.ExaminerDetailsAttached == "Y",
                                      ExaminerDetailsPdfName = other.ExaminerDetailsPdfName,
-                                     HasExaminerDetailsPdf = other.ExaminerDetailsPdfPath.Length > 0,
-                                     HasAebasInspectionDayPdf = other.AebasinspectionDayPdfPath.Length > 0,
-                                     HasAebasLastThreeMonthsPdf = other.AebaslastThreeMonthsPdfPath.Length > 0,
+                                     HasExaminerDetailsPdf = !string.IsNullOrEmpty(other.ExaminerDetailsPdfPath),
+                                     HasAebasInspectionDayPdf = !string.IsNullOrEmpty(other.AebasinspectionDayPdfPath),
+                                     HasAebasLastThreeMonthsPdf = !string.IsNullOrEmpty(other.AebaslastThreeMonthsPdfPath),
                                      ServiceRegisterMaintained = other.ServiceRegisterMaintained == "Y",
                                      ProvidentFundPdfName = other.ProvidentFundPdfName,
-                                     HasProvidentFundPdf = other.ProvidentFundPdfPath.Length > 0,
-                                     HasEsipdf = other.EsipdfPath.Length > 0,
+                                     HasProvidentFundPdf = !string.IsNullOrEmpty(other.ProvidentFundPdfPath),
+                                     HasEsipdf = !string.IsNullOrEmpty(other.EsipdfPath),
                                      AcquittanceRegisterMaintained = other.AcquittanceRegisterMaintained == "Y",
+                                     AebasLastThreeMonthsPdfName = other.AebaslastThreeMonthsPdfName,
+                                     AebasInspectionDayPdfName = other.AebasinspectionDayPdfName,
 
 
                                  }
