@@ -38,6 +38,7 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICADeclarationService _cADeclarationService;
         private readonly ICADepartmentOfficesMeuService _cADepartmentOfficesMeuService;
         private readonly ICAEquipmentPreviewService _cAEquipmentPreviewService;
+        private readonly ICADentalFieldPracticeAreaService _caDentalFieldPracticeAreaService;
         private readonly ApplicationDbContext _context;
 
 
@@ -66,6 +67,7 @@ namespace Medical_Affiliation.Services.Faculty
             ICADentalBedDistributionService cADentalBedDistributionService,
             ICADepartmentOfficesMeuService cADepartmentOfficesMeuService,
             ICAEquipmentPreviewService cAEquipmentPreviewService,
+            ICADentalFieldPracticeAreaService cADentalFieldPracticeAreaService,
             ApplicationDbContext dbContext)
         {
             _basicDetailsService = basicDetailsService;
@@ -92,6 +94,7 @@ namespace Medical_Affiliation.Services.Faculty
             _cADentalBedDistributionService = cADentalBedDistributionService;
             _cADepartmentOfficesMeuService = cADepartmentOfficesMeuService;
             _cAEquipmentPreviewService = cAEquipmentPreviewService;
+            _caDentalFieldPracticeAreaService = cADentalFieldPracticeAreaService;
             _context = dbContext;
         }
 
@@ -132,7 +135,8 @@ namespace Medical_Affiliation.Services.Faculty
                 DentalBedDistributionVM = await _cADentalBedDistributionService.GetDentalBedDistributionAsync(),
                 DepartmentOfficesMeuVM = await _cADepartmentOfficesMeuService.GetDepartmentOfficesMeuAsync(),
                 EquipmentPreviewVM = await _cAEquipmentPreviewService.GetEquipmentPreviewAsync(),
-
+                
+                FiedPracticeArea = await _caDentalFieldPracticeAreaService.GetFieldPracticeAreaAsync(),
             };
 
             return vm;

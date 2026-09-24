@@ -1,69 +1,91 @@
-﻿@model SuperVisionInFieldPracticeAreaDisplayVM
-@* <link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" /> *@
+﻿@model List<Medical_Affiliation.Models.DentalFieldPracticeAreaViewModel>
 
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
 
- <!-- Body -->
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css" />
 <div class="general-body">
 
-    @if (Model?.Items != null && Model.Items.Any())
+    <div class="preview-section-header">
+
+        <div class="preview-section-header-content">
+
+            <h2 class="preview-section-title">
+                <i class="bi bi-building me-2"></i>
+                Department-wise Equipment
+            </h2>
+
+            <a class="preview-section-edit"
+               href="@Url.Action(
+                    "Index",
+                    "DentalFieldPracticeArea",
+                    new
+                    {
+                        typeOfAffiliation = @AffiliationType
+                    })">
+
+                <i class="bi bi-pencil-square"></i>
+                <span>Edit section</span>
+
+            </a>
+
+        </div>
+
+    </div>
+    @if (Model != null && Model.Any())
     {
         <div class="section-block">
-            <!-- Header -->
-                <div class="section-header-block">
-                    <div class="section-title-text department-badge">
-                        <i class="bi bi-people-fill"></i>
-                        Supervision in Field Practice Area
-                    </div>
 
-                    <p class="section-description">
-                        Details of faculty involved in field practice supervision
-                    </p>
+            <div class="section-header-block">
+                <div class="section-title-text department-badge">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Dental Field Practice Area
                 </div>
+
+                <p class="section-description">
+                    Details of rural and urban field practice areas
+                </p>
+            </div>
+
             <div class="data-table-wrapper">
+
                 <table class="table data-table table-hover align-middle">
+
                     <thead>
                         <tr>
-                            <th>Post</th>
-                            <th>Name</th>
-                            <th>Qualification</th>
-                            <th>University</th>
-                            <th class="text-center">UG Period</th>
-                            <th class="text-center">PG Period</th>
-                            <th>Responsibilities</th>
+                            <th>Field Type</th>
+                            <th>Location</th>
+                            <th>Address</th>
+                            <th>Managed By</th>
+                            <th class="text-center">Population Served</th>
+                            <th>Staff List</th>
+                            <th>Activities & Services</th>
+                            <th>Records Maintained</th>
+                            <th>Equipment Available</th>
+                            <th>Training Activities</th>
+                            <th>Supervision Method</th>
+                            <th>Trainee / Supervisor Accommodation</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach (var item in Model.Items)
+
+                        @foreach (var item in Model)
                         {
                             <tr>
+
                                 <td class="fw-semibold text-primary">
-                                    @item.Post
-                                </td>
-
-                                <td>
-                                    @item.Name
-                                </td>
-
-                                <td>
-                                    @item.Qualification
-                                    <div class="small text-muted">
-                                        @item.YearOfQualification
-                                    </div>
-                                </td>
-
-                                <td>
-                                    @item.University
-                                </td>
-
-                                <td class="text-center">
-                                    @if (item.UgFromDate.HasValue || item.UgToDate.HasValue)
+                                    @if (item.FieldTypeId.HasValue)
                                     {
-                                        <span>
-                                            @item.UgFromDate?.ToString("dd-MM-yyyy")
-                                            -
-                                            @item.UgToDate?.ToString("dd-MM-yyyy")
-                                        </span>
+                                        var fieldType = item.FieldTypes?
+                                            .FirstOrDefault(x =>
+                                                x.Value == item.FieldTypeId.Value.ToString());
+
+                                        @(fieldType?.Text ?? "—")
                                     }
                                     else
                                     {
@@ -71,37 +93,87 @@
                                     }
                                 </td>
 
-                                <td class="text-center">
-                                    @if (item.PgFromDate.HasValue || item.PgToDate.HasValue)
-                                    {
-                                        <span>
-                                            @item.PgFromDate?.ToString("dd-MM-yyyy")
-                                            -
-                                            @item.PgToDate?.ToString("dd-MM-yyyy")
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted fst-italic">—</span>
-                                    }
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.Location)
+                                        ? "—"
+                                        : item.Location)
                                 </td>
 
-                                <td class="responsibility-cell">
-                                    @if (!string.IsNullOrWhiteSpace(item.Responsibilities))
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.Address)
+                                        ? "—"
+                                        : item.Address)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.ManagedBy)
+                                        ? "—"
+                                        : item.ManagedBy)
+                                </td>
+
+                                <td class="text-center">
+                                    @(item.PopulationServed?.ToString() ?? "—")
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.StaffList))
                                     {
-                                        @item.Responsibilities
+                                        <span class="text-success">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                            Uploaded
+                                        </span>
                                     }
                                     else
                                     {
                                         <span class="text-muted fst-italic">
-                                            Not specified
+                                            Not Uploaded
                                         </span>
                                     }
                                 </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.ActivitiesAndServices)
+                                        ? "—"
+                                        : item.ActivitiesAndServices)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.RecordsMaintained)
+                                        ? "—"
+                                        : item.RecordsMaintained)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.EquipmentsAvailable)
+                                        ? "—"
+                                        : item.EquipmentsAvailable)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.TrainingActivities)
+                                        ? "—"
+                                        : item.TrainingActivities)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.SupervisionMethod)
+                                        ? "—"
+                                        : item.SupervisionMethod)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.TraineeSupervisorAccommodation)
+                                        ? "—"
+                                        : item.TraineeSupervisorAccommodation)
+                                </td>
+
                             </tr>
                         }
+
                     </tbody>
+
                 </table>
+
             </div>
 
         </div>
@@ -111,7 +183,7 @@
         <div class="empty-state">
             <i class="bi bi-inbox"></i>
             <p class="mb-0">
-                No supervision details available for this hospital.
+                No dental field practice area details available.
             </p>
         </div>
     }

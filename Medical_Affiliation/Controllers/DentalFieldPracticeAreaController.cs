@@ -94,7 +94,7 @@ namespace Medical_Affiliation.Controllers
             // Get FacultyId
             // --------------------------------------------------------
 
-            var facultyId =
+            /*var facultyId =
                 await _context.Faculties
                     .Where(f =>
                         f.Status == "Active" &&
@@ -111,7 +111,7 @@ namespace Medical_Affiliation.Controllers
                     "Faculty information not found.";
 
                 return RedirectToAction("Index", "Home");
-            }
+            }*/
 
 
             // --------------------------------------------------------
@@ -141,7 +141,7 @@ namespace Medical_Affiliation.Controllers
                     .Include(x => x.Type)
                     .Where(x =>
                         x.CollegeCode == collegeCode &&
-                        x.FacultyId == facultyId.Value &&
+                        x.FacultyId == int.Parse(facultyCode) &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.IsActive)
@@ -156,7 +156,7 @@ namespace Medical_Affiliation.Controllers
 
             var model = new DentalFieldPracticeAreaViewModel
             {
-                FacultyId = facultyId.Value,
+                FacultyId = int.Parse(facultyCode),
 
                 CollegeCode = collegeCode,
 
@@ -431,24 +431,24 @@ namespace Medical_Affiliation.Controllers
             // Get FacultyId
             // --------------------------------------------------------
 
-            var facultyId =
-                await _context.Faculties
-                    .Where(f =>
-                        f.Status == "Active" &&
-                        _context.AffiliationCollegeMasters.Any(c =>
-                            c.CollegeCode == collegeCode &&
-                            c.FacultyCode == facultyCode))
-                    .Select(f => (int?)f.FacultyId)
-                    .FirstOrDefaultAsync();
+            //var facultyId =
+            //    await _context.Faculties
+            //        .Where(f =>
+            //            f.Status == "Active" &&
+            //            _context.AffiliationCollegeMasters.Any(c =>
+            //                c.CollegeCode == collegeCode &&
+            //                c.FacultyCode == facultyCode))
+            //        .Select(f => (int?)f.FacultyId)
+            //        .FirstOrDefaultAsync();
 
 
-            if (!facultyId.HasValue)
-            {
-                TempData["ErrorMessage"] =
-                    "Faculty information not found.";
+            //if (!facultyId.HasValue)
+            //{
+            //    TempData["ErrorMessage"] =
+            //        "Faculty information not found.";
 
-                return RedirectToAction(nameof(Index));
-            }
+            //    return RedirectToAction(nameof(Index));
+            //}
 
 
             // --------------------------------------------------------
@@ -480,7 +480,7 @@ namespace Medical_Affiliation.Controllers
                 await _context.DentalFieldPracticeAreas
                     .AnyAsync(x =>
                         x.CollegeCode == collegeCode &&
-                        x.FacultyId == facultyId.Value &&
+                        x.FacultyId == int.Parse(facultyCode) &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.FieldTypeId == fieldTypeId.Value &&
@@ -594,7 +594,7 @@ namespace Medical_Affiliation.Controllers
                 new DentalFieldPracticeArea
                 {
                     FacultyId =
-                        facultyId.Value,
+                        int.Parse(facultyCode),
 
                     CollegeCode =
                         collegeCode,
@@ -704,24 +704,24 @@ namespace Medical_Affiliation.Controllers
             // Get FacultyId
             // --------------------------------------------------------
 
-            var facultyId =
-                await _context.Faculties
-                    .Where(f =>
-                        f.Status == "Active" &&
-                        _context.AffiliationCollegeMasters.Any(c =>
-                            c.CollegeCode == collegeCode &&
-                            c.FacultyCode == facultyCode))
-                    .Select(f => (int?)f.FacultyId)
-                    .FirstOrDefaultAsync();
+            //var facultyId =
+            //    await _context.Faculties
+            //        .Where(f =>
+            //            f.Status == "Active" &&
+            //            _context.AffiliationCollegeMasters.Any(c =>
+            //                c.CollegeCode == collegeCode &&
+            //                c.FacultyCode == facultyCode))
+            //        .Select(f => (int?)f.FacultyId)
+            //        .FirstOrDefaultAsync();
 
 
-            if (!facultyId.HasValue)
-            {
-                TempData["ErrorMessage"] =
-                    "Faculty information not found.";
+            //if (!facultyId.HasValue)
+            //{
+            //    TempData["ErrorMessage"] =
+            //        "Faculty information not found.";
 
-                return RedirectToAction(nameof(Index));
-            }
+            //    return RedirectToAction(nameof(Index));
+            //}
 
 
             // --------------------------------------------------------
@@ -733,7 +733,7 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefaultAsync(x =>
                         x.DentalFieldPracticeAreaId == id &&
                         x.CollegeCode == collegeCode &&
-                        x.FacultyId == facultyId.Value &&
+                        x.FacultyId == int.Parse(facultyCode) &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.IsActive);
@@ -758,7 +758,7 @@ namespace Medical_Affiliation.Controllers
                     .Include(x => x.Type)
                     .Where(x =>
                         x.CollegeCode == collegeCode &&
-                        x.FacultyId == facultyId.Value &&
+                        x.FacultyId == int.Parse(facultyCode) &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.IsActive)
@@ -1061,24 +1061,24 @@ namespace Medical_Affiliation.Controllers
             // Get FacultyId
             // --------------------------------------------------------
 
-            var facultyId =
-                await _context.Faculties
-                    .Where(f =>
-                        f.Status == "Active" &&
-                        _context.AffiliationCollegeMasters.Any(c =>
-                            c.CollegeCode == collegeCode &&
-                            c.FacultyCode == facultyCode))
-                    .Select(f => (int?)f.FacultyId)
-                    .FirstOrDefaultAsync();
+            //var facultyId =
+            //    await _context.Faculties
+            //        .Where(f =>
+            //            f.Status == "Active" &&
+            //            _context.AffiliationCollegeMasters.Any(c =>
+            //                c.CollegeCode == collegeCode &&
+            //                c.FacultyCode == facultyCode))
+            //        .Select(f => (int?)f.FacultyId)
+            //        .FirstOrDefaultAsync();
 
 
-            if (!facultyId.HasValue)
-            {
-                TempData["ErrorMessage"] =
-                    "Faculty information not found.";
+            //if (!facultyId.HasValue)
+            //{
+            //    TempData["ErrorMessage"] =
+            //        "Faculty information not found.";
 
-                return RedirectToAction(nameof(Index));
-            }
+            //    return RedirectToAction(nameof(Index));
+            //}
 
 
             // --------------------------------------------------------
@@ -1090,7 +1090,7 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefaultAsync(x =>
                         x.DentalFieldPracticeAreaId == id &&
                         x.CollegeCode == collegeCode &&
-                        x.FacultyId == facultyId.Value &&
+                        x.FacultyId == int.Parse(facultyCode) &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.IsActive);
@@ -1116,7 +1116,7 @@ namespace Medical_Affiliation.Controllers
                     .AnyAsync(x =>
                         x.DentalFieldPracticeAreaId != id &&
                         x.CollegeCode == collegeCode &&
-                        x.FacultyId == facultyId.Value &&
+                        x.FacultyId == int.Parse(facultyCode) &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.FieldTypeId == fieldTypeId.Value &&
@@ -1342,21 +1342,21 @@ namespace Medical_Affiliation.Controllers
             // FacultyId
             // --------------------------------------------------------
 
-            var facultyId =
-                await _context.Faculties
-                    .Where(f =>
-                        f.Status == "Active" &&
-                        _context.AffiliationCollegeMasters.Any(c =>
-                            c.CollegeCode == collegeCode &&
-                            c.FacultyCode == facultyCode))
-                    .Select(f => (int?)f.FacultyId)
-                    .FirstOrDefaultAsync();
+            //var facultyId =
+            //    await _context.Faculties
+            //        .Where(f =>
+            //            f.Status == "Active" &&
+            //            _context.AffiliationCollegeMasters.Any(c =>
+            //                c.CollegeCode == collegeCode &&
+            //                c.FacultyCode == facultyCode))
+            //        .Select(f => (int?)f.FacultyId)
+            //        .FirstOrDefaultAsync();
 
 
-            if (!facultyId.HasValue)
-            {
-                return NotFound();
-            }
+            //if (!facultyId.HasValue)
+            //{
+            //    return NotFound();
+            //}
 
 
             // --------------------------------------------------------
@@ -1368,7 +1368,7 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefaultAsync(x =>
                         x.DentalFieldPracticeAreaId == id &&
                         x.CollegeCode == collegeCode &&
-                        x.FacultyId == facultyId.Value &&
+                        x.FacultyId == int.Parse(facultyCode) &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.IsActive);
@@ -1483,24 +1483,24 @@ namespace Medical_Affiliation.Controllers
             // FacultyId
             // --------------------------------------------------------
 
-            var facultyId =
-                await _context.Faculties
-                    .Where(f =>
-                        f.Status == "Active" &&
-                        _context.AffiliationCollegeMasters.Any(c =>
-                            c.CollegeCode == collegeCode &&
-                            c.FacultyCode == facultyCode))
-                    .Select(f => (int?)f.FacultyId)
-                    .FirstOrDefaultAsync();
+            //var facultyId =
+            //    await _context.Faculties
+            //        .Where(f =>
+            //            f.Status == "Active" &&
+            //            _context.AffiliationCollegeMasters.Any(c =>
+            //                c.CollegeCode == collegeCode &&
+            //                c.FacultyCode == facultyCode))
+            //        .Select(f => (int?)f.FacultyId)
+            //        .FirstOrDefaultAsync();
 
 
-            if (!facultyId.HasValue)
-            {
-                TempData["ErrorMessage"] =
-                    "Faculty information not found.";
+            //if (!facultyId.HasValue)
+            //{
+            //    TempData["ErrorMessage"] =
+            //        "Faculty information not found.";
 
-                return RedirectToAction(nameof(Index));
-            }
+            //    return RedirectToAction(nameof(Index));
+            //}
 
 
             // --------------------------------------------------------
@@ -1512,7 +1512,7 @@ namespace Medical_Affiliation.Controllers
                     .FirstOrDefaultAsync(x =>
                         x.DentalFieldPracticeAreaId == id &&
                         x.CollegeCode == collegeCode &&
-                        x.FacultyId == facultyId.Value &&
+                        x.FacultyId == int.Parse(facultyCode) &&
                         x.TypeId == typeId.Value &&
                         x.CourseLevel == courseLevel &&
                         x.IsActive);
