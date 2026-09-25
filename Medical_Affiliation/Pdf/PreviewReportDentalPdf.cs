@@ -1019,6 +1019,12 @@ public class PreviewReportDentalPdf : IDocument
         if (staffList == null || !staffList.Any())
             return;
 
+        // =========================================================
+        // MAIN HEADING
+        // =========================================================
+
+        AddMainHeading(col, "Non Teaching Faculty Details");
+
         AddSubHeading(col, "Non-Teaching Faculty Details");
 
         col.Item()
