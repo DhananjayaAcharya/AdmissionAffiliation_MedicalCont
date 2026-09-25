@@ -132,8 +132,26 @@ namespace Medical_Affiliation.Models
         /// <summary>
         /// Non-Teaching Faculty Details
         /// </summary>
-        //public List<NonTeachingFacultyPreviewVM> NonTeachingFaculties { get; set; }
-        //    = new();
+        public List<NonTeachingFacultyPreviewVM> NonTeachingFaculties { get; set; } = new();
+    }
+
+    public class NonTeachingFacultyPreviewVM
+    {
+        public int Id { get; set; }
+
+        public string? CollegeCode { get; set; }
+
+        public string? FacultyCode { get; set; }
+
+        public string? StaffName { get; set; }
+
+        public string? Designation { get; set; }
+
+        public string? MobileNumber { get; set; }
+
+        public string? SalaryPaid { get; set; }
+
+        public string? CourseLevel { get; set; }
     }
 
     public class TeachingFacultyDepartmentPreviewVM

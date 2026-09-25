@@ -228,6 +228,39 @@ namespace Medical_Affiliation.Services.Faculty
 
             // Non-Teaching Faculty Details
 
+            // ============================================================
+            // NON-TEACHING FACULTY DETAILS
+            // ============================================================
+
+            var nonTeachingStaff = await _context.NonTeachingStaffDetails
+                .Where(x =>
+                    x.CollegeCode == CollegeCode &&
+                    x.FacultyCode == FacultyCode)
+                .OrderBy(x => x.CourseLevel)
+                .ThenBy(x => x.StaffName)
+                .ToListAsync();
+
+            vm.NonTeachingFaculties = nonTeachingStaff
+                .Select(x => new NonTeachingFacultyPreviewVM
+                {
+                    Id = x.Id,
+
+                    CollegeCode = x.CollegeCode,
+
+                    FacultyCode = x.FacultyCode,
+
+                    CourseLevel = x.CourseLevel,
+
+                    StaffName = x.StaffName,
+
+                    Designation = x.Designation,
+
+                    MobileNumber = x.MobileNumber,
+
+                    SalaryPaid = x.SalaryPaid
+                })
+                .ToList();
+
             return vm;
         }
     }

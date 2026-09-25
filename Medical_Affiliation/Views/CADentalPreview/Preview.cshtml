@@ -1149,18 +1149,7 @@
             
 
             <!-- Section Separator -->
-            @if (Model.CAHospitalAFfiliationCompVM != null
-            @* && Model.FacultyDesigNonTeachDisplayVM != null *@
-            )
-            {
-                <div class="section-separator"></div>
-            }
-            @if (Model.FacultyDesigNonTeachDisplayVM != null)
-            {
-                <div id="fac-group">
-                    @await Html.PartialAsync(partialViewName: "FacultyDesigNonTEaching/Preview", Model.FacultyDesigNonTeachDisplayVM)
-                </div>
-            }
+            
 
             <!-- ========================= -->
             <!-- HOSPITAL AFFILIATION -->

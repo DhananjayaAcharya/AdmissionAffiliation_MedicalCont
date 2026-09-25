@@ -72,11 +72,10 @@
         <!-- NON-TEACHING FACULTY DETAILS -->
         <!-- ====================================================== -->
         @* Will be added later *@
-        @* @if (Model.NonTeachingFacultyDetails != null)
+        @if (Model.NonTeachingFaculties != null)
         {
-            <partial name="_NonTeachingFacultyDetails"
-                     model="Model.NonTeachingFacultyDetails" />
-        } *@
+            @await Html.PartialAsync("HumanResources/_NonTeachingStaffDetails", Model.NonTeachingFaculties)
+        }
 
     </div>
 }

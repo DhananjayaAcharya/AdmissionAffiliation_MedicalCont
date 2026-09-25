@@ -234,6 +234,9 @@ public class PreviewReportDentalPdf : IDocument
                 //--- TEACHING FACULTY DETAILS ---
                 AddTeachingFacultyDetails(col);
 
+                //--- NON-TEACHING FACULTY DETAILS ---
+                AddNonTeachingFacultyDetails(col);
+
 
                 // -- END OF LIBRARY ----
 
@@ -1008,6 +1011,136 @@ public class PreviewReportDentalPdf : IDocument
         }
     }
 
+
+    private void AddNonTeachingFacultyDetails(ColumnDescriptor col)
+    {
+        var staffList = _model?.HumanResourcesVM?.NonTeachingFaculties;
+
+        if (staffList == null || !staffList.Any())
+            return;
+
+        AddSubHeading(col, "Non-Teaching Faculty Details");
+
+        col.Item()
+            .PaddingTop(8)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(45);  // Sl No
+                    columns.RelativeColumn(3);   // Staff Name
+                    columns.RelativeColumn(3);   // Designation
+                    columns.RelativeColumn(2);   // Mobile
+                    columns.RelativeColumn(2);   // Salary Paid
+                    columns.RelativeColumn(2);   // Course Level
+                });
+
+                // =====================================================
+                // HEADER
+                // =====================================================
+
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Sl. No.")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Staff Name")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Designation")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text("Mobile Number")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Salary Paid")
+                        .Bold();
+
+                    header.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text("Course Level")
+                        .Bold();
+                });
+
+                // =====================================================
+                // DATA
+                // =====================================================
+
+                int slNo = 1;
+
+                foreach (var staff in staffList)
+                {
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(slNo.ToString());
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(
+                            string.IsNullOrWhiteSpace(staff.StaffName)
+                                ? "—"
+                                : staff.StaffName);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(
+                            string.IsNullOrWhiteSpace(staff.Designation)
+                                ? "—"
+                                : staff.Designation);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .Text(
+                            string.IsNullOrWhiteSpace(staff.MobileNumber)
+                                ? "—"
+                                : staff.MobileNumber);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(
+                            string.IsNullOrWhiteSpace(staff.SalaryPaid)
+                                ? "—"
+                                : staff.SalaryPaid);
+
+                    table.Cell()
+                        .Border(1)
+                        .Padding(5)
+                        .AlignCenter()
+                        .Text(
+                            string.IsNullOrWhiteSpace(staff.CourseLevel)
+                                ? "—"
+                                : staff.CourseLevel);
+
+                    slNo++;
+                }
+            });
+    }
     // ═══════════════════════════════════════════════════════
     //  FORMAT HELPER
     // ═══════════════════════════════════════════════════════
