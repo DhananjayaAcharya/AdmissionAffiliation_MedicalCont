@@ -100,8 +100,8 @@ public class PreviewReportDentalPdf : IDocument
                 // --- ACADEMIC INTAKE ---
                 AddAcademicIntakeSection(col);
 
-                // --- TEACHING FACULTY DETAILS ---
-                AddTeachingFacultyDetailsSection(col);
+                // --- FACULTY REPOSITORY ---
+                AddFacultyRepositorySection(col);
 
                 //--- AFFILIATED SANCTIONED INTAKE - Aff_SanctionedIntakeForCourse ---
                 AddSanctionedIntakeSection(col);
@@ -230,7 +230,10 @@ public class PreviewReportDentalPdf : IDocument
                 //--- LIBRARY STAFF ---
                 AddLibraryStaffSection(col);
 
-                
+
+                //--- TEACHING FACULTY DETAILS ---
+                AddTeachingFacultyDetails(col);
+
 
                 // -- END OF LIBRARY ----
 
@@ -639,7 +642,7 @@ public class PreviewReportDentalPdf : IDocument
     // ═══════════════════════════════════════════════════════
     //  Faculty Repository  (styled table)
     // ═══════════════════════════════════════════════════════
-    private void AddTeachingFacultyDetailsSection(ColumnDescriptor col)
+    private void AddFacultyRepositorySection(ColumnDescriptor col)
     {
         var teachingFaculty = _model?.TeachingFacultyDetailsVM;
         if (teachingFaculty?.FacultyDetails == null || !teachingFaculty.FacultyDetails.Any()) return;
@@ -688,6 +691,325 @@ public class PreviewReportDentalPdf : IDocument
                     .Text(string.IsNullOrWhiteSpace(item.AvailableFaculty) ? "0" : item.AvailableFaculty).FontSize(9);
             }
         });
+    }
+
+    private void AddTeachingFacultyDetails(ColumnDescriptor col)
+    {
+        var humanResources = _model?.HumanResources;
+
+        if (humanResources == null)
+            return;
+
+        // =========================================================
+        // MAIN HEADING
+        // =========================================================
+
+        AddMainHeading(col, "Teaching Faculty Details");
+
+        // =========================================================
+        // 1. FACULTY DETAILS
+        // =========================================================
+
+        var facultyList = humanResources.FacultyDetails;
+
+        if (facultyList != null && facultyList.Any())
+        {
+            AddSubHeading(col, "Faculty Details");
+
+            col.Item()
+                .PaddingTop(8)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);   // Name
+                        columns.RelativeColumn(2);   // Designation
+                        columns.RelativeColumn(2);   // Department
+                        columns.RelativeColumn(2);   // Mobile
+                        columns.RelativeColumn(3);   // Email
+                        columns.ConstantColumn(55);  // PG
+                        columns.ConstantColumn(55);  // PhD
+                        columns.ConstantColumn(65);  // Examiner
+                        columns.ConstantColumn(65);  // Litigation
+                        columns.ConstantColumn(60);  // Docs
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Name").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Designation").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Department").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Mobile").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Email").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter().Text("PG").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter().Text("PhD").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter().Text("Examiner").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter().Text("Litigation").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter().Text("Docs").Bold();
+                    });
+
+                    foreach (var faculty in facultyList)
+                    {
+                        table.Cell().Border(1).Padding(4)
+                            .Text(faculty.NameOfFaculty ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .Text(faculty.Designation ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .Text(faculty.Department ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .Text(faculty.Mobile ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .Text(faculty.Email ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(faculty.RecognizedPGTeacher ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(faculty.RecognizedPhDTeacher ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(faculty.IsExaminer == true ? "Yes" : "No");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(faculty.LitigationPending ?? "—");
+
+                        table.Cell().Border(1).Padding(4)
+                            .AlignCenter()
+                            .Text(
+                                faculty.HasPGRecognitionDocument ||
+                                faculty.HasPhDRecognitionDocument ||
+                                faculty.HasLitigationDocument
+                                    ? "Available"
+                                    : "—"
+                            );
+                    }
+                });
+        }
+
+        // =========================================================
+        // 2. DEPARTMENT-WISE TEACHING FACULTY EXPERIENCE
+        // =========================================================
+
+        var teachingFacultyDepartments =
+            humanResources.TeachingFacultyDepartments;
+
+        if (teachingFacultyDepartments != null &&
+            teachingFacultyDepartments.Any())
+        {
+            AddSubHeading(
+                col,
+                "Department-wise Teaching Faculty Details"
+            );
+
+            col.Item()
+                .PaddingTop(8)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);   // Faculty
+                        columns.RelativeColumn(2);   // Department
+                        columns.RelativeColumn(2);   // Total Experience
+                        columns.RelativeColumn(3);   // Designation
+                        columns.RelativeColumn(2);   // From
+                        columns.RelativeColumn(2);   // To
+                        columns.RelativeColumn(2);   // Experience
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Faculty Name").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Department").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Total Experience").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .Text("Designation").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter().Text("From").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter().Text("To").Bold();
+
+                        header.Cell().Border(1).Padding(4)
+                            .AlignCenter().Text("Experience").Bold();
+                    });
+
+                    foreach (var faculty in teachingFacultyDepartments)
+                    {
+                        var experiences = faculty.Experiences;
+
+                        // If experience details are available,
+                        // print one row for each experience.
+                        if (experiences != null && experiences.Any())
+                        {
+                            bool firstExperience = true;
+
+                            foreach (var experience in experiences)
+                            {
+                                table.Cell().Border(1).Padding(4)
+                                    .Text(
+                                        firstExperience
+                                            ? faculty.NameOfFaculty ?? "—"
+                                            : string.Empty);
+
+                                table.Cell().Border(1).Padding(4)
+                                    .Text(
+                                        firstExperience
+                                            ? faculty.DepartmentName ?? "—"
+                                            : string.Empty);
+
+                                table.Cell().Border(1).Padding(4)
+                                    .Text(
+                                        firstExperience
+                                            ? faculty.TotalExperience ?? "—"
+                                            : string.Empty);
+
+                                table.Cell().Border(1).Padding(4)
+                                    .Text(
+                                        experience.DesignationName ?? "—");
+
+                                table.Cell().Border(1).Padding(4)
+                                    .AlignCenter()
+                                    .Text(
+                                        experience.FromDate.HasValue
+                                            ? experience.FromDate.Value
+                                                .ToString("dd/MM/yyyy")
+                                            : "—");
+
+                                table.Cell().Border(1).Padding(4)
+                                    .AlignCenter()
+                                    .Text(
+                                        experience.ToDate.HasValue
+                                            ? experience.ToDate.Value
+                                                .ToString("dd/MM/yyyy")
+                                            : "Present");
+
+                                table.Cell().Border(1).Padding(4)
+                                    .AlignCenter()
+                                    .Text(
+                                        experience.Experience ?? "—");
+
+                                firstExperience = false;
+                            }
+                        }
+                        else
+                        {
+                            table.Cell().Border(1).Padding(4)
+                                .Text(faculty.NameOfFaculty ?? "—");
+
+                            table.Cell().Border(1).Padding(4)
+                                .Text(faculty.DepartmentName ?? "—");
+
+                            table.Cell().Border(1).Padding(4)
+                                .Text(faculty.TotalExperience ?? "—");
+
+                            table.Cell().Border(1).Padding(4)
+                                .Text("—");
+
+                            table.Cell().Border(1).Padding(4)
+                                .AlignCenter().Text("—");
+
+                            table.Cell().Border(1).Padding(4)
+                                .AlignCenter().Text("—");
+
+                            table.Cell().Border(1).Padding(4)
+                                .AlignCenter().Text("—");
+                        }
+                    }
+                });
+        }
+
+        // =========================================================
+        // 3. STAFF SHORTAGE
+        // =========================================================
+
+        var staffShortages = humanResources.StaffShortages;
+
+        if (staffShortages != null && staffShortages.Any())
+        {
+            AddSubHeading(
+                col,
+                "Staff Shortage"
+            );
+
+            col.Item()
+                .PaddingTop(8)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(2);   // Post
+                        columns.RelativeColumn(3);   // Reason
+                        columns.RelativeColumn(4);   // Arrangements
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Border(1).Padding(5)
+                            .Text("Post Name").Bold();
+
+                        header.Cell().Border(1).Padding(5)
+                            .Text("Reason").Bold();
+
+                        header.Cell().Border(1).Padding(5)
+                            .Text("Arrangements Made").Bold();
+                    });
+
+                    foreach (var shortage in staffShortages)
+                    {
+                        table.Cell().Border(1).Padding(5)
+                            .Text(
+                                string.IsNullOrWhiteSpace(shortage.PostName)
+                                    ? "—"
+                                    : shortage.PostName);
+
+                        table.Cell().Border(1).Padding(5)
+                            .Text(
+                                string.IsNullOrWhiteSpace(shortage.Reason)
+                                    ? "—"
+                                    : shortage.Reason);
+
+                        table.Cell().Border(1).Padding(5)
+                            .Text(
+                                string.IsNullOrWhiteSpace(shortage.Arrangements)
+                                    ? "—"
+                                    : shortage.Arrangements);
+                    }
+                });
+        }
     }
 
     // ═══════════════════════════════════════════════════════

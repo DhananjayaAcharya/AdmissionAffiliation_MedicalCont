@@ -1,4 +1,11 @@
 ﻿@model Medical_Affiliation.Models.HumanResourcesVM
+@{
+    var FacultyCode = Context.Session.GetString("FacultyCode");
+    var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+}
+
+<link rel="stylesheet"
+      href="~/css/preview-section-header.css" />
 
 @if (Model != null)
 {
@@ -8,13 +15,39 @@
         <!-- HEADER -->
         <!-- ====================================================== -->
 
-        <div class="general-header">
-            <div class="header-content">
-                <h2 class="academic-title academic-badge">
-                    <i class="bi bi-people-fill"></i>
-                    Human Resources
-                </h2>
+        <div class="preview-section-header">
+
+            <div class="preview-section-header-content">
+
+                <div class="preview-section-title">
+
+                    <i class="bi bi-person-workspace"></i>
+
+                    <div>
+                        <h4>
+                            Faculty Details
+                        </h4>
+                    </div>
+
+                </div>
+
+                <a class="preview-section-edit"
+                   href="@Url.Action(
+                        "Repo_FacultyDetails",
+                        "DentalFacultyDetails",
+                        new
+                        {
+                            typeOfAffiliation = @AffiliationType
+                        })">
+
+                    <i class="bi bi-pencil-square"></i>
+
+                    <span>Edit section</span>
+
+                </a>
+
             </div>
+
         </div>
 
         <!-- ====================================================== -->
@@ -30,11 +63,10 @@
         <!-- TEACHING FACULTY DEPARTMENT-WISE -->
         <!-- ====================================================== -->
         @* Will be added next *@
-        @* @if (Model.TeachingFacultyDepartmentWise != null)
+        @if (Model.TeachingFacultyDepartmentWise != null)
         {
-            <partial name="_TeachingFacultyDepartmentWise"
-                     model="Model.TeachingFacultyDepartmentWise" />
-        } *@
+            @await Html.PartialAsync("HumanResources/_FacultyDetails", Model.FacultyDetails)
+        }
 
         <!-- ====================================================== -->
         <!-- NON-TEACHING FACULTY DETAILS -->

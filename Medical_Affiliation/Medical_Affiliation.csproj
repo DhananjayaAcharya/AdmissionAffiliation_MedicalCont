@@ -31,7 +31,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Views\CADentalPreview\DentalChairDistribution\" />
-	  <Folder Include="Views\CADentalPreview\HumanResources\" />
 	  <Folder Include="Views\CADentalPreview\EquipmentsList\" />
 	  <Folder Include="Views\CADentalPreview\AcademicIntake\" />
 	  <Folder Include="Views\CADentalPreview\TeachingFacultyDetails\" />

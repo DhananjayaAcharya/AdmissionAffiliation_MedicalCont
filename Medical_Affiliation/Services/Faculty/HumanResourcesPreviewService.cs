@@ -96,6 +96,44 @@ namespace Medical_Affiliation.Services.Faculty
                 .ToList();
 
             // Teaching Faculty Department-wise
+            model.HumanResources = new HumanResourcesVM
+            {
+                TeachingFacultyExperiences = vm.FacultyRows
+                    .Select(f => new FacultyExperiencePreviewVM
+                    {
+                        NameOfFaculty = f.NameOfFaculty,
+                        DepartmentCode = f.DepartmentCode,
+                        DepartmentName = f.DepartmentName,
+                        TotalExperience = f.TotalExperience,
+
+                        Experiences = f.Experiences
+                            .Select(e => new FacultyExperienceDetailPreviewVM
+                            {
+                                Id = e.Id,
+                                CollegeCode = e.CollegeCode,
+                                DesignationCode = e.DesignationCode,
+                                DesignationName = e.DesignationName,
+                                CourseLevel = e.CourseLevel,
+                                FromDate = e.FromDate,
+                                ToDate = e.ToDate,
+                                Experience = e.Experience
+                            })
+                            .ToList()
+                    })
+                    .ToList(),
+
+                StaffShortages = vm.StaffShortages
+                    .Select(s => new StaffShortagePreviewVM
+                    {
+                        Id = s.Id,
+                        CollegeCode = s.CollegeCode,
+                        FacultyId = s.FacultyId,
+                        PostName = s.PostName,
+                        Reason = s.Reason,
+                        Arrangements = s.Arrangements
+                    })
+                    .ToList()
+            };
 
             // Non-Teaching Faculty Details
 

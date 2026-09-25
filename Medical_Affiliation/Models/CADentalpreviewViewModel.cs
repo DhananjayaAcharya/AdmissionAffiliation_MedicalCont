@@ -125,14 +125,63 @@ namespace Medical_Affiliation.Models
         /// <summary>
         /// Teaching Faculty Department-wise
         /// </summary>
-        //public List<TeachingFacultyDepartmentPreviewVM> TeachingFacultyDepartments { get; set; }
-        //    = new();
+        public List<TeachingFacultyDepartmentPreviewVM> TeachingFacultyDepartments { get; set; } = new();
+
+        public List<StaffShortagePreviewVM> StaffShortages { get; set; } = new();
 
         /// <summary>
         /// Non-Teaching Faculty Details
         /// </summary>
         //public List<NonTeachingFacultyPreviewVM> NonTeachingFaculties { get; set; }
         //    = new();
+    }
+
+    public class TeachingFacultyDepartmentPreviewVM
+    {
+        public string? NameOfFaculty { get; set; }
+
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public decimal TotalExperience { get; set; }
+
+        public List<FacultyExperienceDetailPreviewVM> Experiences { get; set; }
+            = new();
+    }
+
+    public class FacultyExperienceDetailPreviewVM
+    {
+        public int Id { get; set; }
+
+        public string? CollegeCode { get; set; }
+
+        public string? DesignationCode { get; set; }
+
+        public string? DesignationName { get; set; }
+
+        public string? CourseLevel { get; set; }
+
+        public DateTime? FromDate { get; set; }
+
+        public DateTime? ToDate { get; set; }
+
+        public decimal Experience { get; set; }
+    }
+
+    public class StaffShortagePreviewVM
+    {
+        public int Id { get; set; }
+
+        public string? CollegeCode { get; set; }
+
+        public int FacultyId { get; set; }
+
+        public string? PostName { get; set; }
+
+        public string? Reason { get; set; }
+
+        public string? Arrangements { get; set; }
     }
 
     public class CADentalBedDistributionPreviewViewModel
