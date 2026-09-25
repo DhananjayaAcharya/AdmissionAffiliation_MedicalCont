@@ -700,6 +700,16 @@
                     </li>
                 }
 
+                @if (Model.FiedPracticeArea != null && Model.FiedPracticeArea.Any() && FacultyCode == "2")
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#field-practice-area-group">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>Field Practice Area</span>
+                        </a>
+                    </li>
+                }
+
                 @if (Model.DepartmentOfficesMeuVM != null)
                 {
                     <li class="nav-item">
@@ -1043,6 +1053,15 @@
                 <div class="section-separator"></div>
             }
 
+            @if (Model.FiedPracticeArea != null && Model.FiedPracticeArea.Any() && FacultyCode == "2")
+            {
+                <div id="field-practice-area-group">
+                    @await Html.PartialAsync(partialViewName: "ClinicalFacilities/_SuperVisionInFieldPractice", Model.FiedPracticeArea)
+                </div>
+
+                <div class="section-separator"></div>
+            }
+
             @if (Model.DepartmentOfficesMeuVM != null)
             {
                 <div id="department-education-unit-group">
@@ -1331,7 +1350,8 @@
             '#finance-group',
             '#admin-group',
             '#fac-group',
-            '#payment-group'
+            '#payment-group',
+            "#field-practice-area-group"
         ].join(',');
 
 

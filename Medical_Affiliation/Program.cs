@@ -162,6 +162,7 @@ builder.Services.AddScoped<ITeachingFacultyDetailsService, TeachingFacultyDetail
 builder.Services.AddScoped<IWorkShopDetailsService, WorkShopDetailsService>();
 builder.Services.AddScoped<IAnimalHouseService, AnimalHouseService>();
 builder.Services.AddScoped<ICAEquipmentPreviewService, CAEquipmentPreviewService>();
+builder.Services.AddScoped<ICADentalFieldPracticeAreaService, CADentalFieldPracticeAreaService>();
 
 builder.Services.AddScoped<ICALibraryService, CALibraryService>();
 builder.Services.AddScoped<ICADentalLibraryService, CADentalLibraryService>();

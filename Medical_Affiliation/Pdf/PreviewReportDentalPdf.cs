@@ -201,7 +201,7 @@ public class PreviewReportDentalPdf : IDocument
 
                 //--- SUPER VISION IN FIELD PRACTICE AREA ----
 
-                AddSupervisionInFieldPracticeAreaSection(col);
+                AddFieldPracticeAreaSection(col);
 
                 //--- COLLEGE DESIGNATION ---
                 AddCollegeDesignationSection(col);
@@ -3283,74 +3283,103 @@ public class PreviewReportDentalPdf : IDocument
         });
     }
 
-    private void AddSupervisionInFieldPracticeAreaSection(ColumnDescriptor col)
+    private void AddFieldPracticeAreaSection(ColumnDescriptor col)
     {
-        var supervisionList = _model.CAHospitalAFfiliationCompVM?.SuperVisionInFPa;
-        if (supervisionList == null || !supervisionList.Any())
+        var practiceAreas = _model?.FiedPracticeArea;
+
+        if (practiceAreas == null || !practiceAreas.Any())
             return;
 
-        var supervision = supervisionList.First(); // one per college
-        if (supervision.Items == null || !supervision.Items.Any())
-            return;
+        AddMainHeading(col, "Field Practice Area");
 
-        col.Item().PaddingTop(30)
-                .AlignCenter()
-                .Text("Supervision in Field Practice Area")
-                .FontSize(14)
-                .Bold();
-
-
-        // ---- TABLE ----
-        col.Item().PaddingTop(15).Table(table =>
+        foreach (var practiceArea in practiceAreas)
         {
-            table.ColumnsDefinition(columns =>
-            {
-                columns.ConstantColumn(60);   // Post
-                columns.RelativeColumn(2);    // Name
-                columns.RelativeColumn(2);    // Qualification
-                columns.ConstantColumn(70);   // Year
-                columns.RelativeColumn(2);    // University
-                columns.ConstantColumn(90);   // UG Period
-                columns.ConstantColumn(90);   // PG Period
-                columns.RelativeColumn(3);    // Responsibilities
-            });
+            AddSubHeading(
+                col,
+                string.IsNullOrWhiteSpace(practiceArea.Location)
+                    ? "Field Practice Area"
+                    : practiceArea.Location);
 
-            // ---- HEADER ----
-            table.Header(header =>
-            {
-                header.Cell().Border(1).Padding(2).Text("Post").Bold();
-                header.Cell().Border(1).Padding(2).Text("Name").Bold();
-                header.Cell().Border(1).Padding(2).Text("Qualification").Bold();
-                header.Cell().Border(1).Padding(2).Text("Year").Bold();
-                header.Cell().Border(1).Padding(2).Text("University").Bold();
-                header.Cell().Border(1).Padding(2).Text("UG Period").Bold();
-                header.Cell().Border(1).Padding(2).Text("PG Period").Bold();
-                header.Cell().Border(1).Padding(2).Text("Responsibilities").Bold();
-            });
+            col.Item()
+                .PaddingTop(5)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(5);
+                    });
 
-            // ---- ROWS ----
-            foreach (var item in supervision.Items)
-            {
-                table.Cell().Border(1).Padding(5).Text(item.Post);
-                table.Cell().Border(1).Padding(5).Text(item.Name);
-                table.Cell().Border(1).Padding(5).Text(item.Qualification);
-                table.Cell().Border(1).Padding(5).AlignCenter()
-                    .Text(item.YearOfQualification.ToString());
+                    void AddRow(string label, string? value)
+                    {
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(label)
+                            .Bold();
 
-                table.Cell().Border(1).Padding(5).Text(item.University);
+                        table.Cell()
+                            .Border(1)
+                            .Padding(5)
+                            .Text(
+                                string.IsNullOrWhiteSpace(value)
+                                    ? "—"
+                                    : value);
+                    }
 
-                table.Cell().Border(1).Padding(5).AlignCenter()
-                    .Text(FormatPeriod(item.UgFromDate, item.UgToDate));
+                    AddRow(
+                        "Field Type",
+                        practiceArea.FieldTypeId?.ToString());
 
-                table.Cell().Border(1).Padding(5).AlignCenter()
-                    .Text(FormatPeriod(item.PgFromDate, item.PgToDate));
+                    AddRow(
+                        "Location",
+                        practiceArea.Location);
 
-                table.Cell().Border(1).Padding(5)
-                    .Text(string.IsNullOrWhiteSpace(item.Responsibilities) ? "—" : item.Responsibilities);
-            }
-        });
+                    AddRow(
+                        "Address",
+                        practiceArea.Address);
 
+                    AddRow(
+                        "Managed By",
+                        practiceArea.ManagedBy);
+
+                    AddRow(
+                        "Staff List",
+                        string.IsNullOrWhiteSpace(practiceArea.StaffList)
+                            ? "Not Uploaded"
+                            : "Uploaded");
+
+                    AddRow(
+                        "Population Served",
+                        practiceArea.PopulationServed?.ToString());
+
+                    AddRow(
+                        "Activities and Services Provided",
+                        practiceArea.ActivitiesAndServices);
+
+                    AddRow(
+                        "Records Maintained",
+                        practiceArea.RecordsMaintained);
+
+                    AddRow(
+                        "Equipments Available",
+                        practiceArea.EquipmentsAvailable);
+
+                    AddRow(
+                        "Training Activities",
+                        practiceArea.TrainingActivities);
+
+                    AddRow(
+                        "How Supervision is Done",
+                        practiceArea.SupervisionMethod);
+
+                    AddRow(
+                        "Trainee / Supervisor Accommodation",
+                        practiceArea.TraineeSupervisorAccommodation);
+                });
+        }
     }
+
     private static string FormatPeriod(DateOnly? from, DateOnly? to)
     {
         if (from == null && to == null)

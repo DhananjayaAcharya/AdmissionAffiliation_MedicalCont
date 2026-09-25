@@ -70,6 +70,8 @@ namespace Medical_Affiliation.Models
 
         public AffiliationFinalDeclarationViewModel DeclarationVM { get; set; }
 
+        public List<DentalFieldPracticeAreaViewModel> FiedPracticeArea { get; set; } = new();
+
         //public
 
     }
@@ -175,6 +177,8 @@ namespace Medical_Affiliation.Models
         public List<HospitalDocumentsToBeUploadedDisplayViewModel> HospitalDocumentsToBeUploadedList { get; set; } = new();
         public List<IndoorBedsOccupancyItemVM> IndoorBedsOccupancy { get; set; }
         public List<SuperVisionInFieldPracticeAreaDisplayVM> SuperVisionInFPa { get; set; }
+
+        
 
     }
 
