@@ -14,13 +14,14 @@ namespace Medical_Affiliation.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly ILogger<Medical_ContinuousAffiliationController> _logger;
-
+        private readonly IWebHostEnvironment _env;
         public Medical_ContinuousAffiliationController(
-            ApplicationDbContext context,
+            ApplicationDbContext context, IWebHostEnvironment env,
             ILogger<Medical_ContinuousAffiliationController> logger) : base(context)
         {
             _context = context;
             _logger = logger;
+            _env = env;
         }
 
         public IActionResult Index()
@@ -902,7 +903,19 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<IActionResult> ViewMeuMembersList()
+        {
+            return await ServeMembersListFileAsync(isDental: false);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewDeuMembersList()
+        {
+            return await ServeMembersListFileAsync(isDental: true);
+        }
+
+        private async Task<IActionResult> ServeMembersListFileAsync(bool isDental)
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
@@ -913,14 +926,57 @@ namespace Medical_Affiliation.Controllers
                                           x.FacultyCode == facultyCode &&
                                           x.CourseLevel == courseLevel);
 
-            // Dental colleges store the file in the DEU column
-            var path = facultyCode == "2" ? entity?.DeuMembersListFilePath : entity?.MeuMembersListFilePath;
+            if (entity == null)
+            {
+                _logger.LogWarning("ServeMembersListFileAsync: no entity found for college={College} faculty={Faculty} level={Level} (isDental={IsDental})",
+                    collegeCode, facultyCode, courseLevel, isDental);
+                return NotFound("Record not found");
+            }
 
-            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
+            var storedPath = (isDental ? entity.DeuMembersListFilePath : entity.MeuMembersListFilePath)?.Trim().Trim('"');
+
+            if (string.IsNullOrEmpty(storedPath))
+            {
+                _logger.LogWarning("ServeMembersListFileAsync: stored path is empty (isDental={IsDental}, college={College})",
+                    isDental, collegeCode);
                 return NotFound("File not found");
+            }
+
+            // Support both the current absolute-path format and older records
+            // whose absolute root may differ from the current configured drive.
+            var configuredRoot = isDental ? BaseDentalPath : BaseMedicalPath;
+            var fileName = Path.GetFileName(storedPath);
+            var candidatePaths = new[]
+            {
+                Path.IsPathRooted(storedPath)
+                    ? storedPath
+                    : Path.Combine(_env.WebRootPath, storedPath.TrimStart('/', '\\')),
+                Path.Combine(configuredRoot, "MEUFiles", fileName)
+            };
+
+            var resolvedPath = candidatePaths.FirstOrDefault(System.IO.File.Exists);
+
+            // Recover records created before the upload path was normalized. Only
+            // use this fallback when the faculty-specific folder is unambiguous.
+            if (resolvedPath == null)
+            {
+                var availableFiles = Directory.Exists(Path.Combine(configuredRoot, "MEUFiles"))
+                    ? Directory.GetFiles(Path.Combine(configuredRoot, "MEUFiles"), "*.pdf")
+                    : Array.Empty<string>();
+
+                if (availableFiles.Length == 1)
+                    resolvedPath = availableFiles[0];
+            }
+
+            if (resolvedPath == null)
+            {
+                _logger.LogWarning("ServeMembersListFileAsync: file missing on disk. stored={Stored} candidates={Candidates}",
+                    storedPath, string.Join("; ", candidatePaths));
+                return NotFound("File not found on server");
+            }
 
             Response.Headers["Content-Disposition"] = "inline";
-            return PhysicalFile(path, "application/pdf");
+            return PhysicalFile(resolvedPath, "application/pdf");
         }
 
         // =====================================================================

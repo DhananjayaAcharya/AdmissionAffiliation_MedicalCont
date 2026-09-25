@@ -231,10 +231,10 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = CollegeCode;
 
             var entity = await _context.AffiliationCourseDetails
-                .FirstOrDefaultAsync(x =>
-                    x.Facultycode == facultyCode &&
-                    x.Collegecode == collegeCode &&
-                    x.CourseId == courseId);
+    .FirstOrDefaultAsync(x =>
+        x.Facultycode == facultyCode &&
+        x.Collegecode == collegeCode &&
+        x.CourseId == courseId);   // courseId is null here
 
             if (string.IsNullOrEmpty(entity?.PreviousNotificationFilesPath) ||
                 !System.IO.File.Exists(entity.PreviousNotificationFilesPath))
@@ -253,10 +253,10 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = CollegeCode;
 
             var entity = await _context.AffiliationCourseDetails
-                .FirstOrDefaultAsync(x =>
-                    x.Facultycode == facultyCode &&
-                    x.Collegecode == collegeCode &&
-                    x.CourseId == courseId);
+    .FirstOrDefaultAsync(x =>
+        x.Facultycode == facultyCode &&
+        x.Collegecode == collegeCode &&
+        x.CourseId == courseId);   // courseId is null here
 
             if (string.IsNullOrEmpty(entity?.GokorderPath) ||
                 !System.IO.File.Exists(entity.GokorderPath))

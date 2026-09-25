@@ -834,15 +834,19 @@ namespace Medical_Affiliation.Controllers
             if (!int.TryParse(FacultyCode, out int facultyId))
                 return BadRequest("Invalid Faculty.");
 
-            if (!AffTypeId.HasValue)
-                return BadRequest("Affiliation Type not found.");
+            var affiliationType = AffTypeId
+                ?? HttpContext.Session.GetInt32("AffiliationType")
+                ?? HttpContext.Session.GetInt32("AffiliationTypeId")
+                ?? 2;
+            var courseLevel = HttpContext.Session.GetString("CourseLevel")?.Trim().ToUpperInvariant();
 
             var record = _context.CaCourseCurricula
                 .AsNoTracking()
                 .FirstOrDefault(x =>
                     x.CollegeCode == CollegeCode &&
                     x.FacultyId == facultyId &&
-                    x.AffiliationType == AffTypeId.Value &&
+                    x.AffiliationType == affiliationType &&
+                    x.CourseLevel == courseLevel &&
                     x.CurriculumId == curriculumId);
 
             if (record == null)
@@ -850,8 +854,21 @@ namespace Medical_Affiliation.Controllers
                 return NotFound("Curriculum PDF not found for the current college.");
             }
 
-            if (string.IsNullOrWhiteSpace(record.CurriculumPdfPath) ||
-                !System.IO.File.Exists(record.CurriculumPdfPath))
+            var storedPath = record.CurriculumPdfPath?.Trim().Trim('"');
+            if (string.IsNullOrWhiteSpace(storedPath))
+            {
+                return NotFound("Physical PDF file not found.");
+            }
+
+            var configuredRoot = facultyId == 2 ? BaseDentalPath : BaseMedicalPath;
+            var candidatePaths = new[]
+            {
+                storedPath,
+                Path.Combine(configuredRoot, "AcademicCurriculum", Path.GetFileName(storedPath))
+            };
+            var resolvedPath = candidatePaths.FirstOrDefault(System.IO.File.Exists);
+
+            if (resolvedPath == null)
             {
                 return NotFound("Physical PDF file not found.");
             }
@@ -864,7 +881,7 @@ namespace Medical_Affiliation.Controllers
             Response.Headers["Expires"] = "0";
 
             return PhysicalFile(
-                record.CurriculumPdfPath,
+                resolvedPath,
                 "application/pdf",
                 enableRangeProcessing: true);
         }

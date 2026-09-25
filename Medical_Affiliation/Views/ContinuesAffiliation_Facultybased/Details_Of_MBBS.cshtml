@@ -304,6 +304,7 @@
 
                             <!-- ✅ VIEW BUTTON -->
                             <a asp-action="PreviousNotification"
+                               asp-route-courseId="@Model.CourseId"
                                target="_blank"
                                class="btn btn-sm btn-outline-primary">
                                 View Previous Notification
@@ -369,8 +370,9 @@
 
                                    <!-- ✅ VIEW BUTTON -->
                                    <a asp-action="ViewGOKOrder"
-                                      target="_blank"
-                                      class="btn btn-sm btn-outline-primary">
+                                       asp-route-courseId="@Model.CourseId"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
                                        View GOK Order
                                    </a>
                                }
@@ -408,8 +410,9 @@
 
                                     <!-- ✅ VIEW BUTTON -->
                                     <a asp-action="ViewLastAffiliation"
-                                        target="_blank"
-                                        class="btn btn-sm btn-outline-primary">
+                                       asp-route-courseId="@Model.CourseId"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
                                         View Affilaition Document
                                     </a>
                                 }
