@@ -876,6 +876,7 @@ namespace Medical_Affiliation.Controllers
             {
                 if (vm.HasDentalEducationUnit == false)
                 {
+                    entity.HasDentalEducationUnit = vm.HasDentalEducationUnit;
                     entity.DentalEducationUnitAreaSqm = null;
                     entity.DentalEducationUnitHasAudioVisual = null;
                     entity.DentalEducationUnitHasInternet = null;
@@ -920,6 +921,10 @@ namespace Medical_Affiliation.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SaveSuccess"] = "Saved successfully.";
+            if(facultyCode == "2")
+            {
+                return RedirectToAction("EquipmentList", "Dental");
+            }
             return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
         }
 

@@ -501,21 +501,29 @@ namespace Medical_Affiliation.Services.Faculty
 
             model.LibraryUsers = new DentalLibraryUserPreviewVM
             {
-                NoOfTeachingStaff = existingUsers.NoOfTeachingStaff ?? 0,
+                NoOfTeachingStaff =
+        existingUsers?.NoOfTeachingStaff ?? 0,
 
-                NoOfResearchScholarsAssistants = existingUsers.NoOfResearchScholarsAssistants ?? 0,
+                NoOfResearchScholarsAssistants =
+        existingUsers?.NoOfResearchScholarsAssistants ?? 0,
 
-                NoOfPostGraduateStudents = existingUsers.NoOfPostGraduateStudents ?? 0,
+                NoOfPostGraduateStudents =
+        existingUsers?.NoOfPostGraduateStudents ?? 0,
 
-                NoOfUnderGraduateStudents = existingUsers.NoOfUnderGraduateStudents ?? 0,
+                NoOfUnderGraduateStudents =
+        existingUsers?.NoOfUnderGraduateStudents ?? 0,
 
-                NoOfAdministrativeStaff = existingUsers.NoOfAdministrativeStaff ?? 0,
+                NoOfAdministrativeStaff =
+        existingUsers?.NoOfAdministrativeStaff ?? 0,
 
-                NoOfParaMedicalStaff = existingUsers.NoOfParaMedicalStaff ?? 0,
+                NoOfParaMedicalStaff =
+        existingUsers?.NoOfParaMedicalStaff ?? 0,
 
-                NoOfOutsiders = existingUsers.NoOfOutsiders ?? 0,
+                NoOfOutsiders =
+        existingUsers?.NoOfOutsiders ?? 0,
 
-                ProvideUserEducationProgrammes = existingUsers.ProvideUserEducationProgrammes.HasValue
+                ProvideUserEducationProgrammes =
+        existingUsers?.ProvideUserEducationProgrammes ?? false
             };
 
 
