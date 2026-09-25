@@ -417,6 +417,11 @@ namespace Medical_Affiliation.Services.Faculty
             // which treats this step as complete even when no record exists.
             completedSteps.Add("FacultyDetails");
 
+            // These medical workflow steps are also default-complete in the
+            // continuous-affiliation sidebar.
+            completedSteps.Add("EquipmentDetails");
+            completedSteps.Add("NonTeachingStaff");
+
             return requiredSteps.Count == 0
                 ? 0
                 : (int)Math.Round((double)completedSteps.Count / requiredSteps.Count * 100);
@@ -435,14 +440,17 @@ namespace Medical_Affiliation.Services.Faculty
                 .ToListAsync();
 
             var normalizedLevel = courseLevel?.Trim().ToUpperInvariant();
-            var levelRows = rows
+
+            // FIXED: previously fell back to the ENTIRE unfiltered rowset
+            // (all course levels mixed together) whenever no row matched
+            // the current course level. That let UG previews show PG/SS
+            // rows and vice versa. Now we only ever keep rows for the
+            // course level actually being previewed — if there are none,
+            // the list is empty and the view's "No course intake details
+            // available" message is shown, which is correct.
+            rows = rows
                 .Where(x => string.Equals(x.UgPg?.Trim(), normalizedLevel, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-
-            if (levelRows.Count > 0)
-            {
-                rows = levelRows;
-            }
 
             var applicationType = _httpContextAccessor.HttpContext?.Session.GetString("TypeOfAffiliation") ?? string.Empty;
             var applyingCourseLevel = courseLevel
@@ -483,39 +491,26 @@ namespace Medical_Affiliation.Services.Faculty
             int affiliationTypeId,
             string? courseLevel)
         {
-            var selectedCourseLevel = _httpContextAccessor.HttpContext?.Session.GetString("SelectedCourseLevel");
-            var requestedLevels = new[] { courseLevel, selectedCourseLevel }
-                .Where(level => !string.IsNullOrWhiteSpace(level))
-                .Select(level => level!.Trim().ToUpperInvariant())
-                .Distinct()
-                .ToHashSet();
+            var normalizedLevel = (courseLevel ?? string.Empty).Trim().ToUpperInvariant();
 
-            var savedRows = await _context.MedicalUgbedDistributions
+            // FIXED: previously had two silent fallbacks — one that dropped
+            // the AffiliationTypeId filter entirely if no row matched it,
+            // and another that grabbed ANY row (regardless of course level)
+            // if none matched the requested level. Together these could
+            // show bed-distribution numbers saved under a different
+            // affiliation type or a different course level than the one
+            // being previewed. Now this is a single exact-match query;
+            // if nothing matches, we correctly return null and the view
+            // shows "No bed distribution details available."
+            var entity = await _context.MedicalUgbedDistributions
                 .AsNoTracking()
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode.ToString() &&
-                    x.AffiliationTypeId == affiliationTypeId)
-                .ToListAsync();
-
-            if (savedRows.Count == 0)
-            {
-                savedRows = await _context.MedicalUgbedDistributions
-                    .AsNoTracking()
-                    .Where(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode.ToString())
-                    .ToListAsync();
-            }
-
-            var entity = savedRows
-                .Where(x => requestedLevels.Contains((x.CourseLevel ?? string.Empty).Trim().ToUpperInvariant()))
+                    x.AffiliationTypeId == affiliationTypeId &&
+                    (x.CourseLevel ?? string.Empty).Trim().ToUpper() == normalizedLevel)
                 .OrderByDescending(x => x.Id)
-                .FirstOrDefault();
-
-            entity ??= savedRows
-                .OrderByDescending(x => x.Id)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (entity == null)
             {

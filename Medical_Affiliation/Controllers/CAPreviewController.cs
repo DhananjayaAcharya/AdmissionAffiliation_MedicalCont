@@ -435,7 +435,7 @@ namespace Medical_Affiliation.Controllers
                     e.AuditedStatementPdfName
                 })
                 .FirstOrDefaultAsync();
-                
+
             if (gov == null || gov.AuditedStatementPdfPath == null) return NotFound();
 
             return File(gov.AuditedStatementPdfPath, "application/pdf");

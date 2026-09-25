@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Medical Library";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
-     var facultyCode = Context.Session.GetString("FacultyCode");
+    var facultyCode = Context.Session.GetString("FacultyCode");
     bool isDentalFaculty = facultyCode == "2";
 }
 
@@ -16,139 +16,146 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
 
-        :root {
-            --ink: #0f1923;
-            --ink-mid: #2e3d4f;
-            --ink-muted: #6b7a8d;
-            --border: #d4dae3;
-            --bg: #f4f6f9;
-            --surface: #ffffff;
-            --accent: #1a4c8b;
-            --accent-lt: #e8edf7;
-            --danger: #c0392b;
-            --gold: #c9a84c;
-            --radius: 10px;
-            --shadow: 0 2px 16px rgba(15,25,35,.07);
-        }
+            :root {
+                --ink: #0f1923;
+                --ink-mid: #2e3d4f;
+                --ink-muted: #6b7a8d;
+                --border: #d4dae3;
+                --bg: #f4f6f9;
+                --surface: #ffffff;
+                --accent: #1a4c8b;
+                --accent-lt: #e8edf7;
+                --danger: #c0392b;
+                --gold: #c9a84c;
+                --radius: 10px;
+                --shadow: 0 2px 16px rgba(15,25,35,.07);
+            }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            min-height: 100vh;
-        }
+            body {
+                font-family: 'DM Sans', sans-serif;
+                background: var(--bg);
+                color: var(--ink);
+                min-height: 100vh;
+            }
 
-        /* ─── TOP HEADER ─────────────────────────────── */
-        .page-header {
-            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
-            padding: 28px 40px 24px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            border-bottom: 3px solid var(--gold);
-        }
+            /* ─── TOP HEADER ─────────────────────────────── */
+            .page-header {
+                background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+                padding: 28px 40px 24px;
+                display: flex;
+                align-items: center;
+                gap: 18px;
+                border-bottom: 3px solid var(--gold);
+            }
 
-        .page-header .emblem {
-            width: 54px;
-            height: 54px;
-            border: 2px solid var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
+                .page-header .emblem {
+                    width: 54px;
+                    height: 54px;
+                    border: 2px solid var(--gold);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
 
-        .page-header .emblem i {
-            font-size: 28px;
-            color: var(--gold);
-        }
+                    .page-header .emblem i {
+                        font-size: 28px;
+                        color: var(--gold);
+                    }
 
-        .page-header .emblem svg {
-            width: 28px;
-            height: 28px;
-            fill: var(--gold);
-        }
+                    .page-header .emblem svg {
+                        width: 28px;
+                        height: 28px;
+                        fill: var(--gold);
+                    }
 
-        .page-header-text h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.45rem;
-            color: #ffffff;
-            letter-spacing: .02em;
-        }
+            .page-header-text h1 {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.45rem;
+                color: #ffffff;
+                letter-spacing: .02em;
+            }
 
-        .page-header-text p {
-            font-size: .78rem;
-            color: rgba(255,255,255,.55);
-            margin: 3px 0 0;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-        }
+            .page-header-text p {
+                font-size: .78rem;
+                color: rgba(255,255,255,.55);
+                margin: 3px 0 0;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+            }
 
-        .form-wrap {
-            max-width: 1280px;
-            margin: 7rem auto 0;
-            padding: 0 10px 10px;
-        }
+            .form-wrap {
+                max-width: 1280px;
+                margin: 7rem auto 0;
+                padding: 0 10px 10px;
+            }
 
-        .section-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            margin-bottom: 28px;
-            animation: fadeUp .35s ease both;
-        }
+            .section-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                overflow: hidden;
+                margin-bottom: 28px;
+                animation: fadeUp .35s ease both;
+            }
 
-        @@keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+            @@keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
 
-        .section-header {
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border);
-            background: #fafbfc;
-        }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
 
-        .section-header .icon-wrap {
-            width: 38px;
-            height: 38px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+            .section-header {
+                padding: 16px 24px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                border-bottom: 1px solid var(--border);
+                background: #fafbfc;
+            }
 
-        .section-header h2 {
-            font-size: 1.02rem;
-            font-weight: 600;
-            letter-spacing: .03em;
-            color: var(--ink);
-            margin: 0;
-        }
+                .section-header .icon-wrap {
+                    width: 38px;
+                    height: 38px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
 
-        .section-body {
-            padding: 1.25rem;
-        }
+                .section-header h2 {
+                    font-size: 1.02rem;
+                    font-weight: 600;
+                    letter-spacing: .03em;
+                    color: var(--ink);
+                    margin: 0;
+                }
 
-        /* Scrollable Table Container */
-        .scrollable-table-container {
-            max-height: 420px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
+            .section-body {
+                padding: 1.25rem;
+            }
+
+            /* Scrollable Table Container */
+            .scrollable-table-container {
+                max-height: 420px;
+                overflow-y: auto;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+            }
 
             .custom-table {
                 width: max-content;
@@ -157,137 +164,137 @@
                 table-layout: auto;
             }
 
-        .custom-table thead {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: #f8f9fc;
-        }
+                .custom-table thead {
+                    position: sticky;
+                    top: 0;
+                    z-index: 10;
+                    background: #f8f9fc;
+                }
 
-        .custom-table th,
-        .custom-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-            white-space: nowrap;
-            min-width: 140px;
-        }
+                .custom-table th,
+                .custom-table td {
+                    padding: 12px 16px;
+                    border-bottom: 1px solid var(--border);
+                    vertical-align: middle;
+                    white-space: nowrap;
+                    min-width: 140px;
+                }
 
-        .custom-table th {
-            background: #f8f9fc;
-            color: var(--ink-mid);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.76rem;
-            letter-spacing: 0.05em;
-        }
+                .custom-table th {
+                    background: #f8f9fc;
+                    color: var(--ink-mid);
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    font-size: 0.76rem;
+                    letter-spacing: 0.05em;
+                }
 
-        .custom-table tr:hover {
-            background: #f8fbff;
-        }
+                .custom-table tr:hover {
+                    background: #f8fbff;
+                }
 
-        .custom-table th:first-child,
-        .custom-table td:first-child {
-            min-width: 70px;
-        }
+                .custom-table th:first-child,
+                .custom-table td:first-child {
+                    min-width: 70px;
+                }
 
-        .custom-table th:last-child,
-        .custom-table td:last-child {
-            min-width: 110px;
-        }
+                .custom-table th:last-child,
+                .custom-table td:last-child {
+                    min-width: 110px;
+                }
 
-        .custom-table td:nth-child(10) {
-            min-width: 240px;
-        }
+                .custom-table td:nth-child(10) {
+                    min-width: 240px;
+                }
 
-        /* Department dropdown wider */
-        .dept-dropdown {
-            min-width: 220px;
-        }
+            /* Department dropdown wider */
+            .dept-dropdown {
+                min-width: 220px;
+            }
 
-        /* Form Controls */
-        input[type="text"], input[type="number"], select, textarea {
-            width: 100%;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.875rem;
-            color: var(--ink);
-            background: #fafbfc;
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 9px 13px;
-        }
+            /* Form Controls */
+            input[type="text"], input[type="number"], select, textarea {
+                width: 100%;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.875rem;
+                color: var(--ink);
+                background: #fafbfc;
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 9px 13px;
+            }
 
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--accent);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(26,76,139,.1);
-        }
+                input:focus, select:focus, textarea:focus {
+                    border-color: var(--accent);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+                }
 
-        .btn {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 10px 26px;
-            cursor: pointer;
-            letter-spacing: .03em;
-            transition: all .18s;
-        }
+            .btn {
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.85rem;
+                font-weight: 600;
+                border-radius: 8px;
+                padding: 10px 26px;
+                cursor: pointer;
+                letter-spacing: .03em;
+                transition: all .18s;
+            }
 
-        .btn-ghost {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--ink-muted);
-        }
+            .btn-ghost {
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--ink-muted);
+            }
 
-        .btn-ghost:hover {
-            border-color: var(--ink-mid);
-            color: var(--ink);
-        }
+                .btn-ghost:hover {
+                    border-color: var(--ink-mid);
+                    color: var(--ink);
+                }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #1a4c8b, #1564c0);
-            color: #fff;
-            box-shadow: 0 3px 14px rgba(26,76,139,.3);
-        }
+            .btn-primary {
+                background: linear-gradient(135deg, #1a4c8b, #1564c0);
+                color: #fff;
+                box-shadow: 0 3px 14px rgba(26,76,139,.3);
+            }
 
-        .btn-primary:hover {
-            box-shadow: 0 5px 20px rgba(26,76,139,.4);
-            transform: translateY(-1px);
-        }
+                .btn-primary:hover {
+                    box-shadow: 0 5px 20px rgba(26,76,139,.4);
+                    transform: translateY(-1px);
+                }
 
-        .btn-danger.btn-sm {
-            background-color: var(--danger);
-            border: none;
-            padding: 6px 16px;
-            font-size: 0.82rem;
-        }
+            .btn-danger.btn-sm {
+                background-color: var(--danger);
+                border: none;
+                padding: 6px 16px;
+                font-size: 0.82rem;
+            }
 
-        label {
-            display: block;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--ink-mid);
-            margin-bottom: 6px;
-            letter-spacing: .03em;
-        }
+            label {
+                display: block;
+                font-size: 0.78rem;
+                font-weight: 600;
+                color: var(--ink-mid);
+                margin-bottom: 6px;
+                letter-spacing: .03em;
+            }
 
-        .check-label {
-            font-weight: 500;
-            cursor: pointer;
-            user-select: none;
-        }
+            .check-label {
+                font-weight: 500;
+                cursor: pointer;
+                user-select: none;
+            }
 
-        .form-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 0 10px;
-        }
+            .form-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 24px 0 10px;
+            }
 
-        small.text-muted {
-            font-size: 0.78rem;
-        }
+            small.text-muted {
+                font-size: 0.78rem;
+            }
     </style>
 </head>
 <body>
@@ -307,88 +314,88 @@
             <!-- SECTION 1: Library Services -->
             @if (!isDentalFaculty)
             {
-            <div class="section-card">
-                <div class="section-header" style="background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%); color: white;">
-                    <div class="icon-wrap" style="background: rgba(255,255,255,0.25);">
-                        <i class="bi bi-list-check" style="font-size: 1.5rem; color: white;"></i>
+                <div class="section-card">
+                    <div class="section-header" style="background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%); color: white;">
+                        <div class="icon-wrap" style="background: rgba(255,255,255,0.25);">
+                            <i class="bi bi-list-check" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <h2 style="color: white;">Library Services</h2>
                     </div>
-                    <h2 style="color: white;">Library Services</h2>
-                </div>
-                <div class="section-body">
-                    @{
-                        var masters = ViewBag.LibraryServiceMasters as List<CaMstMediLibraryService> ?? new List<CaMstMediLibraryService>();
-                    }
-                    <div class="scrollable-table-container">
-                        <table class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th style="width:8%">Sl. No</th>
-                                    <th>Service</th>
-                                    <th class="text-center">Available</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (int i = 0; i < Model.LibraryServices.Count; i++)
-                                {
-                                    var row = Model.LibraryServices[i];
-                                    var master = masters.FirstOrDefault(x => x.ServiceId == row.ServiceId);
-                                    bool isPdfService = row.ServiceId == 6;
-
-                                    <tr data-serviceid="@row.ServiceId">
-                                        <td class="text-center fw-semibold">@(i + 1)</td>
-                                        <td>
-                                            <strong>@master?.ServiceName</strong>
-                                            <input type="hidden" asp-for="LibraryServices[@i].ServiceId" />
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="d-flex justify-content-center gap-4">
-                                                <label class="check-label">
-                                                    <input class="form-check-input lib-yes" type="radio"
-                                                           asp-for="LibraryServices[@i].IsAvailable" value="Yes" />
-                                                    Yes
-                                                </label>
-                                                <label class="check-label">
-                                                    <input class="form-check-input lib-no" type="radio"
-                                                           asp-for="LibraryServices[@i].IsAvailable" value="No" />
-                                                    No
-                                                </label>
-                                            </div>
-                                            <span asp-validation-for="LibraryServices[@i].IsAvailable" class="text-danger small d-block"></span>
-                                        </td>
+                    <div class="section-body">
+                        @{
+                            var masters = ViewBag.LibraryServiceMasters as List<CaMstMediLibraryService> ?? new List<CaMstMediLibraryService>();
+                        }
+                        <div class="scrollable-table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:8%">Sl. No</th>
+                                        <th>Service</th>
+                                        <th class="text-center">Available</th>
                                     </tr>
-
-                                    @if (isPdfService)
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.LibraryServices.Count; i++)
                                     {
-                                        <tr class="pdf-row" style="display:@(row.IsAvailable == "Yes" ? "table-row" : "none")">
-                                            <td></td>
-                                            <td colspan="2">
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <label class="fw-semibold mb-0">Upload Document <span class="text-danger">*</span></label>
-                                                    <input type="file" accept=".pdf" class="form-control form-control-sm pdf-input file-validate"
-                                                           style="max-width:280px" asp-for="LibraryServices[@i].UploadedPdf"
-                                                           accept=".pdf" data-has-file="@(!string.IsNullOrEmpty(row.ExistingFileName))" />
-                                                    @if (!string.IsNullOrEmpty(row.ExistingFileName))
-                                                    {
-                                                        <a asp-action="ViewLibraryServicePdf" asp-route-serviceId="@row.ServiceId"
-                                                           target="_blank" class="btn btn-ghost">
-                                                            <i class="bi bi-eye"></i> View
-                                                        </a>
-                                                    }
+                                        var row = Model.LibraryServices[i];
+                                        var master = masters.FirstOrDefault(x => x.ServiceId == row.ServiceId);
+                                        bool isPdfService = row.ServiceId == 6;
+
+                                        <tr data-serviceid="@row.ServiceId">
+                                            <td class="text-center fw-semibold">@(i + 1)</td>
+                                            <td>
+                                                <strong>@master?.ServiceName</strong>
+                                                <input type="hidden" asp-for="LibraryServices[@i].ServiceId" />
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-4">
+                                                    <label class="check-label">
+                                                        <input class="form-check-input lib-yes" type="radio"
+                                                               asp-for="LibraryServices[@i].IsAvailable" value="Yes" />
+                                                        Yes
+                                                    </label>
+                                                    <label class="check-label">
+                                                        <input class="form-check-input lib-no" type="radio"
+                                                               asp-for="LibraryServices[@i].IsAvailable" value="No" />
+                                                        No
+                                                    </label>
                                                 </div>
-                                                <span asp-validation-for="LibraryServices[@i].UploadedPdf" class="text-danger small d-block"></span>
+                                                <span asp-validation-for="LibraryServices[@i].IsAvailable" class="text-danger small d-block"></span>
                                             </td>
                                         </tr>
+
+                                        @if (isPdfService)
+                                        {
+                                            <tr class="pdf-row" style="display:@(row.IsAvailable == "Yes" ? "table-row" : "none")">
+                                                <td></td>
+                                                <td colspan="2">
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <label class="fw-semibold mb-0">Upload Document <span class="text-danger">*</span></label>
+                                                        <input type="file" accept=".pdf" class="form-control form-control-sm pdf-input file-validate"
+                                                               style="max-width:280px" asp-for="LibraryServices[@i].UploadedPdf"
+                                                               accept=".pdf" data-has-file="@(!string.IsNullOrEmpty(row.ExistingFileName))" />
+                                                        @if (!string.IsNullOrEmpty(row.ExistingFileName))
+                                                        {
+                                                            <a asp-action="ViewLibraryServicePdf" asp-route-serviceId="@row.ServiceId"
+                                                               target="_blank" class="btn btn-ghost">
+                                                                <i class="bi bi-eye"></i> View
+                                                            </a>
+                                                        }
+                                                    </div>
+                                                    <span asp-validation-for="LibraryServices[@i].UploadedPdf" class="text-danger small d-block"></span>
+                                                </td>
+                                            </tr>
+                                        }
                                     }
-                                }
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
             }
 
             <!-- SECTION 2: Library Usage Report -->
-             @if (!isDentalFaculty)
+            @if (!isDentalFaculty)
             {
                 <div class="section-card">
                     <div class="section-header" style="background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%); color: white;">
@@ -404,8 +411,8 @@
                         <div class="d-flex align-items-center gap-3">
                             <label class="fw-semibold">Upload Document <span class="text-danger">*</span></label>
                             <input asp-for="UsageReportPdf" accept=".pdf" type="file" class="form-control form-control-sm file-validate"
-                            accept=".pdf" style="max-width:280px"
-                            data-has-file="@(!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))" />
+                                   accept=".pdf" style="max-width:280px"
+                                   data-has-file="@(!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))" />
                             @if (!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))
                             {
                                 <a asp-action="ViewUsageReportPdf" target="_blank" class="btn btn-ghost">
@@ -413,9 +420,9 @@
                                 </a>
                             }
                         </div>
-                    <span asp-validation-for="UsageReportPdf" class="text-danger small d-block mt-2"></span>
+                        <span asp-validation-for="UsageReportPdf" class="text-danger small d-block mt-2"></span>
+                    </div>
                 </div>
-            </div>
             }
 
             <!-- SECTION 3: Library Staff Details -->
@@ -461,15 +468,15 @@
                                         }
                                     }
                                 </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3">
-                        <button type="button" class="btn btn-primary btn-sm" id="addStaffRow">
-                            <i class="bi bi-plus-circle me-2"></i>Add Staff
-                        </button>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-primary btn-sm" id="addStaffRow">
+                                <i class="bi bi-plus-circle me-2"></i>Add Staff
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
             }
             <!-- SECTION 4: Department Library Details -->
             <div class="section-card">
@@ -577,7 +584,7 @@
                 </div>
             </div>
 
-             @if (!isDentalFaculty)
+            @if (!isDentalFaculty)
             {
                 <!-- SECTION 5: Digital Valuation Centre -->
                 <div class="section-card">
@@ -653,7 +660,7 @@
 
                         <div id="specialPdfRow" class="align-items-center gap-3" style="display:none;">
                             <input accept=".pdf" type="file" class="form-control file-validate" style="max-width:320px"
-                            asp-for="OtherDetails.SpecialFeaturesPdf" accept=".pdf" />
+                                   asp-for="OtherDetails.SpecialFeaturesPdf" accept=".pdf" />
                             @if (Model.OtherDetails?.HasSpecialFeaturesPdf == true)
                             {
                                 <a asp-action="ViewSpecialFeaturesPdf" target="_blank" class="btn btn-ghost">
@@ -661,8 +668,8 @@
                                 </a>
                             }
                         </div>
+                    </div>
                 </div>
-            </div>
             }
 
             @if (isDentalFaculty)
@@ -675,7 +682,7 @@
 
                             <i class="bi bi-folder-check"
                                style="font-size:1.4rem;
-                              color:#1a4c8b;"></i>
+                            color:#1a4c8b;"></i>
                         </div>
 
                         <h2>LIBRARY RECORDS</h2>
@@ -727,7 +734,7 @@
                                                    asp-route-recordId="@Model.DentalLibraryRecords[i].RecordId"
                                                    target="_blank"
                                                    class="btn btn-ghost">
-                                                   <i class="bi bi-eye"></i>
+                                                    <i class="bi bi-eye"></i>
                                                     View
 
                                                 </a>
@@ -750,14 +757,14 @@
 
                 @if (facultyCode == "1")
                 {
-                <a asp-controller="Aff_CA_MedicalLibrary" asp-action="Aff_CA_Medical_LibraryDetails"
-                   class="btn btn-ghost">← Previous : Library Details</a>
+                    <a asp-controller="Aff_CA_MedicalLibrary" asp-action="Aff_CA_Medical_LibraryDetails"
+                       class="btn btn-ghost">← Previous : Library Details</a>
                 }
 
                 @if (facultyCode == "2")
                 {
-                <a asp-controller="CA_Med_StaffDetails" asp-action="CA_Med_StaffDetails"
-                   class="btn btn-ghost">← Previous : Library Details</a>
+                    <a asp-controller="CA_Med_StaffDetails" asp-action="CA_Med_StaffDetails"
+                       class="btn btn-ghost">← Previous : Library Details</a>
                 }
 
                 <button type="submit" class="btn btn-primary">
@@ -767,13 +774,13 @@
                 @if (facultyCode == "1")
                 {
                     <a asp-controller="CA_Med_ResearchPublications" asp-action="CA_Med_ResearchPublicationsDetails"
-                   class="btn btn-primary">Next →</a>
+                       class="btn btn-primary">Next →</a>
                 }
 
                 @if (facultyCode == "2")
                 {
-                <a asp-controller="CA_Med_ResearchPublications" asp-action="CA_Med_ResearchPublicationsDetails"
-                   class="btn btn-primary">Next →</a>
+                    <a asp-controller="CA_Med_ResearchPublications" asp-action="CA_Med_ResearchPublicationsDetails"
+                       class="btn btn-primary">Next →</a>
                 }
             </div>
         </form>
@@ -824,156 +831,156 @@
 
         <script>
             $(document).ready(function () {
-                var $form = $('form:first');
-                var isFirstLogin = $('#isFirstLogin').val().toString().toLowerCase() === 'true';
+            var $form = $('form:first');
+            var isFirstLogin = $('#isFirstLogin').val().toString().toLowerCase() === 'true';
 
-                $.validator.setDefaults({ ignore: ":hidden:not(.pdf-input)" });
+            $.validator.setDefaults({ ignore: ":hidden:not(.pdf-input)" });
 
-                function reparseValidation() {
-                    $form.removeData('validator').removeData('unobtrusiveValidation');
-                    $.validator.unobtrusive.parse($form);
-                }
-
-
-                // Digital Valuation Logic
-                $('input[name="OtherDetails.HasDigitalValuationCentre"]').on('change', function () {
-                    $('#digitalQuestions').toggle($(this).val() === 'Yes');
-                    reparseValidation();
-                }).filter(':checked').trigger('change');
-
-                // Library Service PDF toggle
-                $(document).on('change', '.lib-yes, .lib-no', function () {
-                    var $row = $(this).closest('tr');
-                    var isYes = $row.find('.lib-yes:checked').val() === 'Yes';
-                    $row.next('.pdf-row').toggle(isYes);
-                    reparseValidation();
-                });
-
-                // Systems Warning
-                $('#digitalQuestions').on('input', 'input[name="OtherDetails.NoOfSystems"]', function () {
-                    var val = parseInt($(this).val());
-                    $('#systemsWarning').toggle(!isNaN(val) && val < 10);
-                });
-
-                // Add Staff Row
-                $('#addStaffRow').on('click', function () {
-                    var tbody = $('#libraryStaffTable tbody');
-                    var index = tbody.find('tr').length;
-                    var row = $(`
-                        <tr>
-                            <td class="text-center fw-semibold">${index + 1}</td>
-                            <td><input name="LibraryStaff[${index}].StaffName" class="form-control" /></td>
-                            <td><input name="LibraryStaff[${index}].Designation" class="form-control" /></td>
-                            <td><input name="LibraryStaff[${index}].Qualification" class="form-control" /></td>
-                            <td><input type="number" min="0" name="LibraryStaff[${index}].Experience" class="form-control text-center" /></td>
-                            <td><input name="LibraryStaff[${index}].Category" class="form-control" /></td>
-                            <td class="text-center"><button type="button" class="btn btn-danger btn-sm deleteStaffRow">Delete</button></td>
-                        </tr>
-                    `);
-                    tbody.append(row);
-                });
-
-                $(document).on('click', '.deleteStaffRow', function () {
-                    if ($('#libraryStaffTable tbody tr').length <= 1) {
-                        Swal.fire({ icon: 'warning', title: 'Warning', text: 'At least one staff record is required.' });
-                        return;
-                    }
-                    $(this).closest('tr').remove();
-                });
-
-                // const pdfRow = document.getElementById('specialPdfRow');
-                // // debugger;
-
-                // function togglePdfRow(){
-                //     const selected = document.querySelector('input[name="OtherDetails.SpecialFeaturesQuestion"]:checked');
-                //     const isYes = selected && selected.value == "Yes";
-                //     console.log(isYes);
-                //     if(isYes) pdfRow.style.display = "flex";
-                //     else pdfRow.style.display = "none";
-                // }
-
-                const pdfRow = document.getElementById('specialPdfRow');
-
-                function togglePdfRow(){
-
-                    // Dental page doesn't have this section
-                    if (!pdfRow)
-                        return;
-
-                    const selected =
-                        document.querySelector(
-                            'input[name="OtherDetails.SpecialFeaturesQuestion"]:checked'
-                        );
-
-                    const isYes =
-                        selected && selected.value == "Yes";
-
-                    pdfRow.style.display =
-                        isYes ? "flex" : "none";
-                }
-
-                // attach change event
-                // document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]')
-                //     .forEach(radio => {
-                //         radio.addEventListener('change', togglePdfRow);
-                //     });
-
-                // // initial load
-                // togglePdfRow();
-
-                const specialFeatureRadios = document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]');
-
-                if (specialFeatureRadios.length > 0)
-                {
-                    specialFeatureRadios.forEach(radio => {
-                        radio.addEventListener('change', togglePdfRow);
-                    });
-
-                    togglePdfRow();
-                }
+            function reparseValidation() {
+            $form.removeData('validator').removeData('unobtrusiveValidation');
+            $.validator.unobtrusive.parse($form);
+            }
 
 
+            // Digital Valuation Logic
+            $('input[name="OtherDetails.HasDigitalValuationCentre"]').on('change', function () {
+            $('#digitalQuestions').toggle($(this).val() === 'Yes');
+            reparseValidation();
+            }).filter(':checked').trigger('change');
 
-                // Add Department Row
-                $('#addDepartmentRow').on('click', function () {
-                    var tbody = $('#libraryDepartmentTable tbody');
-                    var index = tbody.find('tr').length;
-                    var row = $(`
-                        <tr>
-                            <td class="text-center fw-semibold">${index + 1}</td>
-                            <td>
-                                <select name="DepartmentLibraries[${index}].DepartmentCode" class="form-control dept-dropdown">
-                                    <option value="">--Select--</option>
-                                    @foreach (var dept in ViewBag.DepartmentMasters as List<DepartmentMaster>)
-                                    {
-                                        <option value="@dept.DepartmentCode">@dept.DepartmentName</option>
-                                    }
-                                </select>
-                            </td>
-                            <td><input type="number" min="0" name="DepartmentLibraries[${index}].TotalBooks" class="form-control text-center" /></td>
-                            <td><input type="number" min="0" name="DepartmentLibraries[${index}].BooksAddedInYear" class="form-control text-center" /></td>
-                            <td><input type="number" min="0" name="DepartmentLibraries[${index}].CurrentJournals" class="form-control text-center" /></td>
-                            @Html.Raw(dentalColumns)
-                            <td>
-                                <input class="form-control mb-2" name="DepartmentLibraries[${index}].LibraryStaff1" placeholder="Staff 1" />
-                                <input class="form-control" name="DepartmentLibraries[${index}].LibraryStaff2" placeholder="Staff 2" />
-                            </td>
-                            <td class="text-center"><button type="button" class="btn btn-danger btn-sm deleteDepartmentRow">Delete</button></td>
-                        </tr>
-                    `);
-                    tbody.append(row);
-                });
+            // Library Service PDF toggle
+            $(document).on('change', '.lib-yes, .lib-no', function () {
+            var $row = $(this).closest('tr');
+            var isYes = $row.find('.lib-yes:checked').val() === 'Yes';
+            $row.next('.pdf-row').toggle(isYes);
+            reparseValidation();
+            });
 
-                $(document).on('click', '.deleteDepartmentRow', function () {
-                    if ($('#libraryDepartmentTable tbody tr').length <= 1) {
-                        Swal.fire({ icon: 'warning', title: 'Warning', text: 'At least one department record is required.' });
-                        return;
-                    }
-                    $(this).closest('tr').remove();
-                });
+            // Systems Warning
+            $('#digitalQuestions').on('input', 'input[name="OtherDetails.NoOfSystems"]', function () {
+            var val = parseInt($(this).val());
+            $('#systemsWarning').toggle(!isNaN(val) && val < 10);
+            });
 
-                // Initial validation
-                reparseValidation();
+            // Add Staff Row
+            $('#addStaffRow').on('click', function () {
+            var tbody = $('#libraryStaffTable tbody');
+            var index = tbody.find('tr').length;
+            var row = $(`
+            <tr>
+            <td class="text-center fw-semibold">${index + 1}</td>
+            <td><input name="LibraryStaff[${index}].StaffName" class="form-control" /></td>
+            <td><input name="LibraryStaff[${index}].Designation" class="form-control" /></td>
+            <td><input name="LibraryStaff[${index}].Qualification" class="form-control" /></td>
+            <td><input type="number" min="0" name="LibraryStaff[${index}].Experience" class="form-control text-center" /></td>
+            <td><input name="LibraryStaff[${index}].Category" class="form-control" /></td>
+            <td class="text-center"><button type="button" class="btn btn-danger btn-sm deleteStaffRow">Delete</button></td>
+            </tr>
+            `);
+            tbody.append(row);
+            });
+
+            $(document).on('click', '.deleteStaffRow', function () {
+            if ($('#libraryStaffTable tbody tr').length <= 1) {
+            Swal.fire({ icon: 'warning', title: 'Warning', text: 'At least one staff record is required.' });
+            return;
+            }
+            $(this).closest('tr').remove();
+            });
+
+            // const pdfRow = document.getElementById('specialPdfRow');
+            // // debugger;
+
+            // function togglePdfRow(){
+            //     const selected = document.querySelector('input[name="OtherDetails.SpecialFeaturesQuestion"]:checked');
+            //     const isYes = selected && selected.value == "Yes";
+            //     console.log(isYes);
+            //     if(isYes) pdfRow.style.display = "flex";
+            //     else pdfRow.style.display = "none";
+            // }
+
+            const pdfRow = document.getElementById('specialPdfRow');
+
+            function togglePdfRow(){
+
+            // Dental page doesn't have this section
+            if (!pdfRow)
+            return;
+
+            const selected =
+            document.querySelector(
+            'input[name="OtherDetails.SpecialFeaturesQuestion"]:checked'
+            );
+
+            const isYes =
+            selected && selected.value == "Yes";
+
+            pdfRow.style.display =
+            isYes ? "flex" : "none";
+            }
+
+            // attach change event
+            // document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]')
+            //     .forEach(radio => {
+            //         radio.addEventListener('change', togglePdfRow);
+            //     });
+
+            // // initial load
+            // togglePdfRow();
+
+            const specialFeatureRadios = document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]');
+
+            if (specialFeatureRadios.length > 0)
+            {
+            specialFeatureRadios.forEach(radio => {
+            radio.addEventListener('change', togglePdfRow);
+            });
+
+            togglePdfRow();
+            }
+
+
+
+            // Add Department Row
+            $('#addDepartmentRow').on('click', function () {
+            var tbody = $('#libraryDepartmentTable tbody');
+            var index = tbody.find('tr').length;
+            var row = $(`
+            <tr>
+            <td class="text-center fw-semibold">${index + 1}</td>
+            <td>
+            <select name="DepartmentLibraries[${index}].DepartmentCode" class="form-control dept-dropdown">
+            <option value="">--Select--</option>
+            @foreach (var dept in ViewBag.DepartmentMasters as List<DepartmentMaster>)
+            {
+                <option value="@dept.DepartmentCode">@dept.DepartmentName</option>
+            }
+            </select>
+            </td>
+            <td><input type="number" min="0" name="DepartmentLibraries[${index}].TotalBooks" class="form-control text-center" /></td>
+            <td><input type="number" min="0" name="DepartmentLibraries[${index}].BooksAddedInYear" class="form-control text-center" /></td>
+            <td><input type="number" min="0" name="DepartmentLibraries[${index}].CurrentJournals" class="form-control text-center" /></td>
+            @Html.Raw(dentalColumns)
+            <td>
+            <input class="form-control mb-2" name="DepartmentLibraries[${index}].LibraryStaff1" placeholder="Staff 1" />
+            <input class="form-control" name="DepartmentLibraries[${index}].LibraryStaff2" placeholder="Staff 2" />
+            </td>
+            <td class="text-center"><button type="button" class="btn btn-danger btn-sm deleteDepartmentRow">Delete</button></td>
+            </tr>
+            `);
+            tbody.append(row);
+            });
+
+            $(document).on('click', '.deleteDepartmentRow', function () {
+            if ($('#libraryDepartmentTable tbody tr').length <= 1) {
+            Swal.fire({ icon: 'warning', title: 'Warning', text: 'At least one department record is required.' });
+            return;
+            }
+            $(this).closest('tr').remove();
+            });
+
+            // Initial validation
+            reparseValidation();
             });
 
         </script>
@@ -981,40 +988,40 @@
         <script>
             document.addEventListener("change", function (e) {
 
-                if (e.target.classList.contains("file-validate")) {
+            if (e.target.classList.contains("file-validate")) {
 
-                    const file = e.target.files[0];
-                    const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+            const file = e.target.files[0];
+            const maxSize = 2 * 1024 * 1024; // ✅ 2MB
 
-                    if (file) {
+            if (file) {
 
-                        // ❌ FILE SIZE CHECK
-                        if (file.size > maxSize) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "File too large",
-                                text: "Maximum allowed size is 2MB"
-                            });
+            // ❌ FILE SIZE CHECK
+            if (file.size > maxSize) {
+            Swal.fire({
+            icon: "error",
+            title: "File too large",
+            text: "Maximum allowed size is 2MB"
+            });
 
-                            e.target.value = "";
-                            return;
-                        }
+            e.target.value = "";
+            return;
+            }
 
-                        // ❌ FILE TYPE CHECK
-                        const ext = file.name.split('.').pop().toLowerCase();
+            // ❌ FILE TYPE CHECK
+            const ext = file.name.split('.').pop().toLowerCase();
 
-                        if (ext !== "pdf") {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Invalid file",
-                                text: "Only PDF files are allowed"
-                            });
+            if (ext !== "pdf") {
+            Swal.fire({
+            icon: "error",
+            title: "Invalid file",
+            text: "Only PDF files are allowed"
+            });
 
-                            e.target.value = "";
-                            return;
-                        }
-                    }
-                }
+            e.target.value = "";
+            return;
+            }
+            }
+            }
 
             });
         </script>

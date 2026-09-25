@@ -10,6 +10,22 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
 
+        private static string NormalizeCourseLevel(string? courseLevel)
+        {
+            var normalized = courseLevel?.Trim().ToUpperInvariant() ?? string.Empty;
+
+            if (normalized.Contains("UG") || normalized.Contains("UNDERGRADUATE"))
+                return "UG";
+
+            if (normalized.Contains("PG") || normalized.Contains("POSTGRADUATE"))
+                return "PG";
+
+            if (normalized.Contains("SS") || normalized.Contains("SUPERSPECIAL"))
+                return "SS";
+
+            return normalized;
+        }
+
         public CAHospitalAffiliationService(ApplicationDbContext context, IUserContext userContext)
         {
             _context = context;
@@ -21,8 +37,14 @@ namespace Medical_Affiliation.Services.Faculty
         {
             string collegeCode = _userContext.CollegeCode;
             int facultyId = _userContext.FacultyId;
+            string courseLevel = _userContext.CourseLevel ?? string.Empty;
             // 1️⃣ Fetch hospital details
-            var hospitals = await _context.HospitalDetailsForAffiliations.AsNoTracking().Where(h => h.CollegeCode == collegeCode).ToListAsync();
+            var hospitals = await _context.HospitalDetailsForAffiliations
+                .AsNoTracking()
+                .Where(h => h.CollegeCode == collegeCode &&
+                            h.FacultyCode == facultyId.ToString() &&
+                            h.CourseLevel == courseLevel)
+                .ToListAsync();
 
             var firstHospital = hospitals.FirstOrDefault();
 
@@ -134,7 +156,12 @@ namespace Medical_Affiliation.Services.Faculty
                 //HospitalDocumentsToBeUploadedList = hospitalDocuments,
                 AffiliatedHospitalDocuments = AffiliatedHospitalDocuments,
 
-                Sections = await BuildAllDepartmentSectionsAsync(collegeCode, facultyId, firstHospital.HospitalDetailsId),
+                Sections = await BuildAllDepartmentSectionsAsync(
+                    collegeCode,
+                    facultyId,
+                    firstHospital.HospitalDetailsId,
+                    firstHospital.AffiliationTypeId,
+                    courseLevel),
 
                 IndoorBedsOccupancy = indoorBedsOccupancy.Items,
 
@@ -150,7 +177,12 @@ namespace Medical_Affiliation.Services.Faculty
         }
 
 
-        private async Task<List<DepartmentRequirementsSectionDisplayVM>> BuildAllDepartmentSectionsAsync(string collegeCode, int facultyCode, int hospitalId)
+        private async Task<List<DepartmentRequirementsSectionDisplayVM>> BuildAllDepartmentSectionsAsync(
+            string collegeCode,
+            int facultyCode,
+            int hospitalId,
+            int affiliationTypeId,
+            string courseLevel)
         {
             var data = await (
                 from comp in _context.IndoorInfrastructureRequirementsCompliances
@@ -158,6 +190,9 @@ namespace Medical_Affiliation.Services.Faculty
                     on comp.RequirementId equals master.Id
                 where comp.CollegeCode == collegeCode
                       && comp.HospitalDetailsId == hospitalId
+                        && comp.FacultyCode == facultyCode
+                        && comp.AffiliationTypeId == affiliationTypeId
+                        && comp.CourseLevel == courseLevel
                       && master.FacultyCode == facultyCode
                       && master.IsActive
                 select new
@@ -205,12 +240,21 @@ namespace Medical_Affiliation.Services.Faculty
             int hospitalId,
             int affiliationTypeId)
         {
+            var currentCourseLevel = _userContext.CourseLevel ?? string.Empty;
+            var normalizedCourseLevel = NormalizeCourseLevel(currentCourseLevel);
+
+            var intakeRows = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(x => x.CollCode == collegeCode && x.Facultycode == facultyCode)
+                .ToListAsync();
+
+            var intakeSeatSlab = intakeRows
+                .Where(x => NormalizeCourseLevel(x.UgPg) == normalizedCourseLevel)
+                .Sum(x => x.Intake2627 ?? 0);
+
             var occupancyData = await (from o in _context.IndoorBedsOccupancies.AsNoTracking()
                                        join p in _context.MstIndoorBedsDepartmentMasters.AsNoTracking()
                                        on o.DepartmentId equals p.DeptId
-                                       join slab in _context.SeatSlabMasters.AsNoTracking()
-                                       on new { o.SeatSlabId, o.FacultyCode }
-                                       equals new { slab.SeatSlabId, slab.FacultyCode }
                                        where o.CollegeCode == collegeCode &&
                                              o.FacultyCode == facultyCode &&
                                              o.AffiliationTypeId == affiliationTypeId
@@ -219,7 +263,7 @@ namespace Medical_Affiliation.Services.Faculty
                                            o.DepartmentId,
                                            DepartmentName = p.DepartmentName,
                                            o.SeatSlabId,
-                                           SeatSlab = slab.SeatSlab,
+                                           SeatSlab = intakeSeatSlab,
                                            o.Rguhsintake,
                                            o.CollegeIntake,
                                            o.AffiliationTypeId

@@ -119,7 +119,7 @@
             @if (Model.IsSupportingDocExists)
             {
                 <div class="mb-2">
-                    <a href="@Url.Action("ViewSupportingHospitalDocument", "ClinicalFacilitiesForAffiliation", new { id = Model.Form.HospitalDetailsId })" target="_blank">
+                    <a href="@Url.Action("ViewSupportingHospitalDocument", "ClinicalFacilitiesForAffiliation", new { code = Model.Form.CollegeCode })" target="_blank">
                         View Existing Document
                     </a>
                 </div>

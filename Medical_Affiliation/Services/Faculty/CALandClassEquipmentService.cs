@@ -10,11 +10,16 @@ namespace Medical_Affiliation.Services.Faculty
     {
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CALandClassEquipmentService(ApplicationDbContext context, IUserContext userContext)
+        public CALandClassEquipmentService(
+            ApplicationDbContext context,
+            IUserContext userContext,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userContext = userContext;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<SkillsLabDisplayViewModel> GetSkillsLabService()
         {
@@ -62,8 +67,14 @@ namespace Medical_Affiliation.Services.Faculty
         public async Task<DepartmentOfficesMeuDisplayViewModel> GetDepartmentOfficesMeu()
         {
             var facultyId = _userContext.FacultyId;
-            var collegeCode = _userContext.CollegeCode;
-            var courseLevel = _userContext.CourseLevel?.Trim().ToUpperInvariant();
+            var collegeCode = _httpContextAccessor.HttpContext?.Session.GetString("CollegeCode")
+                ?? _userContext.CollegeCode;
+            var courseLevel = _httpContextAccessor.HttpContext?.Session.GetString("CourseLevel")
+                ?? _httpContextAccessor.HttpContext?.Session.GetString("SelectedCourseLevel")
+                ?? _userContext.CourseLevel;
+
+            courseLevel = courseLevel?.Trim().ToUpperInvariant();
+
             var entity = await _context.MedicalDepartmentOfficesMeus
                 .AsNoTracking()
                 .Where(x => x.CollegeCode == collegeCode &&
@@ -179,12 +190,17 @@ namespace Medical_Affiliation.Services.Faculty
         public async Task<PhysicalFacilitiesDisplayViewModel> GetLandClassEquipmentService()
         {
             var facultyId = _userContext.FacultyId;
-            var collegeCode = _userContext.CollegeCode;
+            var collegeCode = _httpContextAccessor.HttpContext?.Session.GetString("CollegeCode")
+                ?? _userContext.CollegeCode;
+            var courseLevel = _httpContextAccessor.HttpContext?.Session.GetString("CourseLevel")
+                ?? _httpContextAccessor.HttpContext?.Session.GetString("SelectedCourseLevel")
+                ?? _userContext.CourseLevel;
+
             var smg = await _context.SmallGroupTeachings
                 .AsNoTracking()
                 .Where(x => x.FacultyCode == facultyId.ToString()
                          && x.CollegeCode == collegeCode
-                         && x.CourseLevel == _userContext.CourseLevel)
+                         && x.CourseLevel == courseLevel)
                 .ToListAsync();
 
             var teaching = smg.Select(x => new SmallGroupTeachingDisplayViewModel
@@ -210,7 +226,7 @@ namespace Medical_Affiliation.Services.Faculty
                 .AsNoTracking()
                 .Where(x => x.FacultyCode == facultyId.ToString()
                          && x.CollegeCode == collegeCode
-                         && x.CourseLevel == _userContext.CourseLevel)
+                         && x.CourseLevel == courseLevel)
                 .Select(x => new SmallGroupStudentLabsDisplayViewModel
                 {
                     HistologyAvailable = x.HistologyAvailable,
@@ -238,7 +254,7 @@ namespace Medical_Affiliation.Services.Faculty
                 .AsNoTracking()
                 .Where(x => x.FacultyCode == facultyId.ToString()
                          && x.CollegeCode == collegeCode
-                         && x.CourseLevel == _userContext.CourseLevel)
+                         && x.CourseLevel == courseLevel)
                 .Select(x => new SmallGroupMuseumsDisplayViewModel
                 {
                     SeparateAnatomyMuseumAvailable = x.SeparateAnatomyMuseumAvailable,

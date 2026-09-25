@@ -23,7 +23,7 @@ namespace Medical_Affiliation.Controllers
         {
             var courseLevel = CourseLevel.Trim().ToUpperInvariant();
             string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
-            int facultyCode = Convert.ToInt32( HttpContext.Session.GetString("FacultyCode"));
+            int facultyCode = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode"));
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var model = new CA_Aff_MedicalLibraryViewModel
@@ -517,6 +517,46 @@ namespace Medical_Affiliation.Controllers
                 ModelState.Remove("OtherDetails.HasCccameraSystem");
 
                 ModelState.Remove("UsageReportPdf");
+            }
+
+            // Blank template rows are optional. Remove their generated
+            // validation errors before validating rows that contain data.
+            for (var index = 0; index < model.DepartmentLibraries.Count; index++)
+            {
+                var department = model.DepartmentLibraries[index];
+                var isBlank = string.IsNullOrWhiteSpace(department.DepartmentCode)
+                    && !department.TotalBooks.HasValue
+                    && !department.BooksAddedInYear.HasValue
+                    && !department.CurrentJournals.HasValue
+                    && string.IsNullOrWhiteSpace(department.LibraryStaff1)
+                    && string.IsNullOrWhiteSpace(department.LibraryStaff2);
+
+                if (isBlank)
+                {
+                    ModelState.Remove($"DepartmentLibraries[{index}].DepartmentCode");
+                    ModelState.Remove($"DepartmentLibraries[{index}].TotalBooks");
+                    ModelState.Remove($"DepartmentLibraries[{index}].BooksAddedInYear");
+                    ModelState.Remove($"DepartmentLibraries[{index}].CurrentJournals");
+                }
+            }
+
+            for (var index = 0; index < model.LibraryStaff.Count; index++)
+            {
+                var staff = model.LibraryStaff[index];
+                var isBlank = string.IsNullOrWhiteSpace(staff.StaffName)
+                    && string.IsNullOrWhiteSpace(staff.Designation)
+                    && string.IsNullOrWhiteSpace(staff.Qualification)
+                    && !staff.Experience.HasValue
+                    && string.IsNullOrWhiteSpace(staff.Category);
+
+                if (isBlank)
+                {
+                    ModelState.Remove($"LibraryStaff[{index}].StaffName");
+                    ModelState.Remove($"LibraryStaff[{index}].Designation");
+                    ModelState.Remove($"LibraryStaff[{index}].Qualification");
+                    ModelState.Remove($"LibraryStaff[{index}].Experience");
+                    ModelState.Remove($"LibraryStaff[{index}].Category");
+                }
             }
 
             if (!ModelState.IsValid)

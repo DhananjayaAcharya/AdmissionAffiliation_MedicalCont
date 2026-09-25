@@ -5,21 +5,22 @@ using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 
 namespace Medical_Affiliation.Controllers
 {
-
-
     public class Medical_ContinuousAffiliationController : BaseController
     {
         private const string EquipmentAcademicYear = "2027-28";
 
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<Medical_ContinuousAffiliationController> _logger;
 
-        public Medical_ContinuousAffiliationController(ApplicationDbContext context) : base(context)
+        public Medical_ContinuousAffiliationController(
+            ApplicationDbContext context,
+            ILogger<Medical_ContinuousAffiliationController> logger) : base(context)
         {
             _context = context;
+            _logger = logger;
         }
 
         public IActionResult Index()
@@ -27,22 +28,21 @@ namespace Medical_Affiliation.Controllers
             return View();
         }
 
-
+        // =====================================================================
+        // FILE HELPERS
+        // =====================================================================
         private async Task<string?> SaveLandFileAsync(IFormFile? file, string folder)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-
             string rootPath = FacultyCode == "2" ? BaseDentalPath : BaseMedicalPath;
-
-            string basePath = Path.Combine(rootPath, "LandBuilding");
-            string fullFolder = Path.Combine(basePath, folder);
+            string fullFolder = Path.Combine(rootPath, "LandBuilding", folder);
 
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
             string fullPath = Path.Combine(fullFolder, fileName);
 
             using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -52,51 +52,88 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
-        // GET: /SmallGroupTeaching/Edit
-        // GET: /SmallGroupTeaching/Edit
+
+        private async Task<string?> SaveMeuFileAsync(IFormFile? file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            string rootPath = FacultyCode == "2" ? BaseDentalPath : BaseMedicalPath;
+            string basePath = Path.Combine(rootPath, "MEUFiles");
+
+            if (!Directory.Exists(basePath))
+                Directory.CreateDirectory(basePath);
+
+            string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(basePath, fileName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fullPath;
+        }
+
+        private void TryDeleteFile(string? path)
+        {
+            if (string.IsNullOrEmpty(path)) return;
+            try
+            {
+                if (System.IO.File.Exists(path))
+                    System.IO.File.Delete(path);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not delete file {Path}", path);
+            }
+        }
+
+        // =====================================================================
+        // LAND / BUILDING / TEACHING / LABS / MUSEUM / ADMIN
+        // =====================================================================
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
         public async Task<IActionResult> Medical_LandBuildingdetails()
         {
             var courseLevel = CourseLevel;
-
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
-
             if (string.IsNullOrEmpty(facultyCode))
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
-            // ============================
-            // 🔹 TABLE 1: SmallGroupTeachings
-            // ============================
-            var teaching = await _context.SmallGroupTeachings
-                                         .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                              x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+            var teaching = await _context.SmallGroupTeachings.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                          x.CollegeCode == collegeCode &&
+                                          x.CourseLevel == courseLevel);
 
-            // ============================
-            // 🔹 TABLE 2: Medical_StudentPracticalLabs
-            // ============================
-            var labs = await _context.MedicalStudentPracticalLabs
-                                     .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+            var savedIntakeTeaching = teaching ?? await _context.SmallGroupTeachings
+                .Where(x => x.FacultyCode == facultyCode &&
+                            x.CollegeCode == collegeCode &&
+                            x.AnnualMbbsIntake > 0)
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefaultAsync();
 
-            var museum = await _context.MedicalMuseums
-                               .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+            ViewBag.SavedAnnualMbbsIntake = savedIntakeTeaching?.AnnualMbbsIntake;
 
+            var labs = await _context.MedicalStudentPracticalLabs.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                          x.CollegeCode == collegeCode &&
+                                          x.CourseLevel == courseLevel);
 
-            // ============================
-            var admin = await _context.MedicalAdministrativePhysicalFacilities
-                                      .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+            var museum = await _context.MedicalMuseums.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                          x.CollegeCode == collegeCode &&
+                                          x.CourseLevel == courseLevel);
 
-            // ============================
-            // 🔹 FIRST TIME DEFAULTS
-            // ============================
-            if (teaching == null && labs == null)
+            var admin = await _context.MedicalAdministrativePhysicalFacilities.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                          x.CollegeCode == collegeCode &&
+                                          x.CourseLevel == courseLevel);
+
+            // First time: nothing saved in any of the four tables
+            if (teaching == null && labs == null && museum == null && admin == null)
             {
                 return View(new SmallGroupTeachingViewModel
                 {
@@ -105,13 +142,12 @@ namespace Medical_Affiliation.Controllers
                 });
             }
 
-            // ============================
-            // 🔹 MAP TO VIEWMODEL
-            // ============================
             var vm = new SmallGroupTeachingViewModel
             {
                 // --- GENERAL ---
-                AnnualMbbsIntake = teaching?.AnnualMbbsIntake ?? 100,
+                AnnualMbbsIntake = teaching?.AnnualMbbsIntake
+                    ?? savedIntakeTeaching?.AnnualMbbsIntake
+                    ?? 100,
                 SmallGroupBatchSize = teaching?.SmallGroupBatchSize ?? 15,
 
                 TeachingAreasSharedAllDepts = teaching?.TeachingAreasSharedAllDepts,
@@ -133,25 +169,18 @@ namespace Medical_Affiliation.Controllers
                 // --- LABS ---
                 HistologyAvailable = labs?.HistologyAvailable ?? false,
                 HistologyShared = labs?.HistologyShared ?? false,
-
                 ClinicalPhysiologyAvailable = labs?.ClinicalPhysiologyAvailable ?? false,
                 ClinicalPhysiologyShared = labs?.ClinicalPhysiologyShared ?? false,
-
                 BiochemistryAvailable = labs?.BiochemistryAvailable ?? false,
                 BiochemistryShared = labs?.BiochemistryShared ?? false,
-
                 HistopathCytopathAvailable = labs?.HistopathCytopathAvailable ?? false,
                 HistopathCytopathShared = labs?.HistopathCytopathShared ?? false,
-
                 ClinPathHemeAvailable = labs?.ClinPathHemeAvailable ?? false,
                 ClinPathHemeShared = labs?.ClinPathHemeShared ?? false,
-
                 MicrobiologyAvailable = labs?.MicrobiologyAvailable ?? false,
                 MicrobiologyShared = labs?.MicrobiologyShared ?? false,
-
                 ClinicalPharmAvailable = labs?.ClinicalPharmAvailable ?? false,
                 ClinicalPharmShared = labs?.ClinicalPharmShared ?? false,
-
                 CalPharmAvailable = labs?.CalPharmAvailable ?? false,
                 CalPharmShared = labs?.CalPharmShared ?? false,
 
@@ -159,21 +188,16 @@ namespace Medical_Affiliation.Controllers
                 AllLabsHaveInternet = labs?.AllLabsHaveInternet ?? false,
                 TechnicalStaffFacilitiesEnsured = labs?.TechnicalStaffFacilitiesEnsured ?? false,
 
-
-                // Types
+                // --- MUSEUM ---
                 SeparateAnatomyMuseumAvailable = museum?.SeparateAnatomyMuseumAvailable,
                 PathologyForensicSharedMuseum = museum?.PathologyForensicSharedMuseum,
                 PharmMicroCommSharedMuseum = museum?.PharmMicroCommSharedMuseum,
 
-                // Seating & area
-                // Seating & area
                 SeatingCapacityPerMuseum = museum?.SeatingCapacityPerMuseum ?? 0,
                 SeatingAreaAvailableSqm = museum?.SeatingAreaAvailableSqm ?? 0,
                 SeatingAreaRequiredSqm = museum?.SeatingAreaRequiredSqm ?? 0,
                 SeatingAreaDeficiencySqm = museum?.SeatingAreaDeficiencySqm ?? 0,
 
-
-                // Facilities
                 MuseumsHaveAV = museum?.MuseumsHaveAv,
                 MuseumsHaveInternet = museum?.MuseumsHaveInternet,
                 MuseumsDigitallyLinked = museum?.MuseumsDigitallyLinked,
@@ -181,21 +205,16 @@ namespace Medical_Affiliation.Controllers
                 MuseumsHaveRadiologyDisplay = museum?.MuseumsHaveRadiologyDisplay,
                 TeachingTimeSharingProgrammed = museum?.TeachingTimeSharingProgrammed,
 
-                // ====================================================
-                // 🆕 LAND DETAILS (NEWLY ADDED)
-                // ====================================================
+                // --- LAND ---
                 IsMinimumLandAvailable = teaching?.IsMinimumLandAvailable,
                 LandDetailsIfYes = teaching?.LandDetailsIfYes,
                 HasPurchasePlanIfNo = teaching?.HasPurchasePlanIfNo,
                 HasBudgetProvisionIfNo = teaching?.HasBudgetProvisionIfNo,
                 HasFutureExpansionSpace = teaching?.HasFutureExpansionSpace,
-                HasLandRecordsFile = teaching?.LandRecordsFilePath != null,
-                HasApprovedBuildingPlanFile = teaching?.ApprovedBuildingPlanFilePath != null,
+                HasLandRecordsFile = !string.IsNullOrEmpty(teaching?.LandRecordsFilePath),
+                HasApprovedBuildingPlanFile = !string.IsNullOrEmpty(teaching?.ApprovedBuildingPlanFilePath),
 
-
-                // ====================================================
-                // 🆕 BUILDING DETAILS (NEWLY ADDED)
-                // ====================================================
+                // --- BUILDING ---
                 IsBuildingAsPerCouncilNorms = teaching?.IsBuildingAsPerCouncilNorms,
                 LandOwnershipType = teaching?.LandOwnershipType,
                 BuildingOwnershipType = teaching?.BuildingOwnershipType,
@@ -204,8 +223,7 @@ namespace Medical_Affiliation.Controllers
                 NumberOfFloors = teaching?.NumberOfFloors ?? 0,
                 YearOfConstruction = teaching?.YearOfConstruction ?? 0,
 
-
-                // ---------- ADMINISTRATIVE ----------
+                // --- ADMINISTRATIVE ---
                 PrincipalChamberAreaSqFt = admin?.PrincipalChamberAreaSqFt,
                 OfficeRoomAreaSqFt = admin?.OfficeRoomAreaSqFt,
                 StaffRoomsAreaSqFt = admin?.StaffRoomsAreaSqFt,
@@ -214,9 +232,18 @@ namespace Medical_Affiliation.Controllers
                 SeminarHallAreaSqFt = admin?.SeminarHallAreaSqFt,
                 AuditoriumAreaSqFt = admin?.AuditoriumAreaSqFt,
                 MuseumAreaSqFt = admin?.MuseumAreaSqFt,
+                CommitteeRoomsAreaSqFt = admin?.CommitteeRoomsAreaSqFt,
+
                 ExaminationHallAvailable = admin?.ExaminationHallAvailable ?? false,
                 AnimalHouseAvailable = admin?.AnimalHouseAvailable ?? false,
-                CommitteeRoomsAreaSqFt = admin?.CommitteeRoomsAreaSqFt,
+                CommonRoomMenAvailable = admin?.CommonRoomMenAvailable ?? false,
+                CommonRoomWomenAvailable = admin?.CommonRoomWomenAvailable ?? false,
+                StudentHostelAvailable = admin?.StudentHostelAvailable ?? false,
+                RegisteredUnderAnatomyAct = admin?.RegisteredUnderAnatomyAct ?? false,
+
+                StaffQuartersPrincipal = admin?.StaffQuartersPrincipal ?? false,
+                StaffQuartersOtherStaff = admin?.StaffQuartersOtherStaff ?? false,
+                StaffQuartersTeachingAncillary = admin?.StaffQuartersTeachingAncillary ?? false,
 
                 WorkshopStaffCount = admin?.WorkshopStaffCount,
                 WorkshopEquipmentDetails = admin?.WorkshopEquipmentDetails,
@@ -224,21 +251,11 @@ namespace Medical_Affiliation.Controllers
 
                 AnimalHouseAreaSqFt = admin?.AnimalHouseAreaSqFt,
                 AnimalHouseStaffCount = admin?.AnimalHouseStaffCount,
-                AnimalTypes = admin?.AnimalTypes,
-
-                CommonRoomMenAvailable = admin?.CommonRoomMenAvailable ?? false,
-                CommonRoomWomenAvailable = admin?.CommonRoomWomenAvailable ?? false,
-                StudentHostelAvailable = admin?.StudentHostelAvailable ?? false,
-                StaffQuartersPrincipal = admin?.StaffQuartersPrincipal ?? false,
-                StaffQuartersOtherStaff = admin?.StaffQuartersOtherStaff ?? false,
-                StaffQuartersTeachingAncillary = admin?.StaffQuartersTeachingAncillary ?? false,
-                RegisteredUnderAnatomyAct = admin?.RegisteredUnderAnatomyAct ?? false,
-
+                AnimalTypes = admin?.AnimalTypes
             };
 
             return View(vm);
         }
-
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpPost]
@@ -249,7 +266,6 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = CollegeCode;
             var facultyCode = FacultyCode;
 
-            // ✅ SESSION SAFE CHECK
             if (string.IsNullOrEmpty(facultyCode))
             {
                 TempData["Error"] = "Session expired. Please login again.";
@@ -262,31 +278,34 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
             }
 
-            // ✅ LOG ERRORS BUT DO NOT BLOCK SAVE
+            // Log binding/validation problems (does not block the save)
             if (!ModelState.IsValid)
             {
-                foreach (var key in ModelState.Keys)
-                {
-                    foreach (var error in ModelState[key].Errors)
-                    {
-                        Console.WriteLine($"{key}: {error.ErrorMessage}");
-                    }
-                }
+                foreach (var entry in ModelState.Where(x => x.Value != null && x.Value.Errors.Count > 0))
+                    foreach (var error in entry.Value!.Errors)
+                        _logger.LogWarning("ModelState {Key}: {Error}", entry.Key,
+                            string.IsNullOrEmpty(error.ErrorMessage) ? error.Exception?.Message : error.ErrorMessage);
             }
 
-            // ✅ CALCULATIONS
+            // Server-side calculations (never trust the browser)
             model.RequiredAreaSqm = model.SmallGroupStudents * 1.2m;
             model.AreaDeficiencySqm = Math.Max(0, model.RequiredAreaSqm - model.AvailableAreaSqm);
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            model.SeatingAreaRequiredSqm = Convert.ToDecimal(model.SeatingCapacityPerMuseum) * 1.2m;
+            model.SeatingAreaDeficiencySqm = Math.Max(0m,
+                model.SeatingAreaRequiredSqm - Convert.ToDecimal(model.SeatingAreaAvailableSqm));
 
+            var filesToDelete = new List<string>();
+            var newFilesSaved = new List<string>();
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 // ========================= TEACHING =========================
                 var teaching = await _context.SmallGroupTeachings
                     .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode &&
-                                             x.CourseLevel == courseLevel);
+                                              x.CollegeCode == collegeCode &&
+                                              x.CourseLevel == courseLevel);
 
                 if (teaching == null)
                 {
@@ -323,24 +342,17 @@ namespace Medical_Affiliation.Controllers
                 teaching.HasBudgetProvisionIfNo = model.HasBudgetProvisionIfNo ?? false;
                 teaching.HasFutureExpansionSpace = model.HasFutureExpansionSpace ?? false;
 
-
-                if (model.LandRecordsDocument != null && model.LandRecordsDocument.Length > 0)
+                if (model.LandRecordsDocument is { Length: > 0 })
                 {
                     var path = await SaveLandFileAsync(model.LandRecordsDocument, "LandRecords");
-
                     if (path != null)
                     {
-                        // 🔥 Delete old file
-                        if (!string.IsNullOrEmpty(teaching.LandRecordsFilePath) &&
-                            System.IO.File.Exists(teaching.LandRecordsFilePath))
-                        {
-                            System.IO.File.Delete(teaching.LandRecordsFilePath);
-                        }
-
+                        newFilesSaved.Add(path);
+                        if (!string.IsNullOrEmpty(teaching.LandRecordsFilePath))
+                            filesToDelete.Add(teaching.LandRecordsFilePath);
                         teaching.LandRecordsFilePath = path;
                     }
                 }
-
 
                 // BUILDING
                 teaching.IsBuildingAsPerCouncilNorms = model.IsBuildingAsPerCouncilNorms ?? false;
@@ -351,18 +363,14 @@ namespace Medical_Affiliation.Controllers
                 teaching.NumberOfFloors = model.NumberOfFloors;
                 teaching.YearOfConstruction = model.YearOfConstruction;
 
-                if (model.ApprovedBuildingPlanDocument != null && model.ApprovedBuildingPlanDocument.Length > 0)
+                if (model.ApprovedBuildingPlanDocument is { Length: > 0 })
                 {
                     var path = await SaveLandFileAsync(model.ApprovedBuildingPlanDocument, "BuildingPlans");
-
                     if (path != null)
                     {
-                        if (!string.IsNullOrEmpty(teaching.ApprovedBuildingPlanFilePath) &&
-                            System.IO.File.Exists(teaching.ApprovedBuildingPlanFilePath))
-                        {
-                            System.IO.File.Delete(teaching.ApprovedBuildingPlanFilePath);
-                        }
-
+                        newFilesSaved.Add(path);
+                        if (!string.IsNullOrEmpty(teaching.ApprovedBuildingPlanFilePath))
+                            filesToDelete.Add(teaching.ApprovedBuildingPlanFilePath);
                         teaching.ApprovedBuildingPlanFilePath = path;
                     }
                 }
@@ -370,8 +378,8 @@ namespace Medical_Affiliation.Controllers
                 // ========================= LABS =========================
                 var labs = await _context.MedicalStudentPracticalLabs
                     .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode &&
-                                             x.CourseLevel == courseLevel);
+                                              x.CollegeCode == collegeCode &&
+                                              x.CourseLevel == courseLevel);
 
                 if (labs == null)
                 {
@@ -408,8 +416,8 @@ namespace Medical_Affiliation.Controllers
                 // ========================= ADMIN =========================
                 var admin = await _context.MedicalAdministrativePhysicalFacilities
                     .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode &&
-                                             x.CourseLevel == courseLevel);
+                                              x.CollegeCode == collegeCode &&
+                                              x.CourseLevel == courseLevel);
 
                 if (admin == null)
                 {
@@ -435,9 +443,18 @@ namespace Medical_Affiliation.Controllers
                 admin.SeminarHallAreaSqFt = model.SeminarHallAreaSqFt;
                 admin.AuditoriumAreaSqFt = model.AuditoriumAreaSqFt;
                 admin.MuseumAreaSqFt = model.MuseumAreaSqFt;
+                admin.CommitteeRoomsAreaSqFt = model.CommitteeRoomsAreaSqFt;
 
                 admin.ExaminationHallAvailable = model.ExaminationHallAvailable;
                 admin.AnimalHouseAvailable = model.AnimalHouseAvailable;
+                admin.CommonRoomMenAvailable = model.CommonRoomMenAvailable;
+                admin.CommonRoomWomenAvailable = model.CommonRoomWomenAvailable;
+                admin.StudentHostelAvailable = model.StudentHostelAvailable;
+                admin.RegisteredUnderAnatomyAct = model.RegisteredUnderAnatomyAct;
+
+                admin.StaffQuartersPrincipal = model.StaffQuartersPrincipal;
+                admin.StaffQuartersOtherStaff = model.StaffQuartersOtherStaff;
+                admin.StaffQuartersTeachingAncillary = model.StaffQuartersTeachingAncillary;
 
                 admin.WorkshopStaffCount = model.WorkshopStaffCount;
                 admin.WorkshopEquipmentDetails = model.WorkshopEquipmentDetails;
@@ -447,22 +464,11 @@ namespace Medical_Affiliation.Controllers
                 admin.AnimalHouseStaffCount = model.AnimalHouseStaffCount;
                 admin.AnimalTypes = model.AnimalTypes;
 
-                admin.CommitteeRoomsAreaSqFt = model.CommitteeRoomsAreaSqFt;
-                admin.CommonRoomMenAvailable = model.CommonRoomMenAvailable;
-                admin.CommonRoomWomenAvailable = model.CommonRoomWomenAvailable;
-
-                admin.StudentHostelAvailable = model.StudentHostelAvailable;
-                admin.StaffQuartersPrincipal = model.StaffQuartersPrincipal;
-                admin.StaffQuartersOtherStaff = model.StaffQuartersOtherStaff;
-                admin.StaffQuartersTeachingAncillary = model.StaffQuartersTeachingAncillary;
-
-                admin.RegisteredUnderAnatomyAct = model.RegisteredUnderAnatomyAct;
-
                 // ========================= MUSEUM =========================
                 var museum = await _context.MedicalMuseums
                     .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode &&
-                                             x.CourseLevel == courseLevel);
+                                              x.CollegeCode == collegeCode &&
+                                              x.CourseLevel == courseLevel);
 
                 if (museum == null)
                 {
@@ -492,25 +498,44 @@ namespace Medical_Affiliation.Controllers
                 museum.TeachingTimeSharingProgrammed = model.TeachingTimeSharingProgrammed ?? false;
 
                 // ========================= SAVE =========================
-                await _context.SaveChangesAsync();
+                var rows = await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                _logger.LogInformation(
+                    "Medical_LandBuildingdetails saved {Rows} rows for {College}/{Faculty}/{Level}",
+                    rows, collegeCode, facultyCode, courseLevel);
+
+                // Delete replaced files only after a successful commit
+                foreach (var old in filesToDelete)
+                    TryDeleteFile(old);
+
+                TempData["Success"] = "Land, building & teaching facility details saved successfully.";
                 return RedirectToAction("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                TempData["Error"] = "Something went wrong while saving data.";
+
+                // DB row was not updated, so drop the files uploaded during this request
+                foreach (var f in newFilesSaved)
+                    TryDeleteFile(f);
+
+                var root = ex.InnerException?.Message ?? ex.Message;
+                _logger.LogError(ex, "Error saving Medical_LandBuildingdetails: {Root}", root);
+
+                // Remove the detail from the message once the cause is found
+                TempData["Error"] = "Save failed: " + root;
                 return View(model);
             }
         }
 
-
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         public async Task<IActionResult> ViewLandRecords()
         {
-            var teaching = await _context.SmallGroupTeachings
+            var teaching = await _context.SmallGroupTeachings.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.FacultyCode == FacultyCode &&
-                                         x.CollegeCode == CollegeCode &&
-                                         x.CourseLevel == CourseLevel);
+                                          x.CollegeCode == CollegeCode &&
+                                          x.CourseLevel == CourseLevel);
 
             if (string.IsNullOrEmpty(teaching?.LandRecordsFilePath) ||
                 !System.IO.File.Exists(teaching.LandRecordsFilePath))
@@ -519,12 +544,13 @@ namespace Medical_Affiliation.Controllers
             return PhysicalFile(teaching.LandRecordsFilePath, "application/pdf");
         }
 
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         public async Task<IActionResult> ViewBuildingPlan()
         {
-            var teaching = await _context.SmallGroupTeachings
+            var teaching = await _context.SmallGroupTeachings.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.FacultyCode == FacultyCode &&
-                                         x.CollegeCode == CollegeCode &&
-                                         x.CourseLevel == CourseLevel);
+                                          x.CollegeCode == CollegeCode &&
+                                          x.CourseLevel == CourseLevel);
 
             if (string.IsNullOrEmpty(teaching?.ApprovedBuildingPlanFilePath) ||
                 !System.IO.File.Exists(teaching.ApprovedBuildingPlanFilePath))
@@ -533,6 +559,9 @@ namespace Medical_Affiliation.Controllers
             return PhysicalFile(teaching.ApprovedBuildingPlanFilePath, "application/pdf");
         }
 
+        // =====================================================================
+        // SKILLS LABORATORY
+        // =====================================================================
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
         public async Task<IActionResult> Medical_SkillsLaboratory()
@@ -544,15 +573,12 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Login", "Account");
 
             var lab = await _context.MedicalSkillsLaboratories
-                                    .AsNoTracking()
-                                    .FirstOrDefaultAsync(x =>
-                                        x.FacultyCode == facultyCode &&
-                                        x.CollegeCode == collegeCode);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                          x.CollegeCode == collegeCode);
 
             if (lab == null)
-            {
                 return View(new SkillsLabViewModel());
-            }
 
             var vm = new SkillsLabViewModel
             {
@@ -587,7 +613,6 @@ namespace Medical_Affiliation.Controllers
             return View(vm);
         }
 
-
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -602,78 +627,74 @@ namespace Medical_Affiliation.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // ================================
-            // SERVER-SIDE CALCULATION
-            // (same rule as the page script: 600 Sq.m up to 150 intake, 800 Sq.m above)
-            // The page only posts AnnualMbbsIntake, so that is the value used here.
-            // ================================
+            // 600 Sq.m up to 150 intake, 800 Sq.m above
             var intake = Convert.ToInt32(model.AnnualMbbsIntake ?? 0);
 
             model.TotalAreaRequiredSqm = intake <= 150 ? 600m : 800m;
             model.TotalAreaDeficiencySqm =
                 Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
 
-            var lab = await _context.MedicalSkillsLaboratories
-                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
-
-            if (lab == null)
-            {
-                lab = new MedicalSkillsLaboratory
-                {
-                    FacultyCode = facultyCode,
-                    CollegeCode = collegeCode,
-                };
-                _context.MedicalSkillsLaboratories.Add(lab);
-            }
-
-            // ================================
-            // UPDATE FIELDS
-            // ================================
-            lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
-            lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;
-            lab.TotalAreaRequiredSqm = model.TotalAreaRequiredSqm;
-            lab.TotalAreaDeficiencySqm = model.TotalAreaDeficiencySqm;
-
-            lab.SixWeeksTrainingCompletedBeforeClinical =
-                model.SixWeeksTrainingCompletedBeforeClinical ?? false;
-
-            lab.NumberOfExaminationRooms = model.NumberOfExaminationRooms;
-            lab.HasMinFourExamRooms = model.HasMinFourExamRooms ?? false;
-            lab.HasDemoRoomSmallGroups = model.HasDemoRoomSmallGroups ?? false;
-            lab.HasDebriefArea = model.HasDebriefArea ?? false;
-            lab.HasFacultyCoordinatorRoom = model.HasFacultyCoordinatorRoom ?? false;
-            lab.HasSupportStaffRoom = model.HasSupportStaffRoom ?? false;
-            lab.HasStorageForMannequins = model.HasStorageForMannequins ?? false;
-            lab.HasVideoRecordingFacility = model.HasVideoRecordingFacility ?? false;
-
-            lab.NumberOfSkillStations = model.NumberOfSkillStations;
-            lab.HasGroupAndIndividualStations = model.HasGroupAndIndividualStations ?? false;
-            lab.HasRequiredTrainersAndMannequins = model.HasRequiredTrainersAndMannequins ?? false;
-            lab.HasDedicatedTechnicalOfficer = model.HasDedicatedTechnicalOfficer ?? false;
-            lab.HasAdequateSupportStaff = model.HasAdequateSupportStaff ?? false;
-
-            lab.TeachingAreasHaveAv = model.TeachingAreasHaveAV ?? false;
-            lab.TeachingAreasHaveInternet = model.TeachingAreasHaveInternet ?? false;
-            lab.SkillsLabEnabledForElearning = model.SkillsLabEnabledForELearning ?? false;
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                var lab = await _context.MedicalSkillsLaboratories
+                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
+
+                if (lab == null)
+                {
+                    lab = new MedicalSkillsLaboratory
+                    {
+                        FacultyCode = facultyCode,
+                        CollegeCode = collegeCode,
+                    };
+                    _context.MedicalSkillsLaboratories.Add(lab);
+                }
+
+                lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
+                lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;
+                lab.TotalAreaRequiredSqm = model.TotalAreaRequiredSqm;
+                lab.TotalAreaDeficiencySqm = model.TotalAreaDeficiencySqm;
+
+                lab.SixWeeksTrainingCompletedBeforeClinical =
+                    model.SixWeeksTrainingCompletedBeforeClinical ?? false;
+
+                lab.NumberOfExaminationRooms = model.NumberOfExaminationRooms;
+                lab.HasMinFourExamRooms = model.HasMinFourExamRooms ?? false;
+                lab.HasDemoRoomSmallGroups = model.HasDemoRoomSmallGroups ?? false;
+                lab.HasDebriefArea = model.HasDebriefArea ?? false;
+                lab.HasFacultyCoordinatorRoom = model.HasFacultyCoordinatorRoom ?? false;
+                lab.HasSupportStaffRoom = model.HasSupportStaffRoom ?? false;
+                lab.HasStorageForMannequins = model.HasStorageForMannequins ?? false;
+                lab.HasVideoRecordingFacility = model.HasVideoRecordingFacility ?? false;
+
+                lab.NumberOfSkillStations = model.NumberOfSkillStations;
+                lab.HasGroupAndIndividualStations = model.HasGroupAndIndividualStations ?? false;
+                lab.HasRequiredTrainersAndMannequins = model.HasRequiredTrainersAndMannequins ?? false;
+                lab.HasDedicatedTechnicalOfficer = model.HasDedicatedTechnicalOfficer ?? false;
+                lab.HasAdequateSupportStaff = model.HasAdequateSupportStaff ?? false;
+
+                lab.TeachingAreasHaveAv = model.TeachingAreasHaveAV ?? false;
+                lab.TeachingAreasHaveInternet = model.TeachingAreasHaveInternet ?? false;
+                lab.SkillsLabEnabledForElearning = model.SkillsLabEnabledForELearning ?? false;
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                TempData["Success"] = "Skills laboratory details saved successfully.";
                 return RedirectToAction("Medical_EquimentDetails", "Medical_ContinuousAffiliation");
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                ModelState.AddModelError("", "Error while saving data");
+                _logger.LogError(ex, "Error saving Medical_SkillsLaboratory");
+                ModelState.AddModelError("", "Error while saving data: " + (ex.InnerException?.Message ?? ex.Message));
                 return View(model);
             }
         }
 
-
-
+        // =====================================================================
+        // DEPARTMENT OFFICES & MEDICAL / DENTAL EDUCATION UNIT
+        // =====================================================================
         [HttpGet]
         public async Task<IActionResult> Medical_DepartmentOfficesAndEducationalUnit()
         {
@@ -681,19 +702,13 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
-            var entity = await _context.MedicalDepartmentOfficesMeus
-                .FirstOrDefaultAsync(x =>
-                    x.FacultyCode == facultyCode &&
-                    x.CollegeCode == collegeCode &&
-                    x.CourseLevel == courseLevel);
+            var entity = await _context.MedicalDepartmentOfficesMeus.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                          x.CollegeCode == collegeCode &&
+                                          x.CourseLevel == courseLevel);
 
             if (entity == null)
-            {
-                return View(new DepartmentOfficesMeuViewModel
-                {
-                    CourseLevel = courseLevel
-                });
-            }
+                return View(new DepartmentOfficesMeuViewModel { CourseLevel = courseLevel });
 
             var vm = new DepartmentOfficesMeuViewModel
             {
@@ -702,19 +717,9 @@ namespace Medical_Affiliation.Controllers
                 HasHodRoomWithOfficeAndRecords = entity.HasHodRoomWithOfficeAndRecords,
                 HasRoomsForFacultyAndResidents = entity.HasRoomsForFacultyAndResidents,
                 FacultyRoomsHaveCommunicationComputerInternet = entity.FacultyRoomsHaveCommunicationComputerInternet,
-                HasRoomsForNonTeachingStaff = entity.HasRoomsForNonTeachingStaff,
-
-                //HasMedicalEducationUnit = entity.HasMedicalEducationUnit,
-                //MedicalEducationUnitAreaSqm = entity.MedicalEducationUnitAreaSqm,
-                //MedicalEducationUnitHasAudioVisual = entity.MedicalEducationUnitHasAudioVisual,
-                //MedicalEducationUnitHasInternet = entity.MedicalEducationUnitHasInternet,
-                //MeuCoordinatorName = entity.MeuCoordinatorName,
-                //MeuCoordinatorPhone = entity.MeuCoordinatorPhone,
-                //MeuCoordinatorEmail = entity.MeuCoordinatorEmail,
-                //MeuCoordinatorDesignationDepartment = entity.MeuCoordinatorDesignationDepartment,
-                //MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear,
-                //HasMeuMembersListFile = entity.MeuMembersListFilePath != null
+                HasRoomsForNonTeachingStaff = entity.HasRoomsForNonTeachingStaff
             };
+
             if (facultyCode != "2")
             {
                 vm.HasMedicalEducationUnit = entity.HasMedicalEducationUnit;
@@ -726,9 +731,9 @@ namespace Medical_Affiliation.Controllers
                 vm.MeuCoordinatorEmail = entity.MeuCoordinatorEmail;
                 vm.MeuCoordinatorDesignationDepartment = entity.MeuCoordinatorDesignationDepartment;
                 vm.MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear;
-                vm.HasMeuMembersListFile = entity.MeuMembersListFilePath != null;
+                vm.HasMeuMembersListFile = !string.IsNullOrEmpty(entity.MeuMembersListFilePath);
             }
-            else if (facultyCode == "2")
+            else
             {
                 vm.HasDentalEducationUnit = entity.HasDentalEducationUnit;
                 vm.DentalEducationUnitAreaSqm = entity.DentalEducationUnitAreaSqm;
@@ -739,42 +744,13 @@ namespace Medical_Affiliation.Controllers
                 vm.DeuCoordinatorEmail = entity.DeuCoordinatorEmail;
                 vm.DeuCoordinatorDesignationDepartment = entity.DeuCoordinatorDesignationDepartment;
                 vm.DeuActivitiesLastAcademicYear = entity.DeuActivitiesLastAcademicYear;
-                vm.HasDeuMembersListFile = entity.DeuMembersListFilePath != null;
+                vm.HasDeuMembersListFile = !string.IsNullOrEmpty(entity.DeuMembersListFilePath);
                 vm.DEUYearOfStarting = entity.DeuyearOfStarting;
                 vm.NatureOfActivities = entity.NatureOfActivities;
             }
 
             return View(vm);
         }
-
-        private async Task<string?> SaveMeuFileAsync(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                return null;
-
-            string rootPath = FacultyCode == "2" ? BaseDentalPath : BaseMedicalPath;
-            // 🔥 Ensure correct base path
-            string basePath = Path.Combine(rootPath, "MEUFiles");
-
-            // 🔥 Create folder if not exists
-            if (!Directory.Exists(basePath))
-                Directory.CreateDirectory(basePath);
-
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            string fullPath = Path.Combine(basePath, fileName);
-
-            // 🔥 SAVE FILE PROPERLY
-            using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            // 🔍 DEBUG (IMPORTANT)
-            Console.WriteLine("Saved File Path: " + fullPath);
-
-            return fullPath;
-        }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -784,143 +760,146 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
+            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode))
+            {
+                TempData["Error"] = "Session expired. Please login again.";
+                return RedirectToAction("Login", "Account");
+            }
+
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var entity = await _context.MedicalDepartmentOfficesMeus
-                .FirstOrDefaultAsync(x =>
-                    x.FacultyCode == facultyCode &&
-                    x.CollegeCode == collegeCode &&
-                    x.CourseLevel == courseLevel);
+            var isDental = facultyCode == "2";
+            string? newFilePath = null;
+            string? oldFilePath = null;
 
-            // 🔥 FILE PATH VARIABLE (IMPORTANT)
-            string? filePath = null;
-
-            if (vm.MeuMembersListFile != null && vm.MeuMembersListFile.Length > 0)
+            try
             {
-                filePath = await SaveMeuFileAsync(vm.MeuMembersListFile);
-            }
+                var entity = await _context.MedicalDepartmentOfficesMeus
+                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                              x.CollegeCode == collegeCode &&
+                                              x.CourseLevel == courseLevel);
 
-            if (vm.DeuMembersListFile != null && vm.DeuMembersListFile.Length > 0)
-            {
-                filePath = await SaveMeuFileAsync(vm.DeuMembersListFile);
-            }
-
-            if (entity == null)
-            {
-                // ✅ INSERT
-                entity = new MedicalDepartmentOfficesMeu
+                if (entity == null)
                 {
-                    FacultyCode = facultyCode,
-                    CollegeCode = collegeCode,
-                    CourseLevel = courseLevel,
-                    CreatedOn = DateTime.UtcNow
-                };
-
-                // 🔥 SAVE FILE FIRST TIME
-                if (filePath != null)
-                {
-                    entity.MeuMembersListFilePath = filePath;
-                }
-
-                _context.MedicalDepartmentOfficesMeus.Add(entity);
-            }
-
-            // 🔥 COMMON FIELD MAPPING
-            entity.HasHodRoomWithOfficeAndRecords = vm.HasHodRoomWithOfficeAndRecords ?? false;
-            entity.HasRoomsForFacultyAndResidents = vm.HasRoomsForFacultyAndResidents ?? false;
-            entity.FacultyRoomsHaveCommunicationComputerInternet = vm.FacultyRoomsHaveCommunicationComputerInternet ?? false;
-            entity.HasRoomsForNonTeachingStaff = vm.HasRoomsForNonTeachingStaff ?? false;
-            entity.HasMedicalEducationUnit = vm.HasMedicalEducationUnit ?? false;
-
-            if (facultyCode == "1")
-            {
-                if (vm.HasMedicalEducationUnit == false)
-                {
-                    entity.MedicalEducationUnitAreaSqm = null;
-                    entity.MedicalEducationUnitHasAudioVisual = null;
-                    entity.MedicalEducationUnitHasInternet = null;
-                    entity.MeuCoordinatorName = null;
-                    entity.MeuCoordinatorPhone = null;
-                    entity.MeuCoordinatorEmail = null;
-                    entity.MeuCoordinatorDesignationDepartment = null;
-                    entity.MeuActivitiesLastAcademicYear = null;
-                }
-                else
-                {
-                    entity.MedicalEducationUnitAreaSqm = vm.MedicalEducationUnitAreaSqm;
-                    entity.MedicalEducationUnitHasAudioVisual = vm.MedicalEducationUnitHasAudioVisual ?? false;
-                    entity.MedicalEducationUnitHasInternet = vm.MedicalEducationUnitHasInternet ?? false;
-                    entity.MeuCoordinatorName = vm.MeuCoordinatorName;
-                    entity.MeuCoordinatorPhone = vm.MeuCoordinatorPhone;
-                    entity.MeuCoordinatorEmail = vm.MeuCoordinatorEmail;
-                    entity.MeuCoordinatorDesignationDepartment = vm.MeuCoordinatorDesignationDepartment;
-                    entity.MeuActivitiesLastAcademicYear = vm.MeuActivitiesLastAcademicYear;
-
-                    // 🔥 UPDATE FILE
-                    if (filePath != null)
+                    entity = new MedicalDepartmentOfficesMeu
                     {
-                        // 🔥 DELETE OLD FILE
-                        if (!string.IsNullOrEmpty(entity.MeuMembersListFilePath) &&
-                            System.IO.File.Exists(entity.MeuMembersListFilePath))
-                        {
-                            System.IO.File.Delete(entity.MeuMembersListFilePath);
-                        }
+                        FacultyCode = facultyCode,
+                        CollegeCode = collegeCode,
+                        CourseLevel = courseLevel,
+                        CreatedOn = DateTime.UtcNow
+                    };
+                    _context.MedicalDepartmentOfficesMeus.Add(entity);
+                }
 
-                        // ✅ SAVE NEW PATH
-                        entity.MeuMembersListFilePath = filePath;
+                // The uploaded file depends on the faculty
+                var uploaded = isDental ? vm.DeuMembersListFile : vm.MeuMembersListFile;
+                if (uploaded is { Length: > 0 })
+                    newFilePath = await SaveMeuFileAsync(uploaded);
+
+                // COMMON FIELDS
+                entity.HasHodRoomWithOfficeAndRecords = vm.HasHodRoomWithOfficeAndRecords ?? false;
+                entity.HasRoomsForFacultyAndResidents = vm.HasRoomsForFacultyAndResidents ?? false;
+                entity.FacultyRoomsHaveCommunicationComputerInternet = vm.FacultyRoomsHaveCommunicationComputerInternet ?? false;
+                entity.HasRoomsForNonTeachingStaff = vm.HasRoomsForNonTeachingStaff ?? false;
+
+                if (!isDental)
+                {
+                    var hasMeu = vm.HasMedicalEducationUnit ?? false;
+                    entity.HasMedicalEducationUnit = hasMeu;
+
+                    if (!hasMeu)
+                    {
+                        entity.MedicalEducationUnitAreaSqm = null;
+                        entity.MedicalEducationUnitHasAudioVisual = null;
+                        entity.MedicalEducationUnitHasInternet = null;
+                        entity.MeuCoordinatorName = null;
+                        entity.MeuCoordinatorPhone = null;
+                        entity.MeuCoordinatorEmail = null;
+                        entity.MeuCoordinatorDesignationDepartment = null;
+                        entity.MeuActivitiesLastAcademicYear = null;
+
+                        // A file uploaded while "No" is selected is discarded
+                        TryDeleteFile(newFilePath);
+                        newFilePath = null;
+                    }
+                    else
+                    {
+                        entity.MedicalEducationUnitAreaSqm = vm.MedicalEducationUnitAreaSqm;
+                        entity.MedicalEducationUnitHasAudioVisual = vm.MedicalEducationUnitHasAudioVisual ?? false;
+                        entity.MedicalEducationUnitHasInternet = vm.MedicalEducationUnitHasInternet ?? false;
+                        entity.MeuCoordinatorName = vm.MeuCoordinatorName;
+                        entity.MeuCoordinatorPhone = vm.MeuCoordinatorPhone;
+                        entity.MeuCoordinatorEmail = vm.MeuCoordinatorEmail;
+                        entity.MeuCoordinatorDesignationDepartment = vm.MeuCoordinatorDesignationDepartment;
+                        entity.MeuActivitiesLastAcademicYear = vm.MeuActivitiesLastAcademicYear;
+
+                        if (newFilePath != null)
+                        {
+                            oldFilePath = entity.MeuMembersListFilePath;
+                            entity.MeuMembersListFilePath = newFilePath;
+                        }
                     }
                 }
-            }
-            else if (facultyCode == "2")
-            {
-                if (vm.HasDentalEducationUnit == false)
-                {
-                    entity.DentalEducationUnitAreaSqm = null;
-                    entity.DentalEducationUnitHasAudioVisual = null;
-                    entity.DentalEducationUnitHasInternet = null;
-                    entity.DeuCoordinatorName = null;
-                    entity.DeuCoordinatorPhone = null;
-                    entity.DeuCoordinatorEmail = null;
-                    entity.DeuCoordinatorDesignationDepartment = null;
-                    entity.DeuActivitiesLastAcademicYear = null;
-                }
                 else
                 {
-                    entity.DentalEducationUnitAreaSqm = vm.DentalEducationUnitAreaSqm;
-                    entity.DentalEducationUnitHasAudioVisual = vm.DentalEducationUnitHasAudioVisual ?? false;
-                    entity.DentalEducationUnitHasInternet = vm.DentalEducationUnitHasInternet ?? false;
-                    entity.DeuCoordinatorName = vm.DeuCoordinatorName;
-                    entity.DeuCoordinatorPhone = vm.DeuCoordinatorPhone;
-                    entity.DeuCoordinatorEmail = vm.DeuCoordinatorEmail;
-                    entity.DeuCoordinatorDesignationDepartment = vm.DeuCoordinatorDesignationDepartment;
-                    entity.DeuActivitiesLastAcademicYear = vm.DeuActivitiesLastAcademicYear;
+                    // Saved regardless of Yes/No so that "No" is stored too
                     entity.HasDentalEducationUnit = vm.HasDentalEducationUnit;
-                    entity.NatureOfActivities = vm.NatureOfActivities;
-                    entity.DeuyearOfStarting = vm.DEUYearOfStarting;
 
-                    // 🔥 UPDATE FILE
-                    if (filePath != null)
+                    if (vm.HasDentalEducationUnit == false)
                     {
-                        // 🔥 DELETE OLD FILE
-                        if (!string.IsNullOrEmpty(entity.DeuMembersListFilePath) &&
-                            System.IO.File.Exists(entity.DeuMembersListFilePath))
-                        {
-                            System.IO.File.Delete(entity.DeuMembersListFilePath);
-                        }
+                        entity.DentalEducationUnitAreaSqm = null;
+                        entity.DentalEducationUnitHasAudioVisual = null;
+                        entity.DentalEducationUnitHasInternet = null;
+                        entity.DeuCoordinatorName = null;
+                        entity.DeuCoordinatorPhone = null;
+                        entity.DeuCoordinatorEmail = null;
+                        entity.DeuCoordinatorDesignationDepartment = null;
+                        entity.DeuActivitiesLastAcademicYear = null;
+                        entity.NatureOfActivities = null;
+                        entity.DeuyearOfStarting = null;
 
-                        // ✅ SAVE NEW PATH
-                        entity.DeuMembersListFilePath = filePath;
+                        TryDeleteFile(newFilePath);
+                        newFilePath = null;
+                    }
+                    else
+                    {
+                        entity.DentalEducationUnitAreaSqm = vm.DentalEducationUnitAreaSqm;
+                        entity.DentalEducationUnitHasAudioVisual = vm.DentalEducationUnitHasAudioVisual ?? false;
+                        entity.DentalEducationUnitHasInternet = vm.DentalEducationUnitHasInternet ?? false;
+                        entity.DeuCoordinatorName = vm.DeuCoordinatorName;
+                        entity.DeuCoordinatorPhone = vm.DeuCoordinatorPhone;
+                        entity.DeuCoordinatorEmail = vm.DeuCoordinatorEmail;
+                        entity.DeuCoordinatorDesignationDepartment = vm.DeuCoordinatorDesignationDepartment;
+                        entity.DeuActivitiesLastAcademicYear = vm.DeuActivitiesLastAcademicYear;
+                        entity.NatureOfActivities = vm.NatureOfActivities;
+                        entity.DeuyearOfStarting = vm.DEUYearOfStarting;
+
+                        if (newFilePath != null)
+                        {
+                            oldFilePath = entity.DeuMembersListFilePath;
+                            entity.DeuMembersListFilePath = newFilePath;
+                        }
                     }
                 }
+
+                entity.UpdatedOn = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                // Delete the replaced file only after the save succeeded
+                TryDeleteFile(oldFilePath);
+
+                TempData["SaveSuccess"] = "Saved successfully.";
+                return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
             }
-
-            entity.UpdatedOn = DateTime.UtcNow;
-                
-            await _context.SaveChangesAsync();
-
-            TempData["SaveSuccess"] = "Saved successfully.";
-            return RedirectToAction("Aff_HostelDetails", "ContinuesAffiliation_Facultybased");
+            catch (Exception ex)
+            {
+                TryDeleteFile(newFilePath);
+                _logger.LogError(ex, "Error saving Medical_DepartmentOfficesAndEducationalUnit");
+                TempData["Error"] = "Save failed: " + (ex.InnerException?.Message ?? ex.Message);
+                return View(vm);
+            }
         }
 
         public async Task<IActionResult> ViewMeuMembersList()
@@ -929,42 +908,44 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
-            var entity = await _context.MedicalDepartmentOfficesMeus
-                .FirstOrDefaultAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
-                    x.CourseLevel == courseLevel);
+            var entity = await _context.MedicalDepartmentOfficesMeus.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.CollegeCode == collegeCode &&
+                                          x.FacultyCode == facultyCode &&
+                                          x.CourseLevel == courseLevel);
 
-            if (entity == null ||
-                string.IsNullOrEmpty(entity.MeuMembersListFilePath) ||
-                !System.IO.File.Exists(entity.MeuMembersListFilePath))
+            // Dental colleges store the file in the DEU column
+            var path = facultyCode == "2" ? entity?.DeuMembersListFilePath : entity?.MeuMembersListFilePath;
+
+            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
                 return NotFound("File not found");
 
-            // 🔥 INLINE VIEW
             Response.Headers["Content-Disposition"] = "inline";
-
-            return PhysicalFile(entity.MeuMembersListFilePath, "application/pdf");
+            return PhysicalFile(path, "application/pdf");
         }
 
-
+        // =====================================================================
+        // EQUIPMENT AVAILABILITY
+        // =====================================================================
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
         public async Task<IActionResult> Medical_EquimentDetails(string departmentCode)
         {
             var collegeCode = CollegeCode;
-            var facultyCodeStr = FacultyCode;
 
-            int facultyCode = Convert.ToInt32(facultyCodeStr);
+            if (!int.TryParse(FacultyCode, out var facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+            {
+                TempData["Error"] = "Session expired. Please login again.";
+                return RedirectToAction("Login", "Account");
+            }
 
-            var model = new EquipmentAvailabilityViewModel();
-            model.FacultyId = facultyCode;
-            model.CollegeCode = collegeCode;
+            var model = new EquipmentAvailabilityViewModel
+            {
+                FacultyId = facultyCode,
+                CollegeCode = collegeCode
+            };
 
-            // 1. Load only departments where DepartmentFilter = Y
             model.Courses = await _context.DepartmentMasters
-                .Where(d =>
-                    d.FacultyCode == facultyCode &&
-                    d.DepartmentFilter == "Y")
+                .Where(d => d.FacultyCode == facultyCode && d.DepartmentFilter == "Y")
                 .Select(d => new SelectListItem
                 {
                     Value = d.DepartmentCode,
@@ -973,35 +954,34 @@ namespace Medical_Affiliation.Controllers
                 .OrderBy(x => x.Text)
                 .ToListAsync();
 
-
-            // 2. Load equipment if department selected
             if (!string.IsNullOrEmpty(departmentCode))
             {
                 model.SelectedDepartmentCode = departmentCode;
 
                 var equipments = await _context.MstLaboratoryEquipmentDetails
-                    .Where(e =>
-                        e.CourseCode == departmentCode &&
-                        e.FacultyId == facultyCode)
+                    .AsNoTracking()
+                    .Where(e => e.CourseCode == departmentCode && e.FacultyId == facultyCode)
                     .OrderBy(e => e.EquipmentId)
                     .ToListAsync();
 
-                // Load availability once
                 var availabilityList = await _context.TblMedicalEquipmentAvailabilities
-                    .Where(a =>
-                        a.FacultyId == facultyCode &&
-                        a.CourseCode == departmentCode &&
-                        a.CollegeCode == collegeCode)
+                    .AsNoTracking()
+                    .Where(a => a.FacultyId == facultyCode &&
+                                a.CourseCode == departmentCode &&
+                                a.CollegeCode == collegeCode)
                     .ToListAsync();
 
                 model.AcademicYear = availabilityList
                     .Select(a => a.AcademicYear)
                     .FirstOrDefault(a => !string.IsNullOrWhiteSpace(a));
 
+                var availabilityById = availabilityList
+                    .GroupBy(a => a.EquipmentId)
+                    .ToDictionary(g => g.Key, g => g.First());
+
                 model.Equipments = equipments.Select(e =>
                 {
-                    var existing = availabilityList
-                        .FirstOrDefault(a => a.EquipmentId == e.EquipmentId);
+                    availabilityById.TryGetValue(e.EquipmentId, out var existing);
 
                     return new EquipmentItemViewModel
                     {
@@ -1026,9 +1006,6 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Medical_EquimentDetails(EquipmentAvailabilityViewModel model)
         {
-            //var facultyCode = HttpContext.Session.GetString("FacultyCode") ?? "1";
-            //int facultyId = Convert.ToInt32(facultyCode);
-
             if (string.IsNullOrWhiteSpace(FacultyCode) || string.IsNullOrWhiteSpace(CollegeCode))
             {
                 TempData["Error"] = "Session expired. Please login again.";
@@ -1041,7 +1018,6 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
             if (string.IsNullOrEmpty(model.SelectedDepartmentCode) || model.Equipments == null)
@@ -1053,10 +1029,9 @@ namespace Medical_Affiliation.Controllers
             string departmentCode = model.SelectedDepartmentCode;
 
             var validDepartment = await _context.DepartmentMasters
-            .AnyAsync(d =>
-                d.DepartmentCode == departmentCode &&
-                d.FacultyCode == facultyId &&
-                d.DepartmentFilter == "Y");
+                .AnyAsync(d => d.DepartmentCode == departmentCode &&
+                               d.FacultyCode == facultyId &&
+                               d.DepartmentFilter == "Y");
 
             if (!validDepartment)
             {
@@ -1064,26 +1039,31 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction(nameof(Medical_EquimentDetails));
             }
 
+            // Only accept equipment ids that really belong to this department
+            var validEquipmentIds = await _context.MstLaboratoryEquipmentDetails
+                .Where(e => e.CourseCode == departmentCode && e.FacultyId == facultyId)
+                .Select(e => e.EquipmentId)
+                .ToHashSetAsync();
+
             var existingList = await _context.TblMedicalEquipmentAvailabilities
-                .Where(x =>
-                    x.FacultyId == facultyId &&
-                    x.CourseCode == departmentCode &&
-                    x.CollegeCode == collegeCode)
+                .Where(x => x.FacultyId == facultyId &&
+                            x.CourseCode == departmentCode &&
+                            x.CollegeCode == collegeCode)
                 .ToListAsync();
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-
                 foreach (var item in model.Equipments)
                 {
-                    int quantity = item.AvailableQuantity ?? 0;
+                    if (!validEquipmentIds.Contains(item.EquipmentID))
+                        continue;
 
+                    int quantity = item.AvailableQuantity ?? 0;
                     var existing = existingList.FirstOrDefault(x => x.EquipmentId == item.EquipmentID);
 
                     if (quantity > 0)
                     {
-                        // AVAILABLE
                         if (existing == null)
                         {
                             _context.TblMedicalEquipmentAvailabilities.Add(
@@ -1096,6 +1076,7 @@ namespace Medical_Affiliation.Controllers
                                     AvailableQuantity = quantity,
                                     CollegeCode = collegeCode,
                                     AcademicYear = EquipmentAcademicYear,
+                                    CreatedOn = DateTime.Now
                                 });
                         }
                         else
@@ -1105,34 +1086,27 @@ namespace Medical_Affiliation.Controllers
                             existing.AcademicYear = EquipmentAcademicYear;
                         }
                     }
-                    else
+                    else if (existing != null)
                     {
-                        // NOT AVAILABLE → Remove record
-                        if (existing != null)
-                        {
-                            _context.TblMedicalEquipmentAvailabilities.Remove(existing);
-                        }
+                        _context.TblMedicalEquipmentAvailabilities.Remove(existing);
                     }
-
                 }
-                // 🔥 ADD THIS
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 TempData["Success"] = "Equipment availability saved successfully.";
-
-                return RedirectToAction(nameof(Medical_EquimentDetails),
-                    new { departmentCode = departmentCode });
-
+                return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error saving Medical_EquimentDetails");
 
-                TempData["Error"] = "Error while saving data.";
-                return View(model);
+                // Redirect (not View(model)) so the department list and equipment grid are reloaded
+                TempData["Error"] = "Error while saving data: " + (ex.InnerException?.Message ?? ex.Message);
+                return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
             }
-
         }
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
@@ -1149,9 +1123,22 @@ namespace Medical_Affiliation.Controllers
                 return BadRequest("Invalid department selected.");
 
             var equipments = await _context.MstLaboratoryEquipmentDetails
+                .AsNoTracking()
                 .Where(e => e.CourseCode == departmentCode && e.FacultyId == facultyId)
                 .OrderBy(e => e.EquipmentId)
                 .ToListAsync();
+
+            // Pre-fill the quantities already saved, so the template reflects current data
+            var saved = await _context.TblMedicalEquipmentAvailabilities
+                .AsNoTracking()
+                .Where(x => x.FacultyId == facultyId &&
+                            x.CourseCode == departmentCode &&
+                            x.CollegeCode == CollegeCode)
+                .ToListAsync();
+
+            var savedQty = saved
+                .GroupBy(x => x.EquipmentId)
+                .ToDictionary(g => g.Key, g => g.First().AvailableQuantity ?? 0);
 
             using var workbook = new XLWorkbook();
             var sheet = workbook.Worksheets.Add("Equipment Availability");
@@ -1178,7 +1165,7 @@ namespace Medical_Affiliation.Controllers
                 sheet.Cell(row, 3).Value = CollegeCode;
                 sheet.Cell(row, 4).Value = equipment.EquipmentId;
                 sheet.Cell(row, 5).Value = equipment.EquipmentName ?? string.Empty;
-                sheet.Cell(row, 6).Value = 0;
+                sheet.Cell(row, 6).Value = savedQty.TryGetValue(equipment.EquipmentId, out var q) ? q : 0;
                 sheet.Cell(row, 7).Value = EquipmentAcademicYear;
             }
 
@@ -1286,112 +1273,73 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
             }
 
-            var existingRows = await _context.TblMedicalEquipmentAvailabilities
-                .Where(x => x.FacultyId == facultyId && x.CourseCode == departmentCode && x.CollegeCode == CollegeCode)
-                .ToListAsync();
-
-            foreach (var row in rows)
+            try
             {
-                var existing = existingRows.FirstOrDefault(x => x.EquipmentId == row.EquipmentId);
-                if (existing == null)
+                var existingRows = await _context.TblMedicalEquipmentAvailabilities
+                    .Where(x => x.FacultyId == facultyId && x.CourseCode == departmentCode && x.CollegeCode == CollegeCode)
+                    .ToListAsync();
+
+                foreach (var row in rows)
                 {
-                    _context.TblMedicalEquipmentAvailabilities.Add(new TblMedicalEquipmentAvailability
+                    var existing = existingRows.FirstOrDefault(x => x.EquipmentId == row.EquipmentId);
+
+                    if (row.Quantity > 0)
                     {
-                        FacultyId = facultyId,
-                        CourseCode = departmentCode,
-                        CollegeCode = CollegeCode,
-                        EquipmentId = row.EquipmentId,
-                        AvailableQuantity = row.Quantity,
-                        IsAvailable = row.Quantity > 0,
-                        AcademicYear = row.AcademicYear,
-                        CreatedOn = DateTime.Now
-                    });
+                        if (existing == null)
+                        {
+                            _context.TblMedicalEquipmentAvailabilities.Add(new TblMedicalEquipmentAvailability
+                            {
+                                FacultyId = facultyId,
+                                CourseCode = departmentCode,
+                                CollegeCode = CollegeCode,
+                                EquipmentId = row.EquipmentId,
+                                AvailableQuantity = row.Quantity,
+                                IsAvailable = true,
+                                AcademicYear = row.AcademicYear,
+                                CreatedOn = DateTime.Now
+                            });
+                        }
+                        else
+                        {
+                            existing.AvailableQuantity = row.Quantity;
+                            existing.IsAvailable = true;
+                            existing.AcademicYear = row.AcademicYear;
+                        }
+                    }
+                    else if (existing != null)
+                    {
+                        // Same rule as the manual save: quantity 0 means "not available", so remove the row
+                        _context.TblMedicalEquipmentAvailabilities.Remove(existing);
+                    }
                 }
-                else
-                {
-                    existing.AvailableQuantity = row.Quantity;
-                    existing.IsAvailable = row.Quantity > 0;
-                    existing.AcademicYear = row.AcademicYear;
-                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Equipment availability uploaded successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading equipment availability");
+                TempData["Error"] = "Error while saving data: " + (ex.InnerException?.Message ?? ex.Message);
             }
 
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Equipment availability uploaded successfully.";
             return RedirectToAction(nameof(Medical_EquimentDetails), new { departmentCode });
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Medical_EquimentDetails(EquipmentAvailabilityViewModel model)
-        //{
-        //    var facultyCode = HttpContext.Session.GetString("FacultyCode");
-        //    int facultyId = Convert.ToInt32(facultyCode);
-
-        //    if (string.IsNullOrEmpty(model.SelectedDepartmentCode) || model.Equipments == null)
-        //    {
-        //        TempData["Error"] = "Invalid data submitted.";
-        //        return RedirectToAction(nameof(Medical_EquimentDetails));
-        //    }
-
-        //    string departmentCode = model.SelectedDepartmentCode; // ✅ STRING (MD001)
-
-        //    foreach (var item in model.Equipments)
-        //    {
-        //        var existing = await _context.TblMedicalEquipmentAvailabilities
-        //            .FirstOrDefaultAsync(x =>
-        //                x.FacultyId == facultyId &&
-        //                x.CourseCode == departmentCode &&      // ✅ string == string
-        //                x.EquipmentId == item.EquipmentID);
-
-        //        if (item.IsAvailable)
-        //        {
-        //            if (existing == null)
-        //            {
-        //                _context.TblMedicalEquipmentAvailabilities.Add(
-        //                    new TblMedicalEquipmentAvailability
-        //                    {
-        //                        FacultyId = facultyId,
-        //                        CourseCode = departmentCode,    // ✅ STRING
-        //                        EquipmentId = item.EquipmentID,
-        //                        IsAvailable = true,
-        //                        AvailableQuantity = item.AvailableQuantity ?? 0
-        //                    });
-        //            }
-        //            else
-        //            {
-        //                existing.IsAvailable = true;
-        //                existing.AvailableQuantity = item.AvailableQuantity ?? 0;
-        //            }
-        //        }
-        //        else if (existing != null)
-        //        {
-        //            _context.TblMedicalEquipmentAvailabilities.Remove(existing);
-        //        }
-        //    }
-
-
-
-
-        //    await _context.SaveChangesAsync();
-
-        //    TempData["Success"] = "Equipment availability saved successfully.";
-
-        //    return RedirectToAction(nameof(Medical_EquimentDetails),
-        //        new { departmentCode = departmentCode });
-        //}
-
-
+        // =====================================================================
+        // SKILLS LAB EQUIPMENT
+        // NOTE: TblMedicalSkillsLabEquipments has no CollegeCode/FacultyCode,
+        // so all colleges share the same rows. See notes in the reply.
+        // =====================================================================
         [HttpGet]
         public async Task<IActionResult> Medical_SkillsLabEquipment()
         {
-            // Load from DB; if empty, seed from NMC list once
             var entities = await _context.TblMedicalSkillsLabEquipments
                 .OrderBy(e => e.DisplayOrder)
                 .ToListAsync();
 
             if (!entities.Any())
             {
-                entities = SeedSkillsLabEquipment();     // you create this method
+                entities = SeedSkillsLabEquipment();
                 _context.TblMedicalSkillsLabEquipments.AddRange(entities);
                 await _context.SaveChangesAsync();
             }
@@ -1411,55 +1359,58 @@ namespace Medical_Affiliation.Controllers
             return View(vm);
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Medical_SkillsLabEquipment(SkillsLabEquipmentViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
+            if (!ModelState.IsValid || model.Items == null)
                 return View(model);
-            }
 
-            var ids = model.Items.Select(i => i.Id).ToList();
-
-            var entities = await _context.TblMedicalSkillsLabEquipments
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync();
-
-            foreach (var item in model.Items)
+            try
             {
-                var entity = entities.First(e => e.Id == item.Id);
-                entity.IsAvailable = item.IsAvailable;
-                entity.Quantity = item.IsAvailable ? item.Quantity : null;
-            }
+                var ids = model.Items.Select(i => i.Id).ToList();
 
-            await _context.SaveChangesAsync();
+                var entities = await _context.TblMedicalSkillsLabEquipments
+                    .Where(e => ids.Contains(e.Id))
+                    .ToListAsync();
+
+                foreach (var item in model.Items)
+                {
+                    var entity = entities.FirstOrDefault(e => e.Id == item.Id);
+                    if (entity == null) continue;
+
+                    entity.IsAvailable = item.IsAvailable;
+                    entity.Quantity = item.IsAvailable ? item.Quantity : null;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Skills lab equipment saved successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving Medical_SkillsLabEquipment");
+                TempData["Error"] = "Error while saving data: " + (ex.InnerException?.Message ?? ex.Message);
+            }
 
             return RedirectToAction(nameof(Medical_SkillsLabEquipment));
         }
 
-
         private List<TblMedicalSkillsLabEquipment> SeedSkillsLabEquipment()
         {
             return new List<TblMedicalSkillsLabEquipment>
-                {
-                    new() { Name = "First aid, bandaging, splinting trainer",        IsRequired = true,  DisplayOrder = 1 },
-                    new() { Name = "Basic Life Support (BLS), CPR mannequin",        IsRequired = true,  DisplayOrder = 2 },
-                    new() { Name = "Injection trainers (SC / IM / IV)",               IsRequired = true,  DisplayOrder = 3 },
-                    new() { Name = "Urine catheter insertion mannequin",             IsRequired = true,  DisplayOrder = 4 },
-                    new() { Name = "Skin & fascia suturing model",                   IsRequired = true,  DisplayOrder = 5 },
-                    new() { Name = "Breast examination model / mannequin",           IsRequired = true,  DisplayOrder = 6 },
-                    new() { Name = "Gynecological examination model / IUCD trainer", IsRequired = true,  DisplayOrder = 7 },
-                    new() { Name = "Obstetric examination / delivery mannequins",    IsRequired = true,  DisplayOrder = 8 },
-                    new() { Name = "Neonatal & paediatric resuscitation mannequins", IsRequired = true,  DisplayOrder = 9 },
-                    new() { Name = "Whole body mannequin",                           IsRequired = true,  DisplayOrder = 10 },
-                    new() { Name = "Trauma mannequin",                               IsRequired = true,  DisplayOrder = 11 }
-                };
+            {
+                new() { Name = "First aid, bandaging, splinting trainer",        IsRequired = true, DisplayOrder = 1 },
+                new() { Name = "Basic Life Support (BLS), CPR mannequin",        IsRequired = true, DisplayOrder = 2 },
+                new() { Name = "Injection trainers (SC / IM / IV)",               IsRequired = true, DisplayOrder = 3 },
+                new() { Name = "Urine catheter insertion mannequin",             IsRequired = true, DisplayOrder = 4 },
+                new() { Name = "Skin & fascia suturing model",                   IsRequired = true, DisplayOrder = 5 },
+                new() { Name = "Breast examination model / mannequin",           IsRequired = true, DisplayOrder = 6 },
+                new() { Name = "Gynecological examination model / IUCD trainer", IsRequired = true, DisplayOrder = 7 },
+                new() { Name = "Obstetric examination / delivery mannequins",    IsRequired = true, DisplayOrder = 8 },
+                new() { Name = "Neonatal & paediatric resuscitation mannequins", IsRequired = true, DisplayOrder = 9 },
+                new() { Name = "Whole body mannequin",                           IsRequired = true, DisplayOrder = 10 },
+                new() { Name = "Trauma mannequin",                               IsRequired = true, DisplayOrder = 11 }
+            };
         }
-
-
-
     }
 }

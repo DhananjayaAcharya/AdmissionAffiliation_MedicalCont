@@ -49,8 +49,14 @@ public class AutoProgressFilter : IAsyncActionFilter
         var collegeCode = http.Session.GetString("CollegeCode");
         var courseLevel = http.Session.GetString("CourseLevel")
             ?? http.Session.GetString("SelectedCourseLevel")
-            ?? http.Session.GetString("SelectedLevel");
+            ?? http.Session.GetString("SelectedLevel")
+            ?? http.Request.Query["courseLevel"].FirstOrDefault()
+            ?? http.Request.Query["level"].FirstOrDefault();
         var facultyCode = http.Session.GetString("FacultyCode");
+
+        // Keep progress tracking aligned with BaseController.CourseLevel,
+        // which uses UG when a legacy session has no level value.
+        courseLevel = string.IsNullOrWhiteSpace(courseLevel) ? "UG" : courseLevel.Trim().ToUpperInvariant();
 
         //code by ram
 
@@ -125,7 +131,7 @@ public class AutoProgressFilter : IAsyncActionFilter
         if (string.IsNullOrEmpty(collegeCode) || levels.Count == 0)
             return;
 
-        var activeLevel = courseLevel?.Trim().ToUpperInvariant();
+        var activeLevel = courseLevel;
         if (string.IsNullOrWhiteSpace(activeLevel))
             activeLevel = levels.FirstOrDefault();
         if (string.IsNullOrWhiteSpace(activeLevel))

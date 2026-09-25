@@ -145,6 +145,18 @@
         .Distinct()
         .ToListAsync();
 
+    // These two sections are treated as complete by default for the
+    // medical continuous-affiliation workflow.
+    if (!doneSteps.Contains("EquipmentDetails"))
+    {
+        doneSteps.Add("EquipmentDetails");
+    }
+
+    if (!doneSteps.Contains("NonTeachingStaff"))
+    {
+        doneSteps.Add("NonTeachingStaff");
+    }
+
     // Intake Details is complete only when at least one Previous details
     // record has actually been saved. This also corrects stale progress rows.
     var hasSavedPreviousIntake = false;

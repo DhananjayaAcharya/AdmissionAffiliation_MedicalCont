@@ -1463,7 +1463,7 @@ namespace Medical_Affiliation.Controllers
                     facultyCode: model.FacultyCode,
                     affiliationTypeId: model.AffiliationTypeId,
                     hospitalDetailsId: model.HospitalDetailsId,
-                    sectionCode: "1",                 // Indoor section code
+                    sectionCode: "1",
                     requirements: model.Requirements
                 );
 
@@ -1471,6 +1471,18 @@ namespace Medical_Affiliation.Controllers
                 await tx.CommitAsync();
 
                 return Json(new { success = true, message = "Indoor Department Requirements saved successfully." });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await tx.RollbackAsync();
+
+                var innerMost = dbEx.InnerException;
+                while (innerMost?.InnerException != null)
+                    innerMost = innerMost.InnerException;
+
+                var realMessage = innerMost?.Message ?? dbEx.Message;
+
+                return Json(new { success = false, message = realMessage });
             }
             catch (Exception ex)
             {
@@ -1849,11 +1861,17 @@ namespace Medical_Affiliation.Controllers
 
         }
 
-        private async Task SaveRequirementsAsync(string collegeCode, int facultyCode, int affiliationTypeId, int hospitalDetailsId,
-    string sectionCode, IEnumerable<RequirementItemBaseVM> requirements)
+        private async Task SaveRequirementsAsync(
+    string collegeCode,
+    int facultyCode,
+    int affiliationTypeId,
+    int hospitalDetailsId,
+    string sectionCode,
+    IEnumerable<RequirementItemBaseVM> requirements)
         {
             var courselevel = _userContext.CourseLevel;
 
+            // Load all existing rows for this college/faculty/hospital/section combo
             var existing = await _context.IndoorInfrastructureRequirementsCompliances
                 .Where(r =>
                     r.CollegeCode == collegeCode &&
@@ -1870,6 +1888,7 @@ namespace Medical_Affiliation.Controllers
 
                 if (match == null)
                 {
+                    // INSERT new row
                     _context.IndoorInfrastructureRequirementsCompliances.Add(
                         new IndoorInfrastructureRequirementsCompliance
                         {
@@ -1886,6 +1905,7 @@ namespace Medical_Affiliation.Controllers
                 }
                 else
                 {
+                    // UPDATE existing row
                     match.IsCompliant = req.IsAvailable;
                     match.InspectedOn = DateTime.Now;
                     _context.IndoorInfrastructureRequirementsCompliances.Update(match);
@@ -1897,8 +1917,13 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveIndoorBedsOccupancy([FromForm] IndoorBedsOccupancyPostVM model)
         {
+            if (model == null || model.Items == null || !model.Items.Any())
+            {
+                return Json(new { success = false, message = "No Indoor Beds Occupancy data received." });
+            }
 
             var courseLevel = _userContext.CourseLevel;
+
             using var tx = await _context.Database.BeginTransactionAsync();
 
             try
@@ -1911,21 +1936,14 @@ namespace Medical_Affiliation.Controllers
                         o.AffiliationTypeId == model.AffiliationTypeId)
                     .ToListAsync();
 
-
                 foreach (var item in model.Items)
                 {
-                    if (item.CollegeIntake < 0)
-                        return BadRequest("College intake must be >= 0");
-
-                    //if (item.CollegeIntake > item.RGUHSintake)
-                    //    return BadRequest("College intake cannot exceed RGUHS intake");
-
-                    var match = existing.FirstOrDefault(o => o.DepartmentId == item.DepartmentId &&
-                                                           o.SeatSlabId == item.SeatSlabId);
+                    var match = existing.FirstOrDefault(o =>
+                        o.DepartmentId == item.DepartmentId &&
+                        o.SeatSlabId == item.SeatSlabId);
 
                     if (match == null)
                     {
-
                         _context.IndoorBedsOccupancies.Add(
                             new IndoorBedsOccupancy
                             {
@@ -1942,13 +1960,24 @@ namespace Medical_Affiliation.Controllers
                     else
                     {
                         match.CollegeIntake = item.CollegeIntake;
+                        _context.IndoorBedsOccupancies.Update(match);
                     }
                 }
 
                 await _context.SaveChangesAsync();
                 await tx.CommitAsync();
 
-                return Json(new { success = true });
+                return Json(new { success = true, message = "Indoor Beds Occupancy saved successfully." });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await tx.RollbackAsync();
+
+                var innerMost = dbEx.InnerException;
+                while (innerMost?.InnerException != null)
+                    innerMost = innerMost.InnerException;
+
+                return Json(new { success = false, message = innerMost?.Message ?? dbEx.Message });
             }
             catch (Exception ex)
             {

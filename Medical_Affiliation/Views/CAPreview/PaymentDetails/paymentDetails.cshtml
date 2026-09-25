@@ -124,7 +124,7 @@
 
                     @if (!string.IsNullOrEmpty(Model.SupportingDocument))
                     {
-                        <a href="@Url.Action("ViewFile", "AffiliationPayment", new { path = Model.SupportingDocument })"
+                        <a href="@Url.Action("ViewFile", "AffiliationPayment", new { fileName = System.IO.Path.GetFileName(Model.SupportingDocument) })"
                                target="_blank"
                                class="download-btn">
                             <i class="bi bi-file-earmark-pdf"></i>

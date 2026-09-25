@@ -71,7 +71,7 @@
                                         <td class="text-center">
                                             @if (!string.IsNullOrEmpty(service.ExistingFileName))
                                             {
-                                                <a class="status-badge-maintained" href="@Url.Action("ViewServiceFile", "CAPreview", new { id=@service.LibraryServiceId})")" target="_blank">View</a>
+                                                <a class="status-badge-maintained" href="@Url.Action("ViewServiceFile", "CAPreview", new { id = service.LibraryServiceId })" target="_blank">View</a>
                                             }
                                             else
                                             {

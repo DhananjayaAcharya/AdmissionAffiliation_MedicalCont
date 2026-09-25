@@ -633,7 +633,7 @@
         <!-- Form Card -->
         <div class="form-card">
 
-            <form asp-action="Medical_LandBuildingdetails" method="post" enctype="multipart/form-data">
+            <form id="landBuildingForm" asp-action="Medical_LandBuildingdetails" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary(true, "", new { @class = "text-danger", style = "font-size:0.8rem; margin-bottom:12px;" })
 
@@ -1031,6 +1031,12 @@
                                     <option value="200">200</option>
                                     <option value="250">250</option>
                                 </select>
+                                @if (ViewBag.SavedAnnualMbbsIntake != null)
+                                {
+                                    <small class="text-muted d-block mt-1">
+                                        Saved value: <strong>@ViewBag.SavedAnnualMbbsIntake</strong>
+                                    </small>
+                                }
                             </div>
 
                             <div class="field-group">
@@ -1661,7 +1667,9 @@
                     title: "Saved Successfully!",
                     confirmButtonColor: "#1a6b3a",
                     timer: 2000, timerProgressBar: true
-                }).then(() => { $("form").submit(); });
+                }).then(() => {
+                    document.getElementById('landBuildingForm').submit();
+                });
             });
 
             $("#btnNext").on("click", function () {

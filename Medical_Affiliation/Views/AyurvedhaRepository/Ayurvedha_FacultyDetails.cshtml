@@ -421,7 +421,7 @@
 
                                     @if (Model[i].PGRecognitionDocData != null)
                                     {
-                                        <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "pg", mode = "view" })"
+                                        <a href="@Url.Action("ViewFacultyDocument", "FacultyDetails", new { id = Model[i].FacultyDetailId, type = "pg", mode = "view" })"
                                            target="_blank"
                                            class="btn btn-outline-primary btn-sm rounded-pill">
                                             <i class="bi bi-eye"></i>
@@ -449,7 +449,7 @@
 
                                     @if (Model[i].PhDRecognitionDocData != null)
                                     {
-                                        <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "phd", mode = "view" })"
+                                        <a href="@Url.Action("ViewFacultyDocument", "FacultyDetails", new { id = Model[i].FacultyDetailId, type = "phd", mode = "view" })"
                                            target="_blank"
                                            class="btn btn-outline-primary btn-sm rounded-pill">
                                             <i class="bi bi-eye"></i>
@@ -477,7 +477,7 @@
 
                                     @if (Model[i].LitigationDocData != null)
                                     {
-                                        <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "litig", mode = "view" })"
+                                        <a href="@Url.Action("ViewFacultyDocument", "FacultyDetails", new { id = Model[i].FacultyDetailId, type = "litig", mode = "view" })"
                                            target="_blank"
                                            class="btn btn-outline-primary btn-sm rounded-pill">
                                             <i class="bi bi-eye"></i>

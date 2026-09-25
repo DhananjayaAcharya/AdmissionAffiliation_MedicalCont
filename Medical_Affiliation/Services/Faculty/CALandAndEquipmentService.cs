@@ -65,7 +65,10 @@ namespace Medical_Affiliation.Services.Faculty
         public async Task<DepartmentOfficesMeuDisplayViewModel> GetDepartmentOfficesMeu()
         {
             var facultyId = _userContext.FacultyId;
-            var collegeCode = _userContext.CollegeCode;
+            var collegeCode = _httpContextAccessor.HttpContext?.Session.GetString("CollegeCode")
+                ?? _userContext.CollegeCode;
+            var facultyCode = _httpContextAccessor.HttpContext?.Session.GetString("FacultyCode")
+                ?? facultyId.ToString();
             var courseLevel = (
                     _httpContextAccessor.HttpContext?.Session.GetString("CourseLevel")
                     ?? _httpContextAccessor.HttpContext?.Session.GetString("SelectedCourseLevel")
@@ -75,7 +78,7 @@ namespace Medical_Affiliation.Services.Faculty
             var entity = await _context.MedicalDepartmentOfficesMeus
                 .AsNoTracking()
                 .Where(x => x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyId.ToString() &&
+                            x.FacultyCode == facultyCode &&
                             x.CourseLevel != null &&
                             x.CourseLevel.Trim().ToUpper() == courseLevel)
                 .OrderByDescending(x => x.UpdatedOn ?? x.CreatedOn)
@@ -101,7 +104,7 @@ namespace Medical_Affiliation.Services.Faculty
                 MeuCoordinatorDesignationDepartment = entity.MeuCoordinatorDesignationDepartment ?? "" ?? "",
                 MeuMembersListDescription = entity.MeuMembersListDescription ?? "",
                 MeuActivitiesLastAcademicYear = entity.MeuActivitiesLastAcademicYear ?? "",
-                HasMeuMembersListFile = !string.IsNullOrEmpty(entity.MeuMembersListFilePath) && System.IO.File.Exists(entity.MeuMembersListFilePath)
+                HasMeuMembersListFile = !string.IsNullOrWhiteSpace(entity.MeuMembersListFilePath)
             };
 
             return vm;

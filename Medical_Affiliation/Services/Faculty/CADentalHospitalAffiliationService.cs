@@ -412,6 +412,14 @@ namespace Medical_Affiliation.Services.Faculty
 
         private async Task<IndoorBedsUnitsRequirementDisplayVM> BuildIndoorBedsOccupancyDisplayAsync(string collegeCode, int facultyCode, int hospitalId)
         {
+            var currentCourseLevel = _userContext.CourseLevel ?? string.Empty;
+            var intakeSeatSlab = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(x => x.CollCode == collegeCode
+                    && x.Facultycode == facultyCode
+                    && (x.UgPg ?? string.Empty).Trim().ToUpper() == currentCourseLevel.Trim().ToUpper())
+                .SumAsync(x => x.Intake2627 ?? 0);
+
             var occupancyData = await (from o in _context.IndoorBedsOccupancies.AsNoTracking()
                                        join p in _context.MstIndoorBedsDepartmentMasters.AsNoTracking()
                                        on o.DepartmentId equals p.DeptId
@@ -421,6 +429,7 @@ namespace Medical_Affiliation.Services.Faculty
                                            o.DepartmentId,
                                            DepartmentName = p.DepartmentName,
                                            o.SeatSlabId,
+                                           SeatSlab = intakeSeatSlab,
                                            o.Rguhsintake,
                                            o.CollegeIntake,
                                            o.AffiliationTypeId
@@ -437,6 +446,7 @@ namespace Medical_Affiliation.Services.Faculty
                     DepartmentId = x.DepartmentId,
                     DepartmentName = x.DepartmentName,
                     SeatSlabId = x.SeatSlabId,
+                    SeatSlab = x.SeatSlab,
                     RGUHSintake = x.Rguhsintake,
                     CollegeIntake = x.CollegeIntake
                 }).ToList()

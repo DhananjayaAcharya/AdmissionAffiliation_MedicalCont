@@ -6288,81 +6288,136 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MedicalUGBedDistribution(MedicalUGBedDistributionVm vm)
         {
+            // Use the SAME source as the GET action — raw session strings
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = SelectedCourseLevel;
+            var affTypeId = AffTypeId;
 
-            var facultyCode = FacultyCode;
-            var collegeCode = CollegeCode;
-            var courseLevel = CourseLevel;
-
-
-
-            if (!ModelState.IsValid)
+            // --- DIAGNOSTIC: confirm session values are actually present ---
+            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+            {
+                ModelState.AddModelError(string.Empty,
+                    "Session expired or CollegeCode/FacultyCode missing. Please log in again.");
                 return View(vm);
+            }
 
-
-
-            var entity = await _context.MedicalUgbedDistributions
-                         .FirstOrDefaultAsync(x =>
-                             x.CollegeCode == collegeCode &&
-                             x.FacultyCode == facultyCode &&
-                             x.AffiliationTypeId == AffTypeId &&
-                             x.CourseLevel == SelectedCourseLevel);
-
-            if (entity == null)
+            // --- DIAGNOSTIC: log/inspect model validation errors instead of failing silently ---
+            if (!ModelState.IsValid)
             {
-                entity = new MedicalUgbedDistribution
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new
+                    {
+                        Field = x.Key,
+                        Messages = x.Value.Errors.Select(e => e.ErrorMessage)
+                    })
+                    .ToList();
+
+                // TEMP: surface errors to the page so you can see them without a debugger
+                foreach (var err in errors)
                 {
-                    CollegeCode = collegeCode,
-                    FacultyCode = facultyCode,
-                    CourseLevel = SelectedCourseLevel,
-                    AffiliationTypeId = AffTypeId,
-                    CreatedDate = DateTime.Now
-                };
+                    foreach (var msg in err.Messages)
+                    {
+                        ModelState.AddModelError(string.Empty, $"{err.Field}: {msg}");
+                    }
+                }
 
-                _context.MedicalUgbedDistributions.Add(entity);
+                return View(vm);
             }
 
-            // COMMON FIELDS
-
-            // DENTAL
-            if (facultyCode == "2")
+            try
             {
-                entity.OralMaxillofacialSurgery =
-                    vm.OralMaxillofacialSurgery;
+                var entity = await _context.MedicalUgbedDistributions
+                    .FirstOrDefaultAsync(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode &&
+                        x.AffiliationTypeId == affTypeId &&
+                        x.CourseLevel == courseLevel);
+
+                bool isNew = entity == null;
+
+                if (isNew)
+                {
+                    entity = new MedicalUgbedDistribution
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyCode = facultyCode,
+                        CourseLevel = courseLevel,
+                        AffiliationTypeId = affTypeId,
+                        CreatedDate = DateTime.Now
+                    };
+                }
+
+                // DENTAL FACULTY
+                if (facultyCode == "2")
+                {
+                    entity.OralMaxillofacialSurgery = vm.OralMaxillofacialSurgery;
+                }
+                else
+                {
+                    // MEDICAL FACULTY
+                    entity.GenMedicine = vm.GenMedicine;
+                    entity.Paediatrics = vm.Paediatrics;
+                    entity.SkinVd = vm.SkinVD;
+                    entity.Psychiatry = vm.Psychiatry;
+
+                    entity.GenSurgery = vm.GenSurgery;
+                    entity.Orthopaedics = vm.Orthopaedics;
+                    entity.Ophthalmology = vm.Ophthalmology;
+                    entity.Ent = vm.ENT;
+
+                    entity.ObstetricsAnc = vm.ObstetricsANC;
+                    entity.Gynaecology = vm.Gynaecology;
+                    entity.Postpartum = vm.Postpartum;
+
+                    entity.MajorOt = vm.MajorOT;
+                    entity.MinorOt = vm.MinorOT;
+
+                    entity.Iccu = vm.ICCU;
+                    entity.Icu = vm.ICU;
+                    entity.PicuNicu = vm.PICU_NICU;
+                    entity.Sicu = vm.SICU;
+
+                    entity.TotalIcubeds = (vm.ICCU ?? 0)
+                        + (vm.ICU ?? 0)
+                        + (vm.PICU_NICU ?? 0)
+                        + (vm.SICU ?? 0);
+
+                    entity.CasualtyBeds = vm.CasualtyBeds;
+                }
+
+                if (isNew)
+                {
+                    _context.MedicalUgbedDistributions.Add(entity);
+                }
+
+                var rowsAffected = await _context.SaveChangesAsync();
+
+                // --- DIAGNOSTIC: confirm EF actually wrote something ---
+                if (rowsAffected == 0)
+                {
+                    TempData["SuccessMessage"] = null;
+                    TempData["ErrorMessage"] = "No rows were affected — data may be unchanged or entity not tracked correctly.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Bed distribution saved successfully!";
+                }
             }
-            else
+            catch (DbUpdateException dbEx)
             {
-                // MEDICAL
-
-                entity.GenMedicine = vm.GenMedicine;
-                entity.Paediatrics = vm.Paediatrics;
-                entity.SkinVd = vm.SkinVD;
-                entity.Psychiatry = vm.Psychiatry;
-
-                entity.GenSurgery = vm.GenSurgery;
-                entity.Orthopaedics = vm.Orthopaedics;
-                entity.Ophthalmology = vm.Ophthalmology;
-                entity.Ent = vm.ENT;
-
-                entity.ObstetricsAnc = vm.ObstetricsANC;
-                entity.Gynaecology = vm.Gynaecology;
-                entity.Postpartum = vm.Postpartum;
-                entity.MajorOt = vm.MajorOT;
-                entity.MinorOt = vm.MinorOT;
-
-                entity.Iccu = vm.ICCU;
-                entity.Icu = vm.ICU;
-                entity.PicuNicu = vm.PICU_NICU;
-                entity.Sicu = vm.SICU;
-
-                entity.TotalIcubeds = (vm.ICCU ?? 0)
-                    + (vm.ICU ?? 0)
-                    + (vm.PICU_NICU ?? 0)
-                    + (vm.SICU ?? 0);
-                entity.CasualtyBeds = vm.CasualtyBeds;
+                // Catches FK violations, unique constraint violations, etc.
+                var innerMsg = dbEx.InnerException?.Message ?? dbEx.Message;
+                ModelState.AddModelError(string.Empty, $"Database error: {innerMsg}");
+                return View(vm);
             }
-            await _context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Unexpected error: {ex.Message}");
+                return View(vm);
+            }
 
-            TempData["SuccessMessage"] = "Bed distribution saved successfully!";
             return RedirectToAction("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation");
         }
 

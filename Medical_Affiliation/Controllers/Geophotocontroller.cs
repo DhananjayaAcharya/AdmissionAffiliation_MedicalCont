@@ -74,11 +74,7 @@ namespace GeoPhotoModule.Controllers
                 return Unauthorized(Fail("Session expired. Please log in again."));
 
             if (!ModelState.IsValid)
-                return BadRequest(Fail("Invalid data. GPS location and a valid slot are required."));
-
-            if (req.Latitude is null || req.Longitude is null ||
-                (req.Latitude == 0 && req.Longitude == 0))
-                return BadRequest(Fail("A valid GPS location is required."));
+                return BadRequest(Fail("Invalid data. Please select a valid photo slot."));
 
             var file = req.Photo;
             if (file is null || file.Length == 0)
@@ -141,8 +137,8 @@ namespace GeoPhotoModule.Controllers
                     OriginalFileName = Trunc(Path.GetFileName(file.FileName), 255),
                     ContentType = contentType,
                     FileSizeKB = (int)Math.Ceiling(file.Length / 1024.0),
-                    Latitude = Math.Round(req.Latitude.Value, 6),
-                    Longitude = Math.Round(req.Longitude.Value, 6),
+                    Latitude = req.Latitude.HasValue ? Math.Round(req.Latitude.Value, 6) : null,
+                    Longitude = req.Longitude.HasValue ? Math.Round(req.Longitude.Value, 6) : null,
                     AccuracyMeters = req.AccuracyMeters.HasValue ? Math.Round(req.AccuracyMeters.Value, 2) : null,
                     CapturedOn = req.CapturedOn,
                     DeviceInfo = Trunc(ua, 200),
@@ -160,8 +156,8 @@ namespace GeoPhotoModule.Controllers
                     success = true,
                     photoId,
                     url = Url.Action(nameof(Image), new { id = photoId }),
-                    latitude = Math.Round(req.Latitude.Value, 6),
-                    longitude = Math.Round(req.Longitude.Value, 6),
+                    latitude = req.Latitude.HasValue ? (decimal?)Math.Round(req.Latitude.Value, 6) : null,
+                    longitude = req.Longitude.HasValue ? (decimal?)Math.Round(req.Longitude.Value, 6) : null,
                     accuracyMeters = req.AccuracyMeters,
                     message = "Uploaded"
                 });

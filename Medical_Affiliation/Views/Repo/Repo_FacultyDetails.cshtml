@@ -789,7 +789,7 @@
                                                    style="display:@(Model[i].RecognizedPGTeacher == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].PGRecognitionDocData != null)
                                             {
-                                                <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "pg", mode = "view" })"
+                                                <a href="@Url.Action("ViewFacultyDocument", "FacultyDetails", new { id = Model[i].FacultyDetailId, type = "pg", mode = "view" })"
                                                    target="_blank" class="doc-view-btn"><i class="bi bi-eye"></i> View</a>
                                             }
                                         </div>
@@ -808,7 +808,7 @@
                                                    style="display:@(Model[i].RecognizedPhDTeacher == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].PhDRecognitionDocData != null)
                                             {
-                                                <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "phd", mode = "view" })"
+                                                <a href="@Url.Action("ViewFacultyDocument", "FacultyDetails", new { id = Model[i].FacultyDetailId, type = "phd", mode = "view" })"
                                                    target="_blank" class="doc-view-btn"><i class="bi bi-eye"></i> View</a>
                                             }
                                         </div>
@@ -827,7 +827,7 @@
                                                    style="display:@(Model[i].LitigationPending == "Yes" ? "block" : "none");min-width:140px;" />
                                             @if (Model[i].LitigationDocData != null)
                                             {
-                                                <a href="@Url.Action("ViewFacultyDocument", new { id = Model[i].FacultyDetailId, type = "litig", mode = "view" })"
+                                                <a href="@Url.Action("ViewFacultyDocument", "FacultyDetails", new { id = Model[i].FacultyDetailId, type = "litig", mode = "view" })"
                                                    target="_blank" class="doc-view-btn"><i class="bi bi-eye"></i> View</a>
                                             }
                                         </div>

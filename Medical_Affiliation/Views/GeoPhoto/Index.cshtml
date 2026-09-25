@@ -225,16 +225,23 @@
             if (!['image/jpeg', 'image/png'].includes(file.type)) { const m = 'Only JPG and PNG images are accepted.'; status.textContent = m; showGeoAlert(m, 'danger'); this.value = ''; return; }
             if (file.size > GEO_MAX_BYTES) { const m = 'Image size must not exceed 5 MB.'; status.textContent = m; showGeoAlert(m, 'danger'); this.value = ''; return; }
 
-            status.textContent = 'Getting location...'; this.disabled = true;
+            status.textContent = 'Uploading photo...'; this.disabled = true;
             try {
-                const position = await getLocation();
                 const formData = new FormData();
                 formData.append('__RequestVerificationToken', geoToken);
                 formData.append('CategoryId', slot.dataset.categoryId);
                 formData.append('SlotNo', slot.dataset.slotNo);
-                formData.append('Latitude', position.coords.latitude);
-                formData.append('Longitude', position.coords.longitude);
-                formData.append('AccuracyMeters', position.coords.accuracy);
+
+                // GPS is optional. Use it when available, but do not block photo upload.
+                try {
+                    const position = await getLocation();
+                    formData.append('Latitude', position.coords.latitude);
+                    formData.append('Longitude', position.coords.longitude);
+                    formData.append('AccuracyMeters', position.coords.accuracy);
+                } catch (locationError) {
+                    console.info('Location unavailable; uploading without GPS coordinates.', locationError);
+                }
+
                 formData.append('CapturedOn', new Date().toISOString());
                 formData.append('Photo', file);
                 status.textContent = 'Uploading...';
