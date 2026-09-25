@@ -74,6 +74,8 @@ namespace Medical_Affiliation.Models
 
         public DentalStaffDetailsPreviewVM? DentalStaffDetailsVM { get; set; }
 
+        public List<ActionTakenDeficiencyReportPreviewVM>  ActionTakenDeficiencyReports  { get; set; } = new();
+
         //public
 
     }
@@ -2318,6 +2320,18 @@ namespace Medical_Affiliation.Models
         public bool HasNMCDocument { get; set; }
 
         public int? AdmissionsPerYear { get; set; }
+    }
+
+
+    public class ActionTakenDeficiencyReportPreviewVM
+    {
+        public int ActionTakenDeficiencyReportId { get; set; }
+
+        public string? DeficiencyPointedOut { get; set; }
+
+        public string? ExtentRemedied { get; set; }
+
+        public bool HasRelevantReport { get; set; }
     }
 
     public class LicInspectionDisplayVM

@@ -291,6 +291,8 @@ public class PreviewReportDentalPdf : IDocument
 
                 AddPaymentSection(col);
 
+                AddActionTakenDeficiencyReportSection(col);
+
 
                 //--SMALL GROUP--- NURSING ONLY
                 //AddSmallGroupTeachingSection(col);
@@ -7846,6 +7848,97 @@ public class PreviewReportDentalPdf : IDocument
             });
     }
 
+    private void AddActionTakenDeficiencyReportSection(ColumnDescriptor col)
+    {
+        var reports = _model?.ActionTakenDeficiencyReports;
+
+        if (reports == null || !reports.Any())
+            return;
+
+        // =========================================================
+        // MAIN HEADING
+        // =========================================================
+
+        AddMainHeading(
+            col,
+            "Action Taken on Deficiency Report"
+        );
+
+        // =========================================================
+        // DEFICIENCY DETAILS
+        // =========================================================
+
+        AddSubHeading(
+            col,
+            "Action Taken Deficiency Details"
+        );
+
+        int slNo = 1;
+
+        foreach (var report in reports)
+        {
+            col.Item()
+                .PaddingTop(8)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(5);
+                    });
+
+                    // -------------------------------------------------
+                    // Sl. No.
+                    // -------------------------------------------------
+
+                    AddTextRow(
+                        table,
+                        "Sl. No.",
+                        slNo.ToString()
+                    );
+
+                    // -------------------------------------------------
+                    // Deficiency Pointed Out
+                    // -------------------------------------------------
+
+                    AddTextRow(
+                        table,
+                        "Deficiency Pointed Out",
+                        string.IsNullOrWhiteSpace(
+                            report.DeficiencyPointedOut)
+                            ? "—"
+                            : report.DeficiencyPointedOut
+                    );
+
+                    // -------------------------------------------------
+                    // Extent Remedied
+                    // -------------------------------------------------
+
+                    AddTextRow(
+                        table,
+                        "Extent Remedied",
+                        string.IsNullOrWhiteSpace(
+                            report.ExtentRemedied)
+                            ? "—"
+                            : report.ExtentRemedied
+                    );
+
+                    // -------------------------------------------------
+                    // Relevant Report
+                    // -------------------------------------------------
+
+                    AddTextRow(
+                        table,
+                        "Relevant Report",
+                        report.HasRelevantReport
+                            ? "Available"
+                            : "—"
+                    );
+                });
+
+            slNo++;
+        }
+    }
     private void AddPaymentSection(ColumnDescriptor col)
     {
         var payment = _model?.DentalPaymentVM;

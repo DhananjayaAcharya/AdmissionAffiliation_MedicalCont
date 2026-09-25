@@ -183,6 +183,7 @@ builder.Services.AddScoped<PaymentCalculationController>();
 builder.Services.AddScoped<ICADeclarationService, CADeclarationService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<ICADentalStaffDetailsPreviewService, CADentalStaffDetailsPreviewService>();
+builder.Services.AddScoped< IActionTakenDeficiencyReportService, ActionTakenDeficiencyReportService>();
 
 builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("WhatsAppSettings"));
 builder.Services.AddHttpClient<IWhatsAppService, WhatsAppService>();

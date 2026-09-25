@@ -805,6 +805,25 @@
                         </a>
                     </li>
                 }
+
+                @if (Model.ActionTakenDeficiencyReports != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#action-taken-deficiency-report">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span>Action Taken Deficiency Report</span>
+                        </a>
+                    </li>
+                }
+                @if (Model.DentalPaymentVM != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dental-payment-group">
+                            <i class="bi bi-credit-card"></i>
+                            <span>Payment Details</span>
+                        </a>
+                    </li>
+                }
             </ul>
         </div>
 
@@ -1179,12 +1198,19 @@
             {
                 <div class="section-separator"></div>
             }
+            @if (Model.ActionTakenDeficiencyReports != null && FacultyCode == "2")
+            {
+                <div id="action-taken-deficiency-report">
+                    @await Html.PartialAsync("ActionTakenReport/_ActionTakenDeficiencyReports", Model.ActionTakenDeficiencyReports)
+                </div>
+            }
             @if (Model.DentalPaymentVM != null)
             {
                 <div id="payment-group">
                     @await Html.PartialAsync("PaymentDetails/paymentDetails", Model.DentalPaymentVM)
                 </div>
             }
+            
 
             <!-- Section Separator -->
             @* @if (Model.FinanceVm != null && Model.AdminTeachAndHostelVM != null )
@@ -1370,7 +1396,9 @@
             '#admin-group',
             '#fac-group',
             '#payment-group',
-            "#field-practice-area-group"
+            "#field-practice-area-group",
+            "#action-taken-deficiency-report",
+            "#dental-payment-group"
         ].join(',');
 
 

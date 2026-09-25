@@ -410,6 +410,10 @@
                                 Relevant Report
                             </th>
 
+                            <th style="width:10%;">
+                                Date
+                            </th>
+
                             <th class="text-end pe-4" style="width:15%;">
                                 Actions
                             </th>
@@ -488,6 +492,13 @@
                                             </span>
                                         }
 
+                                    </td>
+
+                                    <td>
+                                        <span class="text-muted small">
+                                            @(item.ModifiedDate?.ToString("dd-MM-yyyy")
+                                                ?? item.CreatedDate.ToString("dd-MM-yyyy"))
+                                        </span>
                                     </td>
 
 
