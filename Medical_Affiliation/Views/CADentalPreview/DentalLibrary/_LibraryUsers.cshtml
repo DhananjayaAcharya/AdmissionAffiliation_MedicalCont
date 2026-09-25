@@ -1,0 +1,151 @@
+﻿@model Medical_Affiliation.Models.DentalLibraryUserPreviewVM
+
+@if (Model != null)
+{
+    <div class="section-block">
+
+        <div class="section-header-block">
+
+            <div class="section-title-text section-badge">
+                <i class="bi bi-people"></i>
+                Library Users
+            </div>
+
+            <p class="section-description">
+                Details of library users and user education programmes
+            </p>
+
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>User Category</th>
+                        <th class="text-center">Number of Users</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td class="fw-semibold">
+                            Teaching Staff
+                        </td>
+                        <td class="text-center">
+                            @Model.NoOfTeachingStaff
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="fw-semibold">
+                            Research Scholars / Assistants
+                        </td>
+                        <td class="text-center">
+                            @Model.NoOfResearchScholarsAssistants
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="fw-semibold">
+                            Postgraduate Students
+                        </td>
+                        <td class="text-center">
+                            @Model.NoOfPostGraduateStudents
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="fw-semibold">
+                            Undergraduate Students
+                        </td>
+                        <td class="text-center">
+                            @Model.NoOfUnderGraduateStudents
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="fw-semibold">
+                            Administrative Staff
+                        </td>
+                        <td class="text-center">
+                            @Model.NoOfAdministrativeStaff
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="fw-semibold">
+                            Paramedical Staff
+                        </td>
+                        <td class="text-center">
+                            @Model.NoOfParaMedicalStaff
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="fw-semibold">
+                            Outsiders
+                        </td>
+                        <td class="text-center">
+                            @Model.NoOfOutsiders
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- User Education Programme -->
+
+        <div class="mt-4">
+
+            <div class="section-header-block">
+
+                <div class="section-title-text section-badge">
+                    <i class="bi bi-mortarboard"></i>
+                    User Education Programme
+                </div>
+
+            </div>
+
+            <table class="table data-table table-hover align-middle">
+
+                <tbody>
+
+                    <tr>
+                        <th style="width: 60%;">
+                            Provide User Education Programmes
+                        </th>
+
+                        <td>
+
+                            @if (Model.ProvideUserEducationProgrammes)
+                            {
+                                <span class="status-badge-maintained">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Yes
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    No
+                                </span>
+                            }
+
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

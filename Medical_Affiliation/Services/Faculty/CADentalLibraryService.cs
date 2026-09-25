@@ -1,5 +1,6 @@
 ﻿
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
@@ -487,6 +488,36 @@ namespace Medical_Affiliation.Services.Faculty
                     CurrentlyWorking = !x.ExperienceTo.HasValue
                 })
                 .ToList();
+
+
+            var existingUsers = await _context.UserDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId == facultyCode &&
+                    x.TypeId == affiliationType &&
+                    x.CourseLevel == courseLevel &&
+                    x.IsActive);
+
+            model.LibraryUsers = new DentalLibraryUserPreviewVM
+            {
+                NoOfTeachingStaff = existingUsers.NoOfTeachingStaff ?? 0,
+
+                NoOfResearchScholarsAssistants = existingUsers.NoOfResearchScholarsAssistants ?? 0,
+
+                NoOfPostGraduateStudents = existingUsers.NoOfPostGraduateStudents ?? 0,
+
+                NoOfUnderGraduateStudents = existingUsers.NoOfUnderGraduateStudents ?? 0,
+
+                NoOfAdministrativeStaff = existingUsers.NoOfAdministrativeStaff ?? 0,
+
+                NoOfParaMedicalStaff = existingUsers.NoOfParaMedicalStaff ?? 0,
+
+                NoOfOutsiders = existingUsers.NoOfOutsiders ?? 0,
+
+                ProvideUserEducationProgrammes = existingUsers.ProvideUserEducationProgrammes.HasValue
+            };
+
 
             return model;
         }

@@ -367,4 +367,9 @@
         @await Html.PartialAsync("DentalLibrary/_LibraryStaff", Model.LibraryStaff)
     }
 
+    @if (Model.LibraryUsers != null)
+    {
+        @await Html.PartialAsync("DentalLibrary/_LibraryUsers", Model.LibraryUsers )
+    }
+
 </div>

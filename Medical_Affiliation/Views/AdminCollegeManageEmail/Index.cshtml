@@ -342,6 +342,67 @@
             </a>
         </div>
 
+        <div class="card filter-card border-0 mb-4">
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-1">
+                            Import College Master
+                        </h5>
+
+                        <small class="text-muted">
+                            Upload the college master Excel file containing college code,
+                            college name, email and other details.
+                        </small>
+                    </div>
+                </div>
+
+                <form id="collegeImportForm"
+                      enctype="multipart/form-data">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="row align-items-end g-3">
+
+                        <div class="col-md-8">
+
+                            <label class="section-label d-block mb-2">
+                                College Master File
+                            </label>
+
+                            <input type="file"
+                                   id="collegeMasterFile"
+                                   name="file"
+                                   class="form-control"
+                                   accept=".xlsx,.xls,.csv" />
+
+                            <small class="text-muted">
+                                Supported formats: Excel (.xlsx, .xls) or CSV.
+                            </small>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <button type="button"
+                                    id="importCollegeBtn"
+                                    class="btn btn-primary w-100">
+
+                                <i class="bi bi-upload me-1"></i>
+                                Import College Data
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
         <div class="card filter-card border-0">
             <div class="card-body p-4">
                 <div class="row align-items-end">
@@ -359,7 +420,7 @@
     <!-- COLLEGE TABLE -->
     <!-- ============================= -->
 
-    <div id="collegeTableCard" class="card results-card border-0 shadow-sm d-none">\
+    <div id="collegeTableCard" class="card results-card border-0 shadow-sm d-none">
         <!-- ============================= -->
         <!-- EMAIL SUMMARY -->
         <!-- ============================= -->
@@ -1436,5 +1497,110 @@
                 .replaceAll("'", "&#039;");
         }
 
+            const importCollegeBtn =
+                document.getElementById("importCollegeBtn");
+
+            const collegeMasterFile =
+                document.getElementById("collegeMasterFile");
+
+
+            importCollegeBtn.addEventListener("click", async function () {
+
+                const file = collegeMasterFile.files[0];
+
+                if (!file) {
+
+                    showEmailAlert(
+                        "warning",
+                        "Please select an Excel file."
+                    );
+
+                    return;
+                }
+
+                const formData =
+                    new FormData();
+
+                formData.append("file", file);
+
+                const token =
+                    document.querySelector(
+                        '#collegeImportForm input[name="__RequestVerificationToken"]'
+                    ).value;
+
+                formData.append(
+                    "__RequestVerificationToken",
+                    token
+                );
+
+                importCollegeBtn.disabled = true;
+
+                importCollegeBtn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                    Importing...
+                `;
+
+                try {
+
+                    const response =
+                        await fetch(
+                            '@Url.Action("ImportCollegeMaster", "AdminCollegeManageEmail")',
+                            {
+                                method: "POST",
+                                body: formData
+                            }
+                        );
+
+                    const result =
+                        await response.json();
+
+                    if (!result.success) {
+
+                        throw new Error(
+                            result.message ||
+                            "Unable to import college data."
+                        );
+                    }
+
+                    showEmailAlert(
+                        "success",
+                        `${result.message} Inserted: ${result.inserted}, Updated: ${result.updated}, Skipped: ${result.skipped}`
+                    );
+
+                    collegeMasterFile.value = "";
+
+                    // Reload current faculty data if selected
+                    if (facultyDropdown.value) {
+                        facultyDropdown.dispatchEvent(
+                            new Event("change")
+                        );
+                    }
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "College import error:",
+                        error
+                    );
+
+                    showEmailAlert(
+                        "error",
+                        error.message ||
+                        "Unable to import college data."
+                    );
+
+                }
+                finally {
+
+                    importCollegeBtn.disabled = false;
+
+                    importCollegeBtn.innerHTML = `
+                        <i class="bi bi-upload me-1"></i>
+                        Import College Data
+                    `;
+                }
+
+            });
     </script>
-}
+        }

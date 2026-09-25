@@ -1,18 +1,19 @@
-﻿using Medical_Affiliation.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Admission_Affiliation.Models;
+using BCrypt.Net;
+using Medical_Affiliation.DATA;
+using Medical_Affiliation.Models;
+using Medical_Affiliation.ViewModels;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
-using Medical_Affiliation.DATA;
 using Microsoft.IdentityModel.Tokens;
-using System.Net.Mail;
 using System.Net;
-using Admission_Affiliation.Models;
-using BCrypt.Net;
+using System.Net.Mail;
+using System.Security.Claims;
 
 namespace Admission_Affiliation.Controllers
 {
@@ -1350,6 +1351,103 @@ namespace Admission_Affiliation.Controllers
         public async Task<IActionResult> AdminMenu()
         {
             return View();
+        }
+
+
+        // GET: /Admin/BinderyColleges?facultyCode=ABC
+        public async Task<IActionResult> BinderyColleges()
+        {
+            const string facultyCode = "2";
+
+            var colleges = await (
+                from college in _context.AffiliationCollegeMasters
+
+                join equipment in _context.CaMedLibraryEquipments
+                    .Where(x =>
+                        x.FacultyCode == facultyCode &&
+                        x.EquipmentName == "Bindery")
+                    on college.CollegeCode equals equipment.CollegeCode
+                    into equipmentGroup
+
+                from equipment in equipmentGroup.DefaultIfEmpty()
+
+                where college.FacultyCode == facultyCode
+
+                select new BinderyCollegeViewModel
+                {
+                    CollegeCode = college.CollegeCode,
+
+                    CollegeName = college.CollegeName,
+
+                    FacultyCode = facultyCode,
+
+                    HasEquipment = equipment != null
+                        ? equipment.HasEquipment
+                        : null,
+
+                    CourseLevel = equipment != null
+                        ? equipment.CourseLevel
+                        : "PG"
+                }
+            )
+            .OrderBy(x => x.CollegeName)
+            .ToListAsync();
+
+            ViewBag.FacultyCode = facultyCode;
+
+            return View(colleges);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateBindery(string collegeCode, string binderyValue)
+        {
+            const int facultyCode = 2;
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+            {
+                TempData["Error"] = "College code is required.";
+                return RedirectToAction(nameof(BinderyColleges));
+            }
+
+
+            if (string.IsNullOrWhiteSpace(binderyValue))
+            {
+                TempData["Error"] = "Bindery value is required.";
+                return RedirectToAction(nameof(BinderyColleges));
+            }
+
+
+            var entity = await _context.CaMedLibraryEquipments
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode.ToString() &&
+                    x.EquipmentName == "Bindery");
+
+            if (entity == null)
+            {
+                entity = new CaMedLibraryEquipment
+                {
+                    CollegeCode = collegeCode,
+                    FacultyCode = facultyCode.ToString(),
+                    EquipmentName = "Bindery",
+                    CourseLevel = "PG",
+                    HasEquipment = binderyValue
+
+                };
+
+                _context.CaMedLibraryEquipments.Add(entity);
+            }
+            else
+            {
+                entity.HasEquipment = binderyValue;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Bindery status updated for college {collegeCode}.";
+
+            return RedirectToAction(nameof(BinderyColleges));
         }
 
         [HttpGet]

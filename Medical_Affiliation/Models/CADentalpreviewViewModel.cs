@@ -32,7 +32,7 @@ namespace Medical_Affiliation.Models
         public VehicleDetailPreviewViewModel? VehiclePreviewVM { get; set; }
         public EquipmentPreviewViewModel? EquipmentPreviewVM { get; set; }
         public MedicalLibraryPreviewVM? MedicalLibraryPreviewVM { get; set; }
-        public DentalLibraryPreviewVM? DentalLibraryPreviewVM { get; set; }
+        //public DentalLibraryPreviewVM? DentalLibraryPreviewVM { get; set; }
 
         // New Section
         public HumanResourcesVM? HumanResourcesVM { get; set; }
@@ -150,6 +150,24 @@ namespace Medical_Affiliation.Models
         public InstitutionOtherDisplayVM OtherDetails { get; set; }
     }
 
+    public class DentalLibraryUserPreviewVM
+    {
+        public int NoOfTeachingStaff { get; set; }
+
+        public int NoOfResearchScholarsAssistants { get; set; }
+
+        public int NoOfPostGraduateStudents { get; set; }
+
+        public int NoOfUnderGraduateStudents { get; set; }
+
+        public int NoOfAdministrativeStaff { get; set; }
+
+        public int NoOfParaMedicalStaff { get; set; }
+
+        public int NoOfOutsiders { get; set; }
+
+        public bool ProvideUserEducationProgrammes { get; set; }
+    }
     public class FacultyDetailsPreviewVM
     {
         public int FacultyDetailId { get; set; }
@@ -623,6 +641,8 @@ namespace Medical_Affiliation.Models
 
         public List<DentalLibraryServicePreviewVM> Services { get; set; } = new();
         public List<DentalLibraryStaffPreviewVM> LibraryStaff { get; set; } = new();
+
+        public DentalLibraryUserPreviewVM? LibraryUsers { get; set; }
 
     }
 

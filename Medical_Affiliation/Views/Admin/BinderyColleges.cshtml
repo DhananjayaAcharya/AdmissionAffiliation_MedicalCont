@@ -1,0 +1,876 @@
+﻿@model IEnumerable<Medical_Affiliation.ViewModels.BinderyCollegeViewModel>
+
+@{
+    ViewData["Title"] = "Bindery Management";
+
+    var colleges = Model?.ToList() ?? new List<Medical_Affiliation.ViewModels.BinderyCollegeViewModel>();
+
+    var totalColleges = colleges.Count;
+
+    var availableCount = colleges.Count(x =>
+        !string.IsNullOrWhiteSpace(x.HasEquipment) &&
+        (
+            x.HasEquipment.Equals("Yes", StringComparison.OrdinalIgnoreCase) ||
+            x.HasEquipment.Equals("Y", StringComparison.OrdinalIgnoreCase)
+        ));
+
+    var notAvailableCount = totalColleges - availableCount;
+}
+
+<style>
+    body {
+        background: #f5f7fb;
+    }
+
+    .admin-wrapper {
+        padding: 30px 0 50px;
+    }
+
+    /* Header */
+    .page-header {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        border-radius: 18px;
+        padding: 28px 32px;
+        color: #fff;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, .12);
+    }
+
+    .page-header h2 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+    }
+
+    .page-header p {
+        margin: 7px 0 0;
+        color: #cbd5e1;
+        font-size: 14px;
+    }
+
+    .faculty-badge {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.18);
+        padding: 9px 15px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    /* Summary Cards */
+    .summary-card {
+        background: #fff;
+        border: 0;
+        border-radius: 16px;
+        padding: 20px;
+        height: 100%;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
+        transition: .2s ease;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, .10);
+    }
+
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        margin-bottom: 14px;
+    }
+
+    .icon-blue {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .icon-green {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .icon-red {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .summary-label {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 3px;
+    }
+
+    .summary-value {
+        font-size: 27px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    /* Main Card */
+    .table-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 5px 25px rgba(15, 23, 42, .06);
+        overflow: hidden;
+        margin-top: 25px;
+    }
+
+    .table-card-header {
+        padding: 22px 25px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .table-card-header h5 {
+        margin: 0;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .table-card-header small {
+        color: #64748b;
+    }
+
+    /* Search */
+    .search-box {
+        position: relative;
+        width: 280px;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 13px;
+        top: 11px;
+        color: #94a3b8;
+    }
+
+    .search-box input {
+        width: 100%;
+        height: 40px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0 14px 0 38px;
+        outline: none;
+        font-size: 13px;
+        background: #f8fafc;
+    }
+
+    .search-box input:focus {
+        border-color: #94a3b8;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, .08);
+    }
+
+    /* Table */
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 750px;
+    }
+
+    .admin-table thead {
+        background: #f8fafc;
+    }
+
+    .admin-table th {
+        padding: 14px 20px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #64748b;
+        font-weight: 700;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .admin-table td {
+        padding: 17px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        color: #334155;
+        font-size: 14px;
+    }
+
+    .admin-table tbody tr {
+        transition: background .15s ease;
+    }
+
+    .admin-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .sl-no {
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .college-code {
+        display: inline-flex;
+        align-items: center;
+        background: #f1f5f9;
+        color: #475569;
+        border-radius: 7px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .college-name {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .faculty-code {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    /* Status */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-yes {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-no {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .status-other {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    /* Empty */
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 65px;
+        height: 65px;
+        background: #f1f5f9;
+        color: #94a3b8;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 25px;
+    }
+
+    .empty-state h5 {
+        color: #334155;
+        font-weight: 700;
+    }
+
+    .empty-state p {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    /* Footer */
+    .table-footer {
+        padding: 16px 25px;
+        background: #fafafa;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    @@media (max-width: 768px) {
+        .admin-wrapper {
+            padding: 15px 0 30px;
+        }
+
+        .page-header {
+            padding: 22px;
+        }
+
+            .page-header h2 {
+                font-size: 21px;
+            }
+
+        .search-box {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="container-fluid admin-wrapper">
+
+    <!-- Success / Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm"
+             role="alert">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm"
+             role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- Page Header -->
+    <div class="page-header">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+
+                <h2>
+                    <i class="bi bi-building me-2"></i>
+                    Bindery Management
+                </h2>
+
+                <p>
+                    Manage bindery equipment information for colleges
+                    under Faculty Code 2.
+                </p>
+
+            </div>
+
+
+            <div class="d-flex align-items-center gap-2">
+
+                <!-- Back to Admin Dashboard -->
+                <a asp-controller="Admin"
+                   asp-action="AdminDashboard"
+                   class="btn btn-light back-btn">
+
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to Dashboard
+
+                </a>
+
+
+                <!-- Faculty Code -->
+                <div class="faculty-badge">
+
+                    <i class="bi bi-diagram-3 me-1"></i>
+
+                    Faculty Code:
+                    <strong>@ViewBag.FacultyCode</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Summary Cards -->
+    <div class="row g-4">
+
+        <!-- Total -->
+        <div class="col-md-4">
+
+            <div class="summary-card">
+
+                <div class="summary-icon icon-blue">
+                    <i class="bi bi-buildings"></i>
+                </div>
+
+                <div class="summary-label">
+                    Total Colleges
+                </div>
+
+                <div class="summary-value">
+                    @totalColleges
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Available -->
+        <div class="col-md-4">
+
+            <div class="summary-card">
+
+                <div class="summary-icon icon-green">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+
+                <div class="summary-label">
+                    Bindery Available
+                </div>
+
+                <div class="summary-value">
+                    @availableCount
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Not Available -->
+        <div class="col-md-4">
+
+            <div class="summary-card">
+
+                <div class="summary-icon icon-red">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+
+                <div class="summary-label">
+                    Bindery Not Available
+                </div>
+
+                <div class="summary-value">
+                    @notAvailableCount
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- College Table -->
+    <div class="table-card">
+
+        <!-- Table Header -->
+        <div class="table-card-header">
+
+            <div>
+
+                <h5>
+                    <i class="bi bi-list-ul me-2"></i>
+                    College Bindery Details
+                </h5>
+
+                <small>
+                    Manage bindery availability for Faculty Code
+                    @ViewBag.FacultyCode
+                </small>
+
+            </div>
+
+
+            <!-- Search -->
+            <div class="search-box">
+
+                <i class="bi bi-search"></i>
+
+                <input type="text"
+                       id="collegeSearch"
+                       placeholder="Search college..." />
+
+            </div>
+
+        </div>
+
+
+        @if (colleges.Any())
+        {
+            <div class="table-container">
+
+                <table class="admin-table"
+                       id="collegeTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th width="60">
+                                #
+                            </th>
+
+                            <th>
+                                College Code
+                            </th>
+
+                            <th>
+                                College Name
+                            </th>
+
+                            <th>
+                                Faculty
+                            </th>
+
+                            <th>
+                                Course Level
+                            </th>
+
+                            <th>
+                                Current Status
+                            </th>
+
+                            <th width="240">
+                                Update Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @{
+                            int slNo = 1;
+                        }
+
+
+                        @foreach (var item in colleges)
+                        {
+                            var hasEquipment =
+                                item.HasEquipment?.Trim() ?? "";
+
+                            var isYes =
+                                hasEquipment.Equals(
+                                    "Yes",
+                                    StringComparison.OrdinalIgnoreCase
+                                )
+                                ||
+                                hasEquipment.Equals(
+                                    "Y",
+                                    StringComparison.OrdinalIgnoreCase
+                                );
+
+                            var isNo =
+                                hasEquipment.Equals(
+                                    "No",
+                                    StringComparison.OrdinalIgnoreCase
+                                )
+                                ||
+                                hasEquipment.Equals(
+                                    "N",
+                                    StringComparison.OrdinalIgnoreCase
+                                );
+
+
+                            <tr>
+
+                                <!-- Serial Number -->
+                                <td class="sl-no">
+                                    @slNo
+                                </td>
+
+
+                                <!-- College Code -->
+                                <td>
+
+                                    <span class="college-code">
+                                        @item.CollegeCode
+                                    </span>
+
+                                </td>
+
+
+                                <!-- College Name -->
+                                <td>
+
+                                    <span class="college-name">
+                                        @item.CollegeName
+                                    </span>
+
+                                </td>
+
+
+                                <!-- Faculty -->
+                                <td>
+
+                                    <span class="faculty-code">
+                                        @item.FacultyCode
+                                    </span>
+
+                                </td>
+
+
+                                <!-- Course Level -->
+                                <td>
+
+                                    <span class="faculty-code">
+                                        @item.CourseLevel
+                                    </span>
+
+                                </td>
+
+
+                                <!-- Current Status -->
+                                <td>
+
+                                    @if (isYes)
+                                    {
+                                        <span class="status-badge status-yes">
+
+                                            <span class="status-dot"></span>
+
+                                            Available
+
+                                        </span>
+                                    }
+                                    else if (isNo)
+                                    {
+                                        <span class="status-badge status-no">
+
+                                            <span class="status-dot"></span>
+
+                                            Not Available
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-other">
+
+                                            <span class="status-dot"></span>
+
+                                            Not Updated
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- Update -->
+                                <td>
+
+                                    <form asp-controller="Admin"
+                                          asp-action="UpdateBindery"
+                                          method="post"
+                                          class="bindery-form">
+
+                                        @Html.AntiForgeryToken()
+
+
+                                        <!-- College Code -->
+                                        <input type="hidden"
+                                               name="collegeCode"
+                                               value="@item.CollegeCode" />
+
+
+                                        <div class="update-control">
+
+                                            <select name="binderyValue"
+                                                    class="form-select form-select-sm">
+
+                                                @if (isYes)
+                                                {
+                                                    <option value="Y"
+                                                            selected>
+                                                        Yes - Available
+                                                    </option>
+
+                                                    <option value="N">
+                                                        No - Not Available
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="Y">
+                                                        Yes - Available
+                                                    </option>
+
+                                                    <option value="N"
+                                                            selected>
+                                                        No - Not Available
+                                                    </option>
+                                                }
+
+                                            </select>
+
+
+                                            <button type="submit"
+                                                    class="btn btn-primary btn-sm save-btn">
+
+                                                <i class="bi bi-check-lg me-1"></i>
+
+                                                Save
+
+                                            </button>
+
+                                        </div>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+
+                            slNo++;
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- Footer -->
+            <div class="table-footer">
+
+                <i class="bi bi-info-circle me-1"></i>
+
+                Showing
+                <strong>@totalColleges</strong>
+                college(s) for Faculty Code
+                <strong>@ViewBag.FacultyCode</strong>.
+
+            </div>
+
+        }
+        else
+        {
+            <!-- Empty State -->
+            <div class="empty-state">
+
+                <div class="empty-icon">
+
+                    <i class="bi bi-building-x"></i>
+
+                </div>
+
+                <h5>
+                    No Colleges Found
+                </h5>
+
+                <p>
+                    There are no bindery records available for
+                    Faculty Code @ViewBag.FacultyCode.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const searchInput =
+            document.getElementById("collegeSearch");
+
+        const table =
+            document.getElementById("collegeTable");
+
+
+        if (!searchInput || !table) {
+            return;
+        }
+
+
+        searchInput.addEventListener("keyup", function() {
+
+            const searchValue =
+                this.value.toLowerCase().trim();
+
+            const rows =
+                table.querySelectorAll("tbody tr");
+
+
+            rows.forEach(function(row) {
+
+                const rowText =
+                    row.textContent.toLowerCase();
+
+                row.style.display =
+                    rowText.includes(searchValue)
+                        ? ""
+                        : "none";
+
+            });
+
+        });
+
+
+        /*
+         * Prevent double submission
+         */
+        const forms =
+            document.querySelectorAll(".bindery-form");
+
+
+        forms.forEach(function(form) {
+
+            form.addEventListener("submit", function() {
+
+                const button =
+                    form.querySelector(".save-btn");
+
+                if (!button) {
+                    return;
+                }
+
+                button.disabled = true;
+
+                button.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+
+            });
+
+        });
+
+    });
+
+</script>

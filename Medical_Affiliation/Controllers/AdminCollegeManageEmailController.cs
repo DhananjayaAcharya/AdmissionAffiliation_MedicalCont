@@ -1,4 +1,5 @@
 ﻿
+using ClosedXML.Excel;
 using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -59,6 +60,131 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
 
             return Json(colleges);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportCollegeMaster(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Please select an Excel file."
+                });
+            }
+
+            var facultyCode = int.Parse(HttpContext.Session.GetString("FacultyCode"));
+            if (facultyCode == 0) facultyCode = 2;
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (extension != ".xlsx")
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Please upload an .xlsx Excel file."
+                });
+            }
+
+            try
+            {
+                using var stream = file.OpenReadStream();
+
+                using var workbook = new XLWorkbook(stream);
+
+                var worksheet = workbook.Worksheets.FirstOrDefault();
+
+                if (worksheet == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Excel worksheet not found."
+                    });
+                }
+
+                var rows = worksheet.RowsUsed().Skip(1);
+
+                int updated = 0;
+                int skipped = 0;
+                int notFound = 0;
+
+                foreach (var row in rows)
+                {
+                    // Excel:
+                    // Column 1 = CollegeCode
+                    // Column 2 = CollegeName
+                    // Column 3 = FacultyCode
+                    // Column 4 = CollegeEmail
+                    //
+                    // Only CollegeCode and CollegeEmail are used.
+                    // No other database fields are touched.
+
+                    var collegeCode = row.Cell(1)
+                        .GetString()
+                        .Trim();
+
+                    var collegeEmail = row.Cell(4)
+                        .GetString()
+                        .Trim();
+
+                    if (string.IsNullOrWhiteSpace(collegeCode))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    // If email is blank, don't overwrite existing email
+                    if (string.IsNullOrWhiteSpace(collegeEmail))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    // Match CollegeCode AND FacultyCode = 2
+                    var existingCollege =
+                        await _context.AffiliationCollegeMasters
+                            .FirstOrDefaultAsync(x =>
+                                x.CollegeCode == collegeCode &&
+                                x.FacultyCode == "2");
+
+                    // College not found
+                    if (existingCollege == null)
+                    {
+                        notFound++;
+                        continue;
+                    }
+
+                    // ONLY update CollegeEmail
+                    existingCollege.CollegeEmail = collegeEmail;
+
+                    updated++;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "College email import completed successfully.",
+                    updated,
+                    skipped,
+                    notFound
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
 
