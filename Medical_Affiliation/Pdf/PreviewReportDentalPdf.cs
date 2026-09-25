@@ -695,7 +695,7 @@ public class PreviewReportDentalPdf : IDocument
 
     private void AddTeachingFacultyDetails(ColumnDescriptor col)
     {
-        var humanResources = _model?.HumanResources;
+        var humanResources = _model?.HumanResourcesVM;
 
         if (humanResources == null)
             return;
@@ -794,7 +794,7 @@ public class PreviewReportDentalPdf : IDocument
 
                         table.Cell().Border(1).Padding(4)
                             .AlignCenter()
-                            .Text(faculty.IsExaminer == true ? "Yes" : "No");
+                            .Text(faculty.IsExaminer == "true" ? "Yes" : "No");
 
                         table.Cell().Border(1).Padding(4)
                             .AlignCenter()
@@ -892,10 +892,7 @@ public class PreviewReportDentalPdf : IDocument
                                             : string.Empty);
 
                                 table.Cell().Border(1).Padding(4)
-                                    .Text(
-                                        firstExperience
-                                            ? faculty.TotalExperience ?? "—"
-                                            : string.Empty);
+                                    .Text(faculty.TotalExperience.ToString("0.##"));
 
                                 table.Cell().Border(1).Padding(4)
                                     .Text(
@@ -919,8 +916,7 @@ public class PreviewReportDentalPdf : IDocument
 
                                 table.Cell().Border(1).Padding(4)
                                     .AlignCenter()
-                                    .Text(
-                                        experience.Experience ?? "—");
+                                    .Text(faculty.TotalExperience.ToString("0.##"));
 
                                 firstExperience = false;
                             }
@@ -934,7 +930,7 @@ public class PreviewReportDentalPdf : IDocument
                                 .Text(faculty.DepartmentName ?? "—");
 
                             table.Cell().Border(1).Padding(4)
-                                .Text(faculty.TotalExperience ?? "—");
+                                .Text(faculty.TotalExperience.ToString("0.##"));
 
                             table.Cell().Border(1).Padding(4)
                                 .Text("—");

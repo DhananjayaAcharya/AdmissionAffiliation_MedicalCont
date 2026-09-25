@@ -96,44 +96,135 @@ namespace Medical_Affiliation.Services.Faculty
                 .ToList();
 
             // Teaching Faculty Department-wise
-            model.HumanResources = new HumanResourcesVM
-            {
-                TeachingFacultyExperiences = vm.FacultyRows
-                    .Select(f => new FacultyExperiencePreviewVM
-                    {
-                        NameOfFaculty = f.NameOfFaculty,
-                        DepartmentCode = f.DepartmentCode,
-                        DepartmentName = f.DepartmentName,
-                        TotalExperience = f.TotalExperience,
+            // ============================================================
+            // TEACHING FACULTY DEPARTMENT-WISE
+            // ============================================================
 
-                        Experiences = f.Experiences
-                            .Select(e => new FacultyExperienceDetailPreviewVM
+            var teachingFacultyDetails = await _context.TeachingStaffDepartmentWiseDetails
+                .Where(x =>
+                    x.CollegeCode == CollegeCode &&
+                    x.FacultyCode == FacultyCode)
+                .OrderBy(x => x.NameOfFaculty)
+                .ThenBy(x => x.CourseLevel)
+                .ThenBy(x => x.DesignationName)
+                .ToListAsync();
+
+            var teachingDepartmentMasters = await _context.MstCourses
+                .Where(x =>
+                    x.FacultyCode.ToString() == FacultyCode)
+                .ToListAsync();
+
+            vm.TeachingFacultyDepartments = teachingFacultyDetails
+                .GroupBy(x => new
+                {
+                    x.NameOfFaculty,
+                    x.DepartmentCode
+                })
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                    var department = teachingDepartmentMasters
+                        .FirstOrDefault(d =>
+                            d.CourseCode.ToString() == g.Key.DepartmentCode);
+
+                    return new TeachingFacultyDepartmentPreviewVM
+                    {
+                        NameOfFaculty = g.Key.NameOfFaculty,
+
+                        DepartmentCode = g.Key.DepartmentCode,
+
+                        DepartmentName =
+                            department?.SubjectName
+                            ?? department?.CourseName
+                            ?? g.Key.DepartmentCode,
+
+                        TotalExperience =
+                            g.FirstOrDefault()?.TotalExperience ?? 0,
+
+                        Experiences = g.Select(x =>
+                        {
+                            DateTime? fromDate = null;
+                            DateTime? toDate = null;
+                            string? collegeCode = null;
+
+                            if (x.CourseLevel == "UG")
                             {
-                                Id = e.Id,
-                                CollegeCode = e.CollegeCode,
-                                DesignationCode = e.DesignationCode,
-                                DesignationName = e.DesignationName,
-                                CourseLevel = e.CourseLevel,
-                                FromDate = e.FromDate,
-                                ToDate = e.ToDate,
-                                Experience = e.Experience
-                            })
-                            .ToList()
-                    })
-                    .ToList(),
+                                fromDate = x.Ugfrom?
+                                    .ToDateTime(TimeOnly.MinValue);
 
-                StaffShortages = vm.StaffShortages
-                    .Select(s => new StaffShortagePreviewVM
-                    {
-                        Id = s.Id,
-                        CollegeCode = s.CollegeCode,
-                        FacultyId = s.FacultyId,
-                        PostName = s.PostName,
-                        Reason = s.Reason,
-                        Arrangements = s.Arrangements
-                    })
-                    .ToList()
-            };
+                                toDate = x.Ugto?
+                                    .ToDateTime(TimeOnly.MinValue);
+
+                                collegeCode = x.UgcollegeCode;
+                            }
+                            else
+                            {
+                                fromDate = x.Pgfrom?
+                                    .ToDateTime(TimeOnly.MinValue);
+
+                                toDate = x.Pgto?
+                                    .ToDateTime(TimeOnly.MinValue);
+
+                                collegeCode = x.PgcollegeCode;
+                            }
+
+                            return new FacultyExperienceDetailPreviewVM
+                            {
+                                Id = x.Id,
+
+                                CollegeCode = collegeCode,
+
+                                DesignationCode =
+                                    x.DesignationCode,
+
+                                DesignationName =
+                                    x.DesignationName,
+
+                                CourseLevel =
+                                    x.CourseLevel,
+
+                                FromDate =
+                                    fromDate,
+
+                                ToDate =
+                                    toDate,
+
+                                Experience =
+                                    x.TotalExperience ?? 0
+                            };
+                        }).ToList()
+                    };
+                })
+                .ToList();
+
+            // ============================================================
+            // STAFF SHORTAGE
+            // ============================================================
+
+            var staffShortages = await _context.StaffShortageDetails
+                .Where(x =>
+                    x.CollegeCode == CollegeCode &&
+                    x.FacultyId.ToString() == FacultyCode)
+                .OrderBy(x => x.StaffShortageId)
+                .ToListAsync();
+
+            vm.StaffShortages = staffShortages
+                .Select(x => new StaffShortagePreviewVM
+                {
+                    Id = x.StaffShortageId,
+
+                    CollegeCode = x.CollegeCode,
+
+                    FacultyId = x.FacultyId,
+
+                    PostName = x.PostName,
+
+                    Reason = x.ReasonForShortage,
+
+                    Arrangements = x.ArrangementMade
+                })
+                .ToList();
 
             // Non-Teaching Faculty Details
 

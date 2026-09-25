@@ -63,9 +63,9 @@
         <!-- TEACHING FACULTY DEPARTMENT-WISE -->
         <!-- ====================================================== -->
         @* Will be added next *@
-        @if (Model.TeachingFacultyDepartmentWise != null)
+        @if (Model.TeachingFacultyDepartments != null)
         {
-            @await Html.PartialAsync("HumanResources/_FacultyDetails", Model.FacultyDetails)
+            @await Html.PartialAsync("HumanResources/_TeachingFacultyDepartmentWise", Model.TeachingFacultyDepartments)
         }
 
         <!-- ====================================================== -->
