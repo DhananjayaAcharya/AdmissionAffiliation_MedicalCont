@@ -61,7 +61,7 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SubmitApplication(bool declarationConsent)
+        public async Task<IActionResult> SubmitApplication(bool declarationConsent, IFormFile? sealedSignedReupload)
         {
             var completion = await _capreviewService.GetPreviewAsync();
             if (!completion.IsApplicationComplete)
@@ -81,6 +81,42 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = (completion.FacultyCode ?? HttpContext.Session.GetString("FacultyCode"))?.Trim();
             var applicationType = (completion.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"))?.Trim();
             var courseLevel = (paymentCalculation.CourseLevel ?? completion.ApplyingCourseLevel ?? HttpContext.Session.GetString("CourseLevel"))?.Trim();
+
+            if (sealedSignedReupload != null && sealedSignedReupload.Length > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png" };
+                var extension = Path.GetExtension(sealedSignedReupload.FileName);
+                if (!allowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                {
+                    TempData["PreviewError"] = "Only PDF, DOC, DOCX, JPG, JPEG, and PNG files are allowed for the re-upload.";
+                    return RedirectToAction(nameof(Preview));
+                }
+
+                var baseFolder = Directory.Exists(@"E:\") ? @"E:\Affiliation_Medical" : @"D:\Affiliation_Medical";
+                var sealedFolder = Path.Combine(baseFolder, "SealedSignedReupload");
+                Directory.CreateDirectory(sealedFolder);
+
+                var savedFileName = $"{Guid.NewGuid():N}{extension}";
+                var fullPath = Path.Combine(sealedFolder, savedFileName);
+
+                await using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await sealedSignedReupload.CopyToAsync(stream);
+                }
+
+                var record = new AffiliationSealedSignedReupload
+                {
+                    FacultyCode = facultyCode,
+                    CollegeCode = collegeCode,
+                    TypeOfApplication = applicationType,
+                    ReuploadedDoc = fullPath,
+                    CreatedOn = DateTime.Now
+                };
+
+                _context.AffiliationSealedSignedReuploads.Add(record);
+                await _context.SaveChangesAsync();
+            }
+
             var courseCodes = paymentCalculation.MatchedCourses
                 .Where(course => !string.IsNullOrWhiteSpace(course.CourseCode))
                 .Select(course => course.CourseCode.Trim())

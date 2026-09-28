@@ -3053,7 +3053,7 @@ public class PreviewReportPdf : IDocument
             var value = (applicationType ?? string.Empty).Trim().ToLowerInvariant();
 
             if (value.Contains("continu"))
-                return new PdfTheme("#4B5563", "#374151", "#C9A24B", "#F7F4EA", "#D8D1BE");
+                return new PdfTheme("#123A5B", "#0F2D52", "#C89B3C", "#F5F3EE", "#D9D1C1");
 
             if (value.Contains("renew"))
                 return new PdfTheme("#7C2D12", "#C2410C", "#F59E0B", "#FFF7ED", "#FED7AA");

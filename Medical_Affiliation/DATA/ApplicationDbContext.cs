@@ -114,6 +114,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<ApplicationSubmission> ApplicationSubmissions { get; set; }
 
+    public virtual DbSet<AffiliationSealedSignedReupload> AffiliationSealedSignedReuploads { get; set; }
+
     public virtual DbSet<AssociatedInstitution> AssociatedInstitutions { get; set; }
 
     public virtual DbSet<AuditLog> AuditLogs { get; set; }

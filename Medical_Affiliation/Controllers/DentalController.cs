@@ -216,8 +216,14 @@ namespace Medical_Affiliation.Controllers
 
         public async Task<IActionResult> EquipmentList()
         {
-            string collegeCode = CollegeCode;
-            int facultyCode = Convert.ToInt32(FacultyCode);
+            var facultyCodeValue = FacultyCode;
+            var collegeCode = CollegeCode;
+
+            if (string.IsNullOrWhiteSpace(facultyCodeValue) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("ClgLogin");
+
+            if (!int.TryParse(facultyCodeValue, out var facultyCode) || facultyCode != 2)
+                return RedirectToAction("Dashboard", "Collegelogin");
 
             var vm = new EquipmentPageVM
             {
@@ -1235,7 +1241,7 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveOtherCollege( SaveOtherCollegeVm vm)
+        public async Task<IActionResult> SaveOtherCollege(SaveOtherCollegeVm vm)
         {
             var facultyCode =
                 HttpContext.Session.GetString("FacultyCode");

@@ -1208,6 +1208,70 @@ namespace Admission_Affiliation.Controllers
 
         }
 
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        public async Task<IActionResult> UpdateCollegeIntake2627(string? collegeCode)
+        {
+            var model = new CollegeIntake2627UpdateViewModel
+            {
+                CollegeCode = collegeCode,
+                CollegeList = await _context.AffiliationCollegeMasters
+                    .OrderBy(c => c.CollegeName)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CollegeCode,
+                        Text = c.CollegeName + " (" + c.CollegeCode + ")"
+                    })
+                    .ToListAsync()
+            };
+
+            if (!string.IsNullOrWhiteSpace(collegeCode))
+            {
+                model.IntakeRows = await _context.MstMedicalCollegeCourseIntakes
+                    .Where(x => x.CollCode == collegeCode)
+                    .OrderBy(x => x.Course)
+                    .ToListAsync();
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateCollegeIntake2627(string collegeCode, List<CollegeIntake2627RowUpdateViewModel> rows)
+        {
+            if (string.IsNullOrWhiteSpace(collegeCode))
+            {
+                TempData["ErrorMessage"] = "College code is required.";
+                return RedirectToAction(nameof(UpdateCollegeIntake2627));
+            }
+
+            if (rows == null || rows.Count == 0)
+            {
+                TempData["ErrorMessage"] = "No intake records were provided for update.";
+                return RedirectToAction(nameof(UpdateCollegeIntake2627), new { collegeCode });
+            }
+
+            foreach (var row in rows)
+            {
+                if (row.Slno <= 0)
+                    continue;
+
+                var entity = await _context.MstMedicalCollegeCourseIntakes
+                    .FirstOrDefaultAsync(x => x.Slno == row.Slno && x.CollCode == collegeCode);
+
+                if (entity != null)
+                {
+                    entity.Intake2627 = row.Intake2627;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "2026-27 intake values updated successfully.";
+            return RedirectToAction(nameof(UpdateCollegeIntake2627), new { collegeCode });
+        }
+
         [HttpPost]
         [Authorize(AuthenticationSchemes = "AdminAuth")]
         public async Task<IActionResult> DeleteCourse(DeleteCourseViewModel model)

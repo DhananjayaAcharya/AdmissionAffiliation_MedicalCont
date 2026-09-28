@@ -749,6 +749,85 @@
         margin-top: 0.55rem;
     }
 
+    .reupload-highlight {
+        background: linear-gradient(135deg, #fffaf0 0%, #fff4d6 100%);
+        border: 1px solid #e7c86d;
+        border-left: 5px solid var(--gold);
+        border-radius: 12px;
+        box-shadow: 0 10px 26px rgba(134, 95, 14, 0.08);
+        margin: 0 0 1.25rem;
+        overflow: hidden;
+    }
+
+    .reupload-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: linear-gradient(90deg, rgba(18, 58, 91, 0.08), rgba(200, 155, 60, 0.14));
+        border-bottom: 1px solid rgba(200, 155, 60, 0.35);
+        color: var(--navy-deep);
+        font-size: 0.9rem;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        padding: 0.8rem 1rem;
+        text-transform: uppercase;
+    }
+
+    .reupload-header i {
+        color: var(--gold-ink);
+        font-size: 1rem;
+    }
+
+    .reupload-body {
+        padding: 1rem 1rem 1.1rem;
+    }
+
+    .reupload-body p {
+        color: var(--ink);
+        font-size: 0.92rem;
+        font-weight: 600;
+        margin: 0 0 0.9rem;
+    }
+
+    .reupload-form {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .reupload-form .form-control {
+        flex: 1 1 320px;
+        min-width: 220px;
+        border-color: #d7b861;
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .reupload-form .form-control:focus {
+        border-color: var(--navy-light);
+        box-shadow: 0 0 0 0.2rem rgba(37, 124, 157, 0.18);
+    }
+
+    .reupload-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+        border: 1px solid #c99828;
+        border-radius: 8px;
+        color: var(--navy-deep);
+        font-weight: 800;
+        padding: 0.68rem 1rem;
+        box-shadow: 0 8px 18px rgba(134, 95, 14, 0.16);
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .reupload-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(134, 95, 14, 0.2);
+    }
+
     /* ========================= */
     /* FOOTER ACTIONS */
     /* ========================= */
@@ -949,6 +1028,24 @@
                         <div class="meta-value">@DateTime.Now.ToString("dd MMM yyyy")</div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="reupload-highlight">
+            <div class="reupload-header">
+                <i class="bi bi-file-earmark-arrow-up-fill"></i>
+                Principal Seal &amp; Signature Re-upload
+            </div>
+            <div class="reupload-body">
+                <p>Please re-upload the complete application after obtaining the Principal’s seal and signature.</p>
+                <form asp-controller="CAPreview" asp-action="SubmitApplication" method="post" enctype="multipart/form-data" class="reupload-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="declarationConsent" value="true" />
+                    <input type="file" class="form-control" name="sealedSignedReupload" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                    <button type="submit" class="reupload-btn">
+                        <i class="bi bi-upload"></i> Upload Re-uploaded Document
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -1520,6 +1617,7 @@
                 {
                     <div class="alert alert-danger">@TempData["PreviewError"]</div>
                 }
+
                 <form id="consentForm" asp-controller="CAPreview" asp-action="SubmitApplication" method="post" target="_blank">
                     @Html.AntiForgeryToken()
                     <div class="form-check">

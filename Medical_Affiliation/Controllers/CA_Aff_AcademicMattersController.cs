@@ -40,7 +40,7 @@ namespace Medical_Affiliation.Controllers
                 CollegeCode = collegeCode,
                 FacultyId = facultyId,
                 AffiliationType = affiliationType,
-                //CourseLevel = courseLevel
+                CourseLevel = courseLevel
             };
 
             //x.CurriculumId == curriculumId);
@@ -224,10 +224,10 @@ namespace Medical_Affiliation.Controllers
             // 🔹 SUBJECT MASTER (you must have table like this)
             var subjects = await (
                     from c in _context.MstCourses
-                    join i in _context.CollegeCourseIntakeDetails
-                        on c.CourseCode.ToString() equals i.CourseCode
+                    join i in _context.MstMedicalCollegeCourseIntakes
+                        on c.CourseCode equals i.CourseCode
                     where c.CourseLevel.ToUpper() == "PG"
-                          && i.CollegeCode == collegeCode
+                          && i.CollCode == collegeCode
                     group c by new { c.CourseCode, c.SubjectName } into g
                     orderby g.Key.SubjectName
                     select new SelectListItem
@@ -381,11 +381,18 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcademicMatters(CA_Aff_AcademicMattersViewModel model)
         {
-
-            var courseLevel = HttpContext.Session.GetString("CourseLevel")?.Trim().ToUpperInvariant() ?? "UG";
-
             if (model == null)
                 return RedirectToAction(nameof(AcademicMatters));
+
+            model.CourseLevel = !string.IsNullOrWhiteSpace(model.CourseLevel)
+                ? model.CourseLevel.Trim().ToUpperInvariant()
+                : HttpContext.Session.GetString("CourseLevel")?.Trim().ToUpperInvariant() ?? "UG";
+
+            model.CollegeCode ??= HttpContext.Session.GetString("CollegeCode");
+            model.FacultyId ??= Convert.ToInt32(FacultyCode ?? "1");
+            model.AffiliationType ??= HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+
+            var courseLevel = model.CourseLevel;
 
             // ModelState debug: capture any binding errors to show in the view
             if (!ModelState.IsValid)
@@ -402,10 +409,10 @@ namespace Medical_Affiliation.Controllers
             // Compute pass%
             foreach (var row in model.AcademicRows)
             {
-                int total = (int)(row.RegularStudents + row.RepeaterStudents);
+                var total = (row.RegularStudents ?? 0) + (row.RepeaterStudents ?? 0);
                 row.PassPercentage = total == 0
                     ? 0
-                    : Math.Round((decimal)row.NumberOfStudentsPassed * 100 / total, 2);
+                    : Math.Round(((decimal)(row.NumberOfStudentsPassed ?? 0) * 100 / total), 2);
             }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -457,9 +464,11 @@ namespace Medical_Affiliation.Controllers
                 {
                     foreach (var row in model.CourseCurriculums)
                     {
-                        var existing = _context.CaCourseCurricula.FirstOrDefault(x =>
+                        var existing = await _context.CaCourseCurricula.FirstOrDefaultAsync(x =>
                             x.CollegeCode == model.CollegeCode &&
                             x.FacultyId == model.FacultyId &&
+                            x.CourseLevel == courseLevel &&
+                            x.AffiliationType == model.AffiliationType &&
                             x.CurriculumId == row.CurriculumId
                         );
 

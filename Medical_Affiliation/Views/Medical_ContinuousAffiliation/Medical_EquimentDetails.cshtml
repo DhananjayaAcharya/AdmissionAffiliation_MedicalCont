@@ -210,6 +210,11 @@
         margin-bottom: 20px;
     }
 
+    .table-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
     /* ── Table header info row ── */
     .table-meta {
         display: flex;
@@ -253,10 +258,11 @@
 
     /* ── Data Table ── */
     .data-table {
-        width: 100%;
+        width: max-content;
+        min-width: 100%;
         border-collapse: collapse;
         font-size: 0.85rem;
-        table-layout: fixed;
+        table-layout: auto;
     }
 
         .data-table thead {
@@ -325,6 +331,7 @@
         text-align: left;
         font-weight: 500;
         color: var(--text);
+        white-space: nowrap;
     }
 
     .td-qty {
@@ -548,34 +555,36 @@
                             <span class="table-count-badge">Total: @Model.Equipments.Count items</span>
                         </div>
 
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th style="width:56px;">#</th>
-                                    <th style="text-align:left; padding-left:16px;">Equipment Name</th>
-                                    <th style="width:160px;">Quantity Available</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (int i = 0; i < Model.Equipments.Count; i++)
-                                {
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead>
                                     <tr>
-                                        <td class="td-slno">@(i + 1)</td>
-                                        <td class="td-name">
-                                            @Model.Equipments[i].EquipmentName
-                                            <input type="hidden" asp-for="Equipments[i].EquipmentID" />
-                                        </td>
-                                        <td class="td-qty">
-                                            <input type="number"
-                                                   asp-for="Equipments[i].AvailableQuantity"
-                                                   class="qty-input"
-                                                   min="0"
-                                                   placeholder="0" />
-                                        </td>
+                                        <th style="width:56px;">#</th>
+                                        <th style="text-align:left; padding-left:16px;">Equipment Name</th>
+                                        <th style="width:160px;">Quantity Available</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Equipments.Count; i++)
+                                    {
+                                        <tr>
+                                            <td class="td-slno">@(i + 1)</td>
+                                            <td class="td-name">
+                                                @Model.Equipments[i].EquipmentName
+                                                <input type="hidden" asp-for="Equipments[i].EquipmentID" />
+                                            </td>
+                                            <td class="td-qty">
+                                                <input type="number"
+                                                       asp-for="Equipments[i].AvailableQuantity"
+                                                       class="qty-input"
+                                                       min="0"
+                                                       placeholder="0" />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Footer -->

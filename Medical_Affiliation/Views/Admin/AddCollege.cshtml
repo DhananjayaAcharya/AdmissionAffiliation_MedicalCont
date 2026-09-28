@@ -113,21 +113,22 @@
                             <td>@college.CollegeCode</td>
                             <td>@college.CollegeName</td>
                             <td class="password-cell" data-password="@college.Password">
-                                <span class="password-text">@college.Password</span>
-                                @* <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" title="Copy password">
-                                    Copy
-                                </button> *@
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="password-text text-monospace" data-mask="true">@college.Password</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary toggle-password-btn" data-visible="false" title="Show/Hide password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </td>
                             @if (ViewBag.show == true)
                             {
                                 <td class="newpassword-cell" data-password="@college.NewPassword">
-                                    <span class="password-text">@college.NewPassword</span>
-                                    @* @if (!string.IsNullOrEmpty(college.NewPassword))
-                                    {
-                                    <button type="button" class="btn btn-sm btn-outline-secondary copy-btn" title="Copy new password">
-                                        Copy
-                                    </button>
-                                    } *@
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="password-text text-monospace" data-mask="true">@college.NewPassword</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary toggle-password-btn" data-visible="false" title="Show/Hide password">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
                                 </td>
                                
                             }
@@ -231,6 +232,25 @@
                 // $('#Password').val(button.data('password'));
                 $('#town').val(button.data('town'));
                 // $('#RGUHSintake').val(button.data('intake'));
+            });
+
+            $('.toggle-password-btn').on('click', function () {
+                const $btn = $(this);
+                const $text = $btn.closest('div').find('.password-text');
+                const isVisible = $btn.data('visible') === true;
+                const value = $btn.closest('td').data('password');
+
+                if (isVisible) {
+                    $text.text('••••••••••');
+                    $btn.data('visible', false);
+                    $btn.html('<i class="bi bi-eye"></i>');
+                    $text.attr('data-mask', 'true');
+                } else {
+                    $text.text(value || '');
+                    $btn.data('visible', true);
+                    $btn.html('<i class="bi bi-eye-slash"></i>');
+                    $text.attr('data-mask', 'false');
+                }
             });
 
             $('#collegeTable').DataTable({

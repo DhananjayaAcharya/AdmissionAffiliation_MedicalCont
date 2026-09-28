@@ -3729,6 +3729,9 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("ClgLogin");
 
+            if (!string.Equals(facultyCode, "1", StringComparison.OrdinalIgnoreCase))
+                return RedirectToAction("Dashboard", "Collegelogin");
+
             var entity = await _context.AffiliationCourseDetails
                 .FirstOrDefaultAsync(x => x.Facultycode == facultyCode &&
                                           x.Collegecode == collegeCode &&
@@ -3776,6 +3779,9 @@ namespace Medical_Affiliation.Controllers
 
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("ClgLogin");
+
+            if (!string.Equals(facultyCode, "1", StringComparison.OrdinalIgnoreCase))
+                return RedirectToAction("Dashboard", "Collegelogin");
 
             if (ModelState.IsValid)
             {
