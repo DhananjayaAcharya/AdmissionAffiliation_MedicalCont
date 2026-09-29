@@ -1,0 +1,118 @@
+﻿@model List<Medical_Affiliation.Models.TeachingFacultyDepartmentPreviewVM>
+
+@if (Model != null && Model.Any())
+{
+    <div class="section-block">
+
+        <div class="section-header-block">
+            <div class="section-title-text section-badge">
+                <i class="bi bi-people"></i>
+                Teaching Faculty Department-wise
+            </div>
+
+            <p class="section-description">
+                Teaching faculty experience details by department
+            </p>
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Faculty Name</th>
+                        <th>Department</th>
+                        <th>Course Level</th>
+                        <th>Designation</th>
+                        <th>College</th>
+                        <th>From Date</th>
+                        <th>To Date</th>
+                        <th class="text-center">Experience</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var faculty in Model)
+                    {
+                        @if (faculty.Experiences != null &&
+                             faculty.Experiences.Any())
+                        {
+                            foreach (var experience in faculty.Experiences)
+                            {
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        @faculty.NameOfFaculty
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(faculty.DepartmentName))
+                                        {
+                                            @faculty.DepartmentName
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(experience.CourseLevel))
+                                        {
+                                            @experience.CourseLevel
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(experience.DesignationName))
+                                        {
+                                            @experience.DesignationName
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(experience.CollegeCode))
+                                        {
+                                            @experience.CollegeCode
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @(experience.FromDate?.ToString("dd-MM-yyyy") ?? "—")
+                                    </td>
+
+                                    <td>
+                                        @(experience.ToDate?.ToString("dd-MM-yyyy") ?? "—")
+                                    </td>
+
+                                    <td class="text-center">
+                                        @experience.Experience.ToString("0.00")
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

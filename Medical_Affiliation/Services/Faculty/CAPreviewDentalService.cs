@@ -39,6 +39,9 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ICADepartmentOfficesMeuService _cADepartmentOfficesMeuService;
         private readonly ICAEquipmentPreviewService _cAEquipmentPreviewService;
         private readonly ICADentalFieldPracticeAreaService _caDentalFieldPracticeAreaService;
+        private readonly ICADentalStaffDetailsPreviewService _cADentalStaffDetailsPreviewService;
+        private readonly ICAFinanceService _cAFinanceService;
+        private readonly IActionTakenDeficiencyReportService _actionTakenDeficiencyReportService;
         private readonly ApplicationDbContext _context;
 
 
@@ -68,6 +71,9 @@ namespace Medical_Affiliation.Services.Faculty
             ICADepartmentOfficesMeuService cADepartmentOfficesMeuService,
             ICAEquipmentPreviewService cAEquipmentPreviewService,
             ICADentalFieldPracticeAreaService cADentalFieldPracticeAreaService,
+            ICAFinanceService cAFinanceService,
+            ICADentalStaffDetailsPreviewService cADentalStaffDetailsPreviewService,
+            IActionTakenDeficiencyReportService actionTakenDeficiencyReportService,
             ApplicationDbContext dbContext)
         {
             _basicDetailsService = basicDetailsService;
@@ -95,6 +101,9 @@ namespace Medical_Affiliation.Services.Faculty
             _cADepartmentOfficesMeuService = cADepartmentOfficesMeuService;
             _cAEquipmentPreviewService = cAEquipmentPreviewService;
             _caDentalFieldPracticeAreaService = cADentalFieldPracticeAreaService;
+            _cADentalStaffDetailsPreviewService = cADentalStaffDetailsPreviewService;
+            _cAFinanceService = cAFinanceService;
+            _actionTakenDeficiencyReportService = actionTakenDeficiencyReportService;
             _context = dbContext;
         }
 
@@ -106,7 +115,7 @@ namespace Medical_Affiliation.Services.Faculty
             var facultyCode = _userContext.FacultyId;
             var facultyName = await _context.Faculties.Where(e => e.FacultyId == facultyCode).Select(e => e.FacultyName).FirstOrDefaultAsync();
 
-            var vm =  new CADentalpreviewViewModel
+            var vm = new CADentalpreviewViewModel
             {
                 CollegeCode = _userContext.CollegeCode,
                 FacultyCode = _userContext.FacultyId.ToString(),
@@ -135,8 +144,11 @@ namespace Medical_Affiliation.Services.Faculty
                 DentalBedDistributionVM = await _cADentalBedDistributionService.GetDentalBedDistributionAsync(),
                 DepartmentOfficesMeuVM = await _cADepartmentOfficesMeuService.GetDepartmentOfficesMeuAsync(),
                 EquipmentPreviewVM = await _cAEquipmentPreviewService.GetEquipmentPreviewAsync(),
-                
+
                 FiedPracticeArea = await _caDentalFieldPracticeAreaService.GetFieldPracticeAreaAsync(),
+                DentalStaffDetailsVM = await _cADentalStaffDetailsPreviewService.GetDentalStaffDetailsPreviewAsync(),
+                FinanceVm = await _cAFinanceService.GetFinanceDetails(),
+                ActionTakenDeficiencyReports = await _actionTakenDeficiencyReportService.GetPreviewAsync()
             };
 
             return vm;

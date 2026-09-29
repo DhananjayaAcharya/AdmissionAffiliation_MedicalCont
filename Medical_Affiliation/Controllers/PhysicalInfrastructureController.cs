@@ -439,8 +439,7 @@ namespace Medical_Affiliation.Controllers
                 .FirstOrDefaultAsync(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode && 
-                    x.CourseLevel == SelectedCourseLevel &&
-                    x.AffiliationTypeId == affTypeId);
+                    x.CourseLevel == SelectedCourseLevel);
 
 
             // ======================================================

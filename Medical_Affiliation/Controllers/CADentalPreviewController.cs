@@ -255,6 +255,15 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> TestPdf()
         {
             var model = await _caDentalPreviewService.GetDentalPreviewAsync(); // you already have this
+
+
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            var typeOfAffiliation = HttpContext.Session.GetString("TypeOfAffiliation");
+            var affiliationTypeId = HttpContext.Session.GetString("TypeOfAffiliationId");
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
             var logoPath = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "wwwroot",
@@ -270,7 +279,7 @@ namespace Medical_Affiliation.Controllers
             var logoBytes = System.IO.File.ReadAllBytes(logoPath);
             var clglogoBytes = System.IO.File.ReadAllBytes(clgLogoPath);
 
-            var pdf = new PreviewReportDentalPdf(model, logoBytes, clglogoBytes);
+            var pdf = new PreviewReportDentalPdf(model, logoBytes, clglogoBytes, typeOfAffiliation, affiliationTypeId, courseLevel, facultyCode);
             var bytes = pdf.GeneratePdf();
 
             return File(bytes, "application/pdf");

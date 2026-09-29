@@ -1,0 +1,101 @@
+﻿@model List<Medical_Affiliation.Models.NonTeachingFacultyPreviewVM>
+
+@if (Model != null && Model.Any())
+{
+    <div class="section-block">
+
+        <div class="section-header-block mb-3">
+
+            <div class="section-title-text department-badge">
+                <i class="bi bi-person-badge"></i>
+                Non-Teaching Staff Details
+            </div>
+
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Staff Name</th>
+                        <th>Designation</th>
+                        <th>Course Level</th>
+                        <th>Mobile Number</th>
+                        <th class="text-end">Salary Paid</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var staff in Model)
+                    {
+                        <tr>
+
+                            <td class="fw-semibold">
+                                @staff.StaffName
+                            </td>
+
+                            <td>
+                                @staff.Designation
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(staff.CourseLevel))
+                                {
+                                    <span class="status-badge-maintained">
+                                        @staff.CourseLevel
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(staff.MobileNumber))
+                                {
+                                    @staff.MobileNumber
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                            <td class="text-end">
+                                @if (!string.IsNullOrWhiteSpace(staff.SalaryPaid))
+                                {
+                                    @staff.SalaryPaid
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="empty-state">
+
+        <i class="bi bi-inbox"></i>
+
+        <p class="mb-0">
+            No non-teaching staff details available.
+        </p>
+
+    </div>
+}

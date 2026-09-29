@@ -8,6 +8,12 @@
 }
 
 <style>
+
+    .general-body {
+        padding: 0.2rem 0 !important;
+        background: none !important;
+    }
+
     .affiliation-page-container {
         background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
         min-height: 100vh;
@@ -171,10 +177,10 @@
 
         
 
-            .nav-tabs-custom .nav-link i {
-                font-size: 1rem;
-                flex-shrink: 0;
-            }
+        .nav-tabs-custom .nav-link i {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
 
         .nav-tabs-custom .nav-link {
             background: #dbeafe;
@@ -217,9 +223,9 @@
     }
 
         /* #academic-section,
-        #hospital-section {
-            scroll-margin-top: 120px;
-        } */
+            #hospital-section {
+                scroll-margin-top: 120px;
+            } */
 
         .sections-container > div[id] {
             scroll-margin-top: 75px;
@@ -638,15 +644,15 @@
                         </a>
                     </li>
                 }
-                @if (Model.LibraryDisplay != null)
+                @* @if (Model.DentalLibraryDisplay != null)
                 {
                     <li class="nav-item">
-                        <a class="nav-link @(Model.LibraryDisplay == null ? "active" : "")" href="#library-group">
+                        <a class="nav-link @(Model.DentalLibraryDisplay == null ? "active" : "")" href="#library-group">
                             <i class="bi bi-hospital"></i>
                             <span>Library Display</span>
                         </a>
                     </li>
-                }
+                } *@
                 @if (Model.DentalLandBuildingPreview != null && FacultyCode == "2")
                 {
                     <li class="nav-item">
@@ -720,7 +726,7 @@
                     </li>
                 }
 
-                @if (Model.DentalLibraryPreviewVM != null && FacultyCode == "2")
+                @if (Model.DentalLibraryDisplay != null && FacultyCode == "2")
                 {
                     <li class="nav-item">
                         <a class="nav-link" href="#dental-library-group">
@@ -759,21 +765,31 @@
                         </a>
                     </li>
                 }
-                @if (Model.HumanResourcesVM?.FacultyDetails != null)
+
+                @if (Model.DentalStaffDetailsVM != null)
                 {
                     <li class="nav-item">
-                        <a class="nav-link" href="#human-resources-group">
+                        <a class="nav-link" href="#dental-staff-details-group">
                             <i class="bi bi-people-fill"></i>
-                            <span>Human Resources</span>
+                            <span>Staff Details</span>
                         </a>
                     </li>
                 }
                 @if (Model.FinanceVm != null)
                 {
                     <li class="nav-item">
-                        <a class="nav-link @(Model.FinanceVm == null ? "active" : "")" href="#finance-group">
-                            <i class="bi bi-hospital"></i>
-                            <span>Finance Display</span>
+                        <a class="nav-link" href="#finance-group">
+                            <i class="bi bi-cash-stack"></i>
+                            <span>Finance</span>
+                        </a>
+                    </li>
+                }
+                @if (Model.HumanResourcesVM?.FacultyDetails != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#human-resources-group">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Human Resources</span>
                         </a>
                     </li>
                 }
@@ -792,6 +808,25 @@
                         <a class="nav-link @(Model.FacultyDesigNonTeachDisplayVM == null ? "active" : "")" href="#fac-group">
                             <i class="bi bi-hospital"></i>
                             <span>Faculty Details</span>
+                        </a>
+                    </li>
+                }
+
+                @if (Model.ActionTakenDeficiencyReports != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#action-taken-deficiency-report">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span>Action Taken Deficiency Report</span>
+                        </a>
+                    </li>
+                }
+                @if (Model.DentalPaymentVM != null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dental-payment-group">
+                            <i class="bi bi-credit-card"></i>
+                            <span>Payment Details</span>
                         </a>
                     </li>
                 }
@@ -867,6 +902,25 @@
                 <div class="section-separator"></div>
             }
 
+            
+            @if (Model.TeachingFacultyDetailsVM != null)
+            {
+                <div id="teaching-faculty-details">
+                    @await Html.PartialAsync("TeachingFacultyDetails/_TeachingFacultyDetails", Model.TeachingFacultyDetailsVM)
+                </div>
+                <div class="section-separator"></div>
+            }
+
+
+            @if (Model.DentalStaffDetailsVM != null)
+            {
+                <div id="dental-staff-details-group">
+                    @await Html.PartialAsync("StaffDetails/StaffDetailsDental", Model.DentalStaffDetailsVM)
+                </div>
+
+                <div class="section-separator"></div>
+            }
+
             <!-- ========================= -->
             <!-- DEPARTMENT-WISE EQUIPMENT -->
             <!-- ========================= -->
@@ -879,14 +933,7 @@
                 <div class="section-separator"></div>
             }
 
-
-            @if (Model.TeachingFacultyDetailsVM != null)
-            {
-                <div id="teaching-faculty-details">
-                    @await Html.PartialAsync("TeachingFacultyDetails/_TeachingFacultyDetails", Model.TeachingFacultyDetailsVM)
-                </div>
-                <div class="section-separator"></div>
-            }
+           @* _teachingfacultydetails place *@
 
 
             @if (Model.AcademicIntakeVM != null)
@@ -1027,14 +1074,14 @@
             @if (Model.DentalBedDistributionVM != null && FacultyCode == "2")
             {
                 <div id="bed-distribution-group">
-                    @await Html.PartialAsync("UGBedDistribution/UGBedDistribution",  Model.DentalBedDistributionVM)
+                    @await Html.PartialAsync("UGBedDistribution/UGBedDistribution", Model.DentalBedDistributionVM)
                 </div>
             }
 
-           @if (Model.WorkshopDetails != null && Model.WorkshopDetails.Any())
+            @if (Model.WorkshopDetails != null && Model.WorkshopDetails.Any())
             {
                 <div id="workshop-group">
-                    @await Html.PartialAsync( "WorkshopDetails/Workshop", Model.WorkshopDetails )
+                    @await Html.PartialAsync("WorkshopDetails/Workshop", Model.WorkshopDetails)
                 </div>
 
                 <div class="section-separator"></div>
@@ -1072,10 +1119,10 @@
             }
 
 
-            @if (Model.DentalLibraryPreviewVM != null)
+            @if (Model.DentalLibraryDisplay != null)
             {
                 <div id="dental-library-group">
-                    @await Html.PartialAsync("DentalLibrary/LibraryDetails", Model.DentalLibraryPreviewVM)
+                    @await Html.PartialAsync("DentalLibrary/LibraryDetails", Model.DentalLibraryDisplay)
                 </div>
 
                 <div class="section-separator"></div>
@@ -1089,10 +1136,10 @@
             } *@
 
             <!-- Section Separator -->
-            @if (Model.LibraryDisplay != null)
+            @* @if (Model.LibraryDisplay != null)
             {
                 <div class="section-separator"></div>
-            }
+            } *@
             @if (Model.VehiclePreviewVM != null)
             {
                 <div id="vehicle-group">
@@ -1111,19 +1158,6 @@
             
 
             <!-- Section Separator -->
-            @if (Model.CAHospitalAFfiliationCompVM != null
-            @* && Model.FacultyDesigNonTeachDisplayVM != null *@
-            )
-            {
-                <div class="section-separator"></div>
-            }
-            @if (Model.FacultyDesigNonTeachDisplayVM != null)
-            {
-                <div id="fac-group">
-                    @await Html.PartialAsync(partialViewName: "FacultyDesigNonTEaching/Preview", Model.FacultyDesigNonTeachDisplayVM)
-                </div>
-            }
-
             <!-- ========================= -->
             <!-- HOSPITAL AFFILIATION -->
             <!-- ========================= -->
@@ -1160,6 +1194,12 @@
             {
                 <div class="section-separator"></div>
             }
+            @if (Model.ActionTakenDeficiencyReports != null && FacultyCode == "2")
+            {
+                <div id="action-taken-deficiency-report">
+                    @await Html.PartialAsync("ActionTakenReport/_ActionTakenDeficiencyReports", Model.ActionTakenDeficiencyReports)
+                </div>
+            }
             @if (Model.DentalPaymentVM != null)
             {
                 <div id="payment-group">
@@ -1167,6 +1207,7 @@
                 </div>
             }
 
+            
             <!-- Section Separator -->
             @* @if (Model.FinanceVm != null && Model.AdminTeachAndHostelVM != null )
             {
@@ -1196,7 +1237,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
 
         const navigationTabs = document.querySelector('.navigation-tabs');
         const navLinks = document.querySelectorAll('.nav-tabs-custom .nav-link');
@@ -1235,7 +1276,7 @@
 
         navLinks.forEach(link => {
 
-            link.addEventListener('click', function (e) {
+            link.addEventListener('click', function(e) {
 
                 e.preventDefault();
 
@@ -1351,7 +1392,9 @@
             '#admin-group',
             '#fac-group',
             '#payment-group',
-            "#field-practice-area-group"
+            "#field-practice-area-group",
+            "#action-taken-deficiency-report",
+            "#dental-payment-group"
         ].join(',');
 
 
@@ -1447,7 +1490,7 @@
 
             scrollContainer.addEventListener(
                 'scroll',
-                function () {
+                function() {
 
                     handleSticky();
                     updateActiveTab();
@@ -1460,7 +1503,7 @@
 
             window.addEventListener(
                 'scroll',
-                function () {
+                function() {
 
                     handleSticky();
                     updateActiveTab();

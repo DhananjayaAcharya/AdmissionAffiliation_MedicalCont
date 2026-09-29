@@ -32,7 +32,7 @@ namespace Medical_Affiliation.Models
         public VehicleDetailPreviewViewModel? VehiclePreviewVM { get; set; }
         public EquipmentPreviewViewModel? EquipmentPreviewVM { get; set; }
         public MedicalLibraryPreviewVM? MedicalLibraryPreviewVM { get; set; }
-        public DentalLibraryPreviewVM? DentalLibraryPreviewVM { get; set; }
+        //public DentalLibraryPreviewVM? DentalLibraryPreviewVM { get; set; }
 
         // New Section
         public HumanResourcesVM? HumanResourcesVM { get; set; }
@@ -45,7 +45,7 @@ namespace Medical_Affiliation.Models
         public PhysicalFacilitiesDisplayViewModel PhysicalFacilities { get; set; }
 
         public MedicalLibraryDisplayViewModel LibraryDisplay { get; set; }
-        public DentalLibraryDisplayViewModel DentalLibraryDisplay { get; set; }
+        public DentalLibraryPreviewVM DentalLibraryDisplay { get; set; }
 
         public FinanceViewModel FinanceVm { get; set; }
 
@@ -56,8 +56,8 @@ namespace Medical_Affiliation.Models
         public AffiliationPaymentViewModel PaymentVM { get; set; }
         public DentalFeeStructureViewModel DentalPaymentVM { get; set; }
 
-        public List<WorkShopDetail> WorkshopDetails { get; set; }  = new();
-        public List<AnimalHouseDetail> AnimalHouseDetails { get; set; }  = new();
+        public List<WorkShopDetail> WorkshopDetails { get; set; } = new();
+        public List<AnimalHouseDetail> AnimalHouseDetails { get; set; } = new();
 
 
         public DentalFeeStructureViewModel? DentalFeeStructureVM { get; set; }
@@ -72,8 +72,40 @@ namespace Medical_Affiliation.Models
 
         public List<DentalFieldPracticeAreaViewModel> FiedPracticeArea { get; set; } = new();
 
+        public DentalStaffDetailsPreviewVM? DentalStaffDetailsVM { get; set; }
+
+        public List<ActionTakenDeficiencyReportPreviewVM> ActionTakenDeficiencyReports { get; set; } = new();
+
         //public
 
+    }
+
+    public class DentalStaffDetailsPreviewVM
+    {
+        public string? CourseLevel { get; set; }
+
+        public string? CollegeCode { get; set; }
+
+        public string? FacultyCode { get; set; }
+
+        // Section 1: Pay Scale
+        public List<Med_CA_StaffParticularsVM> StaffPayScaleList { get; set; }
+            = new();
+
+        // Section 2: Other Staff Particulars
+        public CA_Med_StaffParticularsOtherVM StaffOther { get; set; }
+            = new();
+
+        // Existing files
+        public string? ExaminerDetailsPdfName { get; set; }
+
+        public string? AEBASLastThreeMonthsPdfName { get; set; }
+
+        public string? AEBASInspectionDayPdfName { get; set; }
+
+        public string? ProvidentFundPdfName { get; set; }
+
+        public string? ESIPdfName { get; set; }
     }
 
     public class DentalInstitutionBasicDetailsDisplayVM
@@ -93,14 +125,81 @@ namespace Medical_Affiliation.Models
         /// <summary>
         /// Teaching Faculty Department-wise
         /// </summary>
-        //public List<TeachingFacultyDepartmentPreviewVM> TeachingFacultyDepartments { get; set; }
-        //    = new();
+        public List<TeachingFacultyDepartmentPreviewVM> TeachingFacultyDepartments { get; set; } = new();
+
+        public List<StaffShortagePreviewVM> StaffShortages { get; set; } = new();
 
         /// <summary>
         /// Non-Teaching Faculty Details
         /// </summary>
-        //public List<NonTeachingFacultyPreviewVM> NonTeachingFaculties { get; set; }
-        //    = new();
+        public List<NonTeachingFacultyPreviewVM> NonTeachingFaculties { get; set; } = new();
+    }
+
+    public class NonTeachingFacultyPreviewVM
+    {
+        public int Id { get; set; }
+
+        public string? CollegeCode { get; set; }
+
+        public string? FacultyCode { get; set; }
+
+        public string? StaffName { get; set; }
+
+        public string? Designation { get; set; }
+
+        public string? MobileNumber { get; set; }
+
+        public string? SalaryPaid { get; set; }
+
+        public string? CourseLevel { get; set; }
+    }
+
+    public class TeachingFacultyDepartmentPreviewVM
+    {
+        public string? NameOfFaculty { get; set; }
+
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public decimal TotalExperience { get; set; }
+
+        public List<FacultyExperienceDetailPreviewVM> Experiences { get; set; }
+            = new();
+    }
+
+    public class FacultyExperienceDetailPreviewVM
+    {
+        public int Id { get; set; }
+
+        public string? CollegeCode { get; set; }
+
+        public string? DesignationCode { get; set; }
+
+        public string? DesignationName { get; set; }
+
+        public string? CourseLevel { get; set; }
+
+        public DateTime? FromDate { get; set; }
+
+        public DateTime? ToDate { get; set; }
+
+        public decimal Experience { get; set; }
+    }
+
+    public class StaffShortagePreviewVM
+    {
+        public int Id { get; set; }
+
+        public string? CollegeCode { get; set; }
+
+        public int FacultyId { get; set; }
+
+        public string? PostName { get; set; }
+
+        public string? Reason { get; set; }
+
+        public string? Arrangements { get; set; }
     }
 
     public class CADentalBedDistributionPreviewViewModel
@@ -120,6 +219,24 @@ namespace Medical_Affiliation.Models
         public InstitutionOtherDisplayVM OtherDetails { get; set; }
     }
 
+    public class DentalLibraryUserPreviewVM
+    {
+        public int NoOfTeachingStaff { get; set; }
+
+        public int NoOfResearchScholarsAssistants { get; set; }
+
+        public int NoOfPostGraduateStudents { get; set; }
+
+        public int NoOfUnderGraduateStudents { get; set; }
+
+        public int NoOfAdministrativeStaff { get; set; }
+
+        public int NoOfParaMedicalStaff { get; set; }
+
+        public int NoOfOutsiders { get; set; }
+
+        public bool ProvideUserEducationProgrammes { get; set; }
+    }
     public class FacultyDetailsPreviewVM
     {
         public int FacultyDetailId { get; set; }
@@ -178,7 +295,7 @@ namespace Medical_Affiliation.Models
         public List<IndoorBedsOccupancyItemVM> IndoorBedsOccupancy { get; set; }
         public List<SuperVisionInFieldPracticeAreaDisplayVM> SuperVisionInFPa { get; set; }
 
-        
+
 
     }
 
@@ -504,6 +621,8 @@ namespace Medical_Affiliation.Models
         public List<OtherAcademicActivityPreviewVM> OtherActivities { get; set; } = new();
 
         public List<DepartmentPublicationPreviewVM> DepartmentPublications { get; set; } = new();
+
+        public List<DepartmentWiseResearchProjectPreviewVM> DepartmentWiseResearchProjects { get; set; } = new();
     }
 
     public class ResearchCommitteePreviewVM
@@ -544,12 +663,26 @@ namespace Medical_Affiliation.Models
         public bool HasDocument { get; set; }
     }
 
+    public class DepartmentWiseResearchProjectPreviewVM
+    {
+        public int Id { get; set; }
+
+        public string? DepartmentCode { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+        public int NoOfResearchProjectsLast3Years { get; set; }
+        public string? PdfFilePath { get; set; }
+
+        public bool HasDocument { get; set; }
+    }
+
     public class DentalLibraryPreviewVM
     {
 
         public int facultyCode { get; set; }
         // Section 1
-        public List<LibraryServicePreviewVM> LibraryServices { get; set; } = new();
+        //public List<LibraryServicePreviewVM> LibraryServices { get; set; } = new();
 
         // Section 2
         public bool HasUsageReport { get; set; }
@@ -557,13 +690,13 @@ namespace Medical_Affiliation.Models
         public string? UsageReportViewAction { get; set; }
 
         // Section 3
-        public List<LibraryStaffPreviewVM> LibraryStaff { get; set; } = new();
+        //public List<LibraryStaffPreviewVM> LibraryStaff { get; set; } = new();
 
         // Section 4
         public List<DepartmentLibraryPreviewVM> DepartmentLibraries { get; set; } = new();
 
         // Section 5
-        public MedicalLibraryOtherPreviewVM? OtherDetails { get; set; }
+        //public MedicalLibraryOtherPreviewVM? OtherDetails { get; set; }
 
         // Dental only
         public List<DentalLibraryRecordPreviewVM> DentalLibraryRecords { get; set; } = new();
@@ -572,6 +705,53 @@ namespace Medical_Affiliation.Models
         public ResearchPublicationsPreviewVM? ResearchPublications { get; set; }
 
         public LibraryInformationPreviewVM LibraryInformation { get; set; } = new();
+
+        public List<DentalLibraryExpenditurePreviewVM> Expenditures { get; set; } = new();
+
+        public List<DentalLibraryServicePreviewVM> Services { get; set; } = new();
+        public List<DentalLibraryStaffPreviewVM> LibraryStaff { get; set; } = new();
+
+        public DentalLibraryUserPreviewVM? LibraryUsers { get; set; }
+
+    }
+
+    public class DentalLibraryStaffPreviewVM
+    {
+        public int LibraryStaffId { get; set; }
+
+        public string Name { get; set; } = string.Empty;
+
+        public string Designation { get; set; } = string.Empty;
+
+        public string? Qualification { get; set; }
+
+        public DateOnly? ExperienceFrom { get; set; }
+
+        public DateOnly? ExperienceTo { get; set; }
+
+        public string? PayScale { get; set; }
+
+        public string? Category { get; set; }
+
+        public bool CurrentlyWorking { get; set; }
+    }
+
+    public class DentalLibraryExpenditurePreviewVM
+    {
+        public int ItemId { get; set; }
+
+        public string ItemName { get; set; } = string.Empty;
+
+        public decimal ExpenditureProposed { get; set; }
+    }
+
+    public class DentalLibraryServicePreviewVM
+    {
+        public int ServiceId { get; set; }
+
+        public string ServiceName { get; set; } = string.Empty;
+
+        public bool IsAvailable { get; set; }
     }
 
     public class MedicalLibraryPreviewVM
@@ -747,7 +927,8 @@ namespace Medical_Affiliation.Models
 
         public int? CurrentJournals { get; set; }
 
-        public string? LibraryStaff { get; set; }
+        public string? LibraryStaff1 { get; set; }
+        public string? LibraryStaff2 { get; set; }
 
         public int? Titles { get; set; }
 
@@ -1282,10 +1463,10 @@ namespace Medical_Affiliation.Models
 
     //    public decimal TotalAreaRequiredSqm { get; set; } // 600 or 800
 
-        
+
     //    public decimal TotalAreaDeficiencySqm { get; set; }
 
-       
+
     //    public bool? SixWeeksTrainingCompletedBeforeClinical { get; set; }
 
     //    // (a) Minimum 4 rooms for exam
@@ -2206,6 +2387,18 @@ namespace Medical_Affiliation.Models
         public bool HasNMCDocument { get; set; }
 
         public int? AdmissionsPerYear { get; set; }
+    }
+
+
+    public class ActionTakenDeficiencyReportPreviewVM
+    {
+        public int ActionTakenDeficiencyReportId { get; set; }
+
+        public string? DeficiencyPointedOut { get; set; }
+
+        public string? ExtentRemedied { get; set; }
+
+        public bool HasRelevantReport { get; set; }
     }
 
     public class LicInspectionDisplayVM

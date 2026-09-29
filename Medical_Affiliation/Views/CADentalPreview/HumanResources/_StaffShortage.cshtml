@@ -1,0 +1,92 @@
+﻿@model List<Medical_Affiliation.Models.StaffShortagePreviewVM>
+
+@if (Model != null && Model.Any())
+{
+    <div class="section-block">
+
+        <div class="section-header-block">
+
+            <div class="section-title-text section-badge">
+                <i class="bi bi-exclamation-triangle"></i>
+                Staff Shortage
+            </div>
+
+            <p class="section-description">
+                Details of staff shortage and arrangements made
+            </p>
+
+        </div>
+
+        <div class="data-table-wrapper">
+
+            <table class="table data-table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Sl. No.</th>
+                        <th>Post</th>
+                        <th>Reason for Shortage</th>
+                        <th>Arrangement Made</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @{
+                        var slNo = 1;
+                    }
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                @slNo
+                            </td>
+
+                            <td class="fw-semibold">
+                                @if (!string.IsNullOrWhiteSpace(item.PostName))
+                                {
+                                    @item.PostName
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(item.Reason))
+                                {
+                                    @item.Reason
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(item.Arrangements))
+                                {
+                                    @item.Arrangements
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+
+                        </tr>
+
+                        slNo++;
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

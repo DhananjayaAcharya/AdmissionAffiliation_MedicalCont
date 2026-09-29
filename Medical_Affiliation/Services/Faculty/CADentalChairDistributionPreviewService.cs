@@ -10,7 +10,7 @@ namespace Medical_Affiliation.Services.Faculty
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
 
-        public CADentalChairDistributionPreviewService( ApplicationDbContext context, IUserContext userContext)
+        public CADentalChairDistributionPreviewService(ApplicationDbContext context, IUserContext userContext)
         {
             _context = context;
             _userContext = userContext;
@@ -43,7 +43,7 @@ namespace Medical_Affiliation.Services.Faculty
                 })
                 .ToListAsync();
 
-            return dentalChairs; 
+            return dentalChairs;
         }
     }
 }
