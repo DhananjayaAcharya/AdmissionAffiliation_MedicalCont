@@ -1,0 +1,474 @@
+﻿
+@model Medical_Affiliation.Models.FacultyExperienceAdminVm
+
+@{
+    ViewData["Title"] = "Faculty Experience Administration";
+}
+
+<style>
+    .page-wrapper{
+        padding-top: 0;
+    }
+
+    .page-wrapper:has(.faculty-experience-page) .page-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0 1.25rem 2rem;
+    }
+
+    .page-wrapper:has(.faculty-experience-page) .portal-sidebar-shell { display: none; }
+    .page-wrapper:has(.faculty-experience-page) .page-content,
+    .page-wrapper:has(.faculty-experience-page) .portal-main-card {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin-left: 0;
+    }
+</style>
+
+<div class="container-fluid py-3 faculty-experience-page">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+                role="alert">
+            @TempData["SuccessMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+                role="alert">
+            @TempData["ErrorMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <i class="bi bi-people-fill me-2"></i>
+                Faculty Experience Administration
+            </h4>
+            <p class="text-muted mb-0">
+                View and manage teaching staff department-wise experience records.
+            </p>
+        </div>
+    </div>
+
+    <!-- FILTER SECTION -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3">
+            <h6 class="mb-0 fw-semibold">
+                <i class="bi bi-funnel me-2"></i>Search Filters
+            </h6>
+        </div>
+
+        <div class="card-body">
+            <form asp-controller="Admin"
+                  asp-action="FacultyExperienceAdmin"
+                  method="get"
+                  id="facultyFilterForm">
+
+                <div class="row g-3">
+
+                    <!-- FACULTY MASTER -->
+                    <div class="col-md-4">
+                        <label for="facultyId" class="form-label fw-semibold">
+                            Faculty
+                        </label>
+
+                        <select id="facultyId"
+                                name="facultyId"
+                                class="form-select"
+                                onchange="onFacultyChange()">
+
+                            <option value="">-- Select Faculty --</option>
+
+                            @foreach (var item in Model.FacultyMasters)
+                            {
+                                <option value="@item.Value"
+                                        selected="@(item.Value == Model.SelectedFacultyId?.ToString())">
+                                    @item.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- COLLEGE -->
+                    <div class="col-md-4">
+                        <label for="collegeCode" class="form-label fw-semibold">
+                            College
+                        </label>
+
+                        <select id="collegeCode"
+                                name="collegeCode"
+                                class="form-select"
+                                onchange="onCollegeChange()"
+                                disabled="@(!Model.SelectedFacultyId.HasValue)">
+
+                            <option value="">-- All Colleges --</option>
+
+                            @foreach (var item in Model.Colleges)
+                            {
+                                <option value="@item.Value"
+                                        selected="@(item.Value == Model.SelectedCollegeCode)">
+                                    @item.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- FACULTY NAME -->
+                    <div class="col-md-4">
+                        <label for="facultyName" class="form-label fw-semibold">
+                            Faculty Name
+                        </label>
+
+                        <select id="facultyName"
+                                name="facultyName"
+                                class="form-select"
+                                disabled="@(!Model.SelectedFacultyId.HasValue)">
+
+                            <option value="">-- All Faculty Names --</option>
+
+                            @foreach (var item in Model.FacultyNames)
+                            {
+                                <option value="@item.Value"
+                                        selected="@(item.Value == Model.SelectedFacultyName)">
+                                    @item.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+
+                    <a asp-controller="Admin"
+                       asp-action="FacultyExperienceAdmin"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- RESULTS -->
+    @if (Model.FacultyDetails != null && Model.FacultyDetails.Any())
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-semibold mb-0">Faculty Records</h5>
+            <span class="badge bg-primary">
+                @Model.FacultyDetails.Count record(s)
+            </span>
+        </div>
+
+        @foreach (var faculty in Model.FacultyDetails)
+        {
+            <div class="card shadow-sm border-0 mb-4">
+
+                <!-- FACULTY HEADER -->
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold mb-1">
+                            <i class="bi bi-person-badge me-2"></i>
+                            @(faculty.NameOfFaculty ?? "Unnamed Faculty")
+                        </h6>
+
+                        <small class="text-muted">
+                            College: @(faculty.CollegeCode ?? "-")
+                            <span class="mx-2">|</span>
+                            Faculty Code: @(faculty.FacultyCode ?? "-")
+                            <span class="mx-2">|</span>
+                            Faculty Detail ID: @faculty.FacultyDetailId
+                        </small>
+                    </div>
+
+                    @if (faculty.IsRemoved)
+                    {
+                        <span class="badge bg-danger">Removed</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                </div>
+
+                <!-- FACULTY INFORMATION -->
+                <div class="card-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-3">
+                            <div class="small text-muted">Department</div>
+                            <div class="fw-semibold">
+                                @(faculty.DepartmentDetails ?? "-")
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="small text-muted">Designation</div>
+                            <div class="fw-semibold">
+                                @(faculty.Designation ?? "-")
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="small text-muted">Mobile</div>
+                            <div class="fw-semibold">
+                                @(faculty.Mobile ?? "-")
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="small text-muted">Email</div>
+                            <div class="fw-semibold text-break">
+                                @(faculty.Email ?? "-")
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="small text-muted">From Date</div>
+                            <div class="fw-semibold">
+                                @(faculty.From?.ToString("dd-MM-yyyy") ?? "-")
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="small text-muted">To Date</div>
+                            <div class="fw-semibold">
+                                @(faculty.To?.ToString("dd-MM-yyyy") ?? "-")
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- EXPERIENCE TABLE -->
+                <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Teaching Experience Details
+                    </h6>
+
+                    <span class="badge bg-dark">
+                        @(faculty.ExperienceDetails?.Count ?? 0) record(s)
+                    </span>
+                </div>
+
+                <div class="card-body p-0">
+                    @if (faculty.ExperienceDetails != null &&
+                         faculty.ExperienceDetails.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Record ID</th>
+                                        <th>Course Level</th>
+                                        <th>Department</th>
+                                        <th>Designation</th>
+                                        <th>UG From</th>
+                                        <th>UG To</th>
+                                        <th>PG From</th>
+                                        <th>PG To</th>
+                                        <th>UG College</th>
+                                        <th>PG College</th>
+                                        <th>Total Experience</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @{
+                                        var rowNumber = 1;
+                                    }
+
+                                    @foreach (var experience in faculty.ExperienceDetails)
+                                    {
+                                        <tr>
+                                            <td>@rowNumber</td>
+
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    @experience.Id
+                                                </span>
+                                            </td>
+
+                                            <td>@(experience.CourseLevel ?? "-")</td>
+                                            <td>@(experience.DepartmentCode ?? "-")</td>
+
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(experience.DesignationName))
+                                                {
+                                                    <div>@experience.DesignationName</div>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(experience.DesignationCode))
+                                                {
+                                                    <small class="text-muted">
+                                                        @experience.DesignationCode
+                                                    </small>
+                                                }
+
+                                                @if (string.IsNullOrWhiteSpace(experience.DesignationName) &&
+                                                     string.IsNullOrWhiteSpace(experience.DesignationCode))
+                                                {
+                                                    <span>-</span>
+                                                }
+                                            </td>
+
+                                            <td>@(experience.UGFrom?.ToString("dd-MM-yyyy") ?? "-")</td>
+                                            <td>@(experience.UGTo?.ToString("dd-MM-yyyy") ?? "-")</td>
+                                            <td>@(experience.PGFrom?.ToString("dd-MM-yyyy") ?? "-")</td>
+                                            <td>@(experience.PGTo?.ToString("dd-MM-yyyy") ?? "-")</td>
+
+                                            <td>@(experience.UGCollegeCode ?? "-")</td>
+                                            <td>@(experience.PGCollegeCode ?? "-")</td>
+
+                                            <td>
+                                                @if (experience.TotalExperience.HasValue)
+                                                {
+                                                    @experience.TotalExperience.Value.ToString("0.##")
+                                                    <small class="text-muted">years</small>
+                                                }
+                                                else
+                                                {
+                                                    <span>-</span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <form asp-controller="Admin"
+                                                        asp-action="DeleteTeachingExperience"
+                                                        method="post"
+                                                        onsubmit="return confirm('Are you sure you want to delete experience record ID @experience.Id?');">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                            name="id"
+                                                            value="@experience.Id" />
+
+                                                    <input type="hidden"
+                                                            name="facultyId"
+                                                            value="@Model.SelectedFacultyId" />
+
+                                                    <input type="hidden"
+                                                            name="collegeCode"
+                                                            value="@Model.SelectedCollegeCode" />
+
+                                                    <input type="hidden"
+                                                            name="facultyName"
+                                                            value="@Model.SelectedFacultyName" />
+
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+
+                                        rowNumber++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+                            No experience records found for this faculty.
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else if (Model.SelectedFacultyId.HasValue)
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No records found for the selected filters.
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5 text-muted">
+                <i class="bi bi-funnel fs-1 d-block mb-3"></i>
+                <h6>Select a faculty to begin</h6>
+                <p class="mb-0">
+                    Choose a faculty first, then select a college or faculty name.
+                </p>
+            </div>
+        </div>
+    }
+
+</div>
+
+<!-- DELETE FORM: Uses only TeachingStaffDepartmentWiseDetails.Id -->
+<form id="deleteExperienceForm"
+      asp-controller="Admin"
+      asp-action="DeleteTeachingExperience"
+      method="post"
+      class="d-none">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" id="deleteExperienceId" name="id" />
+</form>
+
+@section Scripts {
+    <script>
+        function onFacultyChange() {
+            const form = document.getElementById("facultyFilterForm");
+
+            // A faculty change invalidates the previous college/name filters.
+            document.getElementById("collegeCode").value = "";
+            document.getElementById("facultyName").value = "";
+
+            form.submit();
+        }
+
+        function onCollegeChange() {
+            const form = document.getElementById("facultyFilterForm");
+
+            // Refresh the faculty-name dropdown for the selected college.
+            document.getElementById("facultyName").value = "";
+
+            form.submit();
+        }
+
+        function deleteExperience(id) {
+            if (!confirm("Are you sure you want to delete experience record ID " + id + "?")) {
+                return;
+            }
+
+            document.getElementById("deleteExperienceId").value = id;
+            document.getElementById("deleteExperienceForm").submit();
+        }
+    </script>
+}

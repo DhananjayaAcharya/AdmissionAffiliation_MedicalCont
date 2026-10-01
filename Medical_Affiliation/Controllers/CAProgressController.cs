@@ -18,24 +18,66 @@ namespace Medical_Affiliation.Controllers
             _context = context;
         }
 
+        private List<string> GetDentalStepKeys(string? facultyCode)
+        {
+            // Populate these from the same faculty-specific step
+            // definitions used by your CA sidebar.
+
+            if (facultyCode == "2") // Dental
+            {
+                return new List<string>
+                {
+                    "Institution",
+                    "TrustDetails",
+                    "TrustMemberDetails",
+                    "BDSDetails",
+                    "FacultyDetails",
+                    "DeanDetails",
+                    "PrincipalDetails",
+                    "DentalFacultyDetails",
+                    "PgCourses",
+                    "DentalEquipmentDetails",
+                    "DentalSkillsLab",
+                    "LandBuilding",
+                    "WorkshopDetails",
+                    "AnimalHouseDetails",
+                    "DentalFieldPracticeArea",
+                    "IntakeDetails",
+                    "ClinicalFacilities",
+                    "Vehicle",
+                    "BedDistribution",
+                    "ChairDistribution",
+                    "AcademicMatters",
+                    "PGAcademicMatters",
+                    "AdditionalInformationInAcademicActivities",
+                    "DentalLibrary",
+                    "DentalLibraryStaff",
+                    "DentalLibraryUser",
+                    "TeachingStaff",
+                    "NonTeachingStaff",
+                    "Hostel",
+                    "PaymentDetails",
+                    "ActionTakenReport"
+                };
+                    }
+
+            // Add separate lists for Medical, Ayurveda,
+            // and other faculties when those are supported.
+            return new List<string>();
+        }
+
         // ============================================================
         // INDEX
         // ============================================================
 
         [HttpGet]
-        public async Task<IActionResult> Index(
-            string? facultyCode,
-            string? collegeCode,
-            string? courseLevel = "UG",
-            int typeId = 2)
+        public async Task<IActionResult> Index(string? facultyCode, string? collegeCode, string? courseLevel = "UG", int typeId = 2)
         {
             // --------------------------------------------------------
             // Default values
             // --------------------------------------------------------
 
-            courseLevel = string.IsNullOrWhiteSpace(courseLevel)
-                ? "UG"
-                : courseLevel.Trim().ToUpper();
+            courseLevel = string.IsNullOrWhiteSpace(courseLevel) ? "UG" : courseLevel.Trim().ToUpper();
 
             // --------------------------------------------------------
             // Faculty Dropdown
@@ -146,17 +188,64 @@ namespace Medical_Affiliation.Controllers
             // CA Progress
             // --------------------------------------------------------
 
+            if (!string.IsNullOrWhiteSpace(collegeCode))
+            {
+                // Get the selected college's actual faculty.
+                var actualFacultyCode = await _context.AffiliationCollegeMasters
+                    .Where(x => x.CollegeCode == collegeCode)
+                    .Select(x => x.FacultyCode)
+                    .FirstOrDefaultAsync();
+
+                if (!string.IsNullOrWhiteSpace(actualFacultyCode))
+                {
+                    var expectedStepKeys = GetDentalStepKeys(actualFacultyCode)
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    if (expectedStepKeys.Count > 0)
+                    {
+                        var existingStepKeys = await _context.CaProgresses
+                            .Where(x =>
+                                x.CollegeCode == collegeCode &&
+                                x.CourseLevel == courseLevel &&
+                                x.StepKey != null)
+                            .Select(x => x.StepKey!)
+                            .ToListAsync();
+
+                        var existingSet = new HashSet<string>(
+                            existingStepKeys,
+                            StringComparer.OrdinalIgnoreCase);
+
+                        var missingProgress = expectedStepKeys
+                            .Where(stepKey => !existingSet.Contains(stepKey))
+                            .Select(stepKey => new CaProgress
+                            {
+                                CollegeCode = collegeCode,
+                                CourseLevel = courseLevel,
+                                StepKey = stepKey,
+                                IsCompleted = false,
+                                UpdatedAt = DateTime.Now
+                            })
+                            .ToList();
+
+                        if (missingProgress.Count > 0)
+                        {
+                            _context.CaProgresses.AddRange(missingProgress);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
+
             var progressQuery = _context.CaProgresses
-                .AsQueryable();
+                .Where(x => x.CourseLevel == courseLevel);
 
             if (!string.IsNullOrWhiteSpace(collegeCode))
             {
                 progressQuery = progressQuery
                     .Where(x => x.CollegeCode == collegeCode);
             }
-
-            progressQuery = progressQuery
-                .Where(x => x.CourseLevel == courseLevel);
 
             var progress = await progressQuery
                 .OrderBy(x => x.Id)

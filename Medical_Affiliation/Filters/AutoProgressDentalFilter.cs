@@ -181,7 +181,7 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
             //new CAStep { Key = "PgAssociatedInstitutions", Ctrl = "AffiliationSS", Act = "AssociatedInstitutions" },
 
             new () { Key="TeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"TeachingStaffDepartmentWise" } },
-            new () { Key="TeachingStaff", Ctrl="Dental", Acts=new() {"TeachingStaffDepartmentWise" } },
+            new () { Key="TeachingStaff", Ctrl="Dental", Acts=new() { "SaveFacultyExperience" } },
             new () { Key="NonTeachingStaff", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"NonTeachingStaffDepartmentwise" } },
 
             new () { Key="Hostel", Ctrl="ContinuesAffiliation_Facultybased", Acts=new() {"Aff_HostelDetails" }},

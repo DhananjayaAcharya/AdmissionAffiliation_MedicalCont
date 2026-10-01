@@ -1461,6 +1461,257 @@ namespace Admission_Affiliation.Controllers
             return View(colleges);
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> FacultyExperienceAdmin(int? facultyId = null, string? collegeCode = null, string? facultyName = null)
+        {
+            var vm = new FacultyExperienceAdminVm
+            {
+                SelectedFacultyId = facultyId,
+                SelectedCollegeCode = collegeCode,
+                SelectedFacultyName = facultyName
+            };
+
+
+            // ============================================================
+            // 1. FACULTY MASTER DROPDOWN
+            // ============================================================
+
+            vm.FacultyMasters = await _context.Faculties
+                .AsNoTracking()
+                .Where(x =>
+                    x.Status == null ||
+                    x.Status == "Active")
+                .OrderBy(x => x.FacultyName)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.FacultyId.ToString(),
+                    Text = x.FacultyName
+                })
+                .ToListAsync();
+
+
+            // ============================================================
+            // 2. COLLEGE DROPDOWN
+            // ============================================================
+
+            if (facultyId.HasValue)
+            {
+                var selectedFaculty = await _context.Faculties
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x =>
+                        x.FacultyId == facultyId.Value);
+
+                if (selectedFaculty != null)
+                {
+                    /*
+                     * IMPORTANT:
+                     * Replace this mapping with your actual FacultyId
+                     * -> FacultyCode mapping if they are different.
+                     */
+
+                    var facultyCode = selectedFaculty.FacultyId.ToString();
+
+                    vm.SelectedFacultyCode = facultyCode;
+
+
+                    vm.Colleges = await _context.AffiliationCollegeMasters
+                        .AsNoTracking()
+                        .Where(x =>
+                            x.FacultyCode == facultyCode &&
+                            x.CollegeCode != null &&
+                            x.CollegeName != null)
+                        .OrderBy(x => x.CollegeName)
+                        .Select(x => new SelectListItem
+                        {
+                            Value = x.CollegeCode!,
+                            Text = x.CollegeName!
+                        })
+                        .Distinct()
+                        .ToListAsync();
+                }
+            }
+
+
+            // ============================================================
+            // 3. FACULTY NAME DROPDOWN
+            //    Load names only from TeachingStaffDepartmentWiseDetails
+            // ============================================================
+
+            if (!string.IsNullOrWhiteSpace(vm.SelectedFacultyCode))
+            {
+                var facultyNameQuery = _context.TeachingStaffDepartmentWiseDetails
+                    .AsNoTracking()
+                    .Where(x =>
+                        x.FacultyCode == vm.SelectedFacultyCode &&
+                        x.NameOfFaculty != null &&
+                        x.NameOfFaculty.Trim() != "");
+
+                if (!string.IsNullOrWhiteSpace(collegeCode))
+                {
+                    facultyNameQuery = facultyNameQuery.Where(x =>
+                        x.CollegeCode == collegeCode);
+                }
+
+                vm.FacultyNames = await facultyNameQuery
+                    .Select(x => x.NameOfFaculty!.Trim())
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .Select(name => new SelectListItem
+                    {
+                        Value = name,
+                        Text = name
+                    })
+                    .ToListAsync();
+            }
+
+
+            // ============================================================
+            // 4. LOAD FACULTY DETAILS
+            // ============================================================
+
+            if (!string.IsNullOrWhiteSpace(vm.SelectedFacultyCode))
+            {
+                // ========================================================
+                // 4. LOAD TEACHING STAFF RECORDS
+                // ========================================================
+
+                var teachingQuery = _context.TeachingStaffDepartmentWiseDetails
+                    .AsNoTracking()
+                    .Where(x =>
+                        x.FacultyCode == vm.SelectedFacultyCode);
+
+                // Filter by selected college
+                if (!string.IsNullOrWhiteSpace(collegeCode))
+                {
+                    teachingQuery = teachingQuery.Where(x =>
+                        x.CollegeCode == collegeCode);
+                }
+
+                // Filter by selected faculty name
+                if (!string.IsNullOrWhiteSpace(facultyName) &&
+                    facultyName != "ALL")
+                {
+                    var selectedName = facultyName.Trim();
+
+                    teachingQuery = teachingQuery.Where(x =>
+                        x.NameOfFaculty != null &&
+                        x.NameOfFaculty.Trim() == selectedName);
+                }
+
+                var teachingStaffDetails = await teachingQuery
+                    .OrderBy(x => x.NameOfFaculty)
+                    .ThenBy(x => x.Id)
+                    .ToListAsync();
+
+
+                // ========================================================
+                // 5. BUILD VIEW MODEL FROM TEACHING STAFF RECORDS
+                // ========================================================
+
+                vm.FacultyDetails = teachingStaffDetails
+                    .GroupBy(t => new
+                    {
+                        t.CollegeCode,
+                        t.FacultyCode,
+                        NameOfFaculty = (t.NameOfFaculty ?? string.Empty).Trim()
+                    })
+                    .Select(group =>
+                    {
+                        var first = group.First();
+
+                        return new FacultyAdminRowVm
+                        {
+                            // Not used as the experience record identifier
+                            FacultyDetailId = 0,
+
+                            CollegeCode = first.CollegeCode,
+                            FacultyCode = first.FacultyCode,
+                            NameOfFaculty = first.NameOfFaculty,
+
+                            // These fields are not sourced from FacultyDetails
+                            DepartmentDetails = null,
+                            Designation = first.DesignationName,
+                            Mobile = null,
+                            Email = null,
+                            From = null,
+                            To = null,
+
+                            IsRemoved = false,
+
+                            // Keep every experience record and its actual ID
+                            ExperienceDetails = group
+                                .OrderBy(t => t.Id)
+                                .Select(t => new TeachingStaffAdminRowVm
+                                {
+                                    Id = t.Id,
+
+                                    CourseLevel = t.CourseLevel,
+                                    DepartmentCode = t.DepartmentCode,
+
+                                    DesignationCode = t.DesignationCode,
+                                    DesignationName = t.DesignationName,
+
+                                    UGFrom = t.Ugfrom,
+                                    UGTo = t.Ugto,
+
+                                    PGFrom = t.Pgfrom,
+                                    PGTo = t.Pgto,
+
+                                    UGCollegeCode = t.UgcollegeCode,
+                                    PGCollegeCode = t.PgcollegeCode,
+
+                                    TotalExperience = t.TotalExperience
+                                })
+                                .ToList()
+                        };
+                    })
+                    .ToList();
+            }
+
+            return View(vm);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteTeachingExperience( int id, int? facultyId,  string? collegeCode, string? facultyName)
+        {
+            if (id <= 0)
+            {
+                TempData["ErrorMessage"] = "Invalid experience record ID.";
+                return RedirectToAction(
+                    nameof(FacultyExperienceAdmin),
+                    new { facultyId, collegeCode, facultyName });
+            }
+
+            var experience = await _context.TeachingStaffDepartmentWiseDetails
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (experience == null)
+            {
+                TempData["ErrorMessage"] =
+                    $"Experience record with ID {id} was not found.";
+
+                return RedirectToAction(
+                    nameof(FacultyExperienceAdmin),
+                    new { facultyId, collegeCode, facultyName });
+            }
+
+            _context.TeachingStaffDepartmentWiseDetails.Remove(experience);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                $"Experience record ID {id} deleted successfully.";
+
+            return RedirectToAction(
+                nameof(FacultyExperienceAdmin),
+                new { facultyId, collegeCode, facultyName });
+        }
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateBindery(string collegeCode, string binderyValue)
