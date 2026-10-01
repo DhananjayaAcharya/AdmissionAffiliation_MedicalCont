@@ -426,6 +426,41 @@
         text-decoration: none;
         transition: opacity 0.15s, box-shadow 0.15s;
     }
+
+    .excel-import {
+        display: flex;
+        align-items: end;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding: 16px;
+        background: #faf8f4;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+    }
+
+    .excel-import-fields {
+        flex: 1 1 280px;
+    }
+
+    .excel-import-fields label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--navy);
+        font-size: 0.76rem;
+        font-weight: 600;
+    }
+
+    #excelImportStatus {
+        flex-basis: 100%;
+        min-height: 1.2em;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    #excelImportStatus.error {
+        color: var(--danger);
+    }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
 
@@ -437,6 +472,18 @@
 
             <form asp-action="NonTeachingStaffDepartmentwise" method="post" id="staffForm">
                 @Html.AntiForgeryToken()
+
+                <div class="excel-import" aria-label="Import staff from Excel">
+                    <div class="excel-import-fields">
+                        <label for="staffExcelFile">Excel file (.xlsx)</label>
+                        <input type="file" id="staffExcelFile" class="form-control" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                    </div>
+                    <button type="button" id="previewExcel" class="btn-add-row">Preview Excel</button>
+                    <a asp-action="DownloadNonTeachingStaffExcelTemplate" class="btn-prev" title="Download Excel template">
+                        <i class="bi bi-download" aria-hidden="true"></i> Download template
+                    </a>
+                    <span id="excelImportStatus" role="status" aria-live="polite"></span>
+                </div>
 
                 <div class="section-label">
                     <span class="section-label-text">Staff Records</span>
@@ -525,6 +572,122 @@
 <script>
     let rowIndex = @Model.NonTeachingStaff.Count;
 
+    const excelFileInput = document.getElementById("staffExcelFile");
+    const previewExcelButton = document.getElementById("previewExcel");
+    const excelImportStatus = document.getElementById("excelImportStatus");
+
+    previewExcelButton.addEventListener("click", async function () {
+        const file = excelFileInput.files[0];
+        if (!file) {
+            setExcelImportStatus("Choose an Excel file first.", true);
+            return;
+        }
+
+        const payload = new FormData();
+        payload.append("excelFile", file);
+        payload.append("__RequestVerificationToken", document.querySelector('#staffForm input[name="__RequestVerificationToken"]').value);
+
+        previewExcelButton.disabled = true;
+        setExcelImportStatus("Reading workbook...", false);
+
+        try {
+            const response = await fetch('@Url.Action("PreviewNonTeachingStaffExcel")', {
+                method: "POST",
+                body: payload
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "The Excel file could not be imported.");
+            }
+
+            renderImportedRows(result.rows || []);
+            setExcelImportStatus(`${result.rows.length} staff row(s) loaded. Review the table, then save.`, false);
+        } catch (error) {
+            setExcelImportStatus(error.message || "The Excel file could not be imported.", true);
+        } finally {
+            previewExcelButton.disabled = false;
+        }
+    });
+
+    function renderImportedRows(rows) {
+        const tbody = document.querySelector("#staffTable tbody");
+        tbody.replaceChildren();
+        rowIndex = 0;
+
+        rows.forEach(function (staff) {
+            const index = rowIndex++;
+            const tr = document.createElement("tr");
+            tr.className = "staff-row";
+
+            const serialCell = document.createElement("td");
+            serialCell.className = "td-slno row-number";
+            serialCell.textContent = String(index + 1);
+            tr.appendChild(serialCell);
+
+            const properties = ["StaffName", "Designation", "MobileNumber", "SalaryPaid"];
+            const values = [staff.staffName, staff.designation, staff.mobileNumber, staff.salaryPaid];
+
+            values.forEach(function (value, columnIndex) {
+                const td = document.createElement("td");
+                const input = document.createElement("input");
+                input.className = "form-control";
+                input.name = `NonTeachingStaff[${index}].${properties[columnIndex]}`;
+                input.value = value || "";
+
+                if (columnIndex === 0) {
+                    td.style.cssText = "text-align:left; min-width:180px;";
+                    input.placeholder = "Full name";
+                    const id = document.createElement("input");
+                    id.type = "hidden";
+                    id.name = `NonTeachingStaff[${index}].Id`;
+                    id.value = "0";
+                    td.append(input, id);
+                } else if (columnIndex === 1) {
+                    input.placeholder = "Designation";
+                    td.appendChild(input);
+                } else if (columnIndex === 2) {
+                    input.style.textAlign = "center";
+                    input.maxLength = 10;
+                    input.placeholder = "10-digit number";
+                    td.appendChild(input);
+                } else {
+                    const salaryWrap = document.createElement("div");
+                    salaryWrap.className = "salary-wrap";
+                    const prefix = document.createElement("span");
+                    prefix.className = "salary-prefix";
+                    prefix.textContent = "₹";
+                    input.type = "number";
+                    input.min = "0";
+                    input.step = "1";
+                    input.placeholder = "0";
+                    salaryWrap.append(prefix, input);
+                    td.appendChild(salaryWrap);
+                }
+
+                tr.appendChild(td);
+            });
+
+            const actionCell = document.createElement("td");
+            actionCell.className = "td-action";
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "btn-remove-row remove-row";
+            removeButton.title = "Remove";
+            removeButton.textContent = "−";
+            actionCell.appendChild(removeButton);
+            tr.appendChild(actionCell);
+            tbody.appendChild(tr);
+        });
+
+        refreshNumbers();
+    }
+
+    function setExcelImportStatus(message, isError) {
+        excelImportStatus.textContent = message;
+        excelImportStatus.classList.toggle("error", isError);
+    }
+
     // ── Add Row ──
     document.getElementById("addRow").addEventListener("click", function () {
         // Remove empty-state row if present
@@ -584,7 +747,7 @@
 
         if (result.isConfirmed) {
             btn.closest("tr").remove();
-            refreshNumbers();
+            reindexRows();
 
             // Show empty state if no rows left
             if (!document.querySelectorAll("#staffTable tbody .staff-row").length) {
@@ -601,6 +764,7 @@
 
     // ── Submit with loading ──
     document.getElementById("staffForm").addEventListener("submit", async function () {
+        reindexRows();
         await Swal.fire({
             title: 'Saving...', allowOutsideClick: false,
             didOpen: () => Swal.showLoading()
@@ -611,5 +775,15 @@
         document.querySelectorAll("#staffTable tbody .row-number").forEach((el, i) => {
             el.textContent = i + 1;
         });
+    }
+
+    function reindexRows() {
+        document.querySelectorAll("#staffTable tbody tr.staff-row").forEach((row, index) => {
+            row.querySelectorAll("input[name^='NonTeachingStaff[']").forEach((input) => {
+                input.name = input.name.replace(/NonTeachingStaff\[\d+\]/, `NonTeachingStaff[${index}]`);
+            });
+        });
+        rowIndex = document.querySelectorAll("#staffTable tbody tr.staff-row").length;
+        refreshNumbers();
     }
 </script>

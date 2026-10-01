@@ -999,6 +999,7 @@ namespace Medical_Affiliation.Models
     public class NonTeachingStaffDisplayVM
     {
         public int StaffId { get; set; }
+        public string CourseLevel { get; set; } = string.Empty;
 
         public string StaffName { get; set; } = string.Empty;
 

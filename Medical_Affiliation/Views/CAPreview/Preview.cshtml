@@ -446,6 +446,27 @@
             display: none;
         }
 
+        .application-readonly .reupload-highlight {
+            display: block !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
+        .application-readonly .reupload-form,
+        .application-readonly .reupload-form .form-control,
+        .application-readonly .reupload-form .reupload-btn {
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
+        .application-readonly .reupload-form {
+            display: flex !important;
+        }
+
+        .application-readonly .reupload-form .reupload-btn {
+            display: inline-flex !important;
+        }
+
         .readonly-status {
             display: inline-flex;
             align-items: center;
@@ -1038,9 +1059,16 @@
             </div>
             <div class="reupload-body">
                 <p>Please re-upload the complete application after obtaining the Principal’s seal and signature.</p>
-                <form asp-controller="CAPreview" asp-action="SubmitApplication" method="post" enctype="multipart/form-data" class="reupload-form">
+                @if (TempData["PreviewError"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">@TempData["PreviewError"]</div>
+                }
+                @if (TempData["PreviewSuccess"] != null)
+                {
+                    <div class="alert alert-success" role="status">@TempData["PreviewSuccess"]</div>
+                }
+                <form asp-controller="CAPreview" asp-action="ReuploadSignedDocument" method="post" enctype="multipart/form-data" class="reupload-form">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" name="declarationConsent" value="true" />
                     <input type="file" class="form-control" name="sealedSignedReupload" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
                     <button type="submit" class="reupload-btn">
                         <i class="bi bi-upload"></i> Upload Re-uploaded Document
@@ -1155,6 +1183,14 @@
                 <div class="preview-tab-list">
                     <div class="preview-tab-row"><span>Faculty Details</span><a href="@Url.Action("Repo_FacultyDetails", "FacultyDetails")">Edit</a></div>
                     <div class="preview-tab-row"><span>Non-Teaching Staff Details</span><a href="@Url.Action("NonTeachingStaffDepartmentwise", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+                </div>
+            </div>
+
+            <div class="preview-tab-group">
+                <div class="preview-tab-group-title">Research &amp; Library</div>
+                <div class="preview-tab-list">
+                    <div class="preview-tab-row"><span>Library Details</span><a href="@Url.Action("MedicalLibrary", "CA_Aff_MedicalLibrary")">Edit</a></div>
+                    <div class="preview-tab-row"><span>Research Publications</span><a href="@Url.Action("CA_Med_ResearchPublicationsDetails", "CA_Med_ResearchPublications")">Edit</a></div>
                 </div>
             </div>
 
@@ -1499,11 +1535,26 @@
                     <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_NonTeachingStaffDetails" model="Model.FacultyDesigNonTeachDisplayVM.NonTeachingStaffSectionVM" /></div>
                 </div>
             }
+            @if (Model.LibraryDisplay != null)
+            {
+                <div id="ResearchLibrary" class="preview-report-section">
+                    <h2 class="preview-report-heading">
+                        <span>24 · Research &amp; Library</span>
+                        <span class="d-flex gap-2">
+                            <a class="preview-report-edit" href="@Url.Action("MedicalLibrary", "CA_Aff_MedicalLibrary")"><i class="bi bi-pencil-square me-1"></i>Edit Library</a>
+                            <a class="preview-report-edit" href="@Url.Action("CA_Med_ResearchPublicationsDetails", "CA_Med_ResearchPublications")"><i class="bi bi-pencil-square me-1"></i>Edit Research</a>
+                        </span>
+                    </h2>
+                    <div class="preview-report-body">
+                        @await Html.PartialAsync("Library/LibraryPreview", Model.LibraryDisplay)
+                    </div>
+                </div>
+            }
             @if (Model.PaymentVM != null || Model.PaymentCalculation?.HasResult == true)
             {
                 <div id="PaymentCalculation" class="preview-report-section">
                     <h2 class="preview-report-heading">
-                        <span>24 · Payment Calculation</span>
+                        <span>25 · Payment Calculation</span>
                         @if (Model.IsApplicationComplete)
                         {
                             <a class="preview-report-edit" href="@Url.Action("Index", "PaymentCalculation")"><i class="bi bi-pencil-square me-1"></i>Edit</a>

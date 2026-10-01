@@ -625,15 +625,18 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("Login", "Account");
 
-            if (!ModelState.IsValid)
-                return View(model);
-
             // 600 Sq.m up to 150 intake, 800 Sq.m above
             var intake = Convert.ToInt32(model.AnnualMbbsIntake ?? 0);
 
             model.TotalAreaRequiredSqm = intake <= 150 ? 600m : 800m;
             model.TotalAreaDeficiencySqm =
                 Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
+
+            ModelState.Remove(nameof(model.TotalAreaRequiredSqm));
+            ModelState.Remove(nameof(model.TotalAreaDeficiencySqm));
+            ModelState.Remove(nameof(model.NumberOfExaminationRooms));
+            if (!ModelState.IsValid)
+                return View(model);
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try

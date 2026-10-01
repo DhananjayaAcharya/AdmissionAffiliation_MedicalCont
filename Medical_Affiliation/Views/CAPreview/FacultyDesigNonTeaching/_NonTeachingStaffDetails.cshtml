@@ -15,32 +15,24 @@
                 <table class="table data-table align-middle">
                     <thead>
                         <tr>
+                            <th class="text-center">Id</th>
+                            <th>Course Level</th>
                             <th>Staff Name</th>
                             <th>Designation</th>
-                            <th class="text-center">PF</th>
-                            <th class="text-center">ESI</th>
-                            <th class="text-center">Service Register</th>
-                            <th class="text-center">Salary Register</th>
+                            <th class="text-center">Mobile Number</th>
+                            <th class="text-end">Salary Paid</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var staff in Model.Staffs)
                         {
                             <tr>
+                                <td class="text-center">@staff.StaffId</td>
+                                <td>@staff.CourseLevel</td>
                                 <td>@staff.StaffName</td>
                                 <td>@staff.Designation</td>
-                                <td class="text-center">
-                                    @(staff.PfProvided ? "Yes" : "No")
-                                </td>
-                                <td class="text-center">
-                                    @(staff.EsiProvided ? "Yes" : "No")
-                                </td>
-                                <td class="text-center">
-                                    @(staff.ServiceRegisterMaintained ? "Yes" : "No")
-                                </td>
-                                <td class="text-center">
-                                    @(staff.SalaryAcquaintanceRegister ? "Yes" : "No")
-                                </td>
+                                <td class="text-center">@staff.MobileNumber</td>
+                                <td class="text-end">@staff.SalaryPaid.ToString("N2")</td>
                             </tr>
                         }
                     </tbody>

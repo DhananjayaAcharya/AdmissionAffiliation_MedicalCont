@@ -578,6 +578,7 @@ namespace Medical_Affiliation.Controllers
         // FIX: was querying CourseLevel = "UG" but data is saved as "ALL"
         // ─────────────────────────────────────────────────────────────────────
         [HttpGet] public async Task<IActionResult> ViewPublicationsPdf() => await GetPdf("Publications");
+        [HttpGet] public async Task<IActionResult> ViewProjectsPdf() => await GetPdf("Projects");
         [HttpGet] public async Task<IActionResult> ViewStudentsProjectsPdf() => await GetPdf("StudentsProjects");
         [HttpGet] public async Task<IActionResult> ViewFacultyProjectsPdf() => await GetPdf("FacultyProjects");
         [HttpGet] public async Task<IActionResult> ViewClinicalTrialsPdf() => await GetPdf("ClinicalTrials");
@@ -603,6 +604,7 @@ namespace Medical_Affiliation.Controllers
             string? filePath = type switch
             {
                 "Publications" => record.PublicationsPdfPath,
+                "Projects" => record.ProjectsPdfPath,
                 "StudentsProjects" => record.StudentsProjectsPdfPath,
                 "FacultyProjects" => record.FacultyProjectsPdfPath,
                 "ClinicalTrials" => record.ClinicalTrialsPdfPath,
@@ -612,6 +614,7 @@ namespace Medical_Affiliation.Controllers
             string? name = type switch
             {
                 "Publications" => record.PublicationsPdfName,
+                "Projects" => record.ProjectsPdfName,
                 "StudentsProjects" => record.StudentsProjectsPdfName,
                 "FacultyProjects" => record.FacultyProjectsPdfName,
                 "ClinicalTrials" => record.ClinicalTrialsPdfName,

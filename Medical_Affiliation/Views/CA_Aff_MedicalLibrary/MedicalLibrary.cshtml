@@ -305,6 +305,8 @@
         <form asp-action="MedicalLibrary" method="post" enctype="multipart/form-data" id="libraryForm">
             @Html.AntiForgeryToken()
 
+            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
             <input type="hidden" asp-for="CourseLevel" />
             <input type="hidden" id="isFirstLogin" value="@Model.IsFirstLogin" />
             <input type="hidden" asp-for="CollegeCode" />
@@ -841,6 +843,16 @@
             $.validator.unobtrusive.parse($form);
             }
 
+            function reindexRows(tableSelector, collectionName) {
+            $(`${tableSelector} tbody tr`).each(function (index) {
+            $(this).find(`[name^="${collectionName}["]`).each(function () {
+            var propertyName = this.name.substring(this.name.indexOf('].') + 2);
+            this.name = `${collectionName}[${index}].${propertyName}`;
+            });
+            $(this).children('td').first().text(index + 1);
+            });
+            }
+
 
             // Digital Valuation Logic
             $('input[name="OtherDetails.HasDigitalValuationCentre"]').on('change', function () {
@@ -886,6 +898,7 @@
             return;
             }
             $(this).closest('tr').remove();
+            reindexRows('#libraryStaffTable', 'LibraryStaff');
             });
 
             // const pdfRow = document.getElementById('specialPdfRow');
@@ -977,6 +990,7 @@
             return;
             }
             $(this).closest('tr').remove();
+            reindexRows('#libraryDepartmentTable', 'DepartmentLibraries');
             });
 
             // Initial validation

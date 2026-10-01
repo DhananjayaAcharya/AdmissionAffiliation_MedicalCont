@@ -27,6 +27,16 @@ namespace Medical_Affiliation.Controllers
             _capreviewService = capreviewService;
             _paymentCalculationController = paymentCalculationController;
         }
+
+        private string? CurrentCollegeCode => HttpContext.Session.GetString("CollegeCode");
+        private string? CurrentFacultyCode => HttpContext.Session.GetString("FacultyCode");
+        private int? CurrentFacultyId => int.TryParse(CurrentFacultyCode, out var facultyId) ? facultyId : null;
+        private int CurrentAffiliationType => HttpContext.Session.GetInt32("AffiliationType")
+            ?? (int.TryParse(HttpContext.Session.GetString("TypeOfAffiliation"), out var affiliationType) ? affiliationType : 2);
+        private string CurrentCourseLevel => (HttpContext.Session.GetString("CourseLevel")
+            ?? HttpContext.Session.GetString("SelectedCourseLevel")
+            ?? string.Empty).Trim().ToUpperInvariant();
+
         public async Task<IActionResult> Preview()
         {
             _paymentCalculationController.ControllerContext = ControllerContext;
@@ -61,6 +71,84 @@ namespace Medical_Affiliation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReuploadSignedDocument(IFormFile? sealedSignedReupload)
+        {
+            if (sealedSignedReupload == null || sealedSignedReupload.Length == 0)
+            {
+                TempData["PreviewError"] = "Choose a signed application document to upload.";
+                return RedirectToAction(nameof(Preview));
+            }
+
+            var preview = await _capreviewService.GetPreviewAsync();
+            var collegeCode = (preview.CollegeCode ?? HttpContext.Session.GetString("CollegeCode"))?.Trim();
+            var facultyCode = (preview.FacultyCode ?? HttpContext.Session.GetString("FacultyCode"))?.Trim();
+            var applicationType = (preview.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"))?.Trim();
+
+            if (string.IsNullOrWhiteSpace(collegeCode) ||
+                string.IsNullOrWhiteSpace(facultyCode) ||
+                string.IsNullOrWhiteSpace(applicationType))
+            {
+                TempData["PreviewError"] = "College, faculty, and application details are required to save the re-upload.";
+                return RedirectToAction(nameof(Preview));
+            }
+
+            var error = await SaveSealedSignedReuploadAsync(
+                sealedSignedReupload,
+                facultyCode,
+                collegeCode,
+                applicationType);
+
+            if (error != null)
+            {
+                TempData["PreviewError"] = error;
+                return RedirectToAction(nameof(Preview));
+            }
+
+            TempData["PreviewSuccess"] = "Signed application document uploaded successfully.";
+            return RedirectToAction(nameof(Preview));
+        }
+
+        private async Task<string?> SaveSealedSignedReuploadAsync(
+            IFormFile? sealedSignedReupload,
+            string? facultyCode,
+            string? collegeCode,
+            string? applicationType)
+        {
+            if (sealedSignedReupload == null || sealedSignedReupload.Length == 0)
+                return null;
+
+            var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(sealedSignedReupload.FileName);
+            if (!allowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                return "Only PDF, DOC, DOCX, JPG, JPEG, and PNG files are allowed for the re-upload.";
+
+            var baseFolder = Directory.Exists(@"E:\") ? @"E:\Affiliation_Medical" : @"D:\Affiliation_Medical";
+            var sealedFolder = Path.Combine(baseFolder, "SealedSignedReupload");
+            Directory.CreateDirectory(sealedFolder);
+
+            var savedFileName = $"{Guid.NewGuid():N}{extension}";
+            var fullPath = Path.Combine(sealedFolder, savedFileName);
+
+            await using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                await sealedSignedReupload.CopyToAsync(stream);
+            }
+
+            _context.AffiliationSealedSignedReuploads.Add(new AffiliationSealedSignedReupload
+            {
+                FacultyCode = facultyCode,
+                CollegeCode = collegeCode,
+                TypeOfApplication = applicationType,
+                ReuploadedDoc = fullPath,
+                CreatedOn = DateTime.Now
+            });
+
+            await _context.SaveChangesAsync();
+            return null;
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitApplication(bool declarationConsent, IFormFile? sealedSignedReupload)
         {
             var completion = await _capreviewService.GetPreviewAsync();
@@ -84,37 +172,16 @@ namespace Medical_Affiliation.Controllers
 
             if (sealedSignedReupload != null && sealedSignedReupload.Length > 0)
             {
-                var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png" };
-                var extension = Path.GetExtension(sealedSignedReupload.FileName);
-                if (!allowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                var reuploadError = await SaveSealedSignedReuploadAsync(
+                    sealedSignedReupload,
+                    facultyCode,
+                    collegeCode,
+                    applicationType);
+                if (reuploadError != null)
                 {
-                    TempData["PreviewError"] = "Only PDF, DOC, DOCX, JPG, JPEG, and PNG files are allowed for the re-upload.";
+                    TempData["PreviewError"] = reuploadError;
                     return RedirectToAction(nameof(Preview));
                 }
-
-                var baseFolder = Directory.Exists(@"E:\") ? @"E:\Affiliation_Medical" : @"D:\Affiliation_Medical";
-                var sealedFolder = Path.Combine(baseFolder, "SealedSignedReupload");
-                Directory.CreateDirectory(sealedFolder);
-
-                var savedFileName = $"{Guid.NewGuid():N}{extension}";
-                var fullPath = Path.Combine(sealedFolder, savedFileName);
-
-                await using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
-                {
-                    await sealedSignedReupload.CopyToAsync(stream);
-                }
-
-                var record = new AffiliationSealedSignedReupload
-                {
-                    FacultyCode = facultyCode,
-                    CollegeCode = collegeCode,
-                    TypeOfApplication = applicationType,
-                    ReuploadedDoc = fullPath,
-                    CreatedOn = DateTime.Now
-                };
-
-                _context.AffiliationSealedSignedReuploads.Add(record);
-                await _context.SaveChangesAsync();
             }
 
             var courseCodes = paymentCalculation.MatchedCourses
@@ -341,7 +408,10 @@ namespace Medical_Affiliation.Controllers
         {
             var file = await _context.CaCourseCurricula
                 .AsNoTracking()
-                .Where(x => x.CourseCurriculumId == id)
+                .Where(x => x.CourseCurriculumId == id &&
+                            x.CollegeCode == CurrentCollegeCode &&
+                            x.FacultyId == CurrentFacultyId &&
+                            x.AffiliationType == CurrentAffiliationType)
                 .Select(x => new
                 {
                     x.CurriculumPdfPath,
@@ -349,7 +419,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (file == null || file.CurriculumPdfPath == null)
+            if (file == null || string.IsNullOrWhiteSpace(file.CurriculumPdfPath) || !System.IO.File.Exists(file.CurriculumPdfPath))
                 return NotFound();
 
             return PhysicalFile(file.CurriculumPdfPath, "application/pdf");
@@ -358,7 +428,9 @@ namespace Medical_Affiliation.Controllers
         {
             var file = await _context.AffiliatedHospitalDocuments
                 .AsNoTracking()
-                .Where(x => x.DocumentId == id)
+                .Where(x => x.DocumentId == id &&
+                            x.CollegeCode == CurrentCollegeCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
                 .Select(x => new
                 {
                     x.DocumentName,
@@ -393,7 +465,11 @@ namespace Medical_Affiliation.Controllers
         {
             var file = await _context.CaMedicalLibraryServices
                 .AsNoTracking()
-                .Where(x => x.LibraryServiceId == id)
+                .Where(x => x.LibraryServiceId == id &&
+                            x.CollegeCode == CurrentCollegeCode &&
+                            x.FacultyCode.ToString() == CurrentFacultyCode &&
+                            x.AffiliationType == CurrentAffiliationType &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
                 .Select(x => new
                 {
                     x.UploadedFileName,
@@ -401,16 +477,57 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (file == null || file.UploadedPdfPath == null)
+            if (file == null || string.IsNullOrWhiteSpace(file.UploadedPdfPath) || !System.IO.File.Exists(file.UploadedPdfPath))
                 return NotFound();
 
             return PhysicalFile(file.UploadedPdfPath, "application/pdf");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewUsageReportPdf()
+        {
+            var filePath = await _context.CaMedicalLibraryUsageReports
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == CurrentCollegeCode &&
+                            x.FacultyCode.ToString() == CurrentFacultyCode &&
+                            x.AffiliationType == CurrentAffiliationType &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
+                .Select(x => x.UploadedFileDataPath)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(filePath) || !System.IO.File.Exists(filePath))
+                return NotFound();
+
+            return PhysicalFile(filePath, "application/pdf");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewLibraryCommitteePdf(int id)
+        {
+            var filePath = await _context.CaMedLibCommittees
+                .AsNoTracking()
+                .Where(x => x.Id == id &&
+                            x.CollegeCode == CurrentCollegeCode &&
+                            x.FacultyCode == CurrentFacultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
+                .Select(x => x.CommitteePdfPath)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(filePath) || !System.IO.File.Exists(filePath))
+                return NotFound();
+
+            return PhysicalFile(filePath, "application/pdf");
+        }
+
         public async Task<IActionResult> ViewSpecialFeaturesPdf(int id)
         {
             var file = await _context.CaMedicalLibraryOtherDetails
                 .AsNoTracking()
-                .Where(x => x.DigitalValuationId == id)
+                .Where(x => x.DigitalValuationId == id &&
+                            x.CollegeCode == CurrentCollegeCode &&
+                            x.FacultyCode == CurrentFacultyId &&
+                            x.AffiliationType == CurrentAffiliationType &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
                 .Select(x => new
                 {
                     x.UploadedFileName,
@@ -418,7 +535,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (file == null || file.SpecialFeaturesAchievementsPdfPath == null)
+            if (file == null || string.IsNullOrWhiteSpace(file.SpecialFeaturesAchievementsPdfPath) || !System.IO.File.Exists(file.SpecialFeaturesAchievementsPdfPath))
                 return NotFound();
 
             return File(file.SpecialFeaturesAchievementsPdfPath, "application/pdf");
@@ -428,7 +545,7 @@ namespace Medical_Affiliation.Controllers
         {
             var gov = await _context.MedCaAccountAndFeeDetails
                 .AsNoTracking()
-                .Where(e => e.Id == id)
+                .Where(e => e.Id == id && e.CollegeCode == CurrentCollegeCode && e.FacultyCode == CurrentFacultyCode && e.CourseLevel.Trim().ToUpper() == CurrentCourseLevel)
                 .Select(e => new
                 {
                     e.GoverningCouncilPdfPath,
@@ -436,7 +553,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.GoverningCouncilPdfPath == null) return NotFound();
+            if (gov == null || string.IsNullOrWhiteSpace(gov.GoverningCouncilPdfPath) || !System.IO.File.Exists(gov.GoverningCouncilPdfPath)) return NotFound();
 
             return File(gov.GoverningCouncilPdfPath, "application/pdf");
 
@@ -446,7 +563,7 @@ namespace Medical_Affiliation.Controllers
         {
             var gov = await _context.MedCaAccountAndFeeDetails
                 .AsNoTracking()
-                .Where(e => e.Id == id)
+                .Where(e => e.Id == id && e.CollegeCode == CurrentCollegeCode && e.FacultyCode == CurrentFacultyCode && e.CourseLevel.Trim().ToUpper() == CurrentCourseLevel)
                 .Select(e => new
                 {
                     e.AccountSummaryPdfPath,
@@ -454,7 +571,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.AccountSummaryPdfPath == null) return NotFound();
+            if (gov == null || string.IsNullOrWhiteSpace(gov.AccountSummaryPdfPath) || !System.IO.File.Exists(gov.AccountSummaryPdfPath)) return NotFound();
 
             return File(gov.AccountSummaryPdfPath, "application/pdf");
 
@@ -464,7 +581,7 @@ namespace Medical_Affiliation.Controllers
         {
             var gov = await _context.MedCaAccountAndFeeDetails
                 .AsNoTracking()
-                .Where(e => e.Id == id)
+                .Where(e => e.Id == id && e.CollegeCode == CurrentCollegeCode && e.FacultyCode == CurrentFacultyCode && e.CourseLevel.Trim().ToUpper() == CurrentCourseLevel)
                 .Select(e => new
                 {
                     e.AuditedStatementPdfPath,
@@ -472,7 +589,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.AuditedStatementPdfPath == null) return NotFound();
+            if (gov == null || string.IsNullOrWhiteSpace(gov.AuditedStatementPdfPath) || !System.IO.File.Exists(gov.AuditedStatementPdfPath)) return NotFound();
 
             return File(gov.AuditedStatementPdfPath, "application/pdf");
 
@@ -481,7 +598,8 @@ namespace Medical_Affiliation.Controllers
         {
             var gov = await _context.CaMedStaffParticularsOthers
                 .AsNoTracking()
-                .Where(e => e.Id == id)
+                .Where(e => e.Id == id && e.CollegeCode == CurrentCollegeCode && e.FacultyCode == CurrentFacultyCode &&
+                            (string.IsNullOrEmpty(e.CourseLevel) || e.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
                 .Select(e => new
                 {
                     e.ExaminerDetailsPdfPath,
@@ -489,7 +607,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.ExaminerDetailsPdfPath == null) return NotFound();
+            if (gov == null || string.IsNullOrWhiteSpace(gov.ExaminerDetailsPdfPath) || !System.IO.File.Exists(gov.ExaminerDetailsPdfPath)) return NotFound();
 
             return File(gov.ExaminerDetailsPdfPath, "application/pdf");
 
@@ -498,7 +616,8 @@ namespace Medical_Affiliation.Controllers
         {
             var gov = await _context.CaMedStaffParticularsOthers
                 .AsNoTracking()
-                .Where(e => e.Id == id)
+                .Where(e => e.Id == id && e.CollegeCode == CurrentCollegeCode && e.FacultyCode == CurrentFacultyCode &&
+                            (string.IsNullOrEmpty(e.CourseLevel) || e.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
                 .Select(e => new
                 {
                     e.AebaslastThreeMonthsPdfPath,
@@ -506,7 +625,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.AebaslastThreeMonthsPdfPath == null) return NotFound();
+            if (gov == null || string.IsNullOrWhiteSpace(gov.AebaslastThreeMonthsPdfPath) || !System.IO.File.Exists(gov.AebaslastThreeMonthsPdfPath)) return NotFound();
 
             return File(gov.AebaslastThreeMonthsPdfPath, "application/pdf");
 
@@ -515,7 +634,8 @@ namespace Medical_Affiliation.Controllers
         {
             var gov = await _context.CaMedStaffParticularsOthers
                 .AsNoTracking()
-                .Where(e => e.Id == id)
+                .Where(e => e.Id == id && e.CollegeCode == CurrentCollegeCode && e.FacultyCode == CurrentFacultyCode &&
+                            (string.IsNullOrEmpty(e.CourseLevel) || e.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
                 .Select(e => new
                 {
                     e.AebasinspectionDayPdfPath,
@@ -523,7 +643,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.AebasinspectionDayPdfPath == null) return NotFound();
+            if (gov == null || string.IsNullOrWhiteSpace(gov.AebasinspectionDayPdfPath) || !System.IO.File.Exists(gov.AebasinspectionDayPdfPath)) return NotFound();
 
             return File(gov.AebasinspectionDayPdfPath, "application/pdf");
 
@@ -532,7 +652,8 @@ namespace Medical_Affiliation.Controllers
         {
             var gov = await _context.CaMedStaffParticularsOthers
                 .AsNoTracking()
-                .Where(e => e.Id == id)
+                .Where(e => e.Id == id && e.CollegeCode == CurrentCollegeCode && e.FacultyCode == CurrentFacultyCode &&
+                            (string.IsNullOrEmpty(e.CourseLevel) || e.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
                 .Select(e => new
                 {
                     e.ProvidentFundPdfPath,
@@ -540,7 +661,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.ProvidentFundPdfPath == null) return NotFound();
+            if (gov == null || string.IsNullOrWhiteSpace(gov.ProvidentFundPdfPath) || !System.IO.File.Exists(gov.ProvidentFundPdfPath)) return NotFound();
 
             return File(gov.ProvidentFundPdfPath, "application/pdf");
 
@@ -549,7 +670,8 @@ namespace Medical_Affiliation.Controllers
         {
             var gov = await _context.CaMedStaffParticularsOthers
                 .AsNoTracking()
-                .Where(e => e.Id == id)
+                .Where(e => e.Id == id && e.CollegeCode == CurrentCollegeCode && e.FacultyCode == CurrentFacultyCode &&
+                            (string.IsNullOrEmpty(e.CourseLevel) || e.CourseLevel.Trim().ToUpper() == CurrentCourseLevel))
                 .Select(e => new
                 {
                     e.EsipdfPath,
@@ -557,7 +679,7 @@ namespace Medical_Affiliation.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (gov == null || gov.EsipdfPath == null) return NotFound();
+            if (gov == null || string.IsNullOrWhiteSpace(gov.EsipdfPath) || !System.IO.File.Exists(gov.EsipdfPath)) return NotFound();
 
             return File(gov.EsipdfPath, "application/pdf");
 

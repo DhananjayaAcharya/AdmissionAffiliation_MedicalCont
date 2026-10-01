@@ -32,15 +32,53 @@
                         </tr>
                         <tr>
                             <th>Publications Document</th>
-                            <td>@(Model.ResearchPublicationsDisplayViewModel.HasPublicationsPdf ? "Available" : "—")</td>
+                            <td>
+                                @if (Model.ResearchPublicationsDisplayViewModel.HasPublicationsPdf)
+                                {
+                                    <a asp-controller="CA_Med_ResearchPublications" asp-action="ViewPublicationsPdf" target="_blank" rel="noopener">View</a>
+                                }
+                                else { <span>—</span> }
+                            </td>
                         </tr>
                         <tr>
                             <th>Projects Document</th>
-                            <td>@(Model.ResearchPublicationsDisplayViewModel.HasProjectsPdf ? "Available" : "—")</td>
+                            <td>
+                                @if (Model.ResearchPublicationsDisplayViewModel.HasProjectsPdf)
+                                {
+                                    <a asp-controller="CA_Med_ResearchPublications" asp-action="ViewProjectsPdf" target="_blank" rel="noopener">View</a>
+                                }
+                                else { <span>—</span> }
+                            </td>
                         </tr>
                         <tr>
                             <th>Clinical Trials Document</th>
-                            <td>@(Model.ResearchPublicationsDisplayViewModel.HasClinicalTrialsPdf ? "Available" : "—")</td>
+                            <td>
+                                @if (Model.ResearchPublicationsDisplayViewModel.HasClinicalTrialsPdf)
+                                {
+                                    <a asp-controller="CA_Med_ResearchPublications" asp-action="ViewClinicalTrialsPdf" target="_blank" rel="noopener">View</a>
+                                }
+                                else { <span>—</span> }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Students Projects Document</th>
+                            <td>
+                                @if (Model.ResearchPublicationsDisplayViewModel.HasStudentsProjectsPdf)
+                                {
+                                    <a asp-controller="CA_Med_ResearchPublications" asp-action="ViewStudentsProjectsPdf" target="_blank" rel="noopener">View</a>
+                                }
+                                else { <span>—</span> }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Faculty Projects Document</th>
+                            <td>
+                                @if (Model.ResearchPublicationsDisplayViewModel.HasFacultyProjectsPdf)
+                                {
+                                    <a asp-controller="CA_Med_ResearchPublications" asp-action="ViewFacultyProjectsPdf" target="_blank" rel="noopener">View</a>
+                                }
+                                else { <span>—</span> }
+                            </td>
                         </tr>
                     </tbody>
                 </table>

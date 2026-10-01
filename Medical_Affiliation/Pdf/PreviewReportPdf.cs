@@ -2814,6 +2814,11 @@ public class PreviewReportPdf : IDocument
         if (calculation == null || !calculation.HasResult)
             return;
 
+        var isContinuationOfAffiliation = string.Equals(
+            _model.ApplicationType?.Trim(),
+            "Continuation of Affiliation",
+            StringComparison.OrdinalIgnoreCase);
+
         AddMainHeading(col, "16 · Payment Calculation");
 
         col.Item().PaddingTop(25)
@@ -2832,8 +2837,11 @@ public class PreviewReportPdf : IDocument
                 columns.RelativeColumn(1.5f);
                 columns.RelativeColumn(1.5f);
                 columns.RelativeColumn(1.5f);
-                columns.RelativeColumn(1.5f);
-                columns.RelativeColumn(1.5f);
+                if (!isContinuationOfAffiliation)
+                {
+                    columns.RelativeColumn(1.5f);
+                    columns.RelativeColumn(1.5f);
+                }
             });
 
             table.Header(header =>
@@ -2843,8 +2851,11 @@ public class PreviewReportPdf : IDocument
                 header.Cell().Border(1).Padding(4).Text("Course Level").Bold();
                 header.Cell().Border(1).Padding(4).AlignCenter().Text("Intake").Bold();
                 header.Cell().Border(1).Padding(4).AlignCenter().Text("Total Seats").Bold();
-                header.Cell().Border(1).Padding(4).AlignCenter().Text("Increased Intake").Bold();
-                header.Cell().Border(1).Padding(4).AlignCenter().Text("Academic Year").Bold();
+                if (!isContinuationOfAffiliation)
+                {
+                    header.Cell().Border(1).Padding(4).AlignCenter().Text("Increased Intake").Bold();
+                    header.Cell().Border(1).Padding(4).AlignCenter().Text("Academic Year").Bold();
+                }
             });
 
             foreach (var course in calculation.MatchedCourses)
@@ -2854,8 +2865,11 @@ public class PreviewReportPdf : IDocument
                 table.Cell().Border(1).Padding(4).Text(course.RawCourseLevel ?? course.ug_pg ?? "—");
                 table.Cell().Border(1).Padding(4).AlignCenter().Text(course.Intake_26_27?.ToString() ?? "—");
                 table.Cell().Border(1).Padding(4).AlignCenter().Text(course.TotalSeats?.ToString() ?? "0");
-                table.Cell().Border(1).Padding(4).AlignCenter().Text(course.IncreasedIntake?.ToString() ?? "—");
-                table.Cell().Border(1).Padding(4).AlignCenter().Text(course.AcademicYear ?? "—");
+                if (!isContinuationOfAffiliation)
+                {
+                    table.Cell().Border(1).Padding(4).AlignCenter().Text(course.IncreasedIntake?.ToString() ?? "—");
+                    table.Cell().Border(1).Padding(4).AlignCenter().Text(course.AcademicYear ?? "—");
+                }
             }
         });
 
@@ -2922,28 +2936,29 @@ public class PreviewReportPdf : IDocument
         {
             table.ColumnsDefinition(columns =>
             {
+                columns.ConstantColumn(45);  // Id
                 columns.RelativeColumn(3);   // Staff Name
-                columns.RelativeColumn(3);   // Designation
-                columns.ConstantColumn(80);  // PF
-                columns.ConstantColumn(80);  // ESI
-                columns.ConstantColumn(100); // Service Register
-                columns.ConstantColumn(120); // Salary Register
+                columns.RelativeColumn(2.5f); // Designation
+                columns.RelativeColumn(2);   // Mobile Number
+                columns.RelativeColumn(1.5f); // Salary Paid
             });
 
             // -------- Header --------
             table.Header(header =>
             {
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Id").Bold();
                 header.Cell().Border(1).Padding(4).Text("Staff Name").Bold();
                 header.Cell().Border(1).Padding(4).Text("Designation").Bold();
-                header.Cell().Border(1).Padding(4).AlignCenter().Text("PF").Bold();
-                header.Cell().Border(1).Padding(4).AlignCenter().Text("ESI").Bold();
-                header.Cell().Border(1).Padding(4).AlignCenter().Text("Service Register").Bold();
-                header.Cell().Border(1).Padding(4).AlignCenter().Text("Salary Register").Bold();
+                header.Cell().Border(1).Padding(4).AlignCenter().Text("Mobile Number").Bold();
+                header.Cell().Border(1).Padding(4).AlignRight().Text("Salary Paid").Bold();
             });
 
             // -------- Body --------
             foreach (var staff in staffList)
             {
+                table.Cell().Border(1).Padding(4).AlignCenter()
+                    .Text(staff.StaffId.ToString());
+
                 table.Cell().Border(1).Padding(4)
                     .Text(staff.StaffName);
 
@@ -2951,16 +2966,10 @@ public class PreviewReportPdf : IDocument
                     .Text(staff.Designation);
 
                 table.Cell().Border(1).Padding(4).AlignCenter()
-                    .Text(staff.PfProvided ? "Yes" : "No");
+                    .Text(staff.MobileNumber ?? "—");
 
-                table.Cell().Border(1).Padding(4).AlignCenter()
-                    .Text(staff.EsiProvided ? "Yes" : "No");
-
-                table.Cell().Border(1).Padding(4).AlignCenter()
-                    .Text(staff.ServiceRegisterMaintained ? "Yes" : "No");
-
-                table.Cell().Border(1).Padding(4).AlignCenter()
-                    .Text(staff.SalaryAcquaintanceRegister ? "Yes" : "No");
+                table.Cell().Border(1).Padding(4).AlignRight()
+                    .Text(staff.SalaryPaid.ToString("N2"));
             }
         });
     }

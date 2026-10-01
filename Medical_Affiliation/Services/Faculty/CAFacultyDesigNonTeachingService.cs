@@ -120,6 +120,7 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var collegeCode = _httpContextAccessor.HttpContext?.Session.GetString("CollegeCode")
                               ?? _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId.ToString();
             var courseLevel = (_httpContextAccessor.HttpContext?.Session.GetString("CourseLevel")
                                ?? _httpContextAccessor.HttpContext?.Session.GetString("SelectedCourseLevel")
                                ?? _userContext.CourseLevel)
@@ -129,6 +130,7 @@ namespace Medical_Affiliation.Services.Faculty
             var rows = await _context.NonTeachingStaffDetails
                 .AsNoTracking()
                 .Where(s => s.CollegeCode == collegeCode &&
+                            s.FacultyCode == facultyCode &&
                             s.CourseLevel != null &&
                             s.CourseLevel.Trim().ToUpper() == courseLevel)
                 .OrderBy(s => s.Id)
@@ -137,6 +139,7 @@ namespace Medical_Affiliation.Services.Faculty
             return rows.Select(s => new NonTeachingStaffDisplayVM
             {
                 StaffId = s.Id,
+                CourseLevel = s.CourseLevel ?? string.Empty,
                 StaffName = s.StaffName ?? string.Empty,
                 Designation = s.Designation ?? string.Empty,
                 MobileNumber = s.MobileNumber,

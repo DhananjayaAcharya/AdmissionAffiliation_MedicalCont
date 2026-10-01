@@ -2,6 +2,7 @@
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
 using Medical_Affiliation.Services.UserContext;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -5054,6 +5055,7 @@ namespace Medical_Affiliation.Controllers
                     .Trim()
                     .ToUpperInvariant();
 
+               
                 if (selectedLevel == "PG")
                 {
                     return RedirectToAction("PgCourses", "AffiliationPgCourse");
@@ -5062,6 +5064,11 @@ namespace Medical_Affiliation.Controllers
                 if (selectedLevel == "SS")
                 {
                     return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
+                }
+
+                if (facultyCode == "2" && selectedLevel == "UG")
+                {
+                    return RedirectToAction(nameof(Ug_Course_Details));
                 }
 
                 return RedirectToAction("Details_Of_MBBS", "ContinuesAffiliation_Facultybased");
@@ -6098,6 +6105,125 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction("NonTeachingStaffDepartmentwise");
         }
 
+
+        [HttpGet]
+        public IActionResult DownloadNonTeachingStaffExcelTemplate()
+        {
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Non-Teaching Staff");
+            worksheet.Cell(1, 1).Value = "Staff Name";
+            worksheet.Cell(1, 2).Value = "Designation";
+            worksheet.Cell(1, 3).Value = "Mobile Number";
+            worksheet.Cell(1, 4).Value = "Salary Paid";
+            worksheet.Row(1).Style.Font.Bold = true;
+            worksheet.Columns().AdjustToContents();
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            return File(stream.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "NonTeachingStaffTemplate.xlsx");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult PreviewNonTeachingStaffExcel(IFormFile? excelFile)
+        {
+            if (excelFile == null || excelFile.Length == 0)
+                return BadRequest(new { message = "Choose an Excel file to upload." });
+
+            if (!string.Equals(Path.GetExtension(excelFile.FileName), ".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "Upload an .xlsx Excel file." });
+
+            if (excelFile.Length > 5 * 1024 * 1024)
+                return BadRequest(new { message = "The Excel file must be 5 MB or smaller." });
+
+            try
+            {
+                using var stream = excelFile.OpenReadStream();
+                using var workbook = new XLWorkbook(stream);
+                var worksheet = workbook.Worksheets.FirstOrDefault();
+                var headerRow = worksheet?.FirstRowUsed();
+                var lastRow = worksheet?.LastRowUsed();
+
+                if (worksheet == null || headerRow == null || lastRow == null)
+                    return BadRequest(new { message = "The workbook is empty." });
+
+                var columns = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var cell in headerRow.CellsUsed())
+                {
+                    var header = NormalizeExcelHeader(cell.GetString());
+                    if (!string.IsNullOrEmpty(header))
+                        columns.TryAdd(header, cell.Address.ColumnNumber);
+                }
+
+                var nameColumn = FindExcelColumn(columns, "staffname", "name");
+                var designationColumn = FindExcelColumn(columns, "designation", "jobtitle");
+                var mobileColumn = FindExcelColumn(columns, "mobilenumber", "mobile", "contactnumber");
+                var salaryColumn = FindExcelColumn(columns, "salarypaid", "salary", "salaryamount");
+
+                if (nameColumn == null || designationColumn == null)
+                    return BadRequest(new { message = "The sheet must include Staff Name and Designation columns. Use the downloadable template for the supported layout." });
+
+                if (lastRow.RowNumber() - headerRow.RowNumber() > 2000)
+                    return BadRequest(new { message = "The sheet can contain at most 2,000 staff rows." });
+
+                var staffRows = new List<NonTeachingStaffRow>();
+                for (var rowNumber = headerRow.RowNumber() + 1; rowNumber <= lastRow.RowNumber(); rowNumber++)
+                {
+                    var row = worksheet.Row(rowNumber);
+                    var staffName = ReadExcelCell(row.Cell(nameColumn.Value));
+                    var designation = ReadExcelCell(row.Cell(designationColumn.Value));
+                    var mobileNumber = mobileColumn.HasValue ? ReadExcelCell(row.Cell(mobileColumn.Value)) : null;
+                    var salaryPaid = salaryColumn.HasValue ? ReadExcelCell(row.Cell(salaryColumn.Value)) : null;
+
+                    if (string.IsNullOrWhiteSpace(staffName) &&
+                        string.IsNullOrWhiteSpace(designation) &&
+                        string.IsNullOrWhiteSpace(mobileNumber) &&
+                        string.IsNullOrWhiteSpace(salaryPaid))
+                        continue;
+
+                    staffRows.Add(new NonTeachingStaffRow
+                    {
+                        StaffName = staffName,
+                        Designation = designation,
+                        MobileNumber = mobileNumber,
+                        SalaryPaid = salaryPaid?.Replace("₹", string.Empty).Replace(",", string.Empty).Trim()
+                    });
+                }
+
+                if (staffRows.Count == 0)
+                    return BadRequest(new { message = "No staff records were found below the header row." });
+
+                return Ok(new { rows = staffRows });
+            }
+            catch (Exception)
+            {
+                return BadRequest(new { message = "The workbook could not be read. Check that it is a valid .xlsx file." });
+            }
+        }
+
+        private static string NormalizeExcelHeader(string value) =>
+            string.Concat(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant));
+
+        private static int? FindExcelColumn(Dictionary<string, int> columns, params string[] aliases)
+        {
+            foreach (var alias in aliases)
+            {
+                if (columns.TryGetValue(alias, out var column))
+                    return column;
+            }
+
+            return null;
+        }
+
+        private static string? ReadExcelCell(IXLCell cell)
+        {
+            if (cell.IsEmpty())
+                return null;
+
+            return cell.GetFormattedString(CultureInfo.InvariantCulture).Trim();
+        }
 
         [HttpGet]
         public async Task<IActionResult> NonTeachingStaffDepartmentwise()
