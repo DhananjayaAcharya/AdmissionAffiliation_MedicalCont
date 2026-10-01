@@ -3969,6 +3969,113 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateMBBSDocument(
+            string documentType,
+            IFormFile? GOKorder,
+            IFormFile? LastAffiliationRGUHSFile,
+            IFormFile? PreviousNotificationFiles)
+        {
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
+
+            if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("ClgLogin");
+
+            if (!string.Equals(facultyCode, "1", StringComparison.OrdinalIgnoreCase))
+                return RedirectToAction("Dashboard", "Collegelogin");
+
+            var fileDetails = documentType switch
+            {
+                "GOKorder" => (File: GOKorder, Folder: "GOKOrders"),
+                "LastAffiliationRGUHSFile" => (File: LastAffiliationRGUHSFile, Folder: "RGUHS"),
+                "PreviousNotificationFiles" => (File: PreviousNotificationFiles, Folder: "PreviousNotification"),
+                _ => (File: (IFormFile?)null, Folder: string.Empty)
+            };
+
+            if (fileDetails.File == null || fileDetails.File.Length == 0)
+            {
+                TempData["Error"] = "Choose a PDF file before selecting Update Document.";
+                return RedirectToAction(nameof(Details_Of_MBBS));
+            }
+
+            const long maxSize = 5 * 1024 * 1024;
+            if (!string.Equals(Path.GetExtension(fileDetails.File.FileName), ".pdf", StringComparison.OrdinalIgnoreCase) ||
+                !string.Equals(fileDetails.File.ContentType, "application/pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] = "The document must be a valid PDF file.";
+                return RedirectToAction(nameof(Details_Of_MBBS));
+            }
+
+            if (fileDetails.File.Length > maxSize)
+            {
+                TempData["Error"] = "The PDF file cannot exceed 5 MB.";
+                return RedirectToAction(nameof(Details_Of_MBBS));
+            }
+
+            var entity = await _context.AffiliationCourseDetails.FirstOrDefaultAsync(x =>
+                x.Facultycode == facultyCode &&
+                x.Collegecode == collegeCode &&
+                x.CourseId == "MBBS");
+
+            if (entity == null)
+            {
+                TempData["Error"] = "Save the MBBS details first. The document was not uploaded because no existing record was found.";
+                return RedirectToAction(nameof(Details_Of_MBBS));
+            }
+
+            var newPath = await SaveCourseFileAsync(fileDetails.File, fileDetails.Folder, facultyCode);
+            if (string.IsNullOrWhiteSpace(newPath))
+            {
+                TempData["Error"] = "The uploaded PDF could not be saved.";
+                return RedirectToAction(nameof(Details_Of_MBBS));
+            }
+
+            var oldPath = documentType switch
+            {
+                "GOKorder" => entity.GokorderPath,
+                "LastAffiliationRGUHSFile" => entity.LastAffiliationRguhsfilePath,
+                _ => entity.PreviousNotificationFilesPath
+            };
+
+            switch (documentType)
+            {
+                case "GOKorder":
+                    entity.GokorderPath = newPath;
+                    break;
+                case "LastAffiliationRGUHSFile":
+                    entity.LastAffiliationRguhsfilePath = newPath;
+                    break;
+                case "PreviousNotificationFiles":
+                    entity.PreviousNotificationFilesPath = newPath;
+                    break;
+            }
+
+            entity.UpdatedDate = DateTime.Now;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                if (System.IO.File.Exists(newPath))
+                    System.IO.File.Delete(newPath);
+                throw;
+            }
+
+            if (!string.IsNullOrWhiteSpace(oldPath) &&
+                !string.Equals(oldPath, newPath, StringComparison.OrdinalIgnoreCase) &&
+                System.IO.File.Exists(oldPath))
+            {
+                System.IO.File.Delete(oldPath);
+            }
+
+            TempData["Success"] = "Document updated successfully.";
+            return RedirectToAction(nameof(Details_Of_MBBS));
+        }
+
         // GET: Load existing data
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         public async Task<IActionResult> Ug_Course_Details()
@@ -6327,6 +6434,52 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Index", "DentalPayment");
             }
             return RedirectToAction("Aff_HostelDetails");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteNonTeachingStaff(int id)
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var courseLevel = CourseLevel;
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCode))
+                return Unauthorized(new { message = "Your session has expired. Please sign in again." });
+
+            var staff = await _context.NonTeachingStaffDetails.FirstOrDefaultAsync(x =>
+                x.Id == id &&
+                x.CollegeCode == collegeCode &&
+                x.FacultyCode == facultyCode &&
+                x.CourseLevel == courseLevel);
+
+            if (staff == null)
+                return NotFound(new { message = "This staff record was not found for the current college and course." });
+
+            _context.NonTeachingStaffDetails.Remove(staff);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Staff record deleted." });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAllNonTeachingStaff()
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized(new { message = "Your session has expired. Please sign in again." });
+
+            var staffRecords = await _context.NonTeachingStaffDetails
+                .Where(x => x.CollegeCode == collegeCode)
+                .ToListAsync();
+
+            if (staffRecords.Count > 0)
+            {
+                _context.NonTeachingStaffDetails.RemoveRange(staffRecords);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new { deletedCount = staffRecords.Count });
         }
 
 

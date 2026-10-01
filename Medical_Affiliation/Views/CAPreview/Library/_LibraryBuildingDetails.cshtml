@@ -26,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null)
+                    @if (Model?.LibraryBuildingVM != null && Model.LibraryBuildingVM.SlNo > 0)
                     {
                         <tr>
                             <td>Independent Library Building</td>
@@ -62,7 +62,7 @@
                     {
                         <tr>
                             <td colspan="2" class="text-center text-muted">
-                                Library building details not available
+                                No library building details saved for this course.
                             </td>
                         </tr>
                     }

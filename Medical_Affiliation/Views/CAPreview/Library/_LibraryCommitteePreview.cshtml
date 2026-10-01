@@ -27,7 +27,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null && Model.librarayCommitteeVM.Committees != null && Model.librarayCommitteeVM.Committees.Any())
+                    @if (Model?.librarayCommitteeVM?.Committees?.Any() == true)
                     {
                         foreach (var committee in Model.librarayCommitteeVM.Committees)
                         {

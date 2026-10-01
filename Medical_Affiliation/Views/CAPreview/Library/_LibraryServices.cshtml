@@ -52,9 +52,13 @@
                                             {
                                                 <span class="status-badge-maintained">Yes</span>
                                             }
-                                            else
+                                            else if (service.IsAvailable == "No")
                                             {
                                                 <span class="status-badge-not-maintained">No</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not Provided</span>
                                             }
                                         </td>
 
@@ -226,9 +230,16 @@
                                 Other Details: Digital Valuation Centre
                             </div>
                             <div>
-                                <span class="@StatusBadge(Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre == "Yes")">
-                                    @(Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre == "Yes" ? "Yes" : "No")
-                                </span>
+                                @if (Model.caAffMedicalLibraryvm.OtherDetails.DigitalValuationId.HasValue)
+                                {
+                                    <span class="@StatusBadge(Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre == "Yes")">
+                                        @(Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre ?? "Not Provided")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not Provided</span>
+                                }
                             </div>
                         </div>
                     </div>
@@ -238,7 +249,8 @@
                         <table class="table data-table mb-0">
                             <tbody>
 
-                                @if (Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre == "Yes")
+                                  @if (Model.caAffMedicalLibraryvm.OtherDetails.DigitalValuationId.HasValue &&
+                                      Model.caAffMedicalLibraryvm.OtherDetails.HasDigitalValuationCentre == "Yes")
                                 {
                                     <tr>
                                         <td>How many computer systems are available in the library?</td>
@@ -333,5 +345,5 @@
                 <p>No medical library data available.</p>
             </div>
         }
-   </<div>
+    </div>
 </div>

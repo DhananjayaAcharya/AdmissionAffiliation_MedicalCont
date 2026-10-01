@@ -145,6 +145,35 @@
         .Distinct()
         .ToListAsync();
 
+    var paymentFacultyId = int.TryParse(facultyCode, out var parsedPaymentFacultyId)
+        ? parsedPaymentFacultyId
+        : 0;
+    var paymentAffiliationTypeId = Context.Session.GetInt32("AffiliationType");
+    if (!paymentAffiliationTypeId.HasValue &&
+        int.TryParse(Context.Session.GetString("AffiliationTypeId"), out var parsedPaymentAffiliationTypeId))
+    {
+        paymentAffiliationTypeId = parsedPaymentAffiliationTypeId;
+    }
+
+    var paymentCourseLevel = (selectedCourseLevel
+        ?? Context.Session.GetString("SelectedCourseLevel")
+        ?? Context.Session.GetString("SelectedLevel"))?.Trim().ToUpperInvariant();
+    var hasSavedPaymentDetails = !string.IsNullOrWhiteSpace(collegeCode)
+        && paymentFacultyId > 0
+        && paymentAffiliationTypeId.GetValueOrDefault() > 0
+        && !string.IsNullOrWhiteSpace(paymentCourseLevel)
+        && await _context.PaymentAffiliationDocuments.AsNoTracking().AnyAsync(payment =>
+            payment.CollegeCode == collegeCode &&
+            payment.FacultyCode == paymentFacultyId &&
+            payment.CourseLevel == paymentCourseLevel &&
+            payment.AffiliationTypeId == paymentAffiliationTypeId.Value);
+
+    doneSteps.RemoveAll(step => string.Equals(step, "PaymentCalculation", StringComparison.OrdinalIgnoreCase));
+    if (hasSavedPaymentDetails)
+    {
+        doneSteps.Add("PaymentCalculation");
+    }
+
     // These two sections are treated as complete by default for the
     // medical continuous-affiliation workflow.
     if (!doneSteps.Contains("EquipmentDetails"))

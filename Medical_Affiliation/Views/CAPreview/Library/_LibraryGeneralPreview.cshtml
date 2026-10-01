@@ -27,7 +27,7 @@
                 </thead>
                 <tbody>
 
-                    @if (Model != null)
+                    @if (Model?.LibraryGeneralVM != null && Model.LibraryGeneralVM.SlNo > 0)
                     {
                         <tr>
                             <td>Library Email ID</td>
@@ -91,7 +91,7 @@
                     {
                         <tr>
                             <td colspan="2" class="text-center text-muted">
-                                Library general details not available
+                                No library general details saved for this course.
                             </td>
                         </tr>
                     }

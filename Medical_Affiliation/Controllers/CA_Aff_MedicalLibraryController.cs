@@ -18,13 +18,80 @@ namespace Medical_Affiliation.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public IActionResult MedicalLibrary()
+        private async Task<(string CourseLevel, int AffiliationType)> ResolveLibraryContextAsync(
+            int? postedAffiliationType = null,
+            string? postedCourseLevel = null)
         {
-            var courseLevel = CourseLevel.Trim().ToUpperInvariant();
+            var queryCourseLevel = HttpContext.Request.Query["courseLevel"].FirstOrDefault();
+            var courseLevel = (queryCourseLevel
+                ?? HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel")
+                ?? postedCourseLevel
+                ?? CourseLevel)
+                .Trim()
+                .ToUpperInvariant();
+
+            if (!string.IsNullOrWhiteSpace(courseLevel))
+            {
+                HttpContext.Session.SetString("CourseLevel", courseLevel);
+                HttpContext.Session.SetString("SelectedCourseLevel", courseLevel);
+            }
+
+            var queryAffiliationTypeId = HttpContext.Request.Query["affiliationTypeId"].FirstOrDefault();
+            int? affiliationType = int.TryParse(queryAffiliationTypeId, out var queryTypeId) && queryTypeId > 0
+                ? queryTypeId
+                : null;
+
+            var queryAffiliationName = HttpContext.Request.Query["typeOfAffiliation"].FirstOrDefault();
+            if (!affiliationType.HasValue && !string.IsNullOrWhiteSpace(queryAffiliationName))
+            {
+                var normalizedName = queryAffiliationName.Trim().ToUpperInvariant();
+                affiliationType = await _context.TypeOfAffiliations
+                    .AsNoTracking()
+                    .Where(x => x.TypeDescription.Trim().ToUpper() == normalizedName)
+                    .Select(x => (int?)x.TypeId)
+                    .FirstOrDefaultAsync();
+            }
+
+            affiliationType ??= HttpContext.Session.GetInt32("AffiliationType");
+            if (!affiliationType.HasValue &&
+                int.TryParse(HttpContext.Session.GetString("AffiliationTypeId"), out var sessionTypeId) &&
+                sessionTypeId > 0)
+            {
+                affiliationType = sessionTypeId;
+            }
+            affiliationType ??= postedAffiliationType;
+            affiliationType ??= 2;
+
+            HttpContext.Session.SetInt32("AffiliationType", affiliationType.Value);
+            HttpContext.Session.SetString("AffiliationTypeId", affiliationType.Value.ToString());
+
+            if (!string.IsNullOrWhiteSpace(queryAffiliationName))
+            {
+                HttpContext.Session.SetString("TypeOfAffiliation", queryAffiliationName.Trim());
+            }
+            else
+            {
+                var affiliationName = await _context.TypeOfAffiliations
+                    .AsNoTracking()
+                    .Where(x => x.TypeId == affiliationType.Value)
+                    .Select(x => x.TypeDescription)
+                    .FirstOrDefaultAsync();
+                if (!string.IsNullOrWhiteSpace(affiliationName))
+                    HttpContext.Session.SetString("TypeOfAffiliation", affiliationName);
+            }
+
+            return (courseLevel, affiliationType.Value);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MedicalLibrary()
+        {
+            var libraryContext = await ResolveLibraryContextAsync();
+            var courseLevel = libraryContext.CourseLevel;
             string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
             int facultyCode = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode"));
-            int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+            int affiliationType = libraryContext.AffiliationType;
 
             var model = new CA_Aff_MedicalLibraryViewModel
             {
@@ -44,6 +111,8 @@ namespace Medical_Affiliation.Controllers
                             x.FacultyCode == facultyCode &&
                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
+                .OrderByDescending(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenByDescending(x => x.LibraryServiceId)
                 .ToList();
 
             var masterServices = _context.CaMstMediLibraryServices
@@ -64,22 +133,32 @@ namespace Medical_Affiliation.Controllers
             }).ToList();
 
             // ===================== 2. USAGE REPORT =====================
-            var usage = _context.CaMedicalLibraryUsageReports
-                .FirstOrDefault(x => x.CollegeCode == collegeCode &&
-                                     x.FacultyCode == facultyCode &&
-                                     (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
-                                     x.AffiliationType == affiliationType);
+            var usageCandidates = _context.CaMedicalLibraryUsageReports
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                            x.AffiliationType == affiliationType)
+                .OrderByDescending(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenByDescending(x => x.UsageReportId)
+                .ToList();
+            var usage = usageCandidates.FirstOrDefault();
 
             if (usage != null)
                 model.ExistingUsageReportFileName = usage.UploadedFileName;
 
             // ===================== 3. LIBRARY STAFF =====================
-            var savedStaff = _context.CaMedicalLibraryStaffs
+            var savedStaffCandidates = _context.CaMedicalLibraryStaffs
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
                             (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
+                .OrderByDescending(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenBy(x => x.Id)
                 .ToList();
+            var savedStaff = savedStaffCandidates.Any(x =>
+                    x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                ? savedStaffCandidates.Where(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel).ToList()
+                : savedStaffCandidates;
 
             model.LibraryStaff = savedStaff.Select(s => new LibraryStaffViewModel
             {
@@ -93,12 +172,19 @@ namespace Medical_Affiliation.Controllers
 
             // ===================== 4. DEPARTMENTAL LIBRARY =====================
             // ===================== 4. DEPARTMENTAL LIBRARY (FIXED) =====================
-            var savedDepartments = _context.CaMedicalDepartmentLibraries
+            var savedDepartmentCandidates = _context.CaMedicalDepartmentLibraries
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
                             (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
+                .OrderByDescending(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenBy(x => x.DepartmentCode)
+                .ThenByDescending(x => x.DepartmentalLibraryId)
                 .ToList();
+            var savedDepartments = savedDepartmentCandidates.Any(x =>
+                    x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                ? savedDepartmentCandidates.Where(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel).ToList()
+                : savedDepartmentCandidates;
 
             // If data exists → load only saved rows
             if (savedDepartments.Any())
@@ -290,8 +376,8 @@ namespace Medical_Affiliation.Controllers
             if (model == null)
                 return RedirectToAction(nameof(MedicalLibrary));
 
-            var courseLevel = (HttpContext.Session.GetString("CourseLevel") ?? CourseLevel)
-                .Trim().ToUpperInvariant();
+            var libraryContext = await ResolveLibraryContextAsync(model.AffiliationType, model.CourseLevel);
+            var courseLevel = libraryContext.CourseLevel;
 
             string collegeCode =
                 HttpContext.Session.GetString("CollegeCode") ?? "";
@@ -300,8 +386,7 @@ namespace Medical_Affiliation.Controllers
                 HttpContext.Session.GetString("FacultyCode")
             );
 
-            int affiliationType =
-                HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+            int affiliationType = libraryContext.AffiliationType;
 
             model.CollegeCode = collegeCode;
             model.FacultyCode = facultyCode;

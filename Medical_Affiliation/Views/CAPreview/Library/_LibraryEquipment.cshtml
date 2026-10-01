@@ -1,6 +1,6 @@
 ﻿@model MedicalLibraryDisplayViewModel
 
-@if (Model.LibraryEquipmentListVM != null && Model.LibraryEquipmentListVM.Items.Any())
+@if (Model?.LibraryEquipmentListVM?.Items?.Any() == true)
 {
     <div class="general-body">
         <div class="section-block">

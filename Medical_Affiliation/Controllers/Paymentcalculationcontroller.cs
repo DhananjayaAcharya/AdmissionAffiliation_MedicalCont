@@ -169,47 +169,12 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 vm.HasResult = true;
-                await MarkPaymentCalculationCompleteAsync(vm);
             }
             catch (SqlException ex)
             {
                 vm.ErrorMessage = "Could not calculate payment: " + ex.Message;
                 vm.HasResult = false;
             }
-        }
-
-        private async Task MarkPaymentCalculationCompleteAsync(PaymentCalculationViewModel vm)
-        {
-            var courseLevel = (vm.CourseLevel ?? HttpContext.Session.GetString("CourseLevel"))?
-                .Trim()
-                .ToUpperInvariant();
-
-            if (string.IsNullOrWhiteSpace(vm.CollegeCode) || string.IsNullOrWhiteSpace(courseLevel))
-                return;
-
-            var progress = await _context.CaProgresses.FirstOrDefaultAsync(x =>
-                x.CollegeCode == vm.CollegeCode &&
-                x.CourseLevel == courseLevel &&
-                x.StepKey == "PaymentCalculation");
-
-            if (progress == null)
-            {
-                _context.CaProgresses.Add(new CaProgress
-                {
-                    CollegeCode = vm.CollegeCode,
-                    CourseLevel = courseLevel,
-                    StepKey = "PaymentCalculation",
-                    IsCompleted = true,
-                    UpdatedAt = DateTime.Now
-                });
-            }
-            else
-            {
-                progress.IsCompleted = true;
-                progress.UpdatedAt = DateTime.Now;
-            }
-
-            await _context.SaveChangesAsync();
         }
 
         // ---------------------------------------------------------------------

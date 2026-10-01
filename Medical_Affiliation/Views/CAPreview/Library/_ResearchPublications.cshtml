@@ -31,6 +31,22 @@
                             <td>@(Model.ResearchPublicationsDisplayViewModel.ExternalBodyFunding ?? 0)</td>
                         </tr>
                         <tr>
+                            <th>Student RGUHS-Funded Projects</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.StudentsRguhsFunded ?? 0)</td>
+                        </tr>
+                        <tr>
+                            <th>Student Externally Funded Projects</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.StudentsExternalFunding ?? 0)</td>
+                        </tr>
+                        <tr>
+                            <th>Faculty RGUHS-Funded Projects</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.FacultyRguhsFunded ?? 0)</td>
+                        </tr>
+                        <tr>
+                            <th>Faculty Externally Funded Projects</th>
+                            <td>@(Model.ResearchPublicationsDisplayViewModel.FacultyExternalFunding ?? 0)</td>
+                        </tr>
+                        <tr>
                             <th>Publications Document</th>
                             <td>
                                 @if (Model.ResearchPublicationsDisplayViewModel.HasPublicationsPdf)

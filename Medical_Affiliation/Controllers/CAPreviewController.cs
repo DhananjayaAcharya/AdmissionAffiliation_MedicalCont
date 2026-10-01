@@ -39,6 +39,24 @@ namespace Medical_Affiliation.Controllers
 
         public async Task<IActionResult> Preview()
         {
+            var requestedCourseLevel = Request.Query["courseLevel"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(requestedCourseLevel))
+            {
+                HttpContext.Session.SetString("CourseLevel", requestedCourseLevel.Trim());
+                HttpContext.Session.SetString("SelectedCourseLevel", requestedCourseLevel.Trim());
+            }
+
+            var requestedAffiliationType = Request.Query["typeOfAffiliation"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(requestedAffiliationType))
+                HttpContext.Session.SetString("TypeOfAffiliation", requestedAffiliationType.Trim());
+
+            if (int.TryParse(Request.Query["affiliationTypeId"], out var requestedAffiliationTypeId)
+                && requestedAffiliationTypeId > 0)
+            {
+                HttpContext.Session.SetInt32("AffiliationType", requestedAffiliationTypeId);
+                HttpContext.Session.SetString("AffiliationTypeId", requestedAffiliationTypeId.ToString());
+            }
+
             _paymentCalculationController.ControllerContext = ControllerContext;
             var paymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
             var model = await _capreviewService.GetPreviewAsync();

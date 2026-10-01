@@ -16,7 +16,10 @@
             </p>
         </div>
 
-        <div class="data-table-wrapper">
+           @if (Model?.LibraryFinancVM != null &&
+               (Model.LibraryFinancVM.TotalBudgetLakhs.HasValue || Model.LibraryFinancVM.ExpenditureBooksLakhs.HasValue))
+           {
+           <div class="data-table-wrapper">
             <table class="table table-bordered align-middle">
                 <tbody>
                     <tr>
@@ -34,6 +37,11 @@
                 </tbody>
             </table>
         </div>
+        }
+        else
+        {
+            <p class="text-muted">No library finance details saved for this course.</p>
+        }
 
     </div>
 </div>

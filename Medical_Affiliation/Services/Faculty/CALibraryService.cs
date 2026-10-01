@@ -2,6 +2,7 @@
 using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +13,16 @@ namespace Medical_Affiliation.Services.Faculty
 
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CALibraryService(ApplicationDbContext context, IUserContext userContext)
+        public CALibraryService(
+            ApplicationDbContext context,
+            IUserContext userContext,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userContext = userContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet]
@@ -24,7 +30,8 @@ namespace Medical_Affiliation.Services.Faculty
         {
             string collegeCode = _userContext.CollegeCode;
             int facultyCode = _userContext.FacultyId;
-            int affiliationType = _userContext.TypeOfAffiliation;
+            int affiliationType = await ResolveLibraryAffiliationTypeAsync();
+            var courseLevel = _userContext.CourseLevel.Trim().ToUpperInvariant();
 
             var model = new MedicalLibraryDisplayViewModel
             {
@@ -40,7 +47,10 @@ namespace Medical_Affiliation.Services.Faculty
                 .AsNoTracking()
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
+                .OrderByDescending(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenByDescending(x => x.LibraryServiceId)
                 .ToList();
 
             var masterServices = _context.CaMstMediLibraryServices
@@ -65,9 +75,13 @@ namespace Medical_Affiliation.Services.Faculty
 
             // ===================== 2. USAGE REPORT =====================
             var usage = _context.CaMedicalLibraryUsageReports
-                .FirstOrDefault(x => x.CollegeCode == collegeCode &&
-                                     x.FacultyCode == facultyCode &&
-                                     x.AffiliationType == affiliationType);
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                            x.AffiliationType == affiliationType)
+                .OrderByDescending(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenByDescending(x => x.UsageReportId)
+                .FirstOrDefault();
 
             if (usage != null)
             {
@@ -79,7 +93,10 @@ namespace Medical_Affiliation.Services.Faculty
             var savedStaff = _context.CaMedicalLibraryStaffs
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                             x.AffiliationType == affiliationType)
+                .OrderByDescending(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenByDescending(x => x.Id)
                 .ToList();
 
             model.caAffMedicalLibraryvm.LibraryStaff = savedStaff.Select(s => new LibraryStaffViewModel1
@@ -100,14 +117,21 @@ namespace Medical_Affiliation.Services.Faculty
             //    .ToList();
 
 
-            var savedDepartmentList = (from cmdl in _context.CaMedicalDepartmentLibraries
-                                       join deptMaster in _context.DepartmentMasters
-                                       on cmdl.DepartmentCode equals deptMaster.DepartmentCode
-                                       where cmdl.CollegeCode == collegeCode &&
-                                           cmdl.FacultyCode == facultyCode &&
-                                           cmdl.AffiliationType == affiliationType
-                                       select new { cmdl, deptMaster })
-                        .ToList();
+            var savedDepartmentCandidates = (from cmdl in _context.CaMedicalDepartmentLibraries.AsNoTracking()
+                                             join deptMaster in _context.DepartmentMasters.AsNoTracking()
+                                                 on new { cmdl.DepartmentCode, FacultyCode = cmdl.FacultyCode }
+                                                 equals new { deptMaster.DepartmentCode, deptMaster.FacultyCode }
+                                             where cmdl.CollegeCode == collegeCode &&
+                                                 cmdl.FacultyCode == facultyCode &&
+                                                 (string.IsNullOrEmpty(cmdl.CourseLevel) || cmdl.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                                                 cmdl.AffiliationType == affiliationType
+                                             orderby cmdl.CourseLevel == courseLevel descending, cmdl.DepartmentalLibraryId descending
+                                             select new { cmdl, deptMaster })
+                .ToList();
+            var savedDepartmentList = savedDepartmentCandidates
+                .GroupBy(x => x.cmdl.DepartmentCode)
+                .Select(group => group.First())
+                .ToList();
 
             // If data exists → load only saved rows
             if (savedDepartmentList.Any())
@@ -145,9 +169,13 @@ namespace Medical_Affiliation.Services.Faculty
 
             // ===================== 5. OTHER DETAILS =====================
             var otherDetails = _context.CaMedicalLibraryOtherDetails
-                .FirstOrDefault(x => x.CollegeCode == collegeCode &&
-                                     x.FacultyCode == facultyCode &&
-                                     x.AffiliationType == affiliationType);
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                            x.AffiliationType == affiliationType)
+                .OrderByDescending(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenByDescending(x => x.DigitalValuationId)
+                .FirstOrDefault();
 
             if (otherDetails != null)
             {
@@ -162,7 +190,7 @@ namespace Medical_Affiliation.Services.Faculty
                     SpecialFeaturesQuestion = otherDetails.SpecialFeaturesAchievementsPdfPath != null ? "Yes" : "No",
                     HasSpecialFeaturesPdf = otherDetails.SpecialFeaturesAchievementsPdfPath != null,
                     CreatedDate = otherDetails.CreatedDate,
-                    HasSpecialFeatures = otherDetails.SpecialFeaturesQuestion == "Yes",
+                    HasSpecialFeatures = !string.IsNullOrWhiteSpace(otherDetails.SpecialFeaturesAchievementsPdfPath)
                 };
 
             }
@@ -188,14 +216,34 @@ namespace Medical_Affiliation.Services.Faculty
             return model;
         }
 
+        private async Task<int> ResolveLibraryAffiliationTypeAsync()
+        {
+            var affiliationName = _httpContextAccessor.HttpContext?.Session.GetString("TypeOfAffiliation");
+            if (string.IsNullOrWhiteSpace(affiliationName))
+                return _userContext.TypeOfAffiliation;
+
+            var normalizedName = affiliationName.Trim().ToUpperInvariant();
+            var libraryTypeId = await _context.TypeOfAffiliations
+                .AsNoTracking()
+                .Where(type => type.TypeDescription.Trim().ToUpper() == normalizedName)
+                .OrderBy(type => type.TypeId)
+                .Select(type => (int?)type.TypeId)
+                .FirstOrDefaultAsync();
+
+            return libraryTypeId ?? _userContext.TypeOfAffiliation;
+        }
+
         public async Task<CaMedLibCommitteeListDisplayViewModel> GetLibCommittee()
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
+            var courseLevel = _userContext.CourseLevel.Trim().ToUpperInvariant();
             var libCommitteList = await (from det in _context.CaMedLibCommittees
                                          join cmst in _context.CaMstMedCommitteeNames
                                          on det.CommitteeId equals cmst.Id
-                                         where det.CollegeCode == collegeCode && det.FacultyCode == facultyCode.ToString()
+                                         where det.CollegeCode == collegeCode &&
+                                               det.FacultyCode == facultyCode.ToString() &&
+                                               (string.IsNullOrEmpty(det.CourseLevel) || det.CourseLevel.Trim().ToUpper() == courseLevel)
                                          orderby cmst.CommitteeName
                                          select new CaMedLibCommitteeDisplayViewModel
                                          {
@@ -215,9 +263,14 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
+            var courseLevel = _userContext.CourseLevel.Trim().ToUpperInvariant();
 
             var libGen = await _context.CaMedLibraryGenerals
-                .Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString())
+                .AsNoTracking()
+                .Where(e => e.CollegeCode == collegeCode &&
+                            e.FacultyCode == facultyCode.ToString() &&
+                            e.CourseLevel == courseLevel)
+                .OrderByDescending(e => e.SlNo)
                 .Select(e => new CaMedLibraryGeneralDisplayViewModel
                 {
                     SlNo = e.SlNo,
@@ -238,10 +291,13 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
+            var courseLevel = _userContext.CourseLevel.Trim().ToUpperInvariant();
             var libItemList = await (from det in _context.CaMedLibraryItems
                                      join mst in _context.CaMstMedLibraryItems
                                     on det.ItemName equals mst.ItemName
-                                     where det.CollegeCode == collegeCode && det.FacultyCode == facultyCode.ToString()
+                                     where det.CollegeCode == collegeCode &&
+                                           det.FacultyCode == facultyCode.ToString() &&
+                                           det.CourseLevel == courseLevel
                                      select new CaMedLibraryItemDisplayViewModel
                                      {
                                          SlNo = det.SlNo,
@@ -261,9 +317,15 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
+            var courseLevel = _userContext.CourseLevel.Trim().ToUpperInvariant();
 
             var libBuildingDetails = await _context.CaMedLibraryBuildings
-                .Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString())
+                .AsNoTracking()
+                .Where(e => e.CollegeCode == collegeCode &&
+                            e.FacultyCode == facultyCode.ToString() &&
+                            (string.IsNullOrEmpty(e.CourseLevel) || e.CourseLevel.Trim().ToUpper() == courseLevel))
+                .OrderByDescending(e => e.CourseLevel != null && e.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenByDescending(e => e.SlNo)
                 .Select(e => new CaMedLibraryBuildingDisplayViewModel
                 {
                     SlNo = e.SlNo,
@@ -278,9 +340,13 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
+            var courseLevel = _userContext.CourseLevel.Trim().ToUpperInvariant();
 
             var techProcessList = await _context.CaMedLibTechnicalProcesses
-                .Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString())
+                .AsNoTracking()
+                .Where(e => e.CollegeCode == collegeCode &&
+                            e.FacultyCode == facultyCode.ToString() &&
+                            e.CourseLevel == courseLevel)
                 .Select(e => new CaMedLibTechnicalProcessDisplayViewModel
                 {
                     SlNo = e.SlNo,
@@ -296,15 +362,22 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
-            var LibraryFinanceDetails = await _context.CaMedLibraryFinances
-                .Where(e => e.CollegeCode == collegeCode && facultyCode == facultyCode)
+            var courseLevel = _userContext.CourseLevel.Trim().ToUpperInvariant();
+            var libraryFinanceDetails = await _context.CaMedLibraryFinances
+                .AsNoTracking()
+                .Where(e => e.CollegeCode == collegeCode &&
+                            e.FacultyCode == facultyCode.ToString() &&
+                            e.CourseLevel == courseLevel)
+                .OrderByDescending(e => e.SlNo)
                 .Select(e => new CaMedLibraryFinanceDisplayViewModel
                 {
+                    CollegeCode = e.CollegeCode,
+                    FacultyCode = e.FacultyCode,
                     TotalBudgetLakhs = e.TotalBudgetLakhs,
                     ExpenditureBooksLakhs = e.ExpenditureBooksLakhs
                 }).FirstOrDefaultAsync();
 
-            return LibraryFinanceDetails;
+            return libraryFinanceDetails;
 
         }
 
@@ -314,7 +387,10 @@ namespace Medical_Affiliation.Services.Faculty
             var facultyCode = _userContext.FacultyId;
 
             var data = await _context.CaMedResearchPublicationsDetails
+                .AsNoTracking()
                 .Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString())
+                .OrderByDescending(e => e.CourseLevel != null && e.CourseLevel.Trim().ToUpper() == "ALL")
+                .ThenByDescending(e => e.SlNo)
                 .Select(e => new CaMedResearchPublicationsDisplayViewModel
                 {
                     PublicationsNo = e.PublicationsNo,
@@ -344,9 +420,20 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
+            var courseLevel = _userContext.CourseLevel.Trim().ToUpperInvariant();
 
-            var equipmentList = await _context.CaMedLibraryEquipments
-                .Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString())
+            var savedEquipment = await _context.CaMedLibraryEquipments
+                .AsNoTracking()
+                .Where(e => e.CollegeCode == collegeCode &&
+                            e.FacultyCode == facultyCode.ToString())
+                .OrderByDescending(e => e.CourseLevel != null &&
+                                        e.CourseLevel.Trim().ToUpper() == courseLevel)
+                .ThenBy(e => e.SlNo)
+                .ToListAsync();
+
+            var equipmentList = savedEquipment
+                .GroupBy(e => e.SlNo)
+                .Select(group => group.First())
                 .Select(e => new CaMedLibraryEquipmentDisplayViewModel
                 {
                     SlNo = e.SlNo,
@@ -357,7 +444,7 @@ namespace Medical_Affiliation.Services.Faculty
                     EquipmentName = e.EquipmentName,
                     HasEquipment = e.HasEquipment == "Y"
                 })
-                .ToListAsync();
+                .ToList();
 
             return new CaMedLibraryEquipmentListDisplayViewModel
             {

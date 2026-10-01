@@ -22,7 +22,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model?.LibraryItemListVM.Items != null && Model.LibraryItemListVM.Items.Any())
+                    @if (Model?.LibraryItemListVM?.Items?.Any() == true)
                     {
                         @foreach (var item in Model.LibraryItemListVM.Items)
                         {

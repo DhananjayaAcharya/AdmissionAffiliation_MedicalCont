@@ -89,16 +89,15 @@ namespace Medical_Affiliation.Services.Faculty
                 .Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString())
                 .OrderByDescending(e => e.InstitutionId)
                 .FirstOrDefaultAsync();
-            var institutionTypeNames = await _context.MstInstitutionTypes
+            var institutionTypes = await _context.MstInstitutionTypes
                 .AsNoTracking()
+                .ToListAsync();
+            var institutionTypeNames = institutionTypes
                 .GroupBy(e => e.InstitutionTypeId)
-                .Select(group => new
-                {
-                    Id = group.Key,
-                    Name = group.Select(e => e.InstitutionType)
-                        .FirstOrDefault(name => !string.IsNullOrWhiteSpace(name)) ?? string.Empty
-                })
-                .ToDictionaryAsync(e => e.Id.ToString(), e => e.Name);
+                .ToDictionary(
+                    group => group.Key.ToString(),
+                    group => group.Select(e => e.InstitutionType)
+                        .FirstOrDefault(name => !string.IsNullOrWhiteSpace(name)) ?? string.Empty);
             var districtNames = await _context.DistrictMasters
                 .AsNoTracking()
                 .ToDictionaryAsync(e => e.DistrictId, e => e.DistrictName);

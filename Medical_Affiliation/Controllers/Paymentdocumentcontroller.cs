@@ -329,7 +329,7 @@ namespace Medical_Affiliation.Controllers
             Console.WriteLine($"[WhatsApp] ===== PRINCIPAL LOOKUP START =====");
             var (principalMobile, nameOfInstitution) =
                 await _principalContactLookupService.GetPrincipalContactAsync(collegeCodeToUse);
-
+            
             principalMobile = principalMobile?.Trim();
             nameOfInstitution = nameOfInstitution?.Trim();
 

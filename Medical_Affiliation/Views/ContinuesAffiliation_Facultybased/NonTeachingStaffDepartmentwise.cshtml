@@ -338,6 +338,35 @@
             color: #fff;
         }
 
+        .table-row-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-top: 4px;
+        }
+
+        .btn-delete-all {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: 1px solid var(--danger);
+            border-radius: 4px;
+            background: #fff;
+            color: var(--danger);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 7px 14px;
+        }
+
+        .btn-delete-all:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
     /* ── Footer ── */
     .form-footer {
         display: flex;
@@ -544,9 +573,14 @@
                             }
                         </tbody>
                     </table>
-                    <button type="button" id="addRow" class="btn-add-row">
-                        <span style="font-size:1.1rem; line-height:1;">+</span> Add Row
-                    </button>
+                    <div class="table-row-actions">
+                        <button type="button" id="addRow" class="btn-add-row">
+                            <span style="font-size:1.1rem; line-height:1;">+</span> Add Row
+                        </button>
+                        <button type="button" id="deleteAllStaff" class="btn-delete-all">
+                            <i class="bi bi-trash3" aria-hidden="true"></i> Delete all college staff
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Footer -->
@@ -575,6 +609,7 @@
     const excelFileInput = document.getElementById("staffExcelFile");
     const previewExcelButton = document.getElementById("previewExcel");
     const excelImportStatus = document.getElementById("excelImportStatus");
+    const deleteAllStaffButton = document.getElementById("deleteAllStaff");
 
     previewExcelButton.addEventListener("click", async function () {
         const file = excelFileInput.files[0];
@@ -688,6 +723,30 @@
         excelImportStatus.classList.toggle("error", isError);
     }
 
+    function createDeleteRequestData(values) {
+        const payload = new FormData();
+        Object.entries(values).forEach(([key, value]) => payload.append(key, value));
+        payload.append("__RequestVerificationToken", document.querySelector('#staffForm input[name="__RequestVerificationToken"]').value);
+        return payload;
+    }
+
+    async function postDeleteRequest(url, values) {
+        const response = await fetch(url, {
+            method: "POST",
+            body: createDeleteRequestData(values)
+        });
+        let result = {};
+        try {
+            result = await response.json();
+        } catch {
+            result = {};
+        }
+        if (!response.ok) {
+            throw new Error(result.message || "The delete request failed.");
+        }
+        return result;
+    }
+
     // ── Add Row ──
     document.getElementById("addRow").addEventListener("click", function () {
         // Remove empty-state row if present
@@ -746,19 +805,71 @@
         });
 
         if (result.isConfirmed) {
-            btn.closest("tr").remove();
-            reindexRows();
+            const row = btn.closest("tr");
+            const idInput = row.querySelector("input[name$='.Id']");
+            const recordId = Number.parseInt(idInput?.value || "0", 10);
 
-            // Show empty state if no rows left
-            if (!document.querySelectorAll("#staffTable tbody .staff-row").length) {
-                document.querySelector("#staffTable tbody").innerHTML =
-                    `<tr id="emptyRow"><td colspan="6" class="empty-notice">No records yet. Click <strong>+ Add Row</strong> to begin.</td></tr>`;
+            btn.disabled = true;
+            try {
+                if (recordId > 0) {
+                    await postDeleteRequest('@Url.Action("DeleteNonTeachingStaff")', { id: recordId });
+                }
+
+                row.remove();
+                reindexRows();
+
+                if (!document.querySelectorAll("#staffTable tbody .staff-row").length) {
+                    document.querySelector("#staffTable tbody").innerHTML =
+                        `<tr id="emptyRow"><td colspan="6" class="empty-notice">No records yet. Click <strong>+ Add Row</strong> to begin.</td></tr>`;
+                }
+
+                Swal.fire({
+                    title: 'Deleted!', text: recordId > 0 ? 'Staff record deleted from the database.' : 'Unsaved row removed.',
+                    icon: 'success', timer: 1400, showConfirmButton: false
+                });
+            } catch (error) {
+                btn.disabled = false;
+                Swal.fire({
+                    title: 'Delete Failed', text: error.message || 'The staff record could not be deleted.',
+                    icon: 'error', confirmButtonColor: '#c0392b'
+                });
             }
+        }
+    });
 
-            Swal.fire({
-                title: 'Removed!', text: 'Staff record deleted.',
-                icon: 'success', timer: 1400, showConfirmButton: false
+    deleteAllStaffButton.addEventListener("click", async function () {
+        const result = await Swal.fire({
+            title: 'Delete all staff records for this college?',
+            text: 'This deletes every saved non-teaching staff record for the college, across faculties and course levels. This cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#c0392b',
+            cancelButtonColor: '#1a3a6b',
+            confirmButtonText: 'Delete all records',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
+        deleteAllStaffButton.disabled = true;
+        try {
+            const deleted = await postDeleteRequest('@Url.Action("DeleteAllNonTeachingStaff")', {});
+            const tbody = document.querySelector("#staffTable tbody");
+            tbody.innerHTML = `<tr id="emptyRow"><td colspan="6" class="empty-notice">No records yet. Click <strong>+ Add Row</strong> to begin.</td></tr>`;
+            rowIndex = 0;
+            await Swal.fire({
+                title: 'Deleted!',
+                text: `${deleted.deletedCount} saved record(s) deleted for this college.`,
+                icon: 'success',
+                confirmButtonColor: '#1a3a6b'
             });
+        } catch (error) {
+            await Swal.fire({
+                title: 'Delete Failed', text: error.message || 'The college staff records could not be deleted.',
+                icon: 'error', confirmButtonColor: '#c0392b'
+            });
+        } finally {
+            deleteAllStaffButton.disabled = false;
         }
     });
 

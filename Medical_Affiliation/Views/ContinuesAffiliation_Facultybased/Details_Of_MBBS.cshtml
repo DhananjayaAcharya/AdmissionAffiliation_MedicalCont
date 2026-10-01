@@ -235,6 +235,15 @@
         <form asp-action="Details_Of_MBBS" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
 
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
+            }
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success" role="status">@TempData["Success"]</div>
+            }
+
             <input type="hidden" asp-for="Facultycode" />
             <input type="hidden" asp-for="Collegecode" />
             <input type="hidden" asp-for="CourseId" />
@@ -296,6 +305,10 @@
                     <div style="margin-top: 20px;">
                         <label>Previous Years Notification Copies (Upload)</label>
                         <input asp-for="PreviousNotificationFiles" type="file" accept=".pdf" />
+                        <button type="submit" formaction="@Url.Action("UpdateMBBSDocument")" formnovalidate
+                                name="documentType" value="PreviousNotificationFiles" class="btn btn-sm btn-outline-success mt-2">
+                            Update Document
+                        </button>
                         @if (Model.HasPreviousNotificationFile)
                         {
                             <span class="file-badge">
@@ -362,6 +375,10 @@
                             <label>GOK Order (Supporting Document)</label>
                             <div class="file-upload-wrapper">
                                <input asp-for="GOKorder" type="file" accept=".pdf" />
+                               <button type="submit" formaction="@Url.Action("UpdateMBBSDocument")" formnovalidate
+                                       name="documentType" value="GOKorder" class="btn btn-sm btn-outline-success mt-2">
+                                   Update Document
+                               </button>
                                @if (Model.HasGOKOrder)
                                {
                                    <span class="file-badge">
@@ -402,6 +419,10 @@
                             <label>Supporting Document (RGUHS Notification)</label>
                             <div class="file-upload-wrapper">
                                 <input asp-for="LastAffiliationRGUHSFile" type="file" accept=".pdf" />
+                                <button type="submit" formaction="@Url.Action("UpdateMBBSDocument")" formnovalidate
+                                        name="documentType" value="LastAffiliationRGUHSFile" class="btn btn-sm btn-outline-success mt-2">
+                                    Update Document
+                                </button>
                                 @if (Model.HasLastAffiliationFile)
                                 {
                                     <span class="file-badge">
