@@ -1468,6 +1468,79 @@ namespace Medical_Affiliation.Controllers
             return View(model);
         }
 
+        //---------------------------------------
+        // DELETE DENTAL INTAKE
+        //---------------------------------------
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteIntake(int id)
+        {
+            try
+            {
+                // Get logged-in college and faculty from session
+                var facultyCode = HttpContext.Session.GetString("FacultyCode");
+                var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+                if (string.IsNullOrWhiteSpace(facultyCode) ||
+                    string.IsNullOrWhiteSpace(collegeCode))
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "Session expired. Please log in again."
+                    });
+                }
+
+                if (id <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Invalid intake record ID."
+                    });
+                }
+
+                // Find the record belonging to the logged-in college and faculty
+                var intake = await _context.AcademicIntakes
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == id &&
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode);
+
+                if (intake == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Intake record not found or you are not authorized to delete it."
+                    });
+                }
+
+                // Delete the intake record
+                _context.AcademicIntakes.Remove(intake);
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Intake record deleted successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"[DELETE INTAKE ERROR] {ex}");
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while deleting the intake record."
+                });
+            }
+        }
+
         // ════════════════════════════════════════════════════════════
         //  PRIVATE HELPERS
         // ════════════════════════════════════════════════════════════

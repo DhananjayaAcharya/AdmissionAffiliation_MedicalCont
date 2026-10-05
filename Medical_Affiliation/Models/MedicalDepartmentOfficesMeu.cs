@@ -72,4 +72,8 @@ public partial class MedicalDepartmentOfficesMeu
     public string? DeuyearOfStarting { get; set; }
 
     public string? NatureOfActivities { get; set; }
+
+    public int? TypeId { get; set; }
+
+    public virtual TypeOfAffiliation? Type { get; set; }
 }

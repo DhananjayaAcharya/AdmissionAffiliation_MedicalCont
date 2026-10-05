@@ -27,7 +27,7 @@ namespace Medical_Affiliation.Controllers
         {
             var courseLevel = HttpContext.Session.GetString("CourseLevel")?.Trim().ToUpperInvariant() ?? "UG";
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            int facultyId = Convert.ToInt32(FacultyCode ?? "1");
+            int facultyId = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
@@ -52,12 +52,19 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
 
             // Load academic performance rows for this college/faculty/affiliation
-            var academics = await _context.CaAcademicPerformances
+
+            var query = _context.CaAcademicPerformances
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyId == facultyId &&
-                    _yearIds.Any(y => y == x.YearOfStudyId))
-                .ToListAsync();
+                    _yearIds.Any(y => y == x.YearOfStudyId));
+
+            if (facultyId == 2)
+            {
+                query = query.Where(x => x.CourseLevel == courseLevel && x.AffiliationType == affiliationType);
+            }
+
+            var academics = await query.ToListAsync();
 
             // Year master
             var yearMaster = await _context.CaMstYearOfStudies
@@ -216,7 +223,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> AcademicMattersPG(string subjectCode = null)
         {
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
-            int facultyId = Convert.ToInt32(FacultyCode ?? "1");
+            int facultyId = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             string courseLevel = "PG";
@@ -389,7 +396,7 @@ namespace Medical_Affiliation.Controllers
                 : HttpContext.Session.GetString("CourseLevel")?.Trim().ToUpperInvariant() ?? "UG";
 
             model.CollegeCode ??= HttpContext.Session.GetString("CollegeCode");
-            model.FacultyId ??= Convert.ToInt32(FacultyCode ?? "1");
+            model.FacultyId ??= Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             model.AffiliationType ??= HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var courseLevel = model.CourseLevel;

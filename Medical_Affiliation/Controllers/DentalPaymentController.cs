@@ -132,12 +132,48 @@ namespace Medical_Affiliation.Controllers
             // Get Dental Fee Types
             // =========================================================
 
+
+            //=================================
+            // First check ActivationDate COLUMN in the live server
+            //==================================
+
+
+            //var feeTypes = await _context.MstDentalFeeTypes
+            //    .AsNoTracking()
+            //    .Where(e =>
+            //        e.FacultyCode == _facultyCode &&
+            //        e.AffiliationTypeId.ToString() == affTypeId &&
+            //        e.IsActive &&
+
+            //        (
+            //            e.ActivationDate == null || e.ActivationDate <= DateTime.UtcNow
+            //        )
+            //        &&
+            //        (
+            //            !isGovernment ||
+            //            e.FeeType == "Application Fee" ||
+            //            e.FeeType == "Course Identification Fee"
+            //        )
+            //    )
+            //    .OrderBy(e => e.DisplayOrder)
+            //    .ToListAsync();
+
+
+            //========================================
+            // HARD CODED to OCT 13 2026 , 11:59:59 PM
+            //========================================
+            var feeActivationDate = new DateTime(
+                2026, 10, 13, 18, 29, 59,
+                DateTimeKind.Utc
+            );
+
             var feeTypes = await _context.MstDentalFeeTypes
                 .AsNoTracking()
                 .Where(e =>
                     e.FacultyCode == _facultyCode &&
                     e.AffiliationTypeId.ToString() == affTypeId &&
                     e.IsActive &&
+                    feeActivationDate <= DateTime.UtcNow &&
                     (
                         !isGovernment ||
                         e.FeeType == "Application Fee" ||
@@ -146,7 +182,6 @@ namespace Medical_Affiliation.Controllers
                 )
                 .OrderBy(e => e.DisplayOrder)
                 .ToListAsync();
-
             // =========================================================
             // Get Dental Master Fee Structure
             // =========================================================
