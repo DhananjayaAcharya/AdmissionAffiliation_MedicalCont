@@ -6483,28 +6483,49 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+        private string ResolveCourseLevel() =>
+    (HttpContext.Session.GetString("CourseLevel")
+     ?? HttpContext.Session.GetString("SelectedCourseLevel")
+     ?? string.Empty).Trim().ToUpperInvariant();
+
+        // Same lookup for GET and POST so they can never disagree.
+        private IQueryable<MedicalUgbedDistribution> BedDistributionQuery(
+    string collegeCode, string facultyCode, string courseLevel, int? affTypeId)
+        {
+            var query = _context.MedicalUgbedDistributions
+                .Where(x => x.CollegeCode == collegeCode
+                         && x.FacultyCode == facultyCode
+                         && x.CourseLevel != null
+                         && x.CourseLevel.Trim().ToUpper() == courseLevel);
+
+            // Only filter by affiliation type when we actually know it
+            if (affTypeId.HasValue && affTypeId.Value > 0)
+            {
+                var typeId = affTypeId.Value;
+                query = query.Where(x => x.AffiliationTypeId == typeId);
+            }
+
+            return query.OrderByDescending(x => x.Id);   // newest row wins if duplicates exist
+        }
+
         [HttpGet]
         public async Task<IActionResult> MedicalUGBedDistribution()
         {
-
-
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = CourseLevel;
-
-            var existing = await _context.MedicalUgbedDistributions.FirstOrDefaultAsync(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        x.AffiliationTypeId == AffTypeId &&
-                        x.CourseLevel == SelectedCourseLevel);
-
+            var collegeCode = HttpContext.Session.GetString("CollegeCode")?.Trim();
+            var facultyCode = HttpContext.Session.GetString("FacultyCode")?.Trim();
+            var courseLevel = ResolveCourseLevel();
+            var affTypeId = AffTypeId;
 
             var vm = new MedicalUGBedDistributionVm();
 
-            // =========================================
-            // MEDICAL DATA
-            // =========================================
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCode))
+                return View(vm);
 
+            var existing = await BedDistributionQuery(collegeCode, facultyCode, courseLevel, affTypeId)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            // MEDICAL / DENTAL DATA
             if (existing != null)
             {
                 vm.Id = existing.Id;
@@ -6533,53 +6554,44 @@ namespace Medical_Affiliation.Controllers
                 vm.TotalICUBeds = existing.TotalIcubeds;
                 vm.CasualtyBeds = existing.CasualtyBeds;
 
-                vm.OralMaxillofacialSurgery =
-                    existing.OralMaxillofacialSurgery;
+                vm.OralMaxillofacialSurgery = existing.OralMaxillofacialSurgery;
             }
 
-
-            // =========================================
-            // DENTAL DATA
-            // =========================================
-
-            vm.DentalWards = await (
-                from master in _context.MstDentalBedDistributions
-
-                join saved in _context.DentalWardBedDistributions
-                    .Where(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == Convert.ToInt32(facultyCode))
-                on master.Id equals saved.WardId into savedGroup
-
-                from saved in savedGroup.DefaultIfEmpty()
-
-                where master.FacultyCode == Convert.ToInt32(facultyCode)
-
-                select new DentalWardBedDistributionVm
-                {
-                    WardId = master.Id,
-                    WardName = master.WardName,
-                    SeatSlab = master.SeatSlab,
-                    BedsRequired = master.BedRequirement,
-                    BedsPresent = saved != null ? saved.BedsPresent : null
-                }
-            ).ToListAsync();
+            // DENTAL WARD DATA
+            if (int.TryParse(facultyCode, out var facultyId))
+            {
+                vm.DentalWards = await (
+                    from master in _context.MstDentalBedDistributions
+                    where master.FacultyCode == facultyId
+                    join saved in _context.DentalWardBedDistributions
+                            .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyId)
+                        on master.Id equals saved.WardId into savedGroup
+                    from saved in savedGroup.DefaultIfEmpty()
+                    select new DentalWardBedDistributionVm
+                    {
+                        WardId = master.Id,
+                        WardName = master.WardName,
+                        SeatSlab = master.SeatSlab,
+                        BedsRequired = master.BedRequirement,
+                        BedsPresent = saved != null ? saved.BedsPresent : null
+                    }
+                ).ToListAsync();
+            }
 
             return View(vm);
         }
 
+        // ---------- POST ----------
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MedicalUGBedDistribution(MedicalUGBedDistributionVm vm)
         {
-            // Use the SAME source as the GET action — raw session strings
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var courseLevel = SelectedCourseLevel;
+            var collegeCode = HttpContext.Session.GetString("CollegeCode")?.Trim();
+            var facultyCode = HttpContext.Session.GetString("FacultyCode")?.Trim();
+            var courseLevel = ResolveCourseLevel();
             var affTypeId = AffTypeId;
 
-            // --- DIAGNOSTIC: confirm session values are actually present ---
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
             {
                 ModelState.AddModelError(string.Empty,
@@ -6587,38 +6599,32 @@ namespace Medical_Affiliation.Controllers
                 return View(vm);
             }
 
-            // --- DIAGNOSTIC: log/inspect model validation errors instead of failing silently ---
+            if (string.IsNullOrEmpty(courseLevel))
+            {
+                ModelState.AddModelError(string.Empty,
+                    "Course level is missing from the session. Please select the course level again.");
+                return View(vm);
+            }
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
-                    .Select(x => new
-                    {
-                        Field = x.Key,
-                        Messages = x.Value.Errors.Select(e => e.ErrorMessage)
-                    })
+                    .Select(x => new { Field = x.Key, Messages = x.Value.Errors.Select(e => e.ErrorMessage) })
                     .ToList();
 
-                // TEMP: surface errors to the page so you can see them without a debugger
                 foreach (var err in errors)
-                {
                     foreach (var msg in err.Messages)
-                    {
                         ModelState.AddModelError(string.Empty, $"{err.Field}: {msg}");
-                    }
-                }
 
                 return View(vm);
             }
 
             try
             {
-                var entity = await _context.MedicalUgbedDistributions
-                    .FirstOrDefaultAsync(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        x.AffiliationTypeId == affTypeId &&
-                        x.CourseLevel == courseLevel);
+                // Same lookup as GET, so the row we load is the row we update
+                var entity = await BedDistributionQuery(collegeCode, facultyCode, courseLevel, affTypeId)
+                    .FirstOrDefaultAsync();
 
                 bool isNew = entity == null;
 
@@ -6634,9 +6640,9 @@ namespace Medical_Affiliation.Controllers
                     };
                 }
 
-                // DENTAL FACULTY
                 if (facultyCode == "2")
                 {
+                    // DENTAL FACULTY
                     entity.OralMaxillofacialSurgery = vm.OralMaxillofacialSurgery;
                 }
                 else
@@ -6664,35 +6670,24 @@ namespace Medical_Affiliation.Controllers
                     entity.PicuNicu = vm.PICU_NICU;
                     entity.Sicu = vm.SICU;
 
-                    entity.TotalIcubeds = (vm.ICCU ?? 0)
-                        + (vm.ICU ?? 0)
-                        + (vm.PICU_NICU ?? 0)
-                        + (vm.SICU ?? 0);
+                    entity.TotalIcubeds = (vm.ICCU ?? 0) + (vm.ICU ?? 0)
+                                        + (vm.PICU_NICU ?? 0) + (vm.SICU ?? 0);
 
                     entity.CasualtyBeds = vm.CasualtyBeds;
                 }
 
                 if (isNew)
-                {
                     _context.MedicalUgbedDistributions.Add(entity);
-                }
 
                 var rowsAffected = await _context.SaveChangesAsync();
 
-                // --- DIAGNOSTIC: confirm EF actually wrote something ---
                 if (rowsAffected == 0)
-                {
-                    TempData["SuccessMessage"] = null;
-                    TempData["ErrorMessage"] = "No rows were affected — data may be unchanged or entity not tracked correctly.";
-                }
+                    TempData["ErrorMessage"] = "No rows were affected — data may be unchanged.";
                 else
-                {
                     TempData["SuccessMessage"] = "Bed distribution saved successfully!";
-                }
             }
             catch (DbUpdateException dbEx)
             {
-                // Catches FK violations, unique constraint violations, etc.
                 var innerMsg = dbEx.InnerException?.Message ?? dbEx.Message;
                 ModelState.AddModelError(string.Empty, $"Database error: {innerMsg}");
                 return View(vm);

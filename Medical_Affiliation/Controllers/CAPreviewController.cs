@@ -826,29 +826,40 @@ namespace Medical_Affiliation.Controllers
         }
         private async Task ApplyAnnualMbbsIntakeAsync(Medical_Affiliation.Models.CApreviewViewModel model)
         {
-            var smallGroup = model?.PhysicalFacilities?.SmallGroupTeaching;
-            if (smallGroup == null)
+            if (model?.PhysicalFacilities == null)
                 return;
 
             var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
+            var facultyCode = (model.FacultyCode ?? CurrentFacultyCode)?.Trim();
             var courseLevel = (!string.IsNullOrWhiteSpace(CurrentCourseLevel)
                     ? CurrentCourseLevel
                     : model.ApplyingCourseLevel ?? string.Empty)
                 .Trim().ToUpperInvariant();
 
-            if (string.IsNullOrWhiteSpace(collegeCode) || courseLevel != "UG")
-                return; // Annual MBBS intake only applies to UG
+            // Annual MBBS intake only applies to UG
+            if (string.IsNullOrWhiteSpace(collegeCode)
+                || string.IsNullOrWhiteSpace(facultyCode)
+                || courseLevel != "UG")
+                return;
 
+            // Matches on college code + faculty code + course level (ug_pg) + MBBS,
+            // and reads only the Intake_26_27 column.
             var intake = await _context.Database.SqlQuery<int>($@"
-        SELECT COALESCE(NULLIF(TRY_CAST(Intake_26_27 AS int), 0),
-                        TRY_CAST(intake_2025 AS int), 0) AS [Value]
+        SELECT TOP (1) COALESCE(TRY_CAST(Intake_26_27 AS int), 0) AS [Value]
         FROM dbo.Mst_MedicalCollegeCourseIntake
         WHERE LTRIM(RTRIM(coll_code)) = {collegeCode}
+          AND LTRIM(RTRIM(CAST(Facultycode AS varchar(20)))) = {facultyCode}
           AND UPPER(LTRIM(RTRIM(ug_pg))) = {courseLevel}
-          AND UPPER(LTRIM(RTRIM(course))) = 'MBBS'").FirstOrDefaultAsync();
+          AND UPPER(LTRIM(RTRIM(course))) = 'MBBS'
+        ORDER BY SLNO DESC").FirstOrDefaultAsync();
 
-            if (intake > 0)
-                smallGroup.AnnualMbbsIntake = intake;
+            // Section 10 - Land, Building & Teaching Facilities
+            if (model.PhysicalFacilities.SmallGroupTeaching != null)
+                model.PhysicalFacilities.SmallGroupTeaching.AnnualMbbsIntake = intake;
+
+            // Section 11 - Skills Laboratory
+            if (model.PhysicalFacilities.SkillsLab != null)
+                model.PhysicalFacilities.SkillsLab.AnnualMbbsIntake = intake;
         }
         private static string NormalizeFileNamePart(string? value, string fallback)
         {
