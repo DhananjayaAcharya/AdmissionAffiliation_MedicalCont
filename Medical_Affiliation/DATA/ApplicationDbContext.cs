@@ -6676,6 +6676,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => new { e.FacultyCode, e.FeeType, e.AffiliationTypeId, e.CourseLevel }, "UQ_MstDentalFeeTypes").IsUnique();
 
+            entity.Property(e => e.ActivationDate).HasColumnType("datetime");
             entity.Property(e => e.CourseLevel).HasMaxLength(50);
             entity.Property(e => e.CreatedBy)
                 .HasMaxLength(100)

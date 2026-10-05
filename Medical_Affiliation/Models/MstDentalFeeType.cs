@@ -24,6 +24,7 @@ public partial class MstDentalFeeType
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
+    public DateTime? ActivationDate { get; set; }
 
     public string? CourseLevel { get; set; }
 

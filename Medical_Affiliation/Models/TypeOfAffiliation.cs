@@ -45,6 +45,8 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<MedicalAlliedDisciplineDetail> MedicalAlliedDisciplineDetails { get; set; } = new List<MedicalAlliedDisciplineDetail>();
 
+    public virtual ICollection<MedicalDepartmentOfficesMeu> MedicalDepartmentOfficesMeus { get; set; } = new List<MedicalDepartmentOfficesMeu>();
+
     public virtual ICollection<MedicalSkillsLaboratory> MedicalSkillsLaboratories { get; set; } = new List<MedicalSkillsLaboratory>();
 
     public virtual ICollection<MedicalUgbedDistribution> MedicalUgbedDistributions { get; set; } = new List<MedicalUgbedDistribution>();
