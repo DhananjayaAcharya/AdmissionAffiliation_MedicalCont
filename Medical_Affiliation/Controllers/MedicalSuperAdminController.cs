@@ -1,5 +1,6 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -289,6 +290,136 @@ namespace Medical_Affiliation.Controllers
             {
                 PropertyNamingPolicy = null
             });
+        }
+
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [HttpGet]
+        public async Task<IActionResult> SubmissionRecords(string? collegeCode)
+        {
+            var cleanCode = collegeCode?.Trim();
+            if (string.IsNullOrWhiteSpace(cleanCode))
+            return RedirectToAction(nameof(Dashboard));
+
+            var college = await _context.AffiliationCollegeMasters
+                .AsNoTracking()
+                .Where(c => c.CollegeCode == cleanCode && c.FacultyCode == MEDICAL_FACULTY_CODE)
+                .Select(c => new { c.CollegeCode, c.CollegeName, c.CollegeTown })
+                .FirstOrDefaultAsync();
+
+            if (college == null)
+                return NotFound();
+
+            var sealedDocuments = await _context.AffiliationSealedSignedReuploads
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == cleanCode && x.FacultyCode == MEDICAL_FACULTY_CODE)
+                .OrderByDescending(x => x.CreatedOn)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.TypeOfApplication,
+                    x.CreatedOn,
+                    x.ReuploadedDoc
+                })
+                .ToListAsync();
+
+            var paymentDocuments = await _context.PaymentAffiliationDocuments
+                .AsNoTracking()
+                .Where(x => x.CollegeCode == cleanCode && x.FacultyCode == 1)
+                .OrderByDescending(x => x.PaymentDate ?? x.CreatedOn)
+                .Select(x => new
+                {
+                    x.PaymentDocumentId,
+                    x.CourseLevel,
+                    x.AffiliationTypeId,
+                    x.TransactionId,
+                    x.PaymentAmount,
+                    x.PaymentDate,
+                    x.CreatedOn,
+                    x.ScreenshotFileName,
+                    x.ScreenshotFilePath,
+                    x.PublicAccessToken
+                })
+                .ToListAsync();
+
+            var paymentDocumentIds = paymentDocuments.Select(x => x.PaymentDocumentId).ToList();
+            var receipts = await _context.PaymentReceipts
+                .AsNoTracking()
+                .Where(x => paymentDocumentIds.Contains(x.PaymentDocumentId))
+                .OrderByDescending(x => x.CreatedOn)
+                .Select(x => new
+                {
+                    x.ReceiptId,
+                    x.PaymentDocumentId,
+                    x.FilePath,
+                    x.PublicAccessToken,
+                    x.CreatedOn
+                })
+                .ToListAsync();
+
+            var affiliationTypeIds = paymentDocuments.Select(x => x.AffiliationTypeId).Distinct().ToList();
+            var affiliationTypes = await _context.MstAffiliationTypes
+                .AsNoTracking()
+                .Where(x => x.FacultyCode == MEDICAL_FACULTY_CODE && affiliationTypeIds.Contains(x.AffiliationTypeId))
+                .ToDictionaryAsync(x => x.AffiliationTypeId, x => x.AffiliationCategory);
+
+            var model = new MedicalSubmissionRecordsViewModel
+            {
+                CollegeCode = college.CollegeCode,
+                CollegeName = college.CollegeName ?? "",
+                CollegeTown = college.CollegeTown ?? "",
+                SealedSignedDocuments = sealedDocuments.Select(x => new SealedSignedDocumentRecord
+                {
+                    Id = x.Id,
+                    ApplicationType = x.TypeOfApplication ?? "Not specified",
+                    SubmittedOn = x.CreatedOn,
+                    FileAvailable = !string.IsNullOrWhiteSpace(x.ReuploadedDoc) && System.IO.File.Exists(x.ReuploadedDoc)
+                }).ToList(),
+                Payments = paymentDocuments.Select(x => new MedicalPaymentRecord
+                {
+                    PaymentDocumentId = x.PaymentDocumentId,
+                    CourseLevel = x.CourseLevel,
+                    AffiliationType = affiliationTypes.GetValueOrDefault(x.AffiliationTypeId, $"Application type {x.AffiliationTypeId}"),
+                    TransactionId = x.TransactionId,
+                    Amount = x.PaymentAmount,
+                    PaymentDate = x.PaymentDate,
+                    RecordedOn = x.CreatedOn,
+                    ScreenshotFileName = x.ScreenshotFileName,
+                    ScreenshotAvailable = !string.IsNullOrWhiteSpace(x.ScreenshotFilePath) && System.IO.File.Exists(x.ScreenshotFilePath),
+                    ScreenshotToken = x.PublicAccessToken,
+                    Receipts = receipts
+                        .Where(r => r.PaymentDocumentId == x.PaymentDocumentId)
+                        .Select(r => new MedicalPaymentReceiptRecord
+                        {
+                            ReceiptId = r.ReceiptId,
+                            CreatedOn = r.CreatedOn,
+                            FileAvailable = !string.IsNullOrWhiteSpace(r.FilePath) && System.IO.File.Exists(r.FilePath),
+                            PublicAccessToken = r.PublicAccessToken
+                        })
+                        .ToList()
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+        [Authorize(AuthenticationSchemes = "AdminAuth")]
+        [HttpGet]
+        public async Task<IActionResult> ViewSealedSignedDocument(int id)
+        {
+            var filePath = await _context.AffiliationSealedSignedReuploads
+                .AsNoTracking()
+                .Where(x => x.Id == id && x.FacultyCode == MEDICAL_FACULTY_CODE)
+                .Select(x => x.ReuploadedDoc)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(filePath) || !System.IO.File.Exists(filePath))
+                return NotFound("Document not found.");
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(filePath, out var contentType))
+                contentType = "application/octet-stream";
+
+            return PhysicalFile(filePath, contentType);
         }
 
         private async Task<DashboardStats> BuildStatsAsync()

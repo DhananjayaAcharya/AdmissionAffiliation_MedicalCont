@@ -84,4 +84,44 @@
         public int PresentIntake { get; set; }
         public int ExistingIntake { get; set; }
     }
+
+    public class MedicalSubmissionRecordsViewModel
+    {
+        public string CollegeCode { get; set; } = "";
+        public string CollegeName { get; set; } = "";
+        public string CollegeTown { get; set; } = "";
+        public List<SealedSignedDocumentRecord> SealedSignedDocuments { get; set; } = new();
+        public List<MedicalPaymentRecord> Payments { get; set; } = new();
+    }
+
+    public class SealedSignedDocumentRecord
+    {
+        public int Id { get; set; }
+        public string ApplicationType { get; set; } = "";
+        public DateTime SubmittedOn { get; set; }
+        public bool FileAvailable { get; set; }
+    }
+
+    public class MedicalPaymentRecord
+    {
+        public int PaymentDocumentId { get; set; }
+        public string CourseLevel { get; set; } = "";
+        public string AffiliationType { get; set; } = "";
+        public string TransactionId { get; set; } = "";
+        public decimal? Amount { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public DateTime RecordedOn { get; set; }
+        public string? ScreenshotFileName { get; set; }
+        public bool ScreenshotAvailable { get; set; }
+        public Guid ScreenshotToken { get; set; }
+        public List<MedicalPaymentReceiptRecord> Receipts { get; set; } = new();
+    }
+
+    public class MedicalPaymentReceiptRecord
+    {
+        public int ReceiptId { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public bool FileAvailable { get; set; }
+        public Guid PublicAccessToken { get; set; }
+    }
 }

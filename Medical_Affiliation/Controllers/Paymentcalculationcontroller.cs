@@ -149,9 +149,15 @@ namespace Medical_Affiliation.Controllers
         private async Task CalculateForCurrentSessionAsync(PaymentCalculationViewModel vm)
         {
             if (string.IsNullOrWhiteSpace(vm.CollegeCode)
-                || vm.AffiliationTypeId <= 0
-                || string.IsNullOrWhiteSpace(vm.CourseLevelGroup))
+        || vm.AffiliationTypeId <= 0
+        || string.IsNullOrWhiteSpace(vm.CourseLevelGroup))
             {
+                var missing = new List<string>();
+                if (string.IsNullOrWhiteSpace(vm.CollegeCode)) missing.Add("College code");
+                if (vm.AffiliationTypeId <= 0) missing.Add("Affiliation type (no matching MstAffiliationType row for this faculty, type and course level)");
+                if (string.IsNullOrWhiteSpace(vm.CourseLevelGroup)) missing.Add("Course level");
+
+                vm.ErrorMessage = "Payment calculation could not start. Missing: " + string.Join(", ", missing) + ".";
                 return;
             }
 
@@ -205,7 +211,8 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = (HttpContext.Session.GetString("CollegeCode") ?? vm.CollegeCode)?.Trim();
             var sessionCourseLevel = HttpContext.Session.GetString("CourseLevel")
                 ?? HttpContext.Session.GetString("SelectedCourseLevel")
-                ?? vm.CourseLevel;
+                ?? vm.CourseLevel
+                ?? vm.CourseLevelGroup;
             var levelGroup = NormalizeCourseLevel(sessionCourseLevel);
 
             var result = new List<MatchedCourseVM>();
@@ -214,53 +221,66 @@ namespace Medical_Affiliation.Controllers
                 return result;
             }
 
-            var masterCourseMap = await _context.MstCourses
-                .AsNoTracking()
-                .ToDictionaryAsync(c => c.CourseCode.ToString(), c => c, StringComparer.OrdinalIgnoreCase);
+            // Safe against the same CourseCode existing in more than one faculty.
+            var masterCourseMap = (await _context.MstCourses
+                    .AsNoTracking()
+                    .ToListAsync())
+                .GroupBy(c => c.CourseCode.ToString(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.FirstOrDefault(c => c.FacultyCode == vm.FacultyCode) ?? g.First(),
+                    StringComparer.OrdinalIgnoreCase);
 
-            // Payment courses are owned by the selected college and course
-            // level. Do not use the session faculty as a filter because the
-            // intake table contains legacy/shared faculty mappings.
-            // The level is matched in C# (NormalizeCourseLevel) so labels such
-            // as "PG Broad Specialty" or stray spacing still match.
-            var rows = await _context.MstMedicalCollegeCourseIntakes
-                .FromSqlInterpolated($@"
-                    SELECT *
-                    FROM dbo.Mst_MedicalCollegeCourseIntake
-                    WHERE LTRIM(RTRIM(coll_code)) = {collegeCode}")
-                .AsNoTracking()
-                .ToListAsync();
+            async Task<List<MstMedicalCollegeCourseIntake>> LoadRowsAsync(string code) =>
+                await _context.MstMedicalCollegeCourseIntakes
+                    .FromSqlInterpolated($@"
+                SELECT *
+                FROM dbo.Mst_MedicalCollegeCourseIntake
+                WHERE UPPER(LTRIM(RTRIM(coll_code))) = UPPER({code})")
+                    .AsNoTracking()
+                    .ToListAsync();
 
-            // A NULL CourseCode is allowed (e.g. legacy rows such as
-            // "M Ch Plastic Surgery"); the course name is used instead.
+            var rows = await LoadRowsAsync(collegeCode);
+
+            // If the session code has no rows, try the code resolved on the view model.
+            if (rows.Count == 0
+                && !string.IsNullOrWhiteSpace(vm.CollegeCode)
+                && !string.Equals(vm.CollegeCode.Trim(), collegeCode, StringComparison.OrdinalIgnoreCase))
+            {
+                rows = await LoadRowsAsync(vm.CollegeCode.Trim());
+            }
+
+            // Level comes from ug_pg; if that is blank, fall back to the course master's level.
+            string RowLevel(MstMedicalCollegeCourseIntake x)
+            {
+                var level = NormalizeCourseLevel(x.UgPg);
+                if (!string.IsNullOrEmpty(level)) return level;
+
+                var code = x.CourseCode?.ToString();
+                return code != null && masterCourseMap.TryGetValue(code, out var m)
+                    ? NormalizeCourseLevel(m.CourseLevel)
+                    : string.Empty;
+            }
+
+            // A NULL CourseCode is allowed; the course name is used instead.
             var levelRows = rows
-                .Where(x => NormalizeCourseLevel(x.UgPg) == levelGroup
-                    && !string.IsNullOrWhiteSpace(x.Course))
+                .Where(x => RowLevel(x) == levelGroup && !string.IsNullOrWhiteSpace(x.Course))
                 .ToList();
 
-            // Optional narrowing by CourseCode carried in session.
-            // Continuation covers every course of the college at this level,
-            // so a stale CourseCode left in session by another flow must not
-            // narrow the list (or the seat totals used for the fee).
-            var isContinuation = string.Equals(
-                GetAffiliationGroup(vm.TypeOfAffiliation), "CONTINUATION", StringComparison.Ordinal);
-
-            var requestedCodes = (HttpContext.Session.GetString("CourseCode") ?? string.Empty)
-                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            if (requestedCodes.Count > 0 && !isContinuation)
+            // Only "Additional Courses" is narrowed by CourseCode in session.
+            // Every other type uses all of the college's courses at this level, so a
+            // stale session CourseCode cannot hide courses or change the seat totals.
+            if (IsAdditionalCourseAffiliation(vm))
             {
-                var narrowed = levelRows
-                    .Where(x => x.CourseCode.HasValue && requestedCodes.Contains(x.CourseCode.Value.ToString()))
-                    .ToList();
+                var requestedCodes = (HttpContext.Session.GetString("CourseCode") ?? string.Empty)
+                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-                // Additional Courses stays strict (only the requested ones).
-                // Other types fall back to the full list so a stale session
-                // CourseCode can't hide every course.
-                if (narrowed.Count > 0 || IsAdditionalCourseAffiliation(vm))
+                if (requestedCodes.Count > 0)
                 {
-                    levelRows = narrowed;
+                    levelRows = levelRows
+                        .Where(x => x.CourseCode.HasValue && requestedCodes.Contains(x.CourseCode.Value.ToString()))
+                        .ToList();
                 }
             }
 
@@ -285,7 +305,7 @@ namespace Medical_Affiliation.Controllers
                     Intake_26_27 = row.Intake2627,
                     CourseCode = code,
                     CourseName = courseName,
-                    RawCourseLevel = row.UgPg,
+                    RawCourseLevel = string.IsNullOrWhiteSpace(row.UgPg) ? RowLevel(row) : row.UgPg,
                     IncreasedIntake = row.IncreasedIntake,
                     AcademicYear = row.AcademicYear
                 });

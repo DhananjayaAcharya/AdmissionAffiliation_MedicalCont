@@ -1,0 +1,212 @@
+@model Medical_Affiliation.Models.MedicalSubmissionRecordsViewModel
+@{
+    ViewBag.Title = "Medical Submission and Payment Records";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #183329;
+            --muted: #62756c;
+            --line: #d9e3dc;
+            --paper: #ffffff;
+            --canvas: #f2f6f2;
+            --green: #166534;
+            --green-soft: #e8f4eb;
+            --gold: #8a6200;
+            --gold-soft: #fbf3d9;
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--canvas); color: var(--ink); font-family: "DM Sans", "Segoe UI", sans-serif; }
+        .masthead { background: #183329; color: #fff; border-bottom: 4px solid #c99a2e; }
+        .masthead-inner, main { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+        .masthead-inner { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .identity { display: flex; align-items: center; gap: 13px; }
+        .seal { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid #c99a2e; border-radius: 50%; color: #f4d98a; font: 700 12px Georgia, serif; }
+        .identity strong { display: block; font: 600 18px Georgia, serif; }
+        .identity span { color: #cfdbd2; font-size: 12px; }
+        .back-link { color: #fff; text-decoration: none; border: 1px solid #70877b; padding: 9px 13px; border-radius: 5px; font-size: 13px; }
+        .back-link:hover { background: #25483a; }
+        main { padding: 30px 0 54px; }
+        .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 24px; }
+        .eyebrow { color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        h1 { margin: 5px 0 4px; font: 600 28px Georgia, serif; }
+        .college-meta { color: var(--muted); font-size: 14px; }
+        .record-count { flex: 0 0 auto; color: var(--muted); font-size: 12px; text-align: right; }
+        .record-section { margin-top: 25px; }
+        .section-heading { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 11px; margin-bottom: 0; }
+        .section-heading i { color: var(--green); font-size: 19px; }
+        h2 { margin: 0; font: 600 19px Georgia, serif; }
+        .section-heading span { color: var(--muted); font-size: 12px; margin-left: auto; }
+        .table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-top: 0; }
+        table { width: 100%; border-collapse: collapse; min-width: 780px; font-size: 13px; }
+        th { background: #edf3ee; color: #52665b; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #e5ece6; vertical-align: middle; }
+        tbody tr:last-child td { border-bottom: 0; }
+        .amount { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+        .status { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 4px; background: var(--green-soft); color: var(--green); font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .status.pending { background: var(--gold-soft); color: var(--gold); }
+        .file-link { color: #155b80; font-weight: 600; text-decoration: none; white-space: nowrap; }
+        .file-link:hover { text-decoration: underline; }
+        .file-missing { color: var(--muted); font-size: 12px; }
+        .empty { padding: 22px 14px; color: var(--muted); background: var(--paper); border: 1px solid var(--line); border-top: 0; font-size: 13px; }
+        .receipt-list { display: grid; gap: 5px; }
+        .receipt-item { display: flex; align-items: center; gap: 8px; }
+        .receipt-date { color: var(--muted); font-size: 11px; }
+        footer { color: var(--muted); font-size: 11px; border-top: 1px solid var(--line); margin-top: 35px; padding-top: 14px; }
+        @@media (max-width: 640px) {
+            .masthead-inner, main { width: calc(100% - 24px); }
+            .masthead-inner { min-height: 68px; }
+            .identity strong { font-size: 15px; }
+            .identity span { font-size: 10px; }
+            .seal { width: 36px; height: 36px; }
+            .back-link { font-size: 0; padding: 9px 11px; }
+            .back-link i { font-size: 16px; }
+            .page-heading { align-items: start; flex-direction: column; }
+            .record-count { text-align: left; }
+            h1 { font-size: 23px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="masthead">
+        <div class="masthead-inner">
+            <div class="identity">
+                <div class="seal">RGUHS</div>
+                <div><strong>Medical Affiliation Records</strong><span>Rajiv Gandhi University of Health Sciences</span></div>
+            </div>
+            <a class="back-link" href="@Url.Action("Dashboard", "MedicalSuperAdmin")"><i class="bi bi-arrow-left"></i> Back to dashboard</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-heading">
+            <div>
+                <div class="eyebrow">Medical Faculty · College Record</div>
+                <h1>@Model.CollegeName</h1>
+                <div class="college-meta">College code: @Model.CollegeCode@if (!string.IsNullOrWhiteSpace(Model.CollegeTown)) { <span> · @Model.CollegeTown</span> }</div>
+            </div>
+            <div class="record-count">@Model.SealedSignedDocuments.Count sealed/signed copies · @Model.Payments.Count payment records</div>
+        </div>
+
+        <section class="record-section" aria-labelledby="documents-heading">
+            <div class="section-heading">
+                <i class="bi bi-file-earmark-check"></i>
+                <h2 id="documents-heading">Resubmitted Sealed and Signed Copies</h2>
+                <span>@Model.SealedSignedDocuments.Count record(s)</span>
+            </div>
+            @if (Model.SealedSignedDocuments.Count == 0)
+            {
+                <div class="empty">No sealed and signed copy has been resubmitted for this college.</div>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Application</th><th>Submitted on</th><th>Document</th></tr></thead>
+                        <tbody>
+                        @foreach (var document in Model.SealedSignedDocuments)
+                        {
+                            <tr>
+                                <td>@document.ApplicationType</td>
+                                <td>@document.SubmittedOn.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                <td>
+                                    @if (document.FileAvailable)
+                                    {
+                                        <a class="file-link" href="@Url.Action("ViewSealedSignedDocument", "MedicalSuperAdmin", new { id = document.Id })" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Open document</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="file-missing">File unavailable</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <section class="record-section" aria-labelledby="payments-heading">
+            <div class="section-heading">
+                <i class="bi bi-receipt"></i>
+                <h2 id="payments-heading">Payment and Receipt Details</h2>
+                <span>@Model.Payments.Count record(s)</span>
+            </div>
+            @if (Model.Payments.Count == 0)
+            {
+                <div class="empty">No payment details are recorded for this college.</div>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Application</th><th>Course</th><th>Transaction ID</th><th>Amount paid</th><th>Payment date</th><th>Status</th><th>Payment evidence</th><th>Receipt</th></tr></thead>
+                        <tbody>
+                        @foreach (var payment in Model.Payments)
+                        {
+                            var isCompleted = !string.IsNullOrWhiteSpace(payment.TransactionId) && payment.Amount.HasValue && payment.PaymentDate.HasValue;
+                            <tr>
+                                <td>@payment.AffiliationType</td>
+                                <td>@payment.CourseLevel</td>
+                                <td>@(string.IsNullOrWhiteSpace(payment.TransactionId) ? "Not recorded" : payment.TransactionId)</td>
+                                <td class="amount">@(payment.Amount.HasValue ? $"₹{payment.Amount.Value:N2}" : "Not recorded")</td>
+                                <td>@(payment.PaymentDate?.ToString("dd MMM yyyy, hh:mm tt") ?? "Not recorded")</td>
+                                <td><span class="status @(isCompleted ? "" : "pending")"><i class="bi @(isCompleted ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"></i> @(isCompleted ? "Payment recorded" : "Incomplete record")</span></td>
+                                <td>
+                                    @if (payment.ScreenshotAvailable)
+                                    {
+                                        <a class="file-link" href="@Url.Action("GetScreenshot", "PublicDocument", new { token = payment.ScreenshotToken })" target="_blank" rel="noopener"><i class="bi bi-image"></i> @(string.IsNullOrWhiteSpace(payment.ScreenshotFileName) ? "Open evidence" : payment.ScreenshotFileName)</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="file-missing">Not available</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (payment.Receipts.Count == 0)
+                                    {
+                                        <span class="file-missing">Not issued</span>
+                                    }
+                                    else
+                                    {
+                                        <div class="receipt-list">
+                                        @foreach (var receipt in payment.Receipts)
+                                        {
+                                            <div class="receipt-item">
+                                                @if (receipt.FileAvailable)
+                                                {
+                                                    <a class="file-link" href="@Url.Action("GetReceipt", "PublicDocument", new { token = receipt.PublicAccessToken })" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> Receipt #@receipt.ReceiptId</a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="file-missing">Receipt #@receipt.ReceiptId unavailable</span>
+                                                }
+                                                <span class="receipt-date">@receipt.CreatedOn.ToString("dd MMM yyyy")</span>
+                                            </div>
+                                        }
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <footer><i class="bi bi-shield-check"></i> Official record view · Medical Faculty · Generated from university affiliation and payment records</footer>
+    </main>
+</body>
+</html>

@@ -12,6 +12,7 @@ namespace Medical_Affiliation.Models
         public string FacultyName { get; set; }
         public string ApplicationType { get; set; }
         public string ApplyingCourseLevel { get; set; }
+        public bool HasSealedSignedReupload { get; set; }
 
         public InstitutionViewModel InstitutionDetails { get; set; }
         public MedicalVm AffInstituteDetails { get; set; }

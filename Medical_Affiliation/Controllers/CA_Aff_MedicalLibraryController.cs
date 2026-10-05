@@ -101,7 +101,6 @@ namespace Medical_Affiliation.Controllers
                 CourseLevel = courseLevel
             };
 
-
             ViewBag.IsDentalFaculty = facultyCode == 2;
 
 
@@ -1524,7 +1523,7 @@ namespace Medical_Affiliation.Controllers
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
 
             return PhysicalFile(record.SpecialFeaturesAchievementsPdfPath, contentType);
-        }
+        } 
         [HttpGet]
         public async Task<IActionResult> ViewLibraryServicePdf(int serviceId)
         {

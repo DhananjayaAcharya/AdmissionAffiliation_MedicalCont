@@ -61,7 +61,32 @@ namespace Medical_Affiliation.Controllers
             var paymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
             var model = await _capreviewService.GetPreviewAsync();
             model.PaymentCalculation = paymentCalculation;
+            await ApplyAnnualMbbsIntakeAsync(model);   // <-- added
+            var reuploadPath = await FindSealedSignedReuploadPathAsync(
+                model.FacultyCode ?? CurrentFacultyCode,
+                model.CollegeCode ?? CurrentCollegeCode,
+                model.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"));
+            model.HasSealedSignedReupload = !string.IsNullOrWhiteSpace(reuploadPath) && System.IO.File.Exists(reuploadPath);
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewSignedReupload()
+        {
+            var preview = await _capreviewService.GetPreviewAsync();
+            var filePath = await FindSealedSignedReuploadPathAsync(
+                preview.FacultyCode ?? CurrentFacultyCode,
+                preview.CollegeCode ?? CurrentCollegeCode,
+                preview.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"));
+
+            if (string.IsNullOrWhiteSpace(filePath) || !System.IO.File.Exists(filePath))
+                return NotFound("Uploaded document not found.");
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(filePath, out var contentType))
+                contentType = "application/octet-stream";
+
+            return PhysicalFile(filePath, contentType);
         }
 
         [HttpPost]
@@ -152,17 +177,73 @@ namespace Medical_Affiliation.Controllers
                 await sealedSignedReupload.CopyToAsync(stream);
             }
 
-            _context.AffiliationSealedSignedReuploads.Add(new AffiliationSealedSignedReupload
-            {
-                FacultyCode = facultyCode,
-                CollegeCode = collegeCode,
-                TypeOfApplication = applicationType,
-                ReuploadedDoc = fullPath,
-                CreatedOn = DateTime.Now
-            });
+            var existing = await _context.AffiliationSealedSignedReuploads
+                .Where(x => x.FacultyCode == facultyCode
+                    && x.CollegeCode == collegeCode
+                    && x.TypeOfApplication == applicationType)
+                .OrderBy(x => x.Id)
+                .FirstOrDefaultAsync();
 
-            await _context.SaveChangesAsync();
+            var oldFilePath = existing?.ReuploadedDoc;
+            try
+            {
+                if (existing == null)
+                {
+                    _context.AffiliationSealedSignedReuploads.Add(new AffiliationSealedSignedReupload
+                    {
+                        FacultyCode = facultyCode,
+                        CollegeCode = collegeCode,
+                        TypeOfApplication = applicationType,
+                        ReuploadedDoc = fullPath,
+                        CreatedOn = DateTime.Now
+                    });
+                }
+                else
+                {
+                    existing.ReuploadedDoc = fullPath;
+                    existing.CreatedOn = DateTime.Now;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                if (System.IO.File.Exists(fullPath))
+                    System.IO.File.Delete(fullPath);
+                throw;
+            }
+
+            if (!string.IsNullOrWhiteSpace(oldFilePath)
+                && !string.Equals(oldFilePath, fullPath, StringComparison.OrdinalIgnoreCase)
+                && System.IO.File.Exists(oldFilePath))
+            {
+                System.IO.File.Delete(oldFilePath);
+            }
+
             return null;
+        }
+
+        private async Task<string?> FindSealedSignedReuploadPathAsync(
+            string? facultyCode,
+            string? collegeCode,
+            string? applicationType)
+        {
+            if (string.IsNullOrWhiteSpace(facultyCode)
+                || string.IsNullOrWhiteSpace(collegeCode)
+                || string.IsNullOrWhiteSpace(applicationType))
+            {
+                return null;
+            }
+
+            return await _context.AffiliationSealedSignedReuploads
+                .AsNoTracking()
+                .Where(x => x.FacultyCode == facultyCode.Trim()
+                    && x.CollegeCode == collegeCode.Trim()
+                    && x.TypeOfApplication == applicationType.Trim())
+                .OrderByDescending(x => x.CreatedOn)
+                .ThenByDescending(x => x.Id)
+                .Select(x => x.ReuploadedDoc)
+                .FirstOrDefaultAsync();
         }
 
         [HttpPost]
@@ -743,7 +824,32 @@ namespace Medical_Affiliation.Controllers
             Response.Headers["X-Content-Type-Options"] = "nosniff";
             return File(bytes, "application/pdf");
         }
+        private async Task ApplyAnnualMbbsIntakeAsync(Medical_Affiliation.Models.CApreviewViewModel model)
+        {
+            var smallGroup = model?.PhysicalFacilities?.SmallGroupTeaching;
+            if (smallGroup == null)
+                return;
 
+            var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
+            var courseLevel = (!string.IsNullOrWhiteSpace(CurrentCourseLevel)
+                    ? CurrentCourseLevel
+                    : model.ApplyingCourseLevel ?? string.Empty)
+                .Trim().ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || courseLevel != "UG")
+                return; // Annual MBBS intake only applies to UG
+
+            var intake = await _context.Database.SqlQuery<int>($@"
+        SELECT COALESCE(NULLIF(TRY_CAST(Intake_26_27 AS int), 0),
+                        TRY_CAST(intake_2025 AS int), 0) AS [Value]
+        FROM dbo.Mst_MedicalCollegeCourseIntake
+        WHERE LTRIM(RTRIM(coll_code)) = {collegeCode}
+          AND UPPER(LTRIM(RTRIM(ug_pg))) = {courseLevel}
+          AND UPPER(LTRIM(RTRIM(course))) = 'MBBS'").FirstOrDefaultAsync();
+
+            if (intake > 0)
+                smallGroup.AnnualMbbsIntake = intake;
+        }
         private static string NormalizeFileNamePart(string? value, string fallback)
         {
             if (string.IsNullOrWhiteSpace(value))

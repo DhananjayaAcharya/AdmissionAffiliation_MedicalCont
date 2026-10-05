@@ -5,6 +5,14 @@
 }
 @{
     var courseLevel = Context.Session.GetString("CourseLevel");
+
+    // CHANGED: build the intake list so a saved non-standard value (e.g. 120, 175) is never lost
+    var intakeOptions = new List<int> { 50, 100, 150, 200, 250 };
+    if (Model != null && Model.AnnualMbbsIntake > 0 && !intakeOptions.Contains(Model.AnnualMbbsIntake))
+    {
+        intakeOptions.Add(Model.AnnualMbbsIntake);
+        intakeOptions.Sort();
+    }
 }
 
 <style>
@@ -129,6 +137,27 @@
         border-radius: 0 0 10px 10px;
         padding: 32px 36px 40px;
         box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    }
+
+    /* ── Alerts (ADDED) ── */
+    .page-alert {
+        border-radius: var(--radius);
+        padding: 10px 14px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+
+    .page-alert-error {
+        background: #fff0f0;
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+
+    .page-alert-success {
+        background: #eef8f1;
+        border: 1px solid var(--success);
+        color: var(--success);
     }
 
     /* ── Section divider ── */
@@ -633,7 +662,18 @@
         <!-- Form Card -->
         <div class="form-card">
 
-            <form id="landBuildingForm" asp-action="Medical_LandBuildingdetails" method="post" enctype="multipart/form-data">
+            @* ADDED: show server messages (e.g. intake guard or save failure) *@
+            @if (TempData["Error"] != null)
+            {
+                <div class="page-alert page-alert-error" role="alert">@TempData["Error"]</div>
+            }
+            @if (TempData["Success"] != null)
+            {
+                <div class="page-alert page-alert-success" role="status">@TempData["Success"]</div>
+            }
+
+            @* CHANGED: autocomplete="off" so the browser does not restore stale values on refresh *@
+            <form id="landBuildingForm" asp-action="Medical_LandBuildingdetails" method="post" enctype="multipart/form-data" autocomplete="off">
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary(true, "", new { @class = "text-danger", style = "font-size:0.8rem; margin-bottom:12px;" })
 
@@ -726,7 +766,7 @@
                     <div class="section-block-body">
                         <div class="field-grid g-3">
 
-                            <!-- Building as per Council Norms (Toggle - Already Good) -->
+                            <!-- Building as per Council Norms -->
                             <div class="field-group" style="grid-column: span 3;">
                                 <label class="form-label-text required">Building available as per council norms</label>
                                 <div class="toggle-group">
@@ -738,7 +778,7 @@
                                 <span asp-validation-for="IsBuildingAsPerCouncilNorms" class="text-danger"></span>
                             </div>
 
-                            <!-- Land Ownership - FIXED -->
+                            <!-- Land Ownership -->
                             <div class="field-group">
                                 <label class="form-label-text required">Land Ownership</label>
                                 <select class="form-select" asp-for="LandOwnershipType">
@@ -750,7 +790,7 @@
                                 <span asp-validation-for="LandOwnershipType" class="text-danger"></span>
                             </div>
 
-                            <!-- Building Ownership - FIXED -->
+                            <!-- Building Ownership -->
                             <div class="field-group">
                                 <label class="form-label-text required">Building Ownership</label>
                                 <select class="form-select" asp-for="BuildingOwnershipType">
@@ -762,7 +802,6 @@
                                 <span asp-validation-for="BuildingOwnershipType" class="text-danger"></span>
                             </div>
 
-                            <!-- Other fields remain the same -->
                             <div class="field-group">
                                 <label class="form-label-text required">Floor Area (Sq.ft)</label>
                                 <input type="number" class="form-control" asp-for="FloorAreaSqFt" placeholder="0" />
@@ -865,80 +904,73 @@
                                 <span asp-validation-for="CommitteeRoomsAreaSqFt" class="text-danger"></span>
                             </div>
 
-                           
-
                             <span class="sub-heading">Facilities Availability</span>
 
-                            
+                            <div class="field-group">
+                                <label class="form-label-text">Examination Hall</label>
+                                <select class="form-select" asp-for="ExaminationHallAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true" selected="@(Model?.ExaminationHallAvailable == true)">YES</option>
+                                    <option value="false" selected="@(Model?.ExaminationHallAvailable == false)">NO</option>
+                                </select>
+                                <span asp-validation-for="ExaminationHallAvailable" class="text-danger"></span>
+                            </div>
 
-                                <div class="field-group">
-                                    <label class="form-label-text">Examination Hall</label>
-                                    <select class="form-select" asp-for="ExaminationHallAvailable">
-                                        <option value="">— Select —</option>
-                                        <option value="true" selected="@(Model?.ExaminationHallAvailable == true)">YES</option>
-                                        <option value="false" selected="@(Model?.ExaminationHallAvailable == false)">NO</option>
-                                    </select>
-                                    <span asp-validation-for="ExaminationHallAvailable" class="text-danger"></span>
-                                </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Animal House</label>
+                                <select class="form-select" asp-for="AnimalHouseAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true" selected="@(Model?.AnimalHouseAvailable == true)">YES</option>
+                                    <option value="false" selected="@(Model?.AnimalHouseAvailable == false)">NO</option>
+                                </select>
+                                <span asp-validation-for="AnimalHouseAvailable" class="text-danger"></span>
+                            </div>
 
-                                <div class="field-group">
-                                    <label class="form-label-text">Animal House</label>
-                                    <select class="form-select" asp-for="AnimalHouseAvailable">
-                                        <option value="">— Select —</option>
-                                        <option value="true" selected="@(Model?.AnimalHouseAvailable == true)">YES</option>
-                                        <option value="false" selected="@(Model?.AnimalHouseAvailable == false)">NO</option>
-                                    </select>
-                                    <span asp-validation-for="AnimalHouseAvailable" class="text-danger"></span>
-                                </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Common Room — Men Students</label>
+                                <select class="form-select" asp-for="CommonRoomMenAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true" selected="@(Model?.CommonRoomMenAvailable == true)">YES</option>
+                                    <option value="false" selected="@(Model?.CommonRoomMenAvailable == false)">NO</option>
+                                </select>
+                                <span asp-validation-for="CommonRoomMenAvailable" class="text-danger"></span>
+                            </div>
 
-                                <div class="field-group">
-                                    <label class="form-label-text">Common Room — Men Students</label>
-                                    <select class="form-select" asp-for="CommonRoomMenAvailable">
-                                        <option value="">— Select —</option>
-                                        <option value="true" selected="@(Model?.CommonRoomMenAvailable == true)">YES</option>
-                                        <option value="false" selected="@(Model?.CommonRoomMenAvailable == false)">NO</option>
-                                    </select>
-                                    <span asp-validation-for="CommonRoomMenAvailable" class="text-danger"></span>
-                                </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Common Room — Lady Students</label>
+                                <select class="form-select" asp-for="CommonRoomWomenAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true" selected="@(Model?.CommonRoomWomenAvailable == true)">YES</option>
+                                    <option value="false" selected="@(Model?.CommonRoomWomenAvailable == false)">NO</option>
+                                </select>
+                                <span asp-validation-for="CommonRoomWomenAvailable" class="text-danger"></span>
+                            </div>
 
-                                <div class="field-group">
-                                    <label class="form-label-text">Common Room — Lady Students</label>
-                                    <select class="form-select" asp-for="CommonRoomWomenAvailable">
-                                        <option value="">— Select —</option>
-                                        <option value="true" selected="@(Model?.CommonRoomWomenAvailable == true)">YES</option>
-                                        <option value="false" selected="@(Model?.CommonRoomWomenAvailable == false)">NO</option>
-                                    </select>
-                                    <span asp-validation-for="CommonRoomWomenAvailable" class="text-danger"></span>
-                                </div>
+                            <div class="field-group">
+                                <label class="form-label-text">Students Hostel</label>
+                                <select class="form-select" asp-for="StudentHostelAvailable">
+                                    <option value="">— Select —</option>
+                                    <option value="true" selected="@(Model?.StudentHostelAvailable == true)">YES</option>
+                                    <option value="false" selected="@(Model?.StudentHostelAvailable == false)">NO</option>
+                                </select>
+                                <span asp-validation-for="StudentHostelAvailable" class="text-danger"></span>
+                            </div>
 
-                                <div class="field-group">
-                                    <label class="form-label-text">Students Hostel</label>
-                                    <select class="form-select" asp-for="StudentHostelAvailable">
-                                        <option value="">— Select —</option>
-                                        <option value="true" selected="@(Model?.StudentHostelAvailable == true)">YES</option>
-                                        <option value="false" selected="@(Model?.StudentHostelAvailable == false)">NO</option>
-                                    </select>
-                                    <span asp-validation-for="StudentHostelAvailable" class="text-danger"></span>
-                                </div>
-
-                                <div class="field-group">
-                                    <label class="form-label-text">Registered under Anatomy Act 1969</label>
-                                    <select class="form-select" asp-for="RegisteredUnderAnatomyAct">
-                                        <option value="">— Select —</option>
-                                        <option value="true" selected="@(Model?.RegisteredUnderAnatomyAct == true)">YES</option>
-                                        <option value="false" selected="@(Model?.RegisteredUnderAnatomyAct == false)">NO</option>
-                                    </select>
-                                    <span asp-validation-for="RegisteredUnderAnatomyAct" class="text-danger"></span>
-                                </div>
-
-                            
+                            <div class="field-group">
+                                <label class="form-label-text">Registered under Anatomy Act 1969</label>
+                                <select class="form-select" asp-for="RegisteredUnderAnatomyAct">
+                                    <option value="">— Select —</option>
+                                    <option value="true" selected="@(Model?.RegisteredUnderAnatomyAct == true)">YES</option>
+                                    <option value="false" selected="@(Model?.RegisteredUnderAnatomyAct == false)">NO</option>
+                                </select>
+                                <span asp-validation-for="RegisteredUnderAnatomyAct" class="text-danger"></span>
+                            </div>
 
                             <span class="sub-heading">Staff Quarters</span>
 
                             <div class="field-group">
                                 <label class="form-label-text">Principal Residential Quarter</label>
                                 <select class="form-select" asp-for="StaffQuartersPrincipal">
-                                   
                                     <option value="true">YES</option>
                                     <option value="false">NO</option>
                                 </select>
@@ -947,7 +979,6 @@
                             <div class="field-group">
                                 <label class="form-label-text">Other Staff Quarters</label>
                                 <select class="form-select" asp-for="StaffQuartersOtherStaff">
-                                  
                                     <option value="true">YES</option>
                                     <option value="false">NO</option>
                                 </select>
@@ -956,7 +987,6 @@
                             <div class="field-group">
                                 <label class="form-label-text">Teaching &amp; Ancillary Staff Quarters</label>
                                 <select class="form-select" asp-for="StaffQuartersTeachingAncillary">
-                                 
                                     <option value="true">YES</option>
                                     <option value="false">NO</option>
                                 </select>
@@ -1023,14 +1053,15 @@
                         <div class="field-grid g-2">
                             <div class="field-group">
                                 <label class="form-label-text required">Annual MBBS Intake</label>
-                                <select class="form-select" asp-for="AnnualMbbsIntake">
-                                    <option value="0">0</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                    <option value="150">150</option>
-                                    <option value="200">200</option>
-                                    <option value="250">250</option>
+                                @* CHANGED: dynamic option list, no misleading "0" option, saved value always selectable *@
+                                <select class="form-select" asp-for="AnnualMbbsIntake" autocomplete="off">
+                                    <option value="">— Select —</option>
+                                    @foreach (var v in intakeOptions)
+                                    {
+                                        <option value="@v" selected="@(Model.AnnualMbbsIntake == v)">@v</option>
+                                    }
                                 </select>
+                                <span asp-validation-for="AnnualMbbsIntake" class="text-danger"></span>
                                 @if (ViewBag.SavedAnnualMbbsIntake != null)
                                 {
                                     <small class="text-muted d-block mt-1">
@@ -1044,7 +1075,6 @@
                                 <input type="number" class="form-control" asp-for="SmallGroupBatchSize" readonly />
                             </div>
 
-                            <!-- FIXED: Each Yes/No pair now has its own unique name -->
                             <div class="field-group">
                                 <label class="form-label-text required">Teaching Areas Shared by All Departments</label>
                                 <div class="toggle-group">
@@ -1132,10 +1162,10 @@
                                 <label class="form-label-text required">Teaching Rooms Shared by All Departments</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="RoomsSharedByAllDepts" value="true" id="sharedYes"
-                                           @(Model.RoomsSharedByAllDepts == true ? "checked" : "") />
+                                    @(Model.RoomsSharedByAllDepts == true ? "checked" : "") />
                                     <label class="toggle-pill" for="sharedYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="RoomsSharedByAllDepts" value="false" id="sharedNo"
-                                           @(Model.RoomsSharedByAllDepts == false ? "checked" : "") />
+                                    @(Model.RoomsSharedByAllDepts == false ? "checked" : "") />
                                     <label class="toggle-pill" for="sharedNo">NO</label>
                                 </div>
                             </div>
@@ -1145,10 +1175,10 @@
                                 <label class="form-label-text required">Appropriate Area in Each Teaching Specialty</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="AppropriateAreaEachSpecialty" value="true" id="specYes"
-                                           @(Model.AppropriateAreaEachSpecialty == true ? "checked" : "") />
+                                    @(Model.AppropriateAreaEachSpecialty == true ? "checked" : "") />
                                     <label class="toggle-pill" for="specYes">Available</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="AppropriateAreaEachSpecialty" value="false" id="specNo"
-                                           @(Model.AppropriateAreaEachSpecialty == false ? "checked" : "") />
+                                    @(Model.AppropriateAreaEachSpecialty == false ? "checked" : "") />
                                     <label class="toggle-pill" for="specNo">Not Available</label>
                                 </div>
                             </div>
@@ -1158,10 +1188,10 @@
                                 <label class="form-label-text required">Connected to Larger Lecture Halls</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="ConnectedToLectureHalls" value="true" id="lecYes"
-                                           @(Model.ConnectedToLectureHalls == true ? "checked" : "") />
+                                    @(Model.ConnectedToLectureHalls == true ? "checked" : "") />
                                     <label class="toggle-pill" for="lecYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="ConnectedToLectureHalls" value="false" id="lecNo"
-                                           @(Model.ConnectedToLectureHalls == false ? "checked" : "") />
+                                    @(Model.ConnectedToLectureHalls == false ? "checked" : "") />
                                     <label class="toggle-pill" for="lecNo">NO</label>
                                 </div>
                             </div>
@@ -1171,10 +1201,10 @@
                                 <label class="form-label-text required">Internet Facility in Teaching Rooms</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="InternetInTeachingRooms" value="true" id="netYes"
-                                           @(Model.InternetInTeachingRooms == true ? "checked" : "") />
+                                    @(Model.InternetInTeachingRooms == true ? "checked" : "") />
                                     <label class="toggle-pill" for="netYes">Available</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="InternetInTeachingRooms" value="false" id="netNo"
-                                           @(Model.InternetInTeachingRooms == false ? "checked" : "") />
+                                    @(Model.InternetInTeachingRooms == false ? "checked" : "") />
                                     <label class="toggle-pill" for="netNo">Not Available</label>
                                 </div>
                             </div>
@@ -1377,10 +1407,10 @@
                                 <label class="form-label-text required">Separate Anatomy Museum</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="SeparateAnatomyMuseumAvailable" value="true" id="anatMuseumYes"
-                                           @(Model.SeparateAnatomyMuseumAvailable == true ? "checked" : "") />
+                                    @(Model.SeparateAnatomyMuseumAvailable == true ? "checked" : "") />
                                     <label class="toggle-pill" for="anatMuseumYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="SeparateAnatomyMuseumAvailable" value="false" id="anatMuseumNo"
-                                           @(Model.SeparateAnatomyMuseumAvailable == false ? "checked" : "") />
+                                    @(Model.SeparateAnatomyMuseumAvailable == false ? "checked" : "") />
                                     <label class="toggle-pill" for="anatMuseumNo">NO</label>
                                 </div>
                             </div>
@@ -1390,10 +1420,10 @@
                                 <label class="form-label-text required">Pathology &amp; Forensic Medicine Shared Museum</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="PathologyForensicSharedMuseum" value="true" id="pathForMuseumYes"
-                                           @(Model.PathologyForensicSharedMuseum == true ? "checked" : "") />
+                                    @(Model.PathologyForensicSharedMuseum == true ? "checked" : "") />
                                     <label class="toggle-pill" for="pathForMuseumYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="PathologyForensicSharedMuseum" value="false" id="pathForMuseumNo"
-                                           @(Model.PathologyForensicSharedMuseum == false ? "checked" : "") />
+                                    @(Model.PathologyForensicSharedMuseum == false ? "checked" : "") />
                                     <label class="toggle-pill" for="pathForMuseumNo">NO</label>
                                 </div>
                             </div>
@@ -1403,10 +1433,10 @@
                                 <label class="form-label-text required">Pharmacology, Microbiology &amp; Community Medicine Shared Museum</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="PharmMicroCommSharedMuseum" value="true" id="pharmMicroCommMuseumYes"
-                                           @(Model.PharmMicroCommSharedMuseum == true ? "checked" : "") />
+                                    @(Model.PharmMicroCommSharedMuseum == true ? "checked" : "") />
                                     <label class="toggle-pill" for="pharmMicroCommMuseumYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="PharmMicroCommSharedMuseum" value="false" id="pharmMicroCommMuseumNo"
-                                           @(Model.PharmMicroCommSharedMuseum == false ? "checked" : "") />
+                                    @(Model.PharmMicroCommSharedMuseum == false ? "checked" : "") />
                                     <label class="toggle-pill" for="pharmMicroCommMuseumNo">NO</label>
                                 </div>
                             </div>
@@ -1416,10 +1446,10 @@
                                 <label class="form-label-text required">Audio-Visual Facilities in Museums</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsHaveAV" value="true" id="museumAVYes"
-                                           @(Model.MuseumsHaveAV == true ? "checked" : "") />
+                                    @(Model.MuseumsHaveAV == true ? "checked" : "") />
                                     <label class="toggle-pill" for="museumAVYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="MuseumsHaveAV" value="false" id="museumAVNo"
-                                           @(Model.MuseumsHaveAV == false ? "checked" : "") />
+                                    @(Model.MuseumsHaveAV == false ? "checked" : "") />
                                     <label class="toggle-pill" for="museumAVNo">NO</label>
                                 </div>
                             </div>
@@ -1429,10 +1459,10 @@
                                 <label class="form-label-text required">Internet Facility in Museums</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsHaveInternet" value="true" id="museumInternetYes"
-                                           @(Model.MuseumsHaveInternet == true ? "checked" : "") />
+                                    @(Model.MuseumsHaveInternet == true ? "checked" : "") />
                                     <label class="toggle-pill" for="museumInternetYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="MuseumsHaveInternet" value="false" id="museumInternetNo"
-                                           @(Model.MuseumsHaveInternet == false ? "checked" : "") />
+                                    @(Model.MuseumsHaveInternet == false ? "checked" : "") />
                                     <label class="toggle-pill" for="museumInternetNo">NO</label>
                                 </div>
                             </div>
@@ -1442,10 +1472,10 @@
                                 <label class="form-label-text required">Digitally Linked to LT / Rooms / Labs</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsDigitallyLinked" value="true" id="museumDigitalLinkYes"
-                                           @(Model.MuseumsDigitallyLinked == true ? "checked" : "") />
+                                    @(Model.MuseumsDigitallyLinked == true ? "checked" : "") />
                                     <label class="toggle-pill" for="museumDigitalLinkYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="MuseumsDigitallyLinked" value="false" id="museumDigitalLinkNo"
-                                           @(Model.MuseumsDigitallyLinked == false ? "checked" : "") />
+                                    @(Model.MuseumsDigitallyLinked == false ? "checked" : "") />
                                     <label class="toggle-pill" for="museumDigitalLinkNo">NO</label>
                                 </div>
                             </div>
@@ -1455,10 +1485,10 @@
                                 <label class="form-label-text required">Adequate Racks / Shelves for Specimens</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsHaveRacksShelves" value="true" id="museumRacksYes"
-                                           @(Model.MuseumsHaveRacksShelves == true ? "checked" : "") />
+                                    @(Model.MuseumsHaveRacksShelves == true ? "checked" : "") />
                                     <label class="toggle-pill" for="museumRacksYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="MuseumsHaveRacksShelves" value="false" id="museumRacksNo"
-                                           @(Model.MuseumsHaveRacksShelves == false ? "checked" : "") />
+                                    @(Model.MuseumsHaveRacksShelves == false ? "checked" : "") />
                                     <label class="toggle-pill" for="museumRacksNo">NO</label>
                                 </div>
                             </div>
@@ -1468,10 +1498,10 @@
                                 <label class="form-label-text required">Facilities to Display Radiological &amp; Digital Images</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="MuseumsHaveRadiologyDisplay" value="true" id="museumRadiologyYes"
-                                           @(Model.MuseumsHaveRadiologyDisplay == true ? "checked" : "") />
+                                    @(Model.MuseumsHaveRadiologyDisplay == true ? "checked" : "") />
                                     <label class="toggle-pill" for="museumRadiologyYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="MuseumsHaveRadiologyDisplay" value="false" id="museumRadiologyNo"
-                                           @(Model.MuseumsHaveRadiologyDisplay == false ? "checked" : "") />
+                                    @(Model.MuseumsHaveRadiologyDisplay == false ? "checked" : "") />
                                     <label class="toggle-pill" for="museumRadiologyNo">NO</label>
                                 </div>
                             </div>
@@ -1481,10 +1511,10 @@
                                 <label class="form-label-text required">Teaching Time Sharing Programmed by College</label>
                                 <div class="toggle-group">
                                     <input class="toggle-pill-input pill-yes" type="radio" name="TeachingTimeSharingProgrammed" value="true" id="museumTimeSharingYes"
-                                           @(Model.TeachingTimeSharingProgrammed == true ? "checked" : "") />
+                                    @(Model.TeachingTimeSharingProgrammed == true ? "checked" : "") />
                                     <label class="toggle-pill" for="museumTimeSharingYes">YES</label>
                                     <input class="toggle-pill-input pill-no" type="radio" name="TeachingTimeSharingProgrammed" value="false" id="museumTimeSharingNo"
-                                           @(Model.TeachingTimeSharingProgrammed == false ? "checked" : "") />
+                                    @(Model.TeachingTimeSharingProgrammed == false ? "checked" : "") />
                                     <label class="toggle-pill" for="museumTimeSharingNo">NO</label>
                                 </div>
                             </div>
@@ -1517,47 +1547,17 @@
 
                 <!-- ── Footer ── -->
                 <div class="form-footer">
-                   @*  <button type="button" class="btn-prev"
-                            onclick="window.location.href='@Url.Action("Nursing_Institute_Details", "Medical_ContinuousAffiliation")'">
-                        ← Previous
-                    </button> *@
-
-                        @* 🔹 PREVIOUS BUTTON *@
-                        @* @if (courseLevel == "UG")
-                        {
-                            <a asp-controller="ContinuesAffiliation_Facultybased"
-                               asp-action="Aff_PrincipalDetails"
-                               class="btn-prev">← Previous</a>
-                        }
-                        else if (courseLevel == "PG")
-                        {
-                            <a asp-controller="AffiliationSS"
-                               asp-action="AssociatedInstitutions"
-                               class="btn-prev">← Previous</a>
-                        }
-                        else if (courseLevel == "SS")
-                        { *@
                     <a asp-controller="AffiliationSS"
                        asp-action="CoursesOffered"
-                               class="btn-prev">← Previous</a>
-                        @* } *@
+                       class="btn-prev">← Previous</a>
 
-                        <button type="submit" class="btn-save" id="btnSave">&#128190; Save</button>
-
-                        
+                    <button type="submit" class="btn-save" id="btnSave">&#128190; Save</button>
                 </div>
 
             </form>
         </div><!-- /.form-card -->
     </div>
 </div>
-
-
-
-
-
-   
-
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
@@ -1569,161 +1569,156 @@
     <script>
         $(function () {
 
-            /* ── Teaching room area calc ── */
-            const studentCount  = document.getElementById('studentCount');
-            const requiredArea  = document.getElementById('requiredArea');
-            const availableArea = document.getElementById('availableArea');
-            const defArea       = document.getElementById('deficiencyArea');
-            const sumReq        = document.getElementById('summaryRequired');
-            const sumAvail      = document.getElementById('summaryAvailable');
-            const sumDef        = document.getElementById('summaryDeficiency');
+        /* ── Teaching room area calc ── */
+        const studentCount  = document.getElementById('studentCount');
+        const requiredArea  = document.getElementById('requiredArea');
+        const availableArea = document.getElementById('availableArea');
+        const defArea       = document.getElementById('deficiencyArea');
+        const sumReq        = document.getElementById('summaryRequired');
+        const sumAvail      = document.getElementById('summaryAvailable');
+        const sumDef        = document.getElementById('summaryDeficiency');
 
-            function recalcTeaching() {
-                const s   = parseInt(studentCount?.value)   || 0;
-                const av  = parseFloat(availableArea?.value) || 0;
-                const req = s * 1.2;
-                const def = Math.max(0, req - av);
-                if (requiredArea) requiredArea.value = req.toFixed(2);
-                if (defArea)      defArea.value      = def.toFixed(2);
-                if (sumReq)       sumReq.textContent  = req.toFixed(2);
-                if (sumAvail)     sumAvail.textContent = av.toFixed(2);
-                if (sumDef) {
-                    sumDef.textContent = def.toFixed(2);
-                    sumDef.className   = 'summary-box-value ' + (def > 0 ? 'val-short' : 'val-ok');
-                }
-            }
-            studentCount?.addEventListener('input', recalcTeaching);
-            availableArea?.addEventListener('input', recalcTeaching);
+        function recalcTeaching() {
+        const s   = parseInt(studentCount?.value)   || 0;
+        const av  = parseFloat(availableArea?.value) || 0;
+        const req = s * 1.2;
+        const def = Math.max(0, req - av);
+        if (requiredArea) requiredArea.value = req.toFixed(2);
+        if (defArea)      defArea.value      = def.toFixed(2);
+        if (sumReq)       sumReq.textContent  = req.toFixed(2);
+        if (sumAvail)     sumAvail.textContent = av.toFixed(2);
+        if (sumDef) {
+        sumDef.textContent = def.toFixed(2);
+        sumDef.className   = 'summary-box-value ' + (def > 0 ? 'val-short' : 'val-ok');
+        }
+        }
+        studentCount?.addEventListener('input', recalcTeaching);
+        availableArea?.addEventListener('input', recalcTeaching);
 
-            /* ── Museum area calc ── */
-            const mSeating = document.getElementById('museumSeating');
-            const mArea    = document.getElementById('museumSeatingArea');
-            const mReq     = document.getElementById('museumRequiredArea');
-            const mDef     = document.getElementById('museumDefArea');
+        /* ── Museum area calc ── */
+        const mSeating = document.getElementById('museumSeating');
+        const mArea    = document.getElementById('museumSeatingArea');
+        const mReq     = document.getElementById('museumRequiredArea');
+        const mDef     = document.getElementById('museumDefArea');
 
-            function recalcMuseum() {
-                const s   = parseInt(mSeating?.value)  || 0;
-                const av  = parseFloat(mArea?.value)   || 0;
-                const req = s * 1.2;
-                const def = Math.max(0, req - av);
-                if (mReq) mReq.value = req.toFixed(2);
-                if (mDef) mDef.value = def.toFixed(2);
-            }
-            mSeating?.addEventListener('input', recalcMuseum);
-            mArea?.addEventListener('input', recalcMuseum);
+        function recalcMuseum() {
+        const s   = parseInt(mSeating?.value)  || 0;
+        const av  = parseFloat(mArea?.value)   || 0;
+        const req = s * 1.2;
+        const def = Math.max(0, req - av);
+        if (mReq) mReq.value = req.toFixed(2);
+        if (mDef) mDef.value = def.toFixed(2);
+        }
+        mSeating?.addEventListener('input', recalcMuseum);
+        mArea?.addEventListener('input', recalcMuseum);
 
-            /* ── Land NO section toggle ── */
-            function toggleLandNo() {
-                const isNo = document.getElementById('landNo')?.checked;
-                document.getElementById('landNoSection').style.display = isNo ? '' : 'none';
-                document.getElementById('budgetSection').style.display  = isNo ? '' : 'none';
-            }
-            document.getElementById('landYes')?.addEventListener('change', toggleLandNo);
-            document.getElementById('landNo')?.addEventListener('change', toggleLandNo);
-            toggleLandNo();
+        /* ── Land NO section toggle ── */
+        function toggleLandNo() {
+        const isNo = document.getElementById('landNo')?.checked;
+        document.getElementById('landNoSection').style.display = isNo ? '' : 'none';
+        document.getElementById('budgetSection').style.display  = isNo ? '' : 'none';
+        }
+        document.getElementById('landYes')?.addEventListener('change', toggleLandNo);
+        document.getElementById('landNo')?.addEventListener('change', toggleLandNo);
+        toggleLandNo();
 
-            /* ── Save validation ── */
-            $("#btnSave").on("click", function (e) {
-                e.preventDefault();
-                $(".input-error").removeClass("input-error");
-                $(".section-block").removeClass("error-section");
+        /* ── Save validation ── */
+        $("#btnSave").on("click", function (e) {
+        e.preventDefault();
+        $(".input-error").removeClass("input-error");
+        $(".section-block").removeClass("error-section");
 
-                let isValid = true;
-                document.querySelectorAll(".form-label-text.required").forEach(label => {
-                    const parent = label.closest(".field-group");
-                    if (!parent) return;
+        let isValid = true;
+        document.querySelectorAll(".form-label-text.required").forEach(label => {
+        const parent = label.closest(".field-group");
+        if (!parent) return;
 
-                    const radios = parent.querySelectorAll("input[type='radio']");
-                    if (radios.length) {
-                        if (!Array.from(radios).some(r => r.checked)) {
-                            isValid = false;
-                            parent.closest(".section-block")?.classList.add("error-section");
-                        }
-                        return;
-                    }
+        const radios = parent.querySelectorAll("input[type='radio']");
+        if (radios.length) {
+        if (!Array.from(radios).some(r => r.checked)) {
+        isValid = false;
+        parent.closest(".section-block")?.classList.add("error-section");
+        }
+        return;
+        }
 
-                    const input = parent.querySelector("input:not([type='radio']):not([type='checkbox']), select, textarea");
-                    if (input && !input.value.trim()) {
-                        isValid = false;
-                        input.classList.add("input-error");
-                        parent.closest(".section-block")?.classList.add("error-section");
-                    }
-                });
+        const input = parent.querySelector("input:not([type='radio']):not([type='checkbox']), select, textarea");
+        if (input && !input.value.trim()) {
+        isValid = false;
+        input.classList.add("input-error");
+        parent.closest(".section-block")?.classList.add("error-section");
+        }
+        });
 
-                if (!isValid) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Missing Fields",
-                        text: "Please fill all required fields marked with *",
-                        confirmButtonColor: "#0f2545"
-                    });
-                    const first = document.querySelector(".input-error, .error-section");
-                    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
-                    return;
-                }
+        if (!isValid) {
+        Swal.fire({
+        icon: "error",
+        title: "Missing Fields",
+        text: "Please fill all required fields marked with *",
+        confirmButtonColor: "#0f2545"
+        });
+        const first = document.querySelector(".input-error, .error-section");
+        if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+        }
 
-                Swal.fire({
-                    icon: "success",
-                    title: "Saved Successfully!",
-                    confirmButtonColor: "#1a6b3a",
-                    timer: 2000, timerProgressBar: true
-                }).then(() => {
-                    document.getElementById('landBuildingForm').submit();
-                });
-            });
+        // CHANGED: submit directly. The server shows the real success/failure message,
+        // so we no longer show a "Saved Successfully!" popup before the save has happened.
+        document.getElementById('landBuildingForm').submit();
+        });
 
-            $("#btnNext").on("click", function () {
-                $("#btnSave").click();
-                setTimeout(() => {
-                    if (!$(".input-error").length && !$(".error-section").length) {
-                        window.location.href = '@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")';
-                    }
-                }, 2500);
-            });
+        $("#btnNext").on("click", function () {
+        $("#btnSave").click();
+        setTimeout(() => {
+        if (!$(".input-error").length && !$(".error-section").length) {
+        window.location.href = '@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")';
+        }
+        }, 2500);
+        });
 
-            /* ── Initial calc ── */
-            recalcTeaching();
-            recalcMuseum();
+        /* ── Initial calc ── */
+        recalcTeaching();
+        recalcMuseum();
         });
     </script>
 
     <script>
         document.addEventListener("change", function (e) {
 
-            if (e.target.classList.contains("file-validate")) {
+        if (e.target.classList.contains("file-validate")) {
 
-                const file = e.target.files[0];
-                const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+        const file = e.target.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB
 
-                if (file) {
+        if (file) {
 
-                    // ❌ FILE SIZE CHECK
-                    if (file.size > maxSize) {
-                        Swal.fire({
-                            icon: "error",
-                            title: "File too large",
-                            text: "Maximum allowed size is 2MB"
-                        });
+        // FILE SIZE CHECK
+        if (file.size > maxSize) {
+        Swal.fire({
+        icon: "error",
+        title: "File too large",
+        text: "Maximum allowed size is 2MB"
+        });
 
-                        e.target.value = "";
-                        return;
-                    }
+        e.target.value = "";
+        return;
+        }
 
-                    // ❌ FILE TYPE CHECK
-                    const ext = file.name.split('.').pop().toLowerCase();
+        // FILE TYPE CHECK
+        const ext = file.name.split('.').pop().toLowerCase();
 
-                    if (ext !== "pdf") {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Invalid file",
-                            text: "Only PDF files are allowed"
-                        });
+        if (ext !== "pdf") {
+        Swal.fire({
+        icon: "error",
+        title: "Invalid file",
+        text: "Only PDF files are allowed"
+        });
 
-                        e.target.value = "";
-                        return;
-                    }
-                }
-            }
+        e.target.value = "";
+        return;
+        }
+        }
+        }
 
         });
     </script>

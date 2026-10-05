@@ -104,12 +104,16 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction("Login", "Account");
 
+            // Exact course-level row first, then legacy rows saved with NULL/empty CourseLevel
             var teaching = await _context.SmallGroupTeachings.AsNoTracking()
-                .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                          x.CollegeCode == collegeCode &&
-                                          x.CourseLevel == courseLevel);
+                .Where(x => x.FacultyCode == facultyCode &&
+                            x.CollegeCode == collegeCode &&
+                            (x.CourseLevel == courseLevel || x.CourseLevel == null || x.CourseLevel == ""))
+                .OrderByDescending(x => x.CourseLevel == courseLevel ? 1 : 0)
+                .ThenByDescending(x => x.Id)
+                .FirstOrDefaultAsync();
 
-            var savedIntakeTeaching = teaching ?? await _context.SmallGroupTeachings
+            var savedIntakeTeaching = teaching ?? await _context.SmallGroupTeachings.AsNoTracking()
                 .Where(x => x.FacultyCode == facultyCode &&
                             x.CollegeCode == collegeCode &&
                             x.AnnualMbbsIntake > 0)
@@ -138,7 +142,7 @@ namespace Medical_Affiliation.Controllers
             {
                 return View(new SmallGroupTeachingViewModel
                 {
-                    AnnualMbbsIntake = 100,
+                    AnnualMbbsIntake = savedIntakeTeaching?.AnnualMbbsIntake ?? 100,
                     SmallGroupBatchSize = 15
                 });
             }
@@ -288,6 +292,13 @@ namespace Medical_Affiliation.Controllers
                             string.IsNullOrEmpty(error.ErrorMessage) ? error.Exception?.Message : error.ErrorMessage);
             }
 
+            // ADDED: never overwrite a saved intake with 0 / blank
+            if (model.AnnualMbbsIntake <= 0)
+            {
+                TempData["Error"] = "Please select the Annual MBBS Intake before saving.";
+                return View(model);
+            }
+
             // Server-side calculations (never trust the browser)
             model.RequiredAreaSqm = model.SmallGroupStudents * 1.2m;
             model.AreaDeficiencySqm = Math.Max(0, model.RequiredAreaSqm - model.AvailableAreaSqm);
@@ -303,10 +314,15 @@ namespace Medical_Affiliation.Controllers
             try
             {
                 // ========================= TEACHING =========================
+                // CHANGED: also match legacy rows saved with NULL/empty CourseLevel,
+                // preferring the exact course-level row, then the latest Id.
                 var teaching = await _context.SmallGroupTeachings
-                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                              x.CollegeCode == collegeCode &&
-                                              x.CourseLevel == courseLevel);
+                    .Where(x => x.FacultyCode == facultyCode &&
+                                x.CollegeCode == collegeCode &&
+                                (x.CourseLevel == courseLevel || x.CourseLevel == null || x.CourseLevel == ""))
+                    .OrderByDescending(x => x.CourseLevel == courseLevel ? 1 : 0)
+                    .ThenByDescending(x => x.Id)
+                    .FirstOrDefaultAsync();
 
                 if (teaching == null)
                 {
@@ -317,6 +333,10 @@ namespace Medical_Affiliation.Controllers
                         CourseLevel = courseLevel
                     };
                     _context.SmallGroupTeachings.Add(teaching);
+                }
+                else
+                {
+                    teaching.CourseLevel = courseLevel;   // CHANGED: stamps legacy NULL rows
                 }
 
                 teaching.AnnualMbbsIntake = model.AnnualMbbsIntake;

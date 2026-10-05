@@ -540,6 +540,28 @@
         cursor: pointer;
     }
 
+    .row-actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .records-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #166534;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 5px;
+        padding: 4px 10px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
     .pagination-bar {
         padding: 14px 22px;
         display: flex;
@@ -1211,7 +1233,7 @@
     <td><div class="td-name">${esc(c.CollegeName)}</div><div class="td-town"><i class="bi bi-geo-alt-fill"></i>${esc(c.CollegeTown)}</div></td>
     <td class="td-center"><span class="seat-badge ${c.UGSeats > 0 ? 'seat-ug' : 'seat-zero'}">${c.UGSeats > 0 ? c.UGSeats : '—'}</span></td>
     <td class="td-center"><span class="seat-badge ${c.PGSeats > 0 ? 'seat-pg' : 'seat-zero'}">${c.PGSeats > 0 ? c.PGSeats : '—'}</span></td>
-    <td class="td-center"><button class="view-btn" onclick="openModal('${esc(c.CollegeCode)}','${esc(c.CollegeName)}','${esc(c.CollegeTown)}')"><i class="bi bi-eye"></i> View Details</button></td>`;
+    <td class="td-center"><div class="row-actions"><button class="view-btn" onclick="openModal('${esc(c.CollegeCode)}','${esc(c.CollegeName)}','${esc(c.CollegeTown)}')"><i class="bi bi-eye"></i> View Details</button><a class="records-btn" href="@Url.Action("SubmissionRecords", "MedicalSuperAdmin")?collegeCode=${encodeURIComponent(c.CollegeCode)}"><i class="bi bi-file-earmark-medical"></i> Submission &amp; Payment</a></div></td>`;
     tbody.appendChild(tr);
     });
     }
