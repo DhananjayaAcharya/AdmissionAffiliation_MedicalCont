@@ -693,5 +693,32 @@ namespace Medical_Affiliation.Controllers
                     $"Error deleting old report: {ex.Message}");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewReport(int reportId, string collegeCode)
+        {
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized();
+
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+
+            var actionTakenReport = await _context.ActionTakenDeficiencyReports
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e =>
+                    e.ActionTakenDeficiencyReportId == reportId &&
+                    e.CollegeCode == collegeCode &&
+                    e.FacultyId == Convert.ToInt32(facultyCode) &&
+                    e.IsActive);
+
+            if (actionTakenReport == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(actionTakenReport.RelevantReportPath)) return NotFound("Relevant Report file not Uploaded.");
+
+            if (!System.IO.File.Exists(actionTakenReport.RelevantReportPath)) return NotFound("Relevant Report file not Found.");
+
+            return PhysicalFile(actionTakenReport.RelevantReportPath, "application/pdf");
+        }
     }
 }

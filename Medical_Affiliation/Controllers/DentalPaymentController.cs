@@ -162,10 +162,13 @@ namespace Medical_Affiliation.Controllers
             //========================================
             // HARD CODED to OCT 13 2026 , 11:59:59 PM
             //========================================
+
             var feeActivationDate = new DateTime(
                 2026, 10, 13, 18, 29, 59,
                 DateTimeKind.Utc
             );
+
+            var isAfterActivation = DateTime.UtcNow >= feeActivationDate;
 
             var feeTypes = await _context.MstDentalFeeTypes
                 .AsNoTracking()
@@ -173,15 +176,32 @@ namespace Medical_Affiliation.Controllers
                     e.FacultyCode == _facultyCode &&
                     e.AffiliationTypeId.ToString() == affTypeId &&
                     e.IsActive &&
-                    feeActivationDate <= DateTime.UtcNow &&
                     (
-                        !isGovernment ||
-                        e.FeeType == "Application Fee" ||
-                        e.FeeType == "Course Identification Fee"
+                        // Government college
+                        (
+                            isGovernment &&
+                            (
+                                e.FeeType == "Application Fee" ||
+                                e.FeeType == "Course Identification Fee" ||
+                                (isAfterActivation && e.FeeType == "Late Submission Fee")
+                            )
+                        )
+
+                        ||
+
+                        // Private college
+                        (
+                            !isGovernment &&
+                            (
+                                isAfterActivation ||
+                                e.FeeType != "Late Submission Fee"
+                            )
+                        )
                     )
                 )
                 .OrderBy(e => e.DisplayOrder)
                 .ToListAsync();
+
             // =========================================================
             // Get Dental Master Fee Structure
             // =========================================================
