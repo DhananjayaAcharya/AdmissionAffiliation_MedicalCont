@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System.Data;
@@ -26,36 +27,62 @@ namespace Medical_Affiliation.Controllers
             _env = env;
         }
 
+        // ------------------------------------------------------------------
+        // Shared helpers - ONE source of truth for the page's dropdown and
+        // table data, used by both the GET and every POST re-render path.
+        // (Previously GET used CollegeCourseIntakeDetails filtered by
+        // faculty + college, while the POST reload used MstCourses - the
+        // full unfiltered master list - which is why the dropdown looked
+        // wrong after a save / failed save.)
+        // ------------------------------------------------------------------
+
+        private List<SelectListItem> LoadCourseList(string? facultyCode, string? collegeCode)
+        {
+            facultyCode ??= string.Empty;
+            collegeCode ??= string.Empty;
+
+            return _context.CollegeCourseIntakeDetails
+                .Where(e => e.FacultyCode.ToString() == facultyCode && e.CollegeCode == collegeCode)
+                .Select(c => c.CourseName)
+                .Distinct()
+                .OrderBy(name => name)
+                .Select(name => new SelectListItem
+                {
+                    Value = name,
+                    Text = name
+                })
+                .ToList();
+        }
+
+        private List<FellowShipMedical> LoadExistingRecords(string? facultyCode, string? collegeCode)
+        {
+            return _context.FellowShipMedicals
+                .Where(e => e.FacultyCode == facultyCode && e.Collegecode == collegeCode)
+                .OrderByDescending(f => f.Id)
+                .Take(1000)
+                .ToList();
+        }
+
+        private void PopulatePageLookups(FellowshipMedicalPageVm pageVm)
+        {
+            var facultyCode = HttpContext.Session.GetString("FacultyCode") ?? string.Empty;
+            var collegeCode = HttpContext.Session.GetString("CollegeCode") ?? string.Empty;
+
+            ViewBag.CollegeName = HttpContext.Session.GetString("CollegeName") ?? string.Empty;
+            ViewBag.CourseList = LoadCourseList(facultyCode, collegeCode);
+            pageVm.ExistingRecords = LoadExistingRecords(facultyCode, collegeCode);
+        }
 
         // GET
         [HttpGet]
         public IActionResult FellowshipMedical_Details()
         {
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var pageVm = new FellowshipMedicalPageVm();
 
             pageVm.Form.FacultyCode = HttpContext.Session.GetString("FacultyCode") ?? string.Empty;
             pageVm.Form.CollegeCode = HttpContext.Session.GetString("CollegeCode") ?? string.Empty;
 
-            ViewBag.CollegeName = HttpContext.Session.GetString("CollegeName") ?? string.Empty;
-
-            ViewBag.CourseList = _context.CollegeCourseIntakeDetails
-                .Where(e => e.FacultyCode.ToString() == facultyCode && e.CollegeCode == collegeCode)
-                .OrderBy(c => c.CourseName)
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CourseName,
-                    Text = c.CourseName
-                })
-                .ToList();
-
-            // Load latest records (TOP 1000)
-            pageVm.ExistingRecords = _context.FellowShipMedicals
-                        .Where(e => e.FacultyCode == facultyCode && e.Collegecode == collegeCode)
-                .OrderByDescending(f => f.Id)         // adjust key as per your entity
-                .Take(1000)
-                .ToList();
+            PopulatePageLookups(pageVm);
 
             return View(pageVm);
         }
@@ -74,26 +101,35 @@ namespace Medical_Affiliation.Controllers
             var vm = pageVm.Form;
 
             // Session-sourced values are never part of the posted form, so the model
-            // binder has nothing to validate them against on POST. If FacultyCode /
-            // CollegeCode carry [Required] on the VM, ModelState fails here on every
-            // submission before any of the user's own input is even checked - which
-            // silently drops into the "invalid" branch below with no visible error.
-            // Fill them in first, then clear any stale binder error attached to them.
+            // binder has nothing to validate them against on POST. Fill them in first,
+            // then clear any stale binder error attached to them.
             vm.FacultyCode = HttpContext.Session.GetString("FacultyCode") ?? string.Empty;
             vm.CollegeCode = HttpContext.Session.GetString("CollegeCode") ?? string.Empty;
             ModelState.Remove("Form.FacultyCode");
             ModelState.Remove("Form.CollegeCode");
+
+            // Fields that are OPTIONAL on this form (PG row, previous-experience college)
+            // or that have no input on this page at all (programme opening / ending date).
+            // With <Nullable>enable</Nullable>, non-nullable string properties get an
+            // implicit [Required] from MVC, which silently blocks the save when the user
+            // leaves them blank. Clear those binder errors so only real rules apply.
+            ModelState.Remove("Form.PG_Degree");
+            ModelState.Remove("Form.PG_UniversityCollegeName");
+            ModelState.Remove("Form.PG_YearOfPassing");
+            ModelState.Remove("Form.ExperienceCollege");
+            ModelState.Remove("Form.Admission_openingDate");
+            ModelState.Remove("Form.EndingDate");
 
             if (!ModelState.IsValid)
             {
                 // Surface exactly which field(s) failed instead of failing silently.
                 var errors = ModelState
                     .Where(kvp => kvp.Value?.Errors.Count > 0)
-                    .Select(kvp => $"{kvp.Key}: {string.Join("; ", kvp.Value!.Errors.Select(e => e.ErrorMessage))}")
+                    .Select(kvp => $"{kvp.Key.Replace("Form.", string.Empty)}: {string.Join("; ", kvp.Value!.Errors.Select(e => e.ErrorMessage))}")
                     .ToList();
 
                 TempData["Error"] = "Record was NOT saved. " + string.Join(" | ", errors);
-                return await ReloadFellowshipMedicalView(pageVm);
+                return ReloadFellowshipMedicalView(pageVm);
             }
 
             var safeCollegeCode = string.IsNullOrWhiteSpace(vm.CollegeCode)
@@ -174,37 +210,37 @@ namespace Medical_Affiliation.Controllers
             catch (Exception ex)
             {
                 // Don't leave half-saved files sitting on disk for a record that
-                // never made it into the DB (e.g. the save throws because a
-                // document column's type doesn't match what we're writing).
+                // never made it into the DB.
                 foreach (var path in writtenPaths)
                 {
                     try { if (System.IO.File.Exists(path)) System.IO.File.Delete(path); }
                     catch { /* best-effort cleanup, ignore */ }
                 }
 
-                TempData["Error"] = "Record was NOT saved due to an error: " + ex.Message;
-                return await ReloadFellowshipMedicalView(pageVm);
+                // Detach the failed entity so it can't poison the re-render queries.
+                foreach (var entry in _context.ChangeTracker.Entries<FellowShipMedical>()
+                             .Where(e => e.State == EntityState.Added).ToList())
+                {
+                    entry.State = EntityState.Detached;
+                }
+
+                // DbUpdateException's own message is just "See the inner exception" -
+                // the real SQL error (bad column, truncation, null, etc.) is in the base exception.
+                TempData["Error"] = "Record was NOT saved due to an error: " + ex.GetBaseException().Message;
+                return ReloadFellowshipMedicalView(pageVm);
             }
         }
 
-        private async Task<IActionResult> ReloadFellowshipMedicalView(FellowshipMedicalPageVm pageVm)
+        private IActionResult ReloadFellowshipMedicalView(FellowshipMedicalPageVm pageVm)
         {
-            var facultyCode = HttpContext.Session.GetString("FacultyCode") ?? string.Empty;
-            var collegeCode = HttpContext.Session.GetString("CollegeCode") ?? string.Empty;
+            // Same course list + records as the GET (faculty + college scoped).
+            PopulatePageLookups(pageVm);
 
-            ViewBag.CollegeName = HttpContext.Session.GetString("CollegeName") ?? string.Empty;
-            ViewBag.CourseList = _context.MstCourses
-                .OrderBy(c => c.CourseName)
-                .Select(c => new SelectListItem { Value = c.CourseName, Text = c.CourseName })
-                .ToList();
+            // Make sure the hidden session-backed fields survive the round trip.
+            pageVm.Form.FacultyCode = HttpContext.Session.GetString("FacultyCode") ?? string.Empty;
+            pageVm.Form.CollegeCode = HttpContext.Session.GetString("CollegeCode") ?? string.Empty;
 
-            pageVm.ExistingRecords = _context.FellowShipMedicals
-                .Where(e => e.FacultyCode == facultyCode && e.Collegecode == collegeCode)
-                .OrderByDescending(f => f.Id)
-                .Take(1000)
-                .ToList();
-
-            return await Task.FromResult(View("FellowshipMedical_Details", pageVm));
+            return View("FellowshipMedical_Details", pageVm);
         }
 
         /// <summary>
@@ -269,7 +305,7 @@ namespace Medical_Affiliation.Controllers
             if (coursePart.Length >= 4)
                 coursePart = coursePart.Substring(0, 4).ToUpperInvariant();
             else
-                coursePart = coursePart.ToUpperInvariant().PadRight(4, 'X'); // PadRight keeps original if length >= target[web:103]
+                coursePart = coursePart.ToUpperInvariant().PadRight(4, 'X');
 
             // Prefix = year + college + course
             var prefix = yearPart + collegeCode + coursePart;
@@ -293,7 +329,7 @@ namespace Medical_Affiliation.Controllers
             }
 
             // Format as 4-digit series: 0001, 0002, ...
-            var seriesPart = nextNumber.ToString("0000"); // leading zeros[web:103]
+            var seriesPart = nextNumber.ToString("0000");
 
             return prefix + seriesPart;
         }
@@ -306,7 +342,7 @@ namespace Medical_Affiliation.Controllers
             var entity = await _context.FellowShipMedicals.FindAsync(id);
             if (entity != null)
             {
-                // Best-effort cleanup of disk-stored degree certificates.
+                // Best-effort cleanup of disk-stored documents.
                 TryDeletePhysicalFile(entity.UgDegreeCertificatePath);
                 TryDeletePhysicalFile(entity.PgDegreeCertificatePath);
                 TryDeletePhysicalFile(entity.SslcDoc);
@@ -371,6 +407,64 @@ namespace Medical_Affiliation.Controllers
             };
 
             return File(bytes, "application/octet-stream", fileName);
+        }
+
+        /// <summary>
+        /// Streams a stored document INLINE (no download prompt) so the page can show it
+        /// in a popup iframe. Scoped to the signed-in college/faculty. Only PDF and
+        /// common image types are ever served inline; anything else is forced to download
+        /// so an uploaded .html/.svg can never execute in the site's origin.
+        /// type: sslc | kmc | exp | appt | ug | pg
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> PreviewDocument(int id, string type)
+        {
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized();
+
+            var entity = await _context.FellowShipMedicals
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id && x.FacultyCode == facultyCode && x.Collegecode == collegeCode);
+            if (entity == null) return NotFound();
+
+            var storedValue = type?.ToLowerInvariant() switch
+            {
+                "sslc" => entity.SslcDoc,
+                "kmc" => entity.KmcDoc,
+                "exp" => entity.ExperienceLetterDoc,
+                "appt" => entity.AppointmentLetterDoc,
+                "ug" => entity.UgDegreeCertificatePath,
+                "pg" => entity.PgDegreeCertificatePath,
+                _ => null
+            };
+
+            if (string.IsNullOrWhiteSpace(storedValue)) return NotFound();
+
+            var fullPath = storedValue.Contains("|") ? storedValue.Split('|')[0] : storedValue;
+            if (!System.IO.File.Exists(fullPath)) return NotFound();
+
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(fullPath, out var contentType))
+                contentType = "application/octet-stream";
+
+            var inlineSafe = contentType == "application/pdf"
+                             || contentType == "image/jpeg"
+                             || contentType == "image/png";
+
+            if (!inlineSafe)
+            {
+                // Not previewable - fall back to a normal download.
+                return PhysicalFile(fullPath, "application/octet-stream", Path.GetFileName(fullPath));
+            }
+
+            Response.Headers["Content-Disposition"] = "inline";
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
+            Response.Headers["X-Frame-Options"] = "SAMEORIGIN"; // allow our own popup iframe
+            Response.Headers["Cache-Control"] = "private, no-store";
+
+            return PhysicalFile(fullPath, contentType);
         }
 
         /// <summary>
@@ -505,6 +599,7 @@ namespace Medical_Affiliation.Controllers
             // Redirect back to the dashboard GET to reload and avoid double-post on refresh
             return RedirectToAction(nameof(AdminDashboard_Fellowship));
         }
+
         [HttpGet]
         public async Task<IActionResult> Download(int id, string doc)
         {
@@ -543,6 +638,7 @@ namespace Medical_Affiliation.Controllers
             var bytes = await System.IO.File.ReadAllBytesAsync(storedPath);
             return File(bytes, contentType, fileName);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -552,6 +648,7 @@ namespace Medical_Affiliation.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("AdminLogin");
         }
+
         [HttpGet]
         public async Task<IActionResult> Fellowship_DirectorDashboard()
         {
@@ -647,7 +744,6 @@ namespace Medical_Affiliation.Controllers
                                   FellowshipCode = f.FellowshipCode,
                                   SectionOfficerApproval = f.ApprovalStatus,
                                   SectionOfficerRemark = f.ApprovalRemark,
-                                  // now use CLR properties directly
                                   DirectorApprovalStatus = f.DrApprovalStatus,
                                   DirectorApprovalRemark = f.DrApprovalRemark,
                                   HasSSLC = f.SslcDoc != null && f.SslcDoc.Length > 0,
@@ -689,7 +785,6 @@ namespace Medical_Affiliation.Controllers
             TempData["Success"] = "Director decisions saved.";
             return RedirectToAction(nameof(DirectorDashboard_Fellowship));
         }
-
 
 
         public async Task<IActionResult> AcceptedRejectedDashboard()
@@ -766,12 +861,8 @@ namespace Medical_Affiliation.Controllers
                         principal_name = reader["principal_name"] != DBNull.Value ? reader["principal_name"].ToString() : null,
                         principal_Declaration = reader["principal_Declaration"] != DBNull.Value ? reader["principal_Declaration"].ToString() : null,
                         FellowshipCode = reader["FellowshipCode"] != DBNull.Value ? reader["FellowshipCode"].ToString() : null,
-                        // Documents are now stored as file-path strings (path + GUID on disk),
-                        // NOT as raw bytes in the column - so presence is "is there a non-empty
-                        // path string", not "cast the column to byte[]". The old byte[] cast
-                        // here would throw an InvalidCastException against a string/nvarchar
-                        // column and is almost certainly why this dashboard (and potentially
-                        // the underlying column type) was left mismatched with the save path.
+                        // Documents are stored as file-path strings (path + GUID on disk),
+                        // so presence is "is there a non-empty path string".
                         HasSSLC = reader["SSLC_Doc"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["SSLC_Doc"].ToString()),
                         HasKMC = reader["KMC_Doc"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["KMC_Doc"].ToString()),
                         HasExperience = reader["Experience_Letter_Doc"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["Experience_Letter_Doc"].ToString()),

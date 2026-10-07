@@ -23,8 +23,8 @@
         --ink: #0e1825;
         --ink-mid: #1d3557;
         --slate: #2d4a6e;
-        --azure: #1f6feb;
-        --azure-pale: #eef4ff;
+        --azure: #14418f;
+        --azure-pale: #eef2fa;
         --amber: #d08b2e;
         --amber-pale: #fef8ee;
         --surface: #f3f5f8;
@@ -33,14 +33,21 @@
         --muted: #6b7c93;
         --faint: #a8b5c4;
         --danger: #c62828;
+        --danger-bg: #fff5f5;
         --success: #1b7a5c;
         --success-bg: #f0fdf8;
-        --r-xl: 16px;
-        --r-md: 9px;
-        --r-sm: 6px;
-        --sh: 0 1px 3px rgba(14,24,37,.06), 0 4px 16px rgba(14,24,37,.07);
+        --r-xl: 10px;
+        --r-md: 6px;
+        --r-sm: 4px;
+        --sh: 0 1px 2px rgba(14,24,37,.06), 0 2px 8px rgba(14,24,37,.05);
         --sh-hover: 0 4px 24px rgba(14,24,37,.13);
-        --sidebar-w: 232px;
+        --sidebar-w: 240px;
+        --navy-deep: #071b3d;
+        --navy: #0b2a5b;
+        --royal: #14418f;
+        --gold: #d4af37;
+        --gold-light: #f1d97c;
+        --gold-dark: #a8861c;
         }
 
         *, *::before, *::after {
@@ -65,56 +72,54 @@
         left: 0;
         bottom: 0;
         width: var(--sidebar-w);
-        background: var(--ink-mid);
+        background: linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
         display: flex;
         flex-direction: column;
         z-index: 200;
-        border-right: 1px solid rgba(255,255,255,.06);
+        border-right: 1px solid rgba(255,255,255,.08);
         }
 
         .sidebar-brand {
         display: flex;
         align-items: center;
-        gap: .7rem;
-        padding: 1.3rem 1.25rem;
-        border-bottom: 1px solid rgba(255,255,255,.08);
+        gap: .8rem;
+        padding: 1.3rem 1.15rem 1.15rem;
+        border-bottom: 1px solid rgba(255,255,255,.1);
         }
 
-        .sidebar-brand-icon {
-        width: 34px;
-        height: 34px;
-        background: linear-gradient(135deg, var(--azure) 0%, #1558c0 100%);
-        border-radius: 9px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        .sidebar-brand-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1.5px solid rgba(212,175,55,.7);
+        padding: 3px;
+        object-fit: contain;
         flex-shrink: 0;
-        box-shadow: 0 2px 8px rgba(31,111,235,.35);
-        }
-
-        .sidebar-brand-icon svg {
-        width: 16px;
-        height: 16px;
-        color: #fff;
         }
 
         .sidebar-brand-text .t1 {
         font-family: 'Fraunces', Georgia, serif;
-        font-size: .92rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #fff;
         letter-spacing: -.1px;
+        line-height: 1.2;
         }
 
         .sidebar-brand-text .t2 {
-        font-size: .66rem;
-        color: rgba(255,255,255,.4);
-        margin-top: 1px;
+        font-size: .62rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+        color: var(--gold-light);
+        opacity: .8;
+        margin-top: 3px;
         }
 
         .sidebar-nav {
         flex: 1;
-        padding: 1.1rem .75rem;
+        padding: 1.2rem .8rem;
         overflow-y: auto;
         }
 
@@ -122,30 +127,30 @@
         font-size: .64rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: .6px;
-        color: rgba(255,255,255,.3);
-        padding: .4rem .6rem .5rem;
+        letter-spacing: .8px;
+        color: rgba(255,255,255,.4);
+        padding: .4rem .6rem .6rem;
         }
 
         .sidebar-link {
         display: flex;
         align-items: center;
-        gap: .65rem;
-        padding: .58rem .7rem;
-        border-radius: var(--r-sm);
-        color: rgba(255,255,255,.68);
+        gap: .7rem;
+        padding: .65rem .8rem;
+        border-radius: var(--r-md);
+        color: rgba(255,255,255,.75);
         text-decoration: none;
-        font-size: .8rem;
+        font-size: .82rem;
         font-weight: 500;
-        margin-bottom: .15rem;
+        margin-bottom: .2rem;
         transition: background .15s, color .15s;
         }
 
         .sidebar-link svg {
-        width: 15px;
-        height: 15px;
+        width: 16px;
+        height: 16px;
         flex-shrink: 0;
-        opacity: .8;
+        opacity: .75;
         }
 
         .sidebar-link:hover {
@@ -154,31 +159,33 @@
         }
 
         .sidebar-link.active {
-        background: var(--azure);
+        background: rgba(255,255,255,.1);
         color: #fff;
-        box-shadow: 0 2px 10px rgba(31,111,235,.3);
+        font-weight: 600;
+        box-shadow: inset 3px 0 0 var(--gold);
         }
 
         .sidebar-link.active svg {
+        color: var(--gold-light);
         opacity: 1;
         }
 
         .sidebar-foot {
-        padding: 1rem .9rem 1.2rem;
-        border-top: 1px solid rgba(255,255,255,.08);
+        padding: 1rem .95rem 1.2rem;
+        border-top: 1px solid rgba(255,255,255,.1);
         }
 
         .sidebar-college {
         font-size: .68rem;
-        color: rgba(255,255,255,.35);
-        margin-bottom: .6rem;
-        line-height: 1.4;
+        color: rgba(255,255,255,.5);
+        margin-bottom: .7rem;
+        line-height: 1.45;
         }
 
         .sidebar-college strong {
         display: block;
-        color: rgba(255,255,255,.75);
-        font-size: .76rem;
+        color: #fff;
+        font-size: .78rem;
         font-weight: 600;
         margin-bottom: 2px;
         }
@@ -186,22 +193,24 @@
         .sidebar-logout {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: .55rem;
         width: 100%;
-        background: rgba(198,40,40,.14);
-        border: 1px solid rgba(198,40,40,.3);
-        color: #ff8a8a;
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.22);
+        color: rgba(255,255,255,.9);
         font-family: inherit;
         font-size: .78rem;
         font-weight: 600;
-        padding: .55rem .75rem;
-        border-radius: var(--r-sm);
+        padding: .58rem .75rem;
+        border-radius: var(--r-md);
         cursor: pointer;
-        transition: background .15s;
+        transition: background .15s, border-color .15s;
         }
 
         .sidebar-logout:hover {
-        background: rgba(198,40,40,.24);
+        background: rgba(255,255,255,.12);
+        border-color: rgba(212,175,55,.6);
         }
 
         .sidebar-logout svg {
@@ -215,10 +224,11 @@
         min-height: 100vh;
         }
 
+        /* ═══ HEADER ═══ */
         .site-header {
-        background: #fff;
-        border-bottom: 1px solid var(--line);
-        padding: .9rem 0;
+        background: linear-gradient(100deg, var(--navy-deep) 0%, var(--navy) 60%, var(--royal) 100%);
+        border-bottom: 2px solid var(--gold-dark);
+        padding: .85rem 0;
         position: sticky;
         top: 0;
         z-index: 100;
@@ -240,25 +250,37 @@
         gap: .9rem;
         }
 
+        .header-logo {
+        display: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1.5px solid rgba(212,175,55,.7);
+        padding: 2px;
+        object-fit: contain;
+        flex-shrink: 0;
+        }
+
         .back-btn {
         display: inline-flex;
         align-items: center;
         gap: .4rem;
-        background: var(--surface);
-        border: 1.5px solid var(--line);
-        color: var(--ink-mid);
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(255,255,255,.28);
+        color: #fff;
         font-family: inherit;
         font-size: .78rem;
         font-weight: 600;
-        padding: .5rem .85rem;
+        padding: .5rem .9rem;
         border-radius: var(--r-md);
         text-decoration: none;
         transition: background .15s, border-color .15s;
         }
 
         .back-btn:hover {
-        background: #fff;
-        border-color: #c5cdd8;
+        background: rgba(255,255,255,.16);
+        border-color: rgba(212,175,55,.65);
         }
 
         .back-btn svg {
@@ -268,50 +290,38 @@
 
         .header-title-block .header-title {
         font-family: 'Fraunces', Georgia, serif;
-        font-size: 1.02rem;
+        font-size: 1.08rem;
         font-weight: 700;
-        color: var(--ink);
+        color: #fff;
         letter-spacing: -.1px;
         }
 
         .header-title-block .header-sub {
         font-size: .72rem;
-        color: var(--faint);
+        color: rgba(255,255,255,.65);
         margin-top: 1px;
         }
 
         .header-pill {
         display: inline-flex;
         align-items: center;
-        gap: .4rem;
-        background: var(--azure-pale);
-        border: 1px solid #d6e6ff;
-        border-radius: 50px;
-        padding: .32rem .85rem;
-        font-size: .72rem;
+        gap: .45rem;
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(212,175,55,.5);
+        border-radius: var(--r-sm);
+        padding: .34rem .85rem;
+        font-size: .7rem;
         font-weight: 700;
-        color: var(--azure);
-        letter-spacing: .3px;
+        text-transform: uppercase;
+        color: var(--gold-light);
+        letter-spacing: .6px;
         }
 
         .pill-dot {
         width: 6px;
         height: 6px;
-        background: var(--azure);
+        background: var(--gold);
         border-radius: 50%;
-        animation: blink 2.2s ease-in-out infinite;
-        }
-
-        @@keyframes blink {
-        0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-        }
-
-        50% {
-        opacity: .5;
-        transform: scale(1.4);
-        }
         }
 
         /* ═══ PAGE LAYOUT ═══ */
@@ -346,9 +356,9 @@
         .sec-num {
         width: 26px;
         height: 26px;
-        background: var(--azure);
-        color: #fff;
-        border-radius: 50%;
+        background: var(--navy);
+        color: var(--gold-light);
+        border-radius: var(--r-sm);
         font-size: .7rem;
         font-weight: 700;
         display: flex;
@@ -402,7 +412,7 @@
 
         .form-control:focus, .form-select:focus {
         border-color: var(--azure);
-        box-shadow: 0 0 0 3px rgba(31,111,235,.11);
+        box-shadow: 0 0 0 3px rgba(20,65,143,.11);
         }
 
         .form-select {
@@ -437,6 +447,13 @@
         .grid-4 {
         display: grid;
         grid-template-columns: repeat(4,1fr);
+        gap: 1.1rem;
+        }
+
+        /* Vertically stacked fields inside one grid cell (Registration No. above KMC No.) */
+        .stack {
+        display: flex;
+        flex-direction: column;
         gap: 1.1rem;
         }
 
@@ -638,7 +655,7 @@
         border-bottom-color: var(--azure);
         }
 
-        /* ═══ ALERT ═══ */
+        /* ═══ ALERTS ═══ */
         .alert-ok {
         background: var(--success-bg);
         border: 1px solid #a7f3d0;
@@ -651,6 +668,28 @@
         align-items: center;
         gap: .6rem;
         margin-bottom: 1.5rem;
+        }
+
+        .alert-err {
+        background: var(--danger-bg);
+        border: 1px solid #fca5a5;
+        border-left: 4px solid var(--danger);
+        color: var(--danger);
+        border-radius: var(--r-md);
+        padding: .85rem 1rem;
+        font-size: .82rem;
+        font-weight: 600;
+        display: flex;
+        align-items: flex-start;
+        gap: .6rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+        word-break: break-word;
+        }
+
+        .alert-err svg {
+        flex-shrink: 0;
+        margin-top: 3px;
         }
 
         /* ═══ ACTIONS BAR ═══ */
@@ -696,12 +735,12 @@
         .btn-primary {
         background: var(--azure);
         color: #fff;
-        box-shadow: 0 2px 10px rgba(31,111,235,.2);
+        box-shadow: 0 2px 10px rgba(20,65,143,.2);
         }
 
         .btn-primary:hover {
-        background: #1558c0;
-        box-shadow: 0 4px 18px rgba(31,111,235,.3);
+        background: #0b2a5b;
+        box-shadow: 0 4px 18px rgba(20,65,143,.3);
         }
 
         .btn-ghost {
@@ -717,7 +756,7 @@
 
         /* ═══ TABLE CARD ═══ */
         .table-header {
-        background: var(--ink);
+        background: var(--navy);
         padding: 1.1rem 1.5rem;
         display: flex;
         align-items: center;
@@ -879,8 +918,242 @@
         font-size: .82rem;
         }
 
+        /* ═══ FORM BANNER ═══ */
+        .form-banner {
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--navy);
+        background: #f6f8fc;
+        border-radius: var(--r-md);
+        padding: .85rem 1.1rem;
+        margin-bottom: 1.75rem;
+        }
+
+        .form-banner-title {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: .98rem;
+        font-weight: 700;
+        color: var(--navy);
+        }
+
+        .form-banner-note {
+        font-size: .74rem;
+        color: var(--muted);
+        margin-top: 2px;
+        }
+
+        /* ═══ DATE FIELDS (dd/mm/yyyy) ═══ */
+        .date-wrap {
+        position: relative;
+        }
+
+        .date-wrap .form-control {
+        padding-right: 2.5rem;
+        }
+
+        .date-native {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+        }
+
+        .date-pick-btn {
+        position: absolute;
+        right: .3rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        border-radius: var(--r-sm);
+        color: var(--muted);
+        cursor: pointer;
+        transition: background .15s, color .15s;
+        }
+
+        .date-pick-btn:hover {
+        background: var(--azure-pale);
+        color: var(--azure);
+        }
+
+        /* ═══ DOCUMENT PREVIEW POPUP ═══ */
+        button.dl-link {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        padding: 0;
+        }
+
+        .doc-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1.25rem;
+        }
+
+        .doc-modal.open {
+        display: flex;
+        }
+
+        .doc-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(14,24,37,.72);
+        backdrop-filter: blur(3px);
+        animation: docFade .18s ease-out;
+        }
+
+        .doc-modal-dialog {
+        position: relative;
+        width: min(980px, 100%);
+        height: min(90vh, 900px);
+        background: #fff;
+        border-radius: var(--r-xl);
+        box-shadow: 0 24px 80px rgba(14,24,37,.45);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: docPop .22s cubic-bezier(.2,.9,.3,1.1);
+        }
+
+        .doc-modal-head {
+        background: var(--navy);
+        color: #fff;
+        padding: .95rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 2px solid var(--gold-dark);
+        }
+
+        .doc-modal-kicker {
+        font-size: .62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .7px;
+        color: rgba(255,255,255,.45);
+        }
+
+        .doc-modal-head h5 {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-top: 1px;
+        }
+
+        .doc-modal-close {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid rgba(255,255,255,.2);
+        background: rgba(255,255,255,.08);
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background .15s;
+        }
+
+        .doc-modal-close:hover {
+        background: var(--danger);
+        border-color: var(--danger);
+        }
+
+        .doc-modal-body {
+        position: relative;
+        flex: 1;
+        background: #e9edf3;
+        }
+
+        .doc-modal-body iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #fff;
+        }
+
+        .doc-modal-loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: .8rem;
+        color: var(--muted);
+        font-size: .82rem;
+        font-weight: 600;
+        z-index: 1;
+        background: #e9edf3;
+        }
+
+        .doc-modal-loading.hidden {
+        display: none;
+        }
+
+        .doc-spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid var(--line);
+        border-top-color: var(--azure);
+        border-radius: 50%;
+        animation: docSpin .75s linear infinite;
+        }
+
+        @@keyframes docSpin {
+        to {
+        transform: rotate(360deg);
+        }
+        }
+
+        @@keyframes docFade {
+        from {
+        opacity: 0;
+        }
+
+        to {
+        opacity: 1;
+        }
+        }
+
+        @@keyframes docPop {
+        from {
+        opacity: 0;
+        transform: translateY(14px) scale(.97);
+        }
+
+        to {
+        opacity: 1;
+        transform: none;
+        }
+        }
+
+        body.doc-modal-open {
+        overflow: hidden;
+        }
+
         /* ═══ RESPONSIVE ═══ */
         @@media (max-width: 1020px) {
+        .header-logo {
+        display: block;
+        }
+
         .sidebar {
         transform: translateX(-100%);
         transition: transform .2s;
@@ -917,11 +1190,7 @@
     <!-- ═══ SIDEBAR ═══ -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <div class="sidebar-brand-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            </div>
+            <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS logo" class="sidebar-brand-logo" />
             <div class="sidebar-brand-text">
                 <div class="t1">RGUHS Portal</div>
                 <div class="t2">Fellowship Programme</div>
@@ -936,17 +1205,11 @@
             </a>
             <a href="#fellowship-form" class="sidebar-link active">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                New Application
+                Add Students
             </a>
             <a href="#existing-records" class="sidebar-link">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>
                 Existing Records
-            </a>
-
-            <div class="sidebar-section-label" style="margin-top:.9rem;">Other</div>
-            <a asp-controller="Collegelogin" asp-action="Dashboard" class="sidebar-link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                Other Affiliations
             </a>
         </nav>
 
@@ -972,6 +1235,7 @@
         <header class="site-header">
             <div class="header-inner">
                 <div class="header-left">
+                    <img src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS logo" class="header-logo" />
                     <a asp-controller="Collegelogin" asp-action="Dashboard" class="back-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" /></svg>
                         Back
@@ -1005,6 +1269,21 @@
                         </div>
                     }
 
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert-err" role="alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z" />
+                            </svg>
+                            <span>@TempData["Error"]</span>
+                        </div>
+                    }
+
+                    <div class="form-banner">
+                        <div class="form-banner-title">Application for Fellowship Programme Affiliation</div>
+                        <div class="form-banner-note">Furnish accurate details. All information and documents submitted are subject to verification by the University.</div>
+                    </div>
+
                     <form asp-action="FellowshipMedical_Details" method="post" enctype="multipart/form-data" novalidate>
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Form.FacultyCode" />
@@ -1015,24 +1294,27 @@
                             <div class="sec-num">1</div>
                             <div class="sec-info">
                                 <h6>Course &amp; Programme Details</h6>
-                                <p>Programme timeline and KMC registration information</p>
+                                <p>Registration and course information</p>
                             </div>
                         </div>
 
                         <div class="grid-3" style="align-items:start;">
-                            <div class="form-group" style="grid-column:span 1;">
+                            <!-- Candidate registration number -->
+                            <div class="form-group">
                                 <label asp-for="Form.Course" class="form-label">Course / Fellowship Name</label>
                                 <select asp-for="Form.Course" class="form-select" asp-items="@(ViewBag.CourseList as List<SelectListItem>)">
                                     <option value="">— Select Course —</option>
                                 </select>
                                 <span asp-validation-for="Form.Course" class="field-error"></span>
                             </div>
-                          
-                            <div class="form-group">
-                                <label asp-for="Form.KMC_CertificateNumber" class="form-label">KMC Registration Number</label>
-                                <input asp-for="Form.KMC_CertificateNumber" class="form-control" placeholder="Enter certificate number" />
-                                <span asp-validation-for="Form.KMC_CertificateNumber" class="field-error"></span>
+                            <div class="stack">
+                                <div class="form-group">
+                                    <label asp-for="Form.CandidateRegisteredNumber" class="form-label">Candidate Registered No.</label>
+                                    <input asp-for="Form.CandidateRegisteredNumber" class="form-control" placeholder="Registration / enrolment number" />
+                                    <span asp-validation-for="Form.CandidateRegisteredNumber" class="field-error"></span>
+                                </div>
                             </div>
+                         
                         </div>
 
                         <hr class="divider" />
@@ -1053,6 +1335,11 @@
                                 <span asp-validation-for="Form.StudentName" class="field-error"></span>
                             </div>
                             <div class="form-group">
+                                <label asp-for="Form.KMC_CertificateNumber" class="form-label">KMC Registration Number</label>
+                                <input asp-for="Form.KMC_CertificateNumber" class="form-control" placeholder="Enter certificate number" />
+                                <span asp-validation-for="Form.KMC_CertificateNumber" class="field-error"></span>
+                            </div>
+                            <div class="form-group">
                                 <label asp-for="Form.FatherGuardianName" class="form-label">Father Name / Guardian Name</label>
                                 <input asp-for="Form.FatherGuardianName" class="form-control" placeholder="As per official records" />
                                 <span asp-validation-for="Form.FatherGuardianName" class="field-error"></span>
@@ -1068,8 +1355,15 @@
                                 <span asp-validation-for="Form.Gender" class="field-error"></span>
                             </div>
                             <div class="form-group">
-                                <label asp-for="Form.DOB" class="form-label">Date of Birth</label>
-                                <input asp-for="Form.DOB" type="date" class="form-control" />
+                                <label for="DOB_display" class="form-label">Date of Birth</label>
+                                <div class="date-wrap">
+                                    <input type="text" id="DOB_display" class="form-control" placeholder="dd/mm/yyyy" inputmode="numeric" maxlength="10" autocomplete="off"
+                                           data-date-field data-target="Form_DOB" data-native="DOB_native" />
+                                    <input type="hidden" id="Form_DOB" name="Form.DOB" value="@(Model.Form.DOB is DateOnly dobVal && dobVal != DateOnly.MinValue ? dobVal.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) : "")" />
+                                    <input type="date" id="DOB_native" class="date-native" tabindex="-1" aria-hidden="true" />
+                                    <button type="button" class="date-pick-btn" data-date-pick="DOB_native" aria-label="Choose date of birth"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" /></svg></button>
+                                </div>
+                                <span class="field-error" data-date-error="DOB_display"></span>
                                 <span asp-validation-for="Form.DOB" class="field-error"></span>
                             </div>
                             <div class="form-group">
@@ -1088,19 +1382,16 @@
                                 <span asp-validation-for="Form.Nationality" class="field-error"></span>
                             </div>
                             <div class="form-group">
-                                <label asp-for="Form.CandidateRegisteredNumber" class="form-label">Candidate Registered No.</label>
-                                <input asp-for="Form.CandidateRegisteredNumber" class="form-control" placeholder="Registration / enrolment number" />
-                                <span asp-validation-for="Form.CandidateRegisteredNumber" class="field-error"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="Form.Dateofjoining" class="form-label">Date of Joining</label>
-                                <input asp-for="Form.Dateofjoining" type="date" class="form-control" />
+                                <label for="DOJ_display" class="form-label">Date of Joining</label>
+                                <div class="date-wrap">
+                                    <input type="text" id="DOJ_display" class="form-control" placeholder="dd/mm/yyyy" inputmode="numeric" maxlength="10" autocomplete="off"
+                                           data-date-field data-target="Form_Dateofjoining" data-native="DOJ_native" />
+                                    <input type="hidden" id="Form_Dateofjoining" name="Form.Dateofjoining" value="@(Model.Form.Dateofjoining is DateOnly dojVal && dojVal != DateOnly.MinValue ? dojVal.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) : "")" />
+                                    <input type="date" id="DOJ_native" class="date-native" tabindex="-1" aria-hidden="true" />
+                                    <button type="button" class="date-pick-btn" data-date-pick="DOJ_native" aria-label="Choose date of joining"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" /></svg></button>
+                                </div>
+                                <span class="field-error" data-date-error="DOJ_display"></span>
                                 <span asp-validation-for="Form.Dateofjoining" class="field-error"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="Form.ExperienceCollege" class="form-label">Experience College (if any)</label>
-                                <input asp-for="Form.ExperienceCollege" class="form-control" placeholder="Previous institution name" />
-                                <span asp-validation-for="Form.ExperienceCollege" class="field-error"></span>
                             </div>
                         </div>
 
@@ -1175,7 +1466,7 @@
                             </div>
                         </div>
 
-                        <div class="grid-4">
+                        <div class="grid-3">
 
                             <div class="upload-slot">
                                 <div class="upload-slot-header">
@@ -1201,19 +1492,6 @@
                                 </div>
                                 <input name="kmc_Doc" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
                                 <p class="doc-hint">Valid registration copy</p>
-                            </div>
-
-                            <div class="upload-slot">
-                                <div class="upload-slot-header">
-                                    <div class="upload-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                        </svg>
-                                    </div>
-                                    <span class="doc-name">Experience Certificate</span>
-                                </div>
-                                <input name="experience_Letter_Doc" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
-                                <p class="doc-hint">From previous institution (if any)</p>
                             </div>
 
                             <div class="upload-slot">
@@ -1277,7 +1555,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
                                         <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z" />
                                     </svg>
-                                    Save Fellowship Details
+                                    Add Student
                                 </button>
                             </div>
                         </div>
@@ -1306,7 +1584,7 @@
                                 <th colspan="9">Candidate &amp; Programme</th>
                                 <th colspan="3">UG</th>
                                 <th colspan="3">PG</th>
-                                <th colspan="4">Documents</th>
+                                <th colspan="3">Documents</th>
                                 <th></th>
                             </tr>
                             <tr class="field-row">
@@ -1327,7 +1605,6 @@
                                 <th>Year</th>
                                 <th>SSLC</th>
                                 <th>KMC Doc</th>
-                                <th>Exp.</th>
                                 <th>Appt.</th>
                                 <th>Action</th>
                             </tr>
@@ -1365,10 +1642,10 @@
                                         <td>
                                             @if (item.SslcDoc != null)
                                             {
-                                                <a asp-action="DownloadDocument" asp-route-id="@item.Id" asp-route-type="sslc" class="dl-link">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" /><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" /></svg>
-                                                    Download
-                                                </a>
+                                                <button type="button" class="dl-link doc-view-btn" data-id="@item.Id" data-type="sslc" data-title="SSLC / 10th Marks Card">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" /><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" /></svg>
+                                                    View
+                                                </button>
                                             }
                                             else
                                             {
@@ -1378,23 +1655,10 @@
                                         <td>
                                             @if (item.KmcDoc != null)
                                             {
-                                                <a asp-action="DownloadDocument" asp-route-id="@item.Id" asp-route-type="kmc" class="dl-link">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" /><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" /></svg>
-                                                    Download
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <span class="no-doc">—</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (item.ExperienceLetterDoc != null)
-                                            {
-                                                <a asp-action="DownloadDocument" asp-route-id="@item.Id" asp-route-type="exp" class="dl-link">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" /><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" /></svg>
-                                                    Download
-                                                </a>
+                                                <button type="button" class="dl-link doc-view-btn" data-id="@item.Id" data-type="kmc" data-title="KMC Registration Certificate">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" /><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" /></svg>
+                                                    View
+                                                </button>
                                             }
                                             else
                                             {
@@ -1404,10 +1668,10 @@
                                         <td>
                                             @if (item.AppointmentLetterDoc != null)
                                             {
-                                                <a asp-action="DownloadDocument" asp-route-id="@item.Id" asp-route-type="appt" class="dl-link">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" /><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" /></svg>
-                                                    Download
-                                                </a>
+                                                <button type="button" class="dl-link doc-view-btn" data-id="@item.Id" data-type="appt" data-title="Appointment / Joining Order">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" /><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" /></svg>
+                                                    View
+                                                </button>
                                             }
                                             else
                                             {
@@ -1449,6 +1713,176 @@
 
         </div>
     </div>
+
+
+    <!-- ═══ DOCUMENT PREVIEW POPUP ═══ -->
+    <div class="doc-modal" id="docModal" role="dialog" aria-modal="true" aria-labelledby="docModalTitle" aria-hidden="true">
+        <div class="doc-modal-backdrop" data-doc-close></div>
+        <div class="doc-modal-dialog">
+            <div class="doc-modal-head">
+                <div>
+                    <div class="doc-modal-kicker">Document Preview</div>
+                    <h5 id="docModalTitle">Document</h5>
+                </div>
+                <button type="button" class="doc-modal-close" id="docModalClose" data-doc-close aria-label="Close preview">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854z" />
+                    </svg>
+                </button>
+            </div>
+            <div class="doc-modal-body">
+                <div class="doc-modal-loading" id="docLoading">
+                    <span class="doc-spinner"></span>
+                    Loading document…
+                </div>
+                <iframe id="docFrame" title="Document preview" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+        var previewUrl = '@Url.Action("PreviewDocument", "Fellowship")';
+        var modal = document.getElementById('docModal');
+        var frame = document.getElementById('docFrame');
+        var loading = document.getElementById('docLoading');
+        var titleEl = document.getElementById('docModalTitle');
+        var closeBtn = document.getElementById('docModalClose');
+        var lastTrigger = null;
+
+        function openDoc(id, type, title, trigger) {
+        lastTrigger = trigger || null;
+        titleEl.textContent = title || 'Document';
+        loading.classList.remove('hidden');
+
+        frame.onload = function () {
+        if (frame.getAttribute('src') !== 'about:blank') {
+        loading.classList.add('hidden');
+        }
+        };
+        // #toolbar=0 hides the built-in PDF toolbar (download/print buttons) in Chrome/Edge.
+        frame.src = previewUrl + '?id=' + encodeURIComponent(id) +
+        '&type=' + encodeURIComponent(type) +
+        '#toolbar=0&navpanes=0&view=FitH';
+
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('doc-modal-open');
+        closeBtn.focus();
+        }
+
+        function closeDoc() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('doc-modal-open');
+        frame.onload = null;
+        frame.src = 'about:blank';
+        if (lastTrigger) { lastTrigger.focus(); }
+        }
+
+        document.addEventListener('click', function (e) {
+        var viewBtn = e.target.closest('.doc-view-btn');
+        if (viewBtn) {
+        e.preventDefault();
+        openDoc(viewBtn.dataset.id, viewBtn.dataset.type, viewBtn.dataset.title, viewBtn);
+        return;
+        }
+        if (e.target.closest('[data-doc-close]')) {
+        closeDoc();
+        }
+        });
+
+        document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) {
+        closeDoc();
+        }
+        });
+        })();
+    </script>
+
+    <script>
+        (function () {
+        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+        function isoToDisplay(iso) {
+        var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
+        return m ? m[3] + '/' + m[2] + '/' + m[1] : '';
+        }
+
+        function parseDisplay(txt) {
+        var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(txt);
+        if (!m) return null;
+        var d = +m[1], mo = +m[2], y = +m[3];
+        if (y < 1900 || y > 2100 || mo < 1 || mo > 12 || d < 1) return null;
+        var dt = new Date(y, mo - 1, d);
+        if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+        return y + '-' + pad(mo) + '-' + pad(d);
+        }
+
+        var validators = [];
+
+        document.querySelectorAll('[data-date-field]').forEach(function (txt) {
+        var hidden = document.getElementById(txt.dataset.target);
+        var nativeEl = document.getElementById(txt.dataset.native);
+        var err = document.querySelector('[data-date-error="' + txt.id + '"]');
+
+        txt.value = isoToDisplay(hidden.value);
+
+        function setError(msg) { if (err) err.textContent = msg || ''; }
+
+        function sync() {
+        var val = txt.value.trim();
+        if (!val) { hidden.value = ''; setError(''); return true; }
+        var iso = parseDisplay(val);
+        if (iso) { hidden.value = iso; setError(''); return true; }
+        hidden.value = '';
+        setError('Enter a valid date as dd/mm/yyyy');
+        return false;
+        }
+
+        txt.addEventListener('input', function () {
+        var digits = txt.value.replace(/\D/g, '').slice(0, 8);
+        var out = digits;
+        if (digits.length > 4) out = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+        else if (digits.length > 2) out = digits.slice(0, 2) + '/' + digits.slice(2);
+        txt.value = out;
+        if (out.length === 10) { sync(); } else { hidden.value = ''; setError(''); }
+        });
+
+        txt.addEventListener('blur', function () { if (txt.value) sync(); });
+
+        nativeEl.addEventListener('change', function () {
+        if (nativeEl.value) { txt.value = isoToDisplay(nativeEl.value); sync(); }
+        });
+
+        validators.push(sync);
+        });
+
+        document.querySelectorAll('[data-date-pick]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+        var nativeEl = document.getElementById(btn.dataset.datePick);
+        var txt = document.querySelector('[data-native="' + nativeEl.id + '"]');
+        var iso = parseDisplay(txt.value);
+        if (iso) nativeEl.value = iso;
+        if (nativeEl.showPicker) { try { nativeEl.showPicker(); } catch (e) { nativeEl.focus(); } }
+        else { nativeEl.focus(); }
+        });
+        });
+
+        var form = document.querySelector('form[enctype="multipart/form-data"]');
+        if (form) {
+        form.addEventListener('submit', function (e) {
+        var ok = true;
+        validators.forEach(function (check) { if (!check()) ok = false; });
+        if (!ok) {
+        e.preventDefault();
+        var firstErr = document.querySelector('[data-date-error]:not(:empty)');
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        });
+        }
+        })();
+    </script>
 
 </body>
 </html>
