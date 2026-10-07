@@ -284,6 +284,7 @@ namespace Medical_Affiliation.Controllers
             // 🔹 YEAR MASTER
             var yearMaster = await _context.CaMstYearOfStudies
                 .OrderBy(y => y.YearOfStudyId)
+                .Take(3)
                 .ToListAsync();
 
 
