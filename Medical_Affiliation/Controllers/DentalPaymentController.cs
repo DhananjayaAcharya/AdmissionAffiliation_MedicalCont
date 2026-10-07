@@ -37,6 +37,11 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> Index()
         {
 
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var affTypeId = HttpContext.Session.GetString("TypeOfAffiliationId");
 
@@ -634,6 +639,11 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> Index(DentalPaymentSubmitViewModel model)
         {
 
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             // =====================================================
             // VALIDATE AFFILIATION TYPE
             // =====================================================
@@ -906,6 +916,11 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewReceipt(int paymentId)
         {
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             var collegeCode =
                 HttpContext.Session.GetString("CollegeCode");
 
@@ -943,6 +958,11 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetReceiptFile(int paymentId)
         {
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             var collegeCode =
                 HttpContext.Session.GetString("CollegeCode");
 

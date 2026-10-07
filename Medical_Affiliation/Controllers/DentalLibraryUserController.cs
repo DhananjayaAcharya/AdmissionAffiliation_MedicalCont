@@ -14,6 +14,12 @@ public class DentalLibraryUserController : BaseController
     [HttpGet]
     public async Task<IActionResult> Index()
     {
+
+        var sessionCheckresult = await SessionOutAsync();
+
+        if (sessionCheckresult != null)
+            return sessionCheckresult;
+
         var collegeContext = GetCollegeContext();
         if (collegeContext == null)
         {
@@ -53,6 +59,12 @@ public class DentalLibraryUserController : BaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Save(DentalLibraryUserPageViewModel model)
     {
+
+        var sessionCheckresult = await SessionOutAsync();
+
+        if (sessionCheckresult != null)
+            return sessionCheckresult;
+
         var collegeContext = GetCollegeContext();
         if (collegeContext == null)
         {

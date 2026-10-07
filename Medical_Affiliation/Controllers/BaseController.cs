@@ -156,6 +156,32 @@ namespace Medical_Affiliation.Controllers
             return levels;
         }
 
+        protected async Task<IActionResult?> SessionOutAsync()
+        {
+            string? collegeCode =
+                HttpContext.Session.GetString("CollegeCode");
+
+            string? facultyCode =
+                HttpContext.Session.GetString("FacultyCode");
+
+            // Session exists → don't perform logout
+            if (!string.IsNullOrWhiteSpace(collegeCode) &&
+                !string.IsNullOrWhiteSpace(facultyCode))
+            {
+                return null;
+            }
+
+            // Session does not exist → perform logout
+            HttpContext.Session.Clear();
+
+            await HttpContext.SignOutAsync("CollegeAuth");
+
+            return RedirectToAction(
+                "MultiLogin",
+                "MainDashboard");
+        }
+
+
         protected async Task<int?> GetAnnualIntakeAsync()
         {
             var intake = await _context.AcademicIntakes

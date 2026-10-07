@@ -14,6 +14,12 @@ public class DentalLibraryStaffController : BaseController
     [HttpGet]
     public async Task<IActionResult> Index(int? editId = null)
     {
+
+        var sessionCheckresult = await SessionOutAsync();
+
+        if (sessionCheckresult != null)
+            return sessionCheckresult;
+
         var collegeContext = GetCollegeContext();
         if (collegeContext == null)
         {
@@ -48,6 +54,12 @@ public class DentalLibraryStaffController : BaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Save(DentalLibraryStaffPageViewModel model)
     {
+
+        var sessionCheckresult = await SessionOutAsync();
+
+        if (sessionCheckresult != null)
+            return sessionCheckresult;
+
         var collegeContext = GetCollegeContext();
         if (collegeContext == null)
         {

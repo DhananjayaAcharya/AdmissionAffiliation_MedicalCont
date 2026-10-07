@@ -5,14 +5,14 @@ using Medical_Affiliation.DATA;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class DentalFieldPracticeAreaController : Controller
+    public class DentalFieldPracticeAreaController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
 
         public DentalFieldPracticeAreaController(
             ApplicationDbContext context,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment) : base(context)
         {
             _context = context;
             _environment = environment;
@@ -47,17 +47,10 @@ namespace Medical_Affiliation.Controllers
             // Validate session
             // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(collegeCode) ||
-                string.IsNullOrWhiteSpace(facultyCode) ||
-                !typeId.HasValue ||
-                typeId <= 0 ||
-                string.IsNullOrWhiteSpace(courseLevel))
-            {
-                TempData["ErrorMessage"] =
-                    "Session information is missing. Please select the affiliation details again.";
+            var sessionCheckresult = await SessionOutAsync();
 
-                return RedirectToAction("Index", "Home");
-            }
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
 
             // --------------------------------------------------------
@@ -215,17 +208,10 @@ namespace Medical_Affiliation.Controllers
             // Validate session
             // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(collegeCode) ||
-                string.IsNullOrWhiteSpace(facultyCode) ||
-                !typeId.HasValue ||
-                typeId <= 0 ||
-                string.IsNullOrWhiteSpace(courseLevel))
-            {
-                TempData["ErrorMessage"] =
-                    "Session information is missing. Please select the affiliation details again.";
+            var sessionCheckresult = await SessionOutAsync();
 
-                return RedirectToAction(nameof(Index));
-            }
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
 
             // --------------------------------------------------------

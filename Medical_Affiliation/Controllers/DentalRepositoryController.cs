@@ -632,6 +632,12 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> TeachingFacultyDetails()
         {
+
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
 

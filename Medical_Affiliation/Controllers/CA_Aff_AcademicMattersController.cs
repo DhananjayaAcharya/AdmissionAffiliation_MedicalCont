@@ -30,6 +30,11 @@ namespace Medical_Affiliation.Controllers
             int facultyId = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             var raw = HttpContext.Session.GetString("ExistingCourseLevels");
 
             var levels = await GetSortedCourseLevels();
@@ -226,6 +231,11 @@ namespace Medical_Affiliation.Controllers
             int facultyId = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             string courseLevel = "PG";
 
             // 🔹 SUBJECT MASTER (you must have table like this)
@@ -388,6 +398,12 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AcademicMatters(CA_Aff_AcademicMattersViewModel model)
         {
+
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             if (model == null)
                 return RedirectToAction(nameof(AcademicMatters));
 
@@ -651,6 +667,11 @@ namespace Medical_Affiliation.Controllers
             string collegeCode = HttpContext.Session.GetString("CollegeCode");
             int facultyId = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode") ?? "1");
             int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
             string courseLevel = "PG";
             if (model?.Sections == null || !model.Sections.Any())

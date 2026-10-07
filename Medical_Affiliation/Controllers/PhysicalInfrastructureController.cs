@@ -28,6 +28,11 @@ namespace Medical_Affiliation.Controllers
                     ? _userContext.TypeOfAffiliation
                     : Convert.ToInt32(HttpContext.Session.GetString("TypeOfAffiliationId"));
 
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             // =========================================================
             // GET ALL ACADEMIC INTAKES
             // =========================================================
@@ -1025,8 +1030,10 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
-            if (string.IsNullOrEmpty(facultyCode))
-                return RedirectToAction("Login", "Account");
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
             var lab = await _context.MedicalSkillsLaboratories
                                     .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode && x.AffiliationTypeId == AffTypeId);
@@ -1199,8 +1206,10 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = FacultyCode;
             var collegeCode = CollegeCode;
 
-            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
-                return RedirectToAction("Login", "Account");
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
             //if (!ModelState.IsValid)
             //    return View(model);

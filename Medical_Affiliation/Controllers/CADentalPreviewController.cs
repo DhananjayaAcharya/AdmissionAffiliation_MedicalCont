@@ -8,12 +8,12 @@ using System;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class CADentalPreviewController : Controller
+    public class CADentalPreviewController : BaseController
     {
         private readonly ICADentalPreviewService _caDentalPreviewService;
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
-        public CADentalPreviewController(ApplicationDbContext context, ICADentalPreviewService caDentalPreviewService)
+        public CADentalPreviewController(ApplicationDbContext context, ICADentalPreviewService caDentalPreviewService) : base(context)
         {
             _context = context;
             _caDentalPreviewService = caDentalPreviewService;
@@ -263,6 +263,12 @@ namespace Medical_Affiliation.Controllers
             var typeOfAffiliation = HttpContext.Session.GetString("TypeOfAffiliation");
             var affiliationTypeId = HttpContext.Session.GetString("TypeOfAffiliationId");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
+
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
 
             var logoPath = Path.Combine(
                 Directory.GetCurrentDirectory(),

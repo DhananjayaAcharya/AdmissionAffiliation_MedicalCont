@@ -152,7 +152,7 @@
             /* Scrollable Table Container */
             .scrollable-table-container {
                 max-height: 420px;
-                overflow-y: auto;
+                overflow-x: auto;
                 border: 1px solid var(--border);
                 border-radius: 8px;
             }
@@ -195,7 +195,7 @@
 
                 .custom-table th:first-child,
                 .custom-table td:first-child {
-                    min-width: 70px;
+                    min-width: 30px;
                 }
 
                 .custom-table th:last-child,
@@ -224,6 +224,9 @@
                 padding: 9px 13px;
             }
 
+            input[type="file"]{
+                width: 300px;
+            }
                 input:focus, select:focus, textarea:focus {
                     border-color: var(--accent);
                     background: #fff;
@@ -691,65 +694,66 @@
                     </div>
 
                     <div class="section-body">
+                        <div class="scrollable-table-container">
+                            <table class="custom-table">
 
-                        <table class="custom-table">
-
-                            <thead>
-                                <tr>
-                                    <th>Sl. No</th>
-                                    <th>Record</th>
-                                    <th>Upload PDF</th>
-                                    <th>View</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                @for (int i = 0; i < Model.DentalLibraryRecords.Count; i++)
-                                {
+                                <thead>
                                     <tr>
-
-                                        <td>
-                                            @(i + 1)
-                                        </td>
-
-                                        <td>
-                                            @Model.DentalLibraryRecords[i].RecordName
-
-                                            <input type="hidden" asp-for="DentalLibraryRecords[@i].RecordId" />
-                                        </td>
-
-                                        <td>
-
-                                            <input type="file"
-                                                   asp-for="DentalLibraryRecords[@i].UploadFile"
-                                                   class="form-control file-validate"
-                                                   accept=".pdf" />
-
-                                        </td>
-
-                                        <td>
-
-                                            @if (!string.IsNullOrEmpty(Model.DentalLibraryRecords[i].ExistingFileName))
-                                            {
-                                                <a asp-action="ViewDentalLibraryRecord"
-                                                   asp-route-recordId="@Model.DentalLibraryRecords[i].RecordId"
-                                                   target="_blank"
-                                                   class="btn btn-ghost">
-                                                    <i class="bi bi-eye"></i>
-                                                    View
-
-                                                </a>
-                                            }
-
-                                        </td>
-
+                                        <th>Sl. No</th>
+                                        <th>Record</th>
+                                        <th>Upload PDF</th>
+                                        <th>View</th>
                                     </tr>
-                                }
+                                </thead>
 
-                            </tbody>
+                                <tbody>
 
-                        </table>
+                                    @for (int i = 0; i < Model.DentalLibraryRecords.Count; i++)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                @(i + 1)
+                                            </td>
+
+                                            <td>
+                                                @Model.DentalLibraryRecords[i].RecordName
+
+                                                <input type="hidden" asp-for="DentalLibraryRecords[@i].RecordId" />
+                                            </td>
+
+                                            <td>
+
+                                                <input type="file"
+                                                       asp-for="DentalLibraryRecords[@i].UploadFile"
+                                                       class="form-control file-validate"
+                                                       accept=".pdf" />
+
+                                            </td>
+
+                                            <td>
+
+                                                @if (!string.IsNullOrEmpty(Model.DentalLibraryRecords[i].ExistingFileName))
+                                                {
+                                                    <a asp-action="ViewDentalLibraryRecord"
+                                                       asp-route-recordId="@Model.DentalLibraryRecords[i].RecordId"
+                                                       target="_blank"
+                                                       class="btn btn-ghost">
+                                                        <i class="bi bi-eye"></i>
+                                                        View
+
+                                                    </a>
+                                                }
+
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+                        </div>
 
                     </div>
                 </div>

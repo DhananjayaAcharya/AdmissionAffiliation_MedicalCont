@@ -5,11 +5,11 @@ using Medical_Affiliation.DATA;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class AnimalHouseDetailsController : Controller
+    public class AnimalHouseDetailsController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
-        public AnimalHouseDetailsController(ApplicationDbContext context)
+        public AnimalHouseDetailsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -43,17 +43,10 @@ namespace Medical_Affiliation.Controllers
             // Validate Session
             // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(collegeCode) ||
-                string.IsNullOrWhiteSpace(facultyCode) ||
-                !typeId.HasValue ||
-                typeId <= 0 ||
-                string.IsNullOrWhiteSpace(courseLevel))
-            {
-                TempData["ErrorMessage"] =
-                    "Session information is missing. Please select the affiliation details again.";
+            var sessionCheckresult = await SessionOutAsync();
 
-                return RedirectToAction("Index", "Home");
-            }
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
 
             // --------------------------------------------------------
@@ -150,17 +143,10 @@ namespace Medical_Affiliation.Controllers
             // Validate Session
             // --------------------------------------------------------
 
-            if (string.IsNullOrWhiteSpace(collegeCode) ||
-                string.IsNullOrWhiteSpace(facultyCode) ||
-                !typeId.HasValue ||
-                typeId <= 0 ||
-                string.IsNullOrWhiteSpace(courseLevel))
-            {
-                TempData["ErrorMessage"] =
-                    "Session information is missing. Please select the affiliation details again.";
+            var sessionCheckresult = await SessionOutAsync();
 
-                return RedirectToAction(nameof(Index));
-            }
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
 
             // --------------------------------------------------------

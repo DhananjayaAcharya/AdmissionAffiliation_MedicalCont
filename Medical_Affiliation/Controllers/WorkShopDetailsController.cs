@@ -5,11 +5,11 @@ using Medical_Affiliation.DATA;
 
 namespace Medical_Affiliation.Controllers
 {
-    public class WorkShopDetailsController : Controller
+    public class WorkShopDetailsController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
-        public WorkShopDetailsController(ApplicationDbContext context)
+        public WorkShopDetailsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -25,16 +25,10 @@ namespace Medical_Affiliation.Controllers
             var typeId = HttpContext.Session.GetInt32("AffiliationType");
             var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
-            if (string.IsNullOrWhiteSpace(collegeCode) ||
-                string.IsNullOrWhiteSpace(facultyCode) ||
-                !typeId.HasValue ||
-                string.IsNullOrWhiteSpace(courseLevel))
-            {
-                TempData["ErrorMessage"] =
-                    "Session information is missing. Please select the required affiliation details.";
+            var sessionCheckresult = await SessionOutAsync();
 
-                return RedirectToAction("Index", "Home");
-            }
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
             // --------------------------------------------------------
             // Get FacultyId using FacultyCode
@@ -106,17 +100,10 @@ namespace Medical_Affiliation.Controllers
             // --------------------------------------------------------
             // Validate Session
             // --------------------------------------------------------
-            if (string.IsNullOrWhiteSpace(collegeCode) ||
-                string.IsNullOrWhiteSpace(facultyCode) ||
-                !typeId.HasValue ||
-                typeId <= 0 ||
-                string.IsNullOrWhiteSpace(courseLevel))
-            {
-                TempData["ErrorMessage"] =
-                    "Session information is missing. Please select the affiliation details again.";
+            var sessionCheckresult = await SessionOutAsync();
 
-                return RedirectToAction(nameof(Index));
-            }
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
             // --------------------------------------------------------
             // Validate entered data
