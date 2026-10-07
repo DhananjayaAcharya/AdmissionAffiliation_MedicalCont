@@ -6466,11 +6466,12 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> DeleteAllNonTeachingStaff()
         {
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var courseLevel = CourseLevel;
             if (string.IsNullOrWhiteSpace(collegeCode))
                 return Unauthorized(new { message = "Your session has expired. Please sign in again." });
 
             var staffRecords = await _context.NonTeachingStaffDetails
-                .Where(x => x.CollegeCode == collegeCode)
+                .Where(x => x.CollegeCode == collegeCode && x.CourseLevel == courseLevel)
                 .ToListAsync();
 
             if (staffRecords.Count > 0)
