@@ -472,7 +472,14 @@
 
                                         @if (!string.IsNullOrWhiteSpace(item.RelevantReportPath))
                                         {
-                                            <a href="@item.RelevantReportPath"
+                                            <a href="@Url.Action(
+                                                        "ViewReport",
+                                                        "ActionTakenDeficiencyReport",
+                                                         new
+                                                         { 
+                                                            reportId = item.ActionTakenDeficiencyReportId, 
+                                                            collegeCode = Model.CollegeCode 
+                                                         })"
                                                target="_blank"
                                                class="report-link">
 

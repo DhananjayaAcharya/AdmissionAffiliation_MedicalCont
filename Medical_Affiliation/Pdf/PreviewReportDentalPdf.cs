@@ -15,6 +15,7 @@ public class PreviewReportDentalPdf : IDocument
     private readonly string _affiliationTypeId;
     private readonly string _courseLevel;
     private readonly string _facultyCode;
+    private readonly string _facultyName;
 
     // ─── Colour palette ───
     private static readonly string PrimaryColor = "#1B3A5C";   // Dark navy
@@ -374,7 +375,7 @@ public class PreviewReportDentalPdf : IDocument
 
                     // Row 4 – Faculty Code
                     AddStyledLabelValueRow(
-                        table, "Faculty Code", _facultyCode);
+                        table, "Faculty", GetFacultyName(_facultyCode));
 
                     // Row 5 – Institution Name (reiterated for clarity)
                     AddStyledLabelValueRow(
@@ -385,8 +386,8 @@ public class PreviewReportDentalPdf : IDocument
 
     private static string GetFacultyName(string code) => code switch
     {
-        "1" => "Dental",
-        "2" => "Medical",
+        "1" => "Medical",
+        "2" => "Dental",
         "3" => "Nursing",
         "4" => "Pharmacy",
         "5" => "AYUSH",
