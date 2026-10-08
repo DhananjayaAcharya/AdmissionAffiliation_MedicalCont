@@ -909,7 +909,7 @@
                 </li>
 
 
-                @if (facultyCode == "1")
+            @if (facultyCode == "1")
                 {
                     <li class="sidebar-item">
                         <a asp-controller="Home"
@@ -922,6 +922,66 @@
                         </a>
                     </li>
                 }
+            }
+
+           @*  next two blocks of code added for ayurveda PG section ,PG details page -- Added by ram *@
+
+            @{
+                var currentCourseLevel =
+                    HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel");
+
+                var currentTypeOfAffiliation =
+                    HttpContextAccessor.HttpContext?.Session?.GetString("TypeOfAffiliation");
+
+                bool showPgCourseDetails =
+                    (facultyCode == "1" || facultyCode == "2" || facultyCode == "4")
+                    && string.Equals(
+                        currentCourseLevel,
+                        "PG",
+                        StringComparison.OrdinalIgnoreCase
+                    );
+            } 
+
+            @if (showPgCourseDetails)
+            {
+                <li class="sidebar-item">
+
+                    @if (facultyCode == "4")
+                    {
+                        <a asp-controller="AffiliationPgCourse"
+                           asp-action="PgCoursesAyurveda"
+                           asp-route-typeOfAffiliation="@currentTypeOfAffiliation"
+                           asp-route-courseLevel="PG"
+                           class="sidebar-link @(currentController == "AffiliationPgCourse" && currentAction == "PgCoursesAyurveda" ? "active" : "")"
+                           title="PG Course Details">
+
+                            <i class="bi bi-mortarboard"></i>
+
+                            <span class="sidebar-link-label">
+                                PG Course Details
+                            </span>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="AffiliationPgCourse"
+                           asp-action="PgCourses"
+                           asp-route-typeOfAffiliation="@currentTypeOfAffiliation"
+                           asp-route-courseLevel="PG"
+                           class="sidebar-link @(currentController == "AffiliationPgCourse" && currentAction == "PgCourses" ? "active" : "")"
+                           title="PG Course Details">
+
+                            <i class="bi bi-mortarboard"></i>
+
+                            <span class="sidebar-link-label">
+                                PG Course Details
+                            </span>
+
+                        </a>
+                    }
+
+                </li>
             }
 
             @if (facultyCode == "12")
@@ -1200,19 +1260,22 @@
 
                 }
                 levels.forEach(level => {
-                    const normalizedLevel = level.trim().toLowerCase();
-                    const levelItem = document.createElement(normalizedLevel === "ug" ? "a" : "span");
-                    levelItem.className = `affiliation-subitem${normalizedLevel === "ug" ? "" : " readonly"}`;
-                    levelItem.textContent = normalizedLevel.toUpperCase();
+    const normalizedLevel = level.trim().toLowerCase();
 
-                    if (normalizedLevel === "ug") {
-                        levelItem.href = "#";
-                        levelItem.dataset.level = normalizedLevel;
-                        levelItem.addEventListener("click", navigateToLevel);
-                    }
+    // Both UG and PG should be clickable
+    const levelItem = document.createElement("a");
 
-                    subMenu.appendChild(levelItem);
-                });
+    levelItem.className = "affiliation-subitem";
+    levelItem.textContent = normalizedLevel.toUpperCase();
+
+    levelItem.href = "#";
+    levelItem.dataset.level = normalizedLevel;
+
+    // Allow both UG and PG to navigate
+    levelItem.addEventListener("click", navigateToLevel);
+
+    subMenu.appendChild(levelItem);
+});
 
                 panel.appendChild(subMenu);
             }
@@ -1261,34 +1324,68 @@
      /* --------------------------------------------------------------
     Persist level & affiliation‑type‑id via a **normal form POST**
     -------------------------------------------------------------- */
-     function navigateToLevel(e) {
-         e.preventDefault();
-         e.stopPropagation();               // stop bubbling to the parent row
+           function navigateToLevel(e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-         const level      = e.currentTarget.dataset.level;          // "ug" or "pg"
+        const level = e.currentTarget.dataset.level; // "ug" or "pg"
 
-         // ---- 1️⃣ Get the affiliation‑type id from the submenu ----
-         const subMenu = e.currentTarget.closest('.affiliation-submenu');
-         if (!subMenu) {
-             console.error('Unable to find affiliation submenu for the clicked link');
-             return;
-         }
-         const typeId = subMenu.dataset.parentId;                  // e.g. "2"
+        // Find the parent submenu
+        const subMenu = e.currentTarget.closest('.affiliation-submenu');
 
-         // ---- 2️⃣ Resolve the target URL for this affiliation type ----
-         const baseUrl = affiliationBaseUrlMap[typeId];
-         if (!baseUrl) {
-             alert('No URL configured for this affiliation type.');
-             return;
-         }
+        if (!subMenu) {
+            console.error('Unable to find affiliation submenu for the clicked link');
+            return;
+        }
 
-         // ---- 3️⃣ Fill the hidden form fields (level + affiliationTypeId) ----
-         document.getElementById('hiddenLevel').value = level;
-         document.getElementById('hiddenAffiliationId').value = typeId;
+        const typeId = subMenu.dataset.parentId;
 
-         // ---- 4️⃣ Submit the form – a normal browser POST, **no fetch/XHR** ----
-         document.getElementById('setLevelForm').submit();
-     }
+        // =========================================================
+        // AYURVEDA - FACULTY CODE 4
+        // Only PG goes to the Ayurveda-specific PG page.
+        // =========================================================
+        const currentFacultyCode = "@facultyCode";
+
+           if (currentFacultyCode === "4" && level === "pg") {
+
+        const ayurvedaPgUrl =
+            '@Url.Action("PgCoursesAyurveda", "AffiliationPgCourse")';
+
+        const typeOfAffiliation =
+            '@Html.Raw(Context.Session.GetString("TypeOfAffiliation") ?? "")';
+
+        const url =
+            ayurvedaPgUrl
+            + '?typeOfAffiliation='
+            + encodeURIComponent(typeOfAffiliation)
+            + '&courseLevel='
+            + encodeURIComponent(level.toUpperCase());
+
+        window.location.href = url;
+
+        return;
+    }
+
+        // =========================================================
+        // EXISTING LOGIC
+        // Medical, Dental and all other existing cases remain
+        // exactly as they were.
+        // =========================================================
+
+        const baseUrl = affiliationBaseUrlMap[typeId];
+
+        if (!baseUrl) {
+            alert('No URL configured for this affiliation type.');
+            return;
+        }
+
+        // Fill hidden form fields
+        document.getElementById('hiddenLevel').value = level;
+        document.getElementById('hiddenAffiliationId').value = typeId;
+
+        // Existing POST flow
+        document.getElementById('setLevelForm').submit();
+    }
 
 
      // --------------------------------------------------------------

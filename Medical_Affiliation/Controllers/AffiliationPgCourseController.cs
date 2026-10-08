@@ -217,7 +217,7 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
             }
 
-                var result = new List<PgCourseParticularsVm>();
+            var result = new List<PgCourseParticularsVm>();
 
             // 3️⃣ Overlay existing data (if any)
             foreach (var course in allCourses)
@@ -528,6 +528,105 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction(nameof(PgCourses));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveAyurvedaPgCourseParticulars(
+    PgCourseParticularsPostVm model,
+    string? CourseLevel,
+    string? TypeOfAffiliation)
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+
+            foreach (var course in model.Courses)
+            {
+                if (string.IsNullOrWhiteSpace(course.CourseCode))
+                    continue;
+
+                // For Ayurveda, only Date of LOP is applicable here.
+                // Ignore completely empty rows.
+                if (course.DateofLOP == null)
+                    continue;
+
+                var existing = await _context.AffiliationPgSsCourseDetails
+                    .FirstOrDefaultAsync(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.CourseCode == course.CourseCode &&
+                        x.FacultyCode == ayurvedaFacultyCode.ToString());
+
+                if (existing == null)
+                {
+                    var entity = new AffiliationPgSsCourseDetail
+                    {
+                        CollegeCode = collegeCode,
+
+                        CourseCode = course.CourseCode,
+
+                        FacultyCode = ayurvedaFacultyCode.ToString(),
+
+                        TypeOfAffiliation =
+                            _userContext.TypeOfAffiliation.ToString(),
+
+                        CourseName = course.CourseName,
+
+                        CoursePrefix = course.CourseCode,
+
+                        CourseLevel = course.CourseLevel,
+
+                        PresentIntake = course.CollegeIntake,
+
+                        RguhsIntake = course.RguhsIntake,
+
+                        Lopdate = course.DateofLOP,
+
+                        DateofRecognitionByNmc = null,
+
+                        DateofRecognitionByDci = null
+                    };
+
+                    _context.AffiliationPgSsCourseDetails.Add(entity);
+                }
+                else
+                {
+                    existing.Lopdate = course.DateofLOP;
+                    existing.PresentIntake = course.CollegeIntake;
+                    existing.RguhsIntake = course.RguhsIntake;
+                    existing.CourseName = course.CourseName;
+                    existing.CourseLevel = course.CourseLevel;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Make sure the PG context remains available.
+            HttpContext.Session.SetString(
+                "CourseLevel",
+                string.IsNullOrWhiteSpace(CourseLevel)
+                    ? "PG"
+                    : CourseLevel.ToUpperInvariant()
+            );
+
+            if (!string.IsNullOrWhiteSpace(TypeOfAffiliation))
+            {
+                HttpContext.Session.SetString(
+                    "TypeOfAffiliation",
+                    TypeOfAffiliation
+                );
+            }
+
+            TempData["pgparticulars"] =
+                "Ayurveda PG Course Particulars saved successfully.";
+
+            return RedirectToAction(
+                nameof(PgCoursesAyurveda),
+                new
+                {
+                    typeOfAffiliation = TypeOfAffiliation,
+                    courseLevel = "PG"
+                }
+            );
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SavePgCoursesForGOK(AffiliationPgCourseViewModel model)
@@ -844,6 +943,419 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
+
+        //Ayurveda Methods are as shown below 
+
+        //private async Task<List<PgCourseVm>> GetAyurvedaDegreeCourses()
+        //{
+        //    const int ayurvedaFacultyCode = 4;
+
+        //    var collegeCode = _userContext.CollegeCode;
+
+        //    var courses = await (
+        //        from ci in _context.MstMedicalCollegeCourseIntakes
+        //        join mc in _context.MstCourses
+        //            on ci.CourseCode equals mc.CourseCode
+        //        where ci.CollCode == collegeCode
+        //              && ci.Facultycode == ayurvedaFacultyCode
+        //              && ci.UgPg == "PG"  
+        //        select new PgCourseVm
+        //        {
+        //            CourseCode = ci.CourseCode.ToString(),
+        //            CourseName = mc.CourseName,
+        //            CourseLevel = mc.CourseLevel,
+        //            CoursePrefix = mc.CoursePrefix,
+
+        //            // Present Intake
+        //            CollegeIntake = ci.Intake2627,
+
+        //            // Existing/RGUHS intake temporarily same as present intake
+        //            RguhsIntake = ci.Intake2627
+        //        }
+        //    )
+        //    .ToListAsync();
+
+        //    return courses;
+        //}
+
+        private async Task<List<PgCourseVm>> GetAyurvedaDiplomaCourses()
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+
+            var courses = await (
+                from ci in _context.MstMedicalCollegeCourseIntakes
+                join mc in _context.MstCourses
+                    on ci.CourseCode equals mc.CourseCode
+                where ci.CollCode == collegeCode
+                      && ci.Facultycode == ayurvedaFacultyCode
+                      && ci.UgPg == "PG"
+                      && mc.CoursePrefix == "Diploma"
+                select new PgCourseVm
+                {
+                    CourseCode = ci.CourseCode.ToString(),
+                    CourseName = mc.CourseName,
+                    CourseLevel = mc.CourseLevel,
+                    CoursePrefix = mc.CoursePrefix,
+
+                    CollegeIntake = ci.Intake2627,
+                    RguhsIntake = ci.Intake2627
+                }
+            )
+            .ToListAsync();
+
+            return courses;
+        }
+
+        private async Task<List<PgCourseParticularsVm>> GetAyurvedaPgCoursesParticulars()
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+
+            var existingData = await _context.AffiliationPgSsCourseDetails
+        .Where(e =>
+            e.CollegeCode == collegeCode &&
+            e.FacultyCode == ayurvedaFacultyCode.ToString())
+        .ToDictionaryAsync(e => e.CourseCode);
+
+            var courses = await (
+                from ci in _context.MstMedicalCollegeCourseIntakes
+                join mc in _context.MstCourses
+                    on ci.CourseCode equals mc.CourseCode
+                where ci.CollCode == collegeCode
+                      && ci.Facultycode == ayurvedaFacultyCode
+                      && ci.UgPg == "PG"
+                select new PgCourseVm
+                {
+                    CourseCode = ci.CourseCode.ToString(),
+                    CourseName = mc.CourseName,
+                    CourseLevel = mc.CourseLevel,
+                    CoursePrefix = mc.CoursePrefix,
+
+                    CollegeIntake = ci.Intake2627,
+                    RguhsIntake = ci.Intake2627
+                }
+            )
+            .ToListAsync();
+
+            var result = new List<PgCourseParticularsVm>();
+
+            foreach (var course in courses)
+            {
+                if (existingData.TryGetValue(course.CourseCode, out var existing))
+                {
+                    result.Add(new PgCourseParticularsVm
+                    {
+                        CourseCode = course.CourseCode,
+                        CourseName = course.CourseName,
+                        CourseLevel = course.CourseLevel,
+                        CoursePrefix = course.CoursePrefix,
+
+                        CollegeIntake = course.CollegeIntake,
+                        RguhsIntake = course.RguhsIntake,
+
+                        DateofLOP = existing.Lopdate,
+
+                        // Ayurveda does not use NMC/DCI recognition fields
+                        DateofRecognitionByNMC = null,
+                        DateofRecognitionByDCI = null
+                    });
+                }
+                else
+                {
+                    result.Add(new PgCourseParticularsVm
+                    {
+                        CourseCode = course.CourseCode,
+                        CourseName = course.CourseName,
+                        CourseLevel = course.CourseLevel,
+                        CoursePrefix = course.CoursePrefix,
+
+                        CollegeIntake = course.CollegeIntake,
+                        RguhsIntake = course.RguhsIntake
+                    });
+                }
+            }
+
+            return result
+                .OrderByDescending(x => x.DateofLOP.HasValue)
+                .ToList();
+        }
+
+        public async Task<IActionResult> PgCoursesAyurveda(
+     string? typeOfAffiliation,
+     string? courseLevel)
+        {
+            // Keep the selected course level in session
+            if (!string.IsNullOrWhiteSpace(courseLevel))
+            {
+                HttpContext.Session.SetString(
+                    "CourseLevel",
+                    courseLevel.Trim().ToUpperInvariant()
+                );
+            }
+
+            // Keep affiliation type in session
+            if (!string.IsNullOrWhiteSpace(typeOfAffiliation))
+            {
+                HttpContext.Session.SetString(
+                    "TypeOfAffiliation",
+                    typeOfAffiliation
+                );
+            }
+
+            var collegeCode = _userContext.CollegeCode;
+
+            var degreeCourses = await GetAyurvedaDegreeCourses();
+            var diplomaCourses = await GetAyurvedaDiplomaCourses();
+            var pgParticularsList = await GetAyurvedaPgCoursesParticulars();
+
+            var pgParticulars = pgParticularsList
+                .ToDictionary(x => x.CourseCode);
+
+            var allCourses = pgParticularsList
+           .Select(c => new PgCourseParticularsVm
+           {
+               CourseCode = c.CourseCode,
+               CourseName = c.CourseName,
+               CourseLevel = c.CourseLevel,
+               CoursePrefix = c.CoursePrefix,
+               CollegeIntake = c.CollegeIntake,
+               RguhsIntake = c.RguhsIntake,
+               DateofLOP = c.DateofLOP,
+               DateofRecognitionByNMC = null,
+               DateofRecognitionByDCI = null
+           })
+           .ToList();
+
+            // Temporary - these are the existing common methods.
+            // We will replace them with Ayurveda-specific methods below.
+            var gokData = await GetAyurvedaPgCoursesForGOK();
+
+            var rguhsData =
+                await GetAyurvedaPgCoursesWithRguhsPermission();
+
+            var result = new AffiliationPgCourseViewModel
+            {
+                CollegeCode = collegeCode,
+                PgDegreeCourses = degreeCourses,
+                PgDiplomaCourses = diplomaCourses,
+                AllCourses = allCourses,
+                PgCoursesGOK = gokData,
+                TypeOfAffiliation = _userContext.TypeOfAffiliation,
+                PgCoursesRguhs = rguhsData
+            };
+
+            return View(result);
+        }
+
+        private async Task<string?> SaveAyurvedaPgFileAsync(
+    IFormFile? file,
+    string collegeCode,
+    string courseCode,
+    string documentType)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            const long maxSize = 5 * 1024 * 1024;
+
+            var extension = Path.GetExtension(file.FileName)
+                .ToLowerInvariant();
+
+            if (extension != ".pdf")
+                throw new Exception("Only PDF files are allowed.");
+
+            if (file.Length > maxSize)
+                throw new Exception("File size cannot exceed 5 MB.");
+
+            string rootPath;
+
+            if (Directory.Exists(@"D:\"))
+            {
+                rootPath = @"D:\COA";
+            }
+            else if (Directory.Exists(@"E:\"))
+            {
+                rootPath = @"E:\COA";
+            }
+            else
+            {
+                throw new DirectoryNotFoundException(
+                    "Neither D: nor E: drive is available.");
+            }
+
+            string folderPath = Path.Combine(
+                rootPath,
+                "Ayurveda",
+                "PG",
+                "PGCourseDetails",
+                collegeCode,
+                courseCode,
+                documentType
+            );
+
+            Directory.CreateDirectory(folderPath);
+
+            string fileName = $"{Guid.NewGuid()}.pdf";
+
+            string fullPath = Path.Combine(
+                folderPath,
+                fileName
+            );
+
+            await using var stream = new FileStream(
+                fullPath,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.None
+            );
+
+            await file.CopyToAsync(stream);
+
+            return fullPath;
+        }
+
+
+        private async Task<List<PgCoursesGokVM>> GetAyurvedaPgCoursesForGOK()
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+
+            var query =
+                from ci in _context.MstMedicalCollegeCourseIntakes
+
+                join cm in _context.MstCourses
+                    on ci.CourseCode equals cm.CourseCode
+
+                where ci.CollCode == collegeCode
+                      && ci.Facultycode == ayurvedaFacultyCode
+                      && ci.UgPg == "PG"
+
+                join gok in _context.AffiliationPgSsCourseDetailsForGoks
+                    .Where(e => e.CollegeCode == collegeCode)
+                    on ci.CourseCode.ToString() equals gok.CourseCode into gokGroup
+
+                from gok in gokGroup.DefaultIfEmpty()
+
+                select new PgCoursesGokVM
+                {
+                    CollegeCode = collegeCode,
+
+                    CourseCode = ci.CourseCode.ToString(),
+
+                    CourseName = cm.CourseName,
+
+                    CourseLevel = cm.CourseLevel,
+
+                    CoursePrefix = cm.CoursePrefix,
+
+                    CollegeIntake = gok != null
+                        ? gok.PresentIntake
+                        : ci.Intake2627,
+
+                    RguhsIntake = gok != null
+                        ? gok.PresentIntake
+                        : ci.Intake2627,
+
+                    HasGOKDocument =
+                        gok != null &&
+                        gok.DocumentofGokpath != null &&
+                        gok.DocumentofGokpath.Length > 0,
+
+                    AcademicYear = gok != null
+                        ? gok.AcademicYear
+                        : null,
+
+                    DateofGOK = gok != null
+                        ? gok.Gokdate
+                        : null
+                };
+
+            return await query.ToListAsync();
+        }
+
+        private async Task<List<PgCoursesWithRGUHSPermission>>
+        GetAyurvedaPgCoursesWithRguhsPermission()
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+
+            var query =
+                from ci in _context.MstMedicalCollegeCourseIntakes
+
+                join mst in _context.MstCourses
+                    on ci.CourseCode equals mst.CourseCode
+
+                where ci.CollCode == collegeCode
+                      && ci.Facultycode == ayurvedaFacultyCode
+                      && ci.UgPg == "PG"
+
+                join rguhs in _context.AffiliationPgSsCourseDetailsRguhs
+                    .Where(e => e.CollegeCode == collegeCode)
+                    on ci.CourseCode.ToString() equals rguhs.CourseCode
+                    into rguhsGroup
+
+                from rguhs in rguhsGroup.DefaultIfEmpty()
+
+                select new PgCoursesWithRGUHSPermission
+                {
+                    CollegeCode = collegeCode,
+
+                    CourseCode = ci.CourseCode.ToString(),
+
+                    CourseName = mst.CourseName,
+
+                    CourseLevel = mst.CourseLevel,
+
+                    CoursePrefix = mst.CoursePrefix,
+
+                    RguhsIntake = rguhs != null
+                        ? rguhs.RguhsIntake
+                        : ci.Intake2627,
+
+                    HasRguhsDocument =
+                        rguhs != null &&
+                        rguhs.RguhssupportingDocumentPath != null &&
+                        rguhs.RguhssupportingDocumentPath.Length > 0
+                };
+
+            return await query.ToListAsync();
+        }
+
+        private async Task<List<PgCourseVm>> GetAyurvedaDegreeCourses()
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+
+            var courses = await (
+                from ci in _context.MstMedicalCollegeCourseIntakes
+                join mc in _context.MstCourses
+                    on ci.CourseCode equals mc.CourseCode
+                where ci.CollCode == collegeCode
+                      && ci.Facultycode == ayurvedaFacultyCode
+                      && ci.UgPg == "PG"
+                      && mc.CoursePrefix != "Diploma"
+                select new PgCourseVm
+                {
+                    CourseCode = ci.CourseCode.ToString(),
+                    CourseName = mc.CourseName,
+                    CourseLevel = mc.CourseLevel,
+                    CoursePrefix = mc.CoursePrefix,
+                    CollegeIntake = ci.Intake2627,
+                    RguhsIntake = ci.Intake2627
+                }
+            )
+            .ToListAsync();
+
+            return courses;
+        }
+
+
 
     }
 }
