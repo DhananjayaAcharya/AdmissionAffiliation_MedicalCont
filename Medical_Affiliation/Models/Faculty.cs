@@ -55,6 +55,8 @@ public partial class Faculty
 
     public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 
+    public virtual ICollection<FinalDentalSubmission> FinalDentalSubmissions { get; set; } = new List<FinalDentalSubmission>();
+
     public virtual ICollection<HealthCenterChp> HealthCenterChps { get; set; } = new List<HealthCenterChp>();
 
     public virtual ICollection<HospitalDocumentDetail> HospitalDocumentDetails { get; set; } = new List<HospitalDocumentDetail>();

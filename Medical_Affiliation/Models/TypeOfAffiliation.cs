@@ -35,6 +35,8 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<DepartmentWiseResearchProject> DepartmentWiseResearchProjects { get; set; } = new List<DepartmentWiseResearchProject>();
 
+    public virtual ICollection<FinalDentalSubmission> FinalDentalSubmissions { get; set; } = new List<FinalDentalSubmission>();
+
     public virtual ICollection<HospitalDetailsForAffiliation> HospitalDetailsForAffiliations { get; set; } = new List<HospitalDetailsForAffiliation>();
 
     public virtual ICollection<IndoorBedsOccupancy> IndoorBedsOccupancies { get; set; } = new List<IndoorBedsOccupancy>();

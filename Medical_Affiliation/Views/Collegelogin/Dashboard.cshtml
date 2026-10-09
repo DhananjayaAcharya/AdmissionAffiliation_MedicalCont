@@ -1651,14 +1651,17 @@
                         <span class="panel-count">5 actions</span>
                     </div>
                     <div class="action-list">
-                        <a href="@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")" class="action-item">
+                        @if(facultyCode == "1")
+                        {
+                            <a href="@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")" class="action-item">
                             <div class="action-ico ai-navy"><i class="bi bi-journal-check"></i></div>
                             <div class="action-text">
                                 <div class="action-name">Course Intake Form</div>
                                 <div class="action-desc">Submit or update annual intake requirements</div>
                             </div>
                             <i class="bi bi-chevron-right action-arr"></i>
-                        </a>
+                            </a>
+                        }
                         <a href="@Url.Action("Dashboard", "Collegelogin")" class="action-item">
                             <div class="action-ico ai-gold"><i class="bi bi-building-check"></i></div>
                             <div class="action-text">

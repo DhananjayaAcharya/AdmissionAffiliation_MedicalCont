@@ -436,6 +436,59 @@
                 }
             }
     </style>
+    <style>
+        /* Right-side scroll arrows */
+        .ca-scroll-controls {
+            position: fixed;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1040;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            justify-content: space-between;
+            height: 20vh;
+        }
+
+        .ca-scroll-btn {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: #fff;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .ca-scroll-btn:hover:not(:disabled) {
+            transform: scale(1.08);
+        }
+
+        .ca-scroll-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        @@media (max-width: 768px) {
+            .ca-scroll-controls {
+                right: 7px;
+                gap: 8px;
+            }
+
+            .ca-scroll-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 17px;
+            }
+        }
+    </style>
 
     <link rel="stylesheet" href="~/css/common-form.css" />
 </head>
@@ -478,11 +531,117 @@
             <main class="ca-body">
                 @RenderBody()
             </main>
+
+            <!-- Preview Scroll Controls -->
+            @if(isDental){
+
+                <div class="ca-scroll-controls" id="caScrollControls">
+                    <button type="button"
+                            id="caScrollUp"
+                            class="ca-scroll-btn"
+                            title="Scroll up"
+                            aria-label="Scroll up"
+                            disabled>
+                        <i class="bi bi-chevron-up"></i>
+                    </button>
+
+                    <button type="button"
+                            id="caScrollDown"
+                            class="ca-scroll-btn"
+                            title="Scroll down"
+                            aria-label="Scroll down">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+            }
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    @if(isDental){
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const upButton = document.getElementById("caScrollUp");
+                const downButton = document.getElementById("caScrollDown");
+
+                if (!upButton || !downButton) {
+                    console.warn("CA scroll buttons not found.");
+                    return;
+                }
+
+                // Use the document's actual scrolling element.
+                const scrollElement = document.scrollingElement || document.documentElement;
+
+                function updateScrollButtons() {
+                    const currentScroll = scrollElement.scrollTop;
+                    const maxScroll =
+                        scrollElement.scrollHeight - scrollElement.clientHeight;
+
+                    upButton.disabled = currentScroll <= 3;
+                    downButton.disabled = currentScroll >= maxScroll - 3;
+
+                    upButton.classList.toggle(
+                        "is-disabled",
+                        upButton.disabled
+                    );
+
+                    downButton.classList.toggle(
+                        "is-disabled",
+                        downButton.disabled
+                    );
+                }
+
+                upButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+
+                    const header = document.getElementById("affiliation-header-wrapper");
+
+                    if (header) {
+                        header.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+                    }
+                });
+
+                downButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+
+                    const submitSection = document.getElementById("submitSection");
+
+                    if (submitSection) {
+                        submitSection.scrollIntoView({
+                            behavior: "smooth",
+                            block: "end"
+                        });
+                    } else {
+                        // Fallback if the submit section isn't found
+                        scrollElement.scrollBy({
+                            top: 400,
+                            behavior: "smooth"
+                        });
+                    }
+                });
+
+                // Update button states while scrolling or resizing.
+                window.addEventListener("scroll", updateScrollButtons, {
+                    passive: true
+                });
+
+                window.addEventListener("resize", updateScrollButtons);
+
+                // Recalculate after the page content finishes loading.
+                window.addEventListener("load", updateScrollButtons);
+
+                updateScrollButtons();
+            });
+
+        </script>
+    }
+
 </body>
 </html>

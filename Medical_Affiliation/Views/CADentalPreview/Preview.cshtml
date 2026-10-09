@@ -5,6 +5,11 @@
     var FacultyCode = Context.Session.GetString("FacultyCode");
 
     var courseLevel = Context.Session.GetString("CourseLevel");
+
+    var submittedApplicationNumber =
+        TempData["SubmittedApplicationNumber"] as string;
+
+    var submissionError = TempData["Error"] as string;
 }
 
 <style>
@@ -28,6 +33,9 @@
         box-shadow: 0 6px 30px rgba(14, 165, 233, 0.2);
         position: relative;
         overflow: hidden;
+        width: 100%;
+        min-width: 100%;
+        box-sizing: border-box;
     }
 
         .affiliation-header-wrapper::before {
@@ -55,22 +63,34 @@
     .affiliation-header-content {
         position: relative;
         z-index: 1;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .affiliation-badge {
         background: rgba(255, 255, 255, 0.25);
         color: white;
-        padding: 0.3rem 0.6rem;
-        border-radius: 14px;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
         font-weight: 600;
-        font-size: 0.75rem;
+        font-size: 0.90rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: .8px;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
         backdrop-filter: blur(10px);
         margin-bottom: 1.5rem;
+    }
+
+    .affiliation-badge a{
+        color: white;
     }
 
     .affiliation-title {
@@ -332,7 +352,7 @@
 
     @@media (max-width: 1280px) {
         .affiliation-header-wrapper {
-            padding: 0.85rem 1rem;
+            padding: 1.25rem 1.5rem;
         }
 
         .affiliation-title {
@@ -460,6 +480,72 @@
             padding: 0.35rem 0.5rem;
         }
     }
+
+    .submission-caution {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 22px;
+    padding: 16px 18px;
+    background: #fff8e6;
+    border: 1px solid #f0d58a;
+    border-left: 5px solid #d99a00;
+    border-radius: 8px;
+    color: #664d03;
+}
+
+.submission-caution > i {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 22px;
+    color: #c58b00;
+}
+
+.submission-caution-content {
+    flex: 1;
+}
+
+.submission-caution-content > strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.submission-caution-content p {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #715c20;
+}
+
+.submission-caution-content p strong {
+    font-weight: 700;
+}
+
+.affiliation-header-data{
+    display: flex;
+    align-items: center;
+}
+
+@@media (max-width: 576px) {
+    .submission-caution {
+        gap: 9px;
+        padding: 12px;
+    }
+
+    .submission-caution > i {
+        font-size: 19px;
+    }
+
+    .submission-caution-content > strong {
+        font-size: 14px;
+    }
+
+    .submission-caution-content p {
+        font-size: 12.5px;
+    }
+}
 </style>
 
 <div class="affiliation-page-container">
@@ -468,34 +554,54 @@
         <!-- ========================= -->
         <!-- PAGE HEADER -->
         <!-- ========================= -->
-        <div class="affiliation-header-wrapper">
+        <div class="affiliation-header-wrapper" id="affiliation-header-wrapper">
             <div class="affiliation-header-content">
-                <span class="affiliation-badge">
-                    <i class="bi bi-clipboard-check"></i>
-                    <a href="@Url.Action("TestPdf", "CADentalPreview")" target="_blank">
+                
+                <div class="affiliation-header-left">
+                    <h1 class="affiliation-title">Details Preview and Final Submission</h1>
 
-                        Preview Mode
-                    </a>
-                </span>
-                <h1 class="affiliation-title">Details Preview</h1>
-
-                <div class="affiliation-meta">
-                    <div class="meta-item">
-                        <div class="meta-label">
-                            <i class="bi bi-building"></i>
-                            College
+                    <div class="affiliation-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">
+                                <i class="bi bi-building"></i>
+                                College
+                            </div>
+                            <div class="meta-value">@Model.CollegeName</div>
                         </div>
-                        <div class="meta-value">@Model.CollegeName</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">
-                            <i class="bi bi-mortarboard"></i>
-                            Faculty
+                        <div class="meta-item">
+                            <div class="meta-label">
+                                <i class="bi bi-mortarboard"></i>
+                                Faculty
+                            </div>
+                            <div class="meta-value">@Model.FacultyName</div>
                         </div>
-                        <div class="meta-value">@Model.FacultyName</div>
                     </div>
                 </div>
+
+                <div class="affiliation-header-pdf">
+                    <span class="affiliation-badge">
+                        <i class="bi bi-clipboard-check"></i>
+                        <a href="@Url.Action("TestPdf", "CADentalPreview")" target="_blank">
+
+                            Preview Mode
+                        </a>
+                    </span>
+                </div>
+
             </div>
+                <div class="submission-caution">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+
+                    <div class="submission-caution-content">
+                        <strong>Important: Review Before Final Submission</strong>
+                        <p>
+                            Please carefully review and verify all application details before
+                            proceeding with the final submission. Once submitted, an
+                            <strong>Application Number</strong> will be generated.
+                            Please note down and keep this number safely for future reference.
+                        </p>
+                    </div>
+                </div>
         </div>
 
         <!-- ========================= -->
@@ -1207,6 +1313,14 @@
                 </div>
             }
 
+
+
+            @if (Model.FinalSubmissionVM != null)
+            {
+                <div id="submitSection">
+                    @await Html.PartialAsync("_FinalSubmission",Model.FinalSubmissionVM)
+                </div>
+            }
             
             <!-- Section Separator -->
             @* @if (Model.FinanceVm != null && Model.AdminTeachAndHostelVM != null )
@@ -1222,7 +1336,7 @@
             
         </div>
 
-        <div class="d-flex justify-content-start align-items-center">
+        <div class="d-flex justify-content-start align-items-center" style="padding-left: 0.2rem;">
 
             <!-- 🔙 PREVIOUS -->
             <a href="@Url.Action("Payment", "AffiliationPayment")"
@@ -1235,7 +1349,7 @@
 
     
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
@@ -1524,3 +1638,99 @@
 
     });
 </script>
+
+@if (!string.IsNullOrWhiteSpace(submittedApplicationNumber))
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const applicationNumber = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(submittedApplicationNumber));
+
+            Swal.fire({
+                icon: "success",
+                title: "Application Submitted Successfully!",
+                html: `
+                    <p>
+                        The Dental Affiliation application for
+                        <strong>@Model.CollegeName</strong>,
+                        <strong>@Model.FinalSubmissionVM.CourseLevel</strong> course,
+                        under <strong>@Model.FinalSubmissionVM.AffiliationTypeDescription</strong>,
+                        has been submitted successfully.
+                    </p>
+
+                    <div style="
+                        padding: 12px;
+                        margin: 12px 0;
+                        background: #eef9f1;
+                        border: 1px dashed #198754;
+                        border-radius: 8px;">
+                        <small style="color: #426b50; font-weight: 700;">
+                            APPLICATION NUMBER
+                        </small>
+                        <div style="
+                            margin-top: 5px;
+                            font-size: 21px;
+                            font-weight: 800;
+                            color: #146c43;
+                            overflow-wrap: anywhere;">
+                            ${applicationNumber}
+                        </div>
+                    </div>
+
+                    <p style="margin: 0; font-size: 13px; color: #805000;">
+                        <strong>Important:</strong> Save this number for future reference.
+                        Your application is now frozen for the college.
+                    </p>
+                `,
+                showCancelButton: true,
+                confirmButtonText: "Noted",
+                cancelButtonText: "Copy Number",
+                confirmButtonColor: "#198754",
+                cancelButtonColor: "#742d35",
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then(async result => {
+                if (result.dismiss === Swal.DismissReason.cancel) {
+                    try {
+                        await navigator.clipboard.writeText(applicationNumber);
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "Number Copied!",
+                            text: applicationNumber,
+                            confirmButtonColor: "#198754"
+                        });
+                    } catch {
+                        Swal.fire({
+                            title: "Copy Application Number",
+                            input: "text",
+                            inputValue: applicationNumber,
+                            inputAttributes: { readonly: true },
+                            confirmButtonText: "Close",
+                            confirmButtonColor: "#742d35"
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+@if (!string.IsNullOrWhiteSpace(submissionError))
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const errorMessage = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(
+                    submissionError));
+
+            Swal.fire({
+                icon: "error",
+                title: "Submission Failed",
+                text: errorMessage,
+                confirmButtonText: "OK",
+                confirmButtonColor: "#742d35"
+            });
+        });
+    </script>
+}

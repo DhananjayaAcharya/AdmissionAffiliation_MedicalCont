@@ -76,6 +76,10 @@ namespace Medical_Affiliation.Models
 
         public List<ActionTakenDeficiencyReportPreviewVM> ActionTakenDeficiencyReports { get; set; } = new();
 
+
+        public DentalFinalSubmissionViewModel? FinalSubmissionVM { get; set; }
+
+
         //public
 
     }
@@ -2048,6 +2052,45 @@ namespace Medical_Affiliation.Models
 
         public InstitutionViewModel InstitutionDetails { get; set; }
     }
+
+    
+    public class DentalFinalSubmissionViewModel
+    {
+        public string CollegeCode { get; set; } = string.Empty;
+        public string CollegeName { get; set; } = string.Empty;
+        public string PrincipalName { get; set; } = string.Empty;
+
+        public int FacultyCode { get; set; } = 2;
+        public int AffiliationTypeId { get; set; }
+
+        public string AffiliationTypeDescription { get; set; }
+
+        public string CourseLevel { get; set; } = string.Empty;
+        public string AcademicYear { get; set; } = string.Empty;
+
+        [Range(typeof(bool), "true", "true",
+            ErrorMessage = "Please provide principal consent before submitting.")]
+        public bool PrincipalConsent { get; set; }
+
+        public string? ApplicationNumber { get; set; }
+
+        public bool IsSubmitted { get; set; }
+
+        // Record Status
+        public bool IsActive { get; set; } = true;
+
+        // Audit Details
+        public DateTime CreatedDate { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
+
+        public DateTime? SubmittedDate { get; set; }
+
+        public string? CreatedBy { get; set; }
+
+        public string? ModifiedBy { get; set; }
+    }
+
 
     //public class ContinuationTrustMemberListDisplayViewModel
     //{

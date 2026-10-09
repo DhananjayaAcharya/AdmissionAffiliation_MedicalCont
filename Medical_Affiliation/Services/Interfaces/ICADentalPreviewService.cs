@@ -5,6 +5,8 @@ namespace Medical_Affiliation.Services.Interfaces
     public interface ICADentalPreviewService
     {
         Task<CADentalpreviewViewModel> GetDentalPreviewAsync();
+
+        Task<string> FinalSubmitAsync(DentalFinalSubmissionViewModel model);
     }
 
 }

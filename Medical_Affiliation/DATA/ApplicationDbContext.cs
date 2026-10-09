@@ -332,6 +332,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<FellowShipMedical> FellowShipMedicals { get; set; }
 
+    public virtual DbSet<FinalDentalSubmission> FinalDentalSubmissions { get; set; }
+
     public virtual DbSet<FreshOrIncreaseMaster> FreshOrIncreaseMasters { get; set; }
 
     public virtual DbSet<GeoPhotoCategoryMaster> GeoPhotoCategoryMasters { get; set; }
@@ -4761,6 +4763,51 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(250)
                 .HasColumnName("UG_UniversityCollegeName");
             entity.Property(e => e.UgYearOfPassing).HasColumnName("UG_YearOfPassing");
+        });
+
+        modelBuilder.Entity<FinalDentalSubmission>(entity =>
+        {
+            entity.ToTable("FinalDentalSubmission");
+
+            entity.HasIndex(e => e.ApplicationNumber, "IX_FinalDentalSubmission_ApplicationNumber");
+
+            entity.HasIndex(e => new { e.FacultyCode, e.CourseLevel, e.AcademicYear }, "IX_FinalDentalSubmission_Faculty_Course_Year");
+
+            entity.HasIndex(e => new { e.CollegeCode, e.FacultyCode, e.CourseLevel, e.AffiliationTypeId, e.AcademicYear }, "UX_FinalDentalSubmission_Submission").IsUnique();
+
+            entity.Property(e => e.AcademicYear)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.ApplicationNumber)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CollegeCode).HasMaxLength(100);
+            entity.Property(e => e.CourseLevel)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.SubmittedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.FinalDentalSubmissions)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FinalDentalSubmission_AffiliationType");
+
+            entity.HasOne(d => d.CollegeCodeNavigation).WithMany(p => p.FinalDentalSubmissions)
+                .HasForeignKey(d => d.CollegeCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FinalDentalSubmission_College");
+
+            entity.HasOne(d => d.FacultyCodeNavigation).WithMany(p => p.FinalDentalSubmissions)
+                .HasForeignKey(d => d.FacultyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FinalDentalSubmission_Faculty");
         });
 
         modelBuilder.Entity<FreshOrIncreaseMaster>(entity =>

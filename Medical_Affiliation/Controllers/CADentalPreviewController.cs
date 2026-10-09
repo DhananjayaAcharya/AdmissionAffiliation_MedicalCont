@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.DATA;
+using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Faculty;
 using Medical_Affiliation.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ namespace Medical_Affiliation.Controllers
             _context = context;
             _caDentalPreviewService = caDentalPreviewService;
         }
-        public async Task<IActionResult> Preview()
+        public async Task<IActionResult> Preview(string? typeOfAffiliation)
         {
 
             var model = await _caDentalPreviewService.GetDentalPreviewAsync();
@@ -291,6 +292,54 @@ namespace Medical_Affiliation.Controllers
             return File(bytes, "application/pdf");
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FinalSubmit( DentalFinalSubmissionViewModel model)
+        {
+            var typeOfAffiliation = HttpContext.Session.GetString("TypeOfAffiliation");
+
+            if (!model.PrincipalConsent)
+            {
+                TempData["Error"] =
+                    "Please provide principal consent before submitting.";
+
+                return RedirectToAction(
+                    nameof(Preview),
+                    new { typeOfAffiliation });
+            }
+
+            try
+            {
+                string applicationNumber =
+                    await _caDentalPreviewService.FinalSubmitAsync(model);
+
+                // This value is read by the partial after redirect.
+                TempData["SubmittedApplicationNumber"] = applicationNumber;
+
+                return RedirectToAction(
+                    nameof(Preview),
+                    new { typeOfAffiliation });
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+
+                return RedirectToAction(
+                    nameof(Preview),
+                    new { typeOfAffiliation });
+            }
+            catch (DbUpdateException)
+            {
+                TempData["Error"] =
+                    "A database error occurred. Please reload the preview " +
+                    "and check whether the application was submitted.";
+
+                return RedirectToAction(
+                    nameof(Preview),
+                    new { typeOfAffiliation });
+            }
+        }
 
     }
 }
