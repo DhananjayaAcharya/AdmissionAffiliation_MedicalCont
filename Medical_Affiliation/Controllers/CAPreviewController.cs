@@ -67,6 +67,7 @@ namespace Medical_Affiliation.Controllers
             await ApplySkillsLabAsync(model);          // Section 11 data from Medical_SkillsLaboratory
             await ApplySmallGroupTeachingAsync(model); // Building Details data from SmallGroupTeachings
             await ApplyAnnualMbbsIntakeAsync(model);   // AnnualMbbsIntake from Intake_26_27 (UG only)
+            await ApplyDesignationIntakeAsync(model);  // Designation & Intake: Available + Seat Slab
 
             var reuploadPath = await FindSealedSignedReuploadPathAsync(
                 model.FacultyCode ?? CurrentFacultyCode,
@@ -133,6 +134,7 @@ namespace Medical_Affiliation.Controllers
             await ApplySkillsLabAsync(model);
             await ApplySmallGroupTeachingAsync(model);
             await ApplyAnnualMbbsIntakeAsync(model);
+            await ApplyDesignationIntakeAsync(model);
             return GeneratePreviewPdf(model);
         }
 
@@ -358,6 +360,7 @@ namespace Medical_Affiliation.Controllers
                 await ApplySkillsLabAsync(submittedModel);
                 await ApplySmallGroupTeachingAsync(submittedModel);
                 await ApplyAnnualMbbsIntakeAsync(submittedModel);
+                await ApplyDesignationIntakeAsync(submittedModel);
                 return GeneratePreviewPdf(submittedModel);
             }
 
@@ -376,6 +379,7 @@ namespace Medical_Affiliation.Controllers
             await ApplySkillsLabAsync(model);
             await ApplySmallGroupTeachingAsync(model);
             await ApplyAnnualMbbsIntakeAsync(model);
+            await ApplyDesignationIntakeAsync(model);
             return GeneratePreviewPdf(model);
         }
 
@@ -403,6 +407,7 @@ namespace Medical_Affiliation.Controllers
             await ApplySkillsLabAsync(model);
             await ApplySmallGroupTeachingAsync(model);
             await ApplyAnnualMbbsIntakeAsync(model);
+            await ApplyDesignationIntakeAsync(model);
             return GeneratePreviewPdf(model);
         }
 
@@ -1077,6 +1082,64 @@ namespace Medical_Affiliation.Controllers
             if (model.PhysicalFacilities.SkillsLab != null)
                 model.PhysicalFacilities.SkillsLab.AnnualMbbsIntake = intake;
         }
+
+        // ------------------------------------------------------------------
+        // Designation & Intake Details (PDF)
+        //   Available  -> count of rows in dbo.UG_Faculty_Details, grouped by
+        //                 DepartmentCode + DesignationCode, for this college + faculty.
+        //   Seat Slab  -> rows of dbo.Mst_MedicalCollegeCourseIntake for this
+        //                 college code (coll_code) + course level (ug_pg).
+        //
+        // REQUIRED: add these two properties to CApreviewViewModel, then have
+        // PreviewReportPdf read them in the "Designation & Intake Details" table:
+        //     public List<FacultyAvailableRow> AvailableFaculty { get; set; } = new();
+        //     public List<SeatSlabRow> SeatSlabs { get; set; } = new();
+        // ------------------------------------------------------------------
+        private async Task ApplyDesignationIntakeAsync(Medical_Affiliation.Models.CApreviewViewModel model)
+        {
+            if (model == null)
+                return;
+
+            var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
+            var facultyCode = (model.FacultyCode ?? CurrentFacultyCode)?.Trim();
+            var courseLevel = (!string.IsNullOrWhiteSpace(CurrentCourseLevel)
+                    ? CurrentCourseLevel
+                    : model.ApplyingCourseLevel ?? string.Empty)
+                .Trim().ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return;
+
+            // ---- Available: faculty actually present in UG_Faculty_Details ----
+            if (!string.IsNullOrWhiteSpace(facultyCode))
+            {
+                model.AvailableFaculty = await _context.Database.SqlQuery<FacultyAvailableRow>($@"
+                    SELECT LTRIM(RTRIM(CAST(DepartmentCode  AS varchar(50)))) AS DepartmentCode,
+                           LTRIM(RTRIM(CAST(DesignationCode AS varchar(50)))) AS DesignationCode,
+                           COUNT(*) AS Available
+                    FROM dbo.UG_Faculty_Details
+                    WHERE LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = {collegeCode}
+                      AND LTRIM(RTRIM(CAST(FacultyCode AS varchar(20)))) = {facultyCode}
+                    GROUP BY LTRIM(RTRIM(CAST(DepartmentCode  AS varchar(50)))),
+                             LTRIM(RTRIM(CAST(DesignationCode AS varchar(50))))").ToListAsync();
+            }
+
+            // ---- Seat Slab: intake rows for this college + course level ----
+            if (!string.IsNullOrWhiteSpace(courseLevel))
+            {
+                model.SeatSlabs = await _context.Database.SqlQuery<SeatSlabRow>($@"
+                    SELECT course                                  AS Course,
+                           CAST(CourseCode AS varchar(50))         AS CourseCode,
+                           UPPER(LTRIM(RTRIM(ug_pg)))              AS CourseLevel,
+                           TRY_CAST(Intake_26_27 AS int)           AS Intake_26_27,
+                           TRY_CAST(Increased_Intake AS int)       AS Increased_Intake
+                    FROM dbo.Mst_MedicalCollegeCourseIntake
+                    WHERE LTRIM(RTRIM(coll_code)) = {collegeCode}
+                      AND UPPER(LTRIM(RTRIM(ug_pg))) = {courseLevel}
+                    ORDER BY SLNO").ToListAsync();
+            }
+        }
+
         private static string NormalizeFileNamePart(string? value, string fallback)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -1163,5 +1226,26 @@ namespace Medical_Affiliation.Models
         public string? CourseLevel { get; set; }
         public int? AnnualIntake { get; set; }
         public DateTime? CreatedOn { get; set; }
+    }
+
+    // ------------------------------------------------------------------
+    // Designation & Intake Details (PDF) row DTOs.
+    // Available: UG_Faculty_Details grouped by department + designation.
+    // Seat Slab: Mst_MedicalCollegeCourseIntake rows by college + course level.
+    // ------------------------------------------------------------------
+    public class FacultyAvailableRow
+    {
+        public string? DepartmentCode { get; set; }
+        public string? DesignationCode { get; set; }
+        public int Available { get; set; }
+    }
+
+    public class SeatSlabRow
+    {
+        public string? Course { get; set; }
+        public string? CourseCode { get; set; }
+        public string? CourseLevel { get; set; }
+        public int? Intake_26_27 { get; set; }
+        public int? Increased_Intake { get; set; }
     }
 }

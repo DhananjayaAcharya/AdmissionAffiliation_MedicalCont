@@ -1102,9 +1102,9 @@
                                 <i class="bi bi-file-earmark-pdf-fill"></i> View / Download Final PDF
                             </a>
                         }
-                        else
+                        else if (Model.IsApplicationComplete && Model.CompletionPercentage >= 100)
                         {
-                            <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal" disabled="@(!Model.IsApplicationComplete)" title="@(Model.IsApplicationComplete ? "Submit application" : $"Complete the application to 100% ({Model.CompletionPercentage}% complete)")">
+                            <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal" title="Submit application">
                                 <i class="bi bi-send-check-fill"></i>
                                 Submit Application
                             </button>

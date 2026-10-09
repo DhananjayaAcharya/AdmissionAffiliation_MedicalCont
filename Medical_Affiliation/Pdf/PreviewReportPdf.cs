@@ -2745,12 +2745,27 @@ public class PreviewReportPdf : IDocument
         return System.IO.File.Exists(fullPath) ? fullPath : null;
     }
 
+    // (starts at: private void AddCollegeDesignationSection(ColumnDescriptor col))
+    // with everything in this file (the method + the 3 small helpers below it).
+    //
+    // Available -> _model.AvailableFaculty  (UG_Faculty_Details, counted per department + designation)
+    // Seat Slab -> _model.SeatSlabs         (Mst_MedicalCollegeCourseIntake, by college code + course level)
+    // ------------------------------------------------------------------
     private void AddCollegeDesignationSection(ColumnDescriptor col)
     {
         var groups = _model.FacultyDesigNonTeachDisplayVM?.CollegeDesignationDisplayVM;
 
         if (groups == null || !groups.Any())
             return;
+
+        // One seat slab value for the whole table: UG prefers the MBBS row,
+        // otherwise the first intake row for this college + course level.
+        var slabRows = _model.SeatSlabs ?? new List<SeatSlabRow>();
+        var slabRow = slabRows.FirstOrDefault(r => string.Equals(r.Course?.Trim(), "MBBS", StringComparison.OrdinalIgnoreCase))
+                      ?? slabRows.FirstOrDefault();
+        var seatSlabText = slabRow?.Intake_26_27?.ToString() ?? "—";
+
+        var availableRows = _model.AvailableFaculty ?? new List<FacultyAvailableRow>();
 
         AddSubHeading(col, "Designation & Intake Details", 120);
 
@@ -2760,7 +2775,6 @@ public class PreviewReportPdf : IDocument
             {
                 columns.RelativeColumn(3);   // Department
                 columns.RelativeColumn(3);   // Designation
-                columns.ConstantColumn(80);  // Required
                 columns.ConstantColumn(80);  // Available
                 columns.ConstantColumn(70);  // Seat Slab
             });
@@ -2770,7 +2784,6 @@ public class PreviewReportPdf : IDocument
             {
                 header.Cell().Border(1).Padding(4).Text("Department").Bold();
                 header.Cell().Border(1).Padding(4).Text("Designation").Bold();
-                header.Cell().Border(1).Padding(4).AlignCenter().Text("Required").Bold();
                 header.Cell().Border(1).Padding(4).AlignCenter().Text("Available").Bold();
                 header.Cell().Border(1).Padding(4).AlignCenter().Text("Seat Slab").Bold();
             });
@@ -2782,7 +2795,6 @@ public class PreviewReportPdf : IDocument
 
                 foreach (var item in group.Designations)
                 {
-                    // Department (print only once)
                     table.Cell().Border(1).Padding(4)
                         .Text(isFirstRow ? group.Department ?? "—" : string.Empty);
 
@@ -2791,20 +2803,41 @@ public class PreviewReportPdf : IDocument
 
                     table.Cell().Border(1).Padding(4)
                         .AlignCenter()
-                        .Text(item.RequiredIntake);
+                        .Text(ResolveAvailable(availableRows, group, item));
 
                     table.Cell().Border(1).Padding(4)
                         .AlignCenter()
-                        .Text(item.AvailableIntake);
-
-                    table.Cell().Border(1).Padding(4)
-                        .AlignCenter()
-                        .Text(item.SeatSlab.ToString() ?? "—");
+                        .Text(seatSlabText);
 
                     isFirstRow = false;
                 }
             }
         });
+    }
+
+    // Available count from UG_Faculty_Details. Matches on DesignationCode (+ DepartmentCode when
+    // present). If the view-model rows don't expose codes, falls back to the old AvailableIntake.
+    private static string ResolveAvailable(List<FacultyAvailableRow> rows, object group, object item)
+    {
+        var designationCode = ReadProp(item, "DesignationCode");
+        var departmentCode = ReadProp(group, "DepartmentCode") ?? ReadProp(item, "DepartmentCode");
+
+        if (string.IsNullOrWhiteSpace(designationCode))
+            return ReadProp(item, "AvailableIntake") ?? "0";
+
+        var total = rows
+            .Where(r => string.Equals(r.DesignationCode, designationCode, StringComparison.OrdinalIgnoreCase)
+                        && (string.IsNullOrWhiteSpace(departmentCode)
+                            || string.Equals(r.DepartmentCode, departmentCode, StringComparison.OrdinalIgnoreCase)))
+            .Sum(r => r.Available);
+
+        return total.ToString();
+    }
+
+    private static string? ReadProp(object? source, string name)
+    {
+        var value = source?.GetType().GetProperty(name)?.GetValue(source)?.ToString()?.Trim();
+        return string.IsNullOrWhiteSpace(value) ? null : value;
     }
 
     private void AddPaymentSection(ColumnDescriptor col)

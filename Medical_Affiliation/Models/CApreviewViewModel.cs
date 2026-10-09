@@ -18,7 +18,8 @@ namespace Medical_Affiliation.Models
         public MedicalVm AffInstituteDetails { get; set; }
         public InstituionBasicDetailsDisplayVM InstitutionBasicVM { get; set; }
         public List<PreviewCourseIntakeItemVM> CourseIntakeList { get; set; } = new();
-
+        public List<FacultyAvailableRow> AvailableFaculty { get; set; } = new();
+        public List<SeatSlabRow> SeatSlabs { get; set; } = new();
         public CA_Aff_AcademicMattersViewModel CAacademicMattersVM { get; set; }
         public HospitalAffiliationCompositeDisplayVM CAHospitalAFfiliationCompVM { get; set; }
         public PhysicalFacilitiesDisplayViewModel PhysicalFacilities { get; set; }
