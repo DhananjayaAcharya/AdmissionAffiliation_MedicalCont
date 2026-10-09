@@ -20,6 +20,7 @@
     string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 }
+<!-- DEBUG facultyCode(session)=[@facultyCode] Model.FacultyCode=[@Model.FacultyCode] -->
 
 <style>
     :root {
@@ -926,63 +927,106 @@
 
            @*  next two blocks of code added for ayurveda PG section ,PG details page -- Added by ram *@
 
+            
+            @* PG Course Details and Academic Matters (PG) - Ayurveda separated *@
+
             @{
                 var currentCourseLevel =
-                    HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel");
+                    HttpContextAccessor.HttpContext?.Session?.GetString("CourseLevel")?.Trim();
 
                 var currentTypeOfAffiliation =
                     HttpContextAccessor.HttpContext?.Session?.GetString("TypeOfAffiliation");
 
+                var normalizedFacultyCode = facultyCode?.Trim();
+
                 bool showPgCourseDetails =
-                    (facultyCode == "1" || facultyCode == "2" || facultyCode == "4")
+                    (normalizedFacultyCode == "1" ||
+                     normalizedFacultyCode == "2" ||
+                     normalizedFacultyCode == "4")
                     && string.Equals(
                         currentCourseLevel,
                         "PG",
                         StringComparison.OrdinalIgnoreCase
                     );
-            } 
+
+                var affiliationTypeForUrl =
+                    string.IsNullOrWhiteSpace(currentTypeOfAffiliation)
+                        ? "College Affiliation"
+                        : currentTypeOfAffiliation;
+            }
 
             @if (showPgCourseDetails)
             {
+                @* PG Course Details *@
                 <li class="sidebar-item">
-
-                    @if (facultyCode == "4")
+                    @if (normalizedFacultyCode == "4")
                     {
-                        <a asp-controller="AffiliationPgCourse"
-                           asp-action="PgCoursesAyurveda"
-                           asp-route-typeOfAffiliation="@currentTypeOfAffiliation"
-                           asp-route-courseLevel="PG"
+                        <a href="@Url.Action(
+                                                    "PgCoursesAyurveda",
+                                                    "AffiliationPgCourse",
+                                                    new
+                                                    {
+                                                        typeOfAffiliation = affiliationTypeForUrl,
+                                                        courseLevel = "PG"
+                                                    })"
                            class="sidebar-link @(currentController == "AffiliationPgCourse" && currentAction == "PgCoursesAyurveda" ? "active" : "")"
                            title="PG Course Details">
 
                             <i class="bi bi-mortarboard"></i>
-
-                            <span class="sidebar-link-label">
-                                PG Course Details
-                            </span>
-
+                            <span class="sidebar-link-label">PG Course Details</span>
                         </a>
                     }
                     else
                     {
                         <a asp-controller="AffiliationPgCourse"
                            asp-action="PgCourses"
-                           asp-route-typeOfAffiliation="@currentTypeOfAffiliation"
+                           asp-route-typeOfAffiliation="@affiliationTypeForUrl"
                            asp-route-courseLevel="PG"
                            class="sidebar-link @(currentController == "AffiliationPgCourse" && currentAction == "PgCourses" ? "active" : "")"
                            title="PG Course Details">
 
                             <i class="bi bi-mortarboard"></i>
-
-                            <span class="sidebar-link-label">
-                                PG Course Details
-                            </span>
-
+                            <span class="sidebar-link-label">PG Course Details</span>
                         </a>
                     }
+                </li>
 
+                @* Academic Matters (PG) *@
+                <li class="sidebar-item">
+                    @if (normalizedFacultyCode == "4")
+                    {
+                        <a href="@Url.Action(
+                                                    "AcademicMattersPGAyurveda",
+                                                    "CA_Aff_AcademicMatters",
+                                                    new
+                                                    {
+                                                        typeOfAffiliation = affiliationTypeForUrl,
+                                                        courseLevel = "PG"
+                                                    })"
+                           class="sidebar-link @(currentController == "CA_Aff_AcademicMatters" && currentAction == "AcademicMattersPGAyurveda" ? "active" : "")"
+                           title="Academic Matters (PG)">
+
+                            <i class="bi bi-journal-text"></i>
+                            <span class="sidebar-link-label">Academic Matters (PG)</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="CA_Aff_AcademicMatters"
+                           asp-action="AcademicMattersPG"
+                           asp-route-typeOfAffiliation="@affiliationTypeForUrl"
+                           asp-route-courseLevel="PG"
+                           class="sidebar-link @(currentController == "CA_Aff_AcademicMatters" && currentAction == "AcademicMattersPG" ? "active" : "")"
+                           title="Academic Matters (PG)">
+
+                            <i class="bi bi-journal-text"></i>
+                            <span class="sidebar-link-label">Academic Matters (PG)</span>
+                        </a>
+                    }
                 </li>
             }
+           
+
 
             @if (facultyCode == "12")
             {
@@ -1075,6 +1119,7 @@
 }
 
 <script>
+        const currentFacultyCode = "@facultyCode";
      document.addEventListener("DOMContentLoaded", function () {
          const passwordModal = document.getElementById("updatePasswordModal");
          if (passwordModal && passwordModal.parentElement !== document.body) {
@@ -1324,15 +1369,12 @@
      /* --------------------------------------------------------------
     Persist level & affiliation‑type‑id via a **normal form POST**
     -------------------------------------------------------------- */
-           function navigateToLevel(e) {
+              function navigateToLevel(e) {
         e.preventDefault();
         e.stopPropagation();
 
         const level = e.currentTarget.dataset.level; // "ug" or "pg"
-
-        // Find the parent submenu
         const subMenu = e.currentTarget.closest('.affiliation-submenu');
-
         if (!subMenu) {
             console.error('Unable to find affiliation submenu for the clicked link');
             return;
@@ -1340,53 +1382,19 @@
 
         const typeId = subMenu.dataset.parentId;
 
-        // =========================================================
-        // AYURVEDA - FACULTY CODE 4
-        // Only PG goes to the Ayurveda-specific PG page.
-        // =========================================================
-        const currentFacultyCode = "@facultyCode";
+        const hasRoute = currentFacultyCode === "4"
+            ? ["2", "3"].includes(String(typeId))
+            : !!affiliationBaseUrlMap[typeId];
 
-           if (currentFacultyCode === "4" && level === "pg") {
-
-        const ayurvedaPgUrl =
-            '@Url.Action("PgCoursesAyurveda", "AffiliationPgCourse")';
-
-        const typeOfAffiliation =
-            '@Html.Raw(Context.Session.GetString("TypeOfAffiliation") ?? "")';
-
-        const url =
-            ayurvedaPgUrl
-            + '?typeOfAffiliation='
-            + encodeURIComponent(typeOfAffiliation)
-            + '&courseLevel='
-            + encodeURIComponent(level.toUpperCase());
-
-        window.location.href = url;
-
-        return;
-    }
-
-        // =========================================================
-        // EXISTING LOGIC
-        // Medical, Dental and all other existing cases remain
-        // exactly as they were.
-        // =========================================================
-
-        const baseUrl = affiliationBaseUrlMap[typeId];
-
-        if (!baseUrl) {
+        if (!hasRoute) {
             alert('No URL configured for this affiliation type.');
             return;
         }
 
-        // Fill hidden form fields
         document.getElementById('hiddenLevel').value = level;
         document.getElementById('hiddenAffiliationId').value = typeId;
-
-        // Existing POST flow
         document.getElementById('setLevelForm').submit();
     }
-
 
      // --------------------------------------------------------------
      // Toggle the main affiliation dropdown (unchanged, except that a

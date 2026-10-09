@@ -867,5 +867,239 @@ namespace Medical_Affiliation.Controllers
                 enableRangeProcessing: true);
         }
 
+        //code for ayurveda faculty added by ram 
+
+
+        private bool IsAyurvedaSession() =>
+    HttpContext.Session.GetString("FacultyCode")?.Trim() == "4";
+
+        [HttpGet]
+        public async Task<IActionResult> AcademicMattersPGAyurveda(string? subjectCode = null)
+        {
+            const int ayurvedaFacultyId = 4;
+
+            string? collegeCode = HttpContext.Session.GetString("CollegeCode");
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized();
+
+            if (!IsAyurvedaSession())
+                return RedirectToAction("Dashboard", "Home");
+
+            int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+
+            var subjects = await (
+                from ci in _context.MstMedicalCollegeCourseIntakes.AsNoTracking()
+                join c in _context.MstCourses.AsNoTracking()
+                    on ci.CourseCode equals c.CourseCode
+                where ci.CollCode == collegeCode
+                      && ci.Facultycode == ayurvedaFacultyId
+                      && ci.UgPg == "PG"
+                group c by new { c.CourseCode, c.SubjectName } into g
+                orderby g.Key.SubjectName
+                select new SelectListItem
+                {
+                    Value = g.Key.CourseCode.ToString(),
+                    Text = g.Key.SubjectName
+                }
+            ).ToListAsync();
+
+            var yearMaster = await _context.CaMstYearOfStudies
+                .AsNoTracking()
+                .OrderBy(y => y.YearOfStudyId)
+                .ToListAsync();
+
+            var academics = await _context.CaAcademicPerformances
+                .AsNoTracking()
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId == ayurvedaFacultyId &&
+                    x.AffiliationType == affiliationType &&
+                    x.CourseLevel != null &&
+                    x.CourseLevel.Trim().ToUpper() == "PG")
+                .ToListAsync();
+
+            List<YearDataVM> BuildYears(IEnumerable<CaAcademicPerformance>? rows) =>
+                yearMaster.Select(y =>
+                {
+                    var e = rows?.FirstOrDefault(x => x.YearOfStudyId == y.YearOfStudyId);
+                    return new YearDataVM
+                    {
+                        YearOfStudyId = y.YearOfStudyId,
+                        YearName = y.YearName,
+                        RegularStudents = e?.RegularStudents,
+                        RepeaterStudents = e?.RepeaterStudents,
+                        NumberOfStudentsPassed = e?.NumberOfStudentsPassed,
+                        PassPercentage = e?.PassPercentage,
+                        FirstClassCount = e?.FirstClassCount,
+                        DistinctionCount = e?.DistinctionCount,
+                        Remarks = e?.Remarks
+                    };
+                }).ToList();
+
+            var sections = academics
+                .Where(x => !string.IsNullOrWhiteSpace(x.Subject))
+                .GroupBy(x => x.Subject!)
+                .Select(g => new PgSubjectSectionVM { Subject = g.Key, YearData = BuildYears(g) })
+                .ToList();
+
+            // Honour subjectCode even when other subjects already have saved data
+            if (!string.IsNullOrWhiteSpace(subjectCode)
+                && subjects.Any(s => s.Value == subjectCode)
+                && sections.All(s => s.Subject != subjectCode))
+            {
+                sections.Add(new PgSubjectSectionVM { Subject = subjectCode, YearData = BuildYears(null) });
+            }
+
+            // Default section when nothing exists
+            if (sections.Count == 0 && subjects.Count > 0)
+            {
+                sections.Add(new PgSubjectSectionVM
+                {
+                    Subject = subjects[0].Value!,
+                    YearData = BuildYears(null)
+                });
+            }
+
+            var model = new CA_Aff_PgAcademicMattersViewModel
+            {
+                CollegeCode = collegeCode,
+                FacultyId = ayurvedaFacultyId,
+                AffiliationType = affiliationType,
+                Subjects = subjects,
+                Sections = sections
+            };
+
+            ViewBag.YearList = yearMaster;
+            return View("AcademicMattersPGAyurveda", model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AcademicMattersPGAyurveda(CA_Aff_PgAcademicMattersViewModel model)
+        {
+            const int ayurvedaFacultyId = 4;
+
+            string? collegeCode = HttpContext.Session.GetString("CollegeCode");
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized();
+
+            if (!IsAyurvedaSession())
+                return RedirectToAction("Dashboard", "Home");
+
+            int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+
+            if (model?.Sections == null || model.Sections.Count == 0)
+            {
+                TempData["Error"] = "Please select and enter at least one PG subject.";
+                return RedirectToAction(nameof(AcademicMattersPGAyurveda));
+            }
+
+            var validSubjects = new HashSet<string>(
+                await _context.MstMedicalCollegeCourseIntakes
+                    .Where(ci => ci.CollCode == collegeCode
+                              && ci.Facultycode == ayurvedaFacultyId
+                              && ci.UgPg == "PG")
+                    .Select(ci => ci.CourseCode.ToString())
+                    .Distinct()
+                    .ToListAsync(),
+                StringComparer.OrdinalIgnoreCase);
+
+            var validYearIds = (await _context.CaMstYearOfStudies
+                .Select(y => y.YearOfStudyId)
+                .ToListAsync()).ToHashSet();
+
+            var existingRecords = await _context.CaAcademicPerformances
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyId == ayurvedaFacultyId &&
+                    x.AffiliationType == affiliationType &&
+                    x.CourseLevel != null &&
+                    x.CourseLevel.Trim().ToUpper() == "PG")
+                .ToListAsync();
+
+            var errors = new List<string>();
+
+            foreach (var section in model.Sections)
+            {
+                if (string.IsNullOrWhiteSpace(section.Subject))
+                    continue;
+
+                if (!validSubjects.Contains(section.Subject))
+                    return BadRequest("An invalid Ayurveda PG subject was submitted.");
+
+                foreach (var year in section.YearData ?? new List<YearDataVM>())
+                {
+                    if (!validYearIds.Contains(year.YearOfStudyId))
+                        return BadRequest("An invalid year of study was submitted.");
+
+                    int regular = year.RegularStudents ?? 0;
+                    int repeater = year.RepeaterStudents ?? 0;
+                    int passed = year.NumberOfStudentsPassed ?? 0;
+                    int first = year.FirstClassCount ?? 0;
+                    int dist = year.DistinctionCount ?? 0;
+                    int total = regular + repeater;
+
+                    if (regular < 0 || repeater < 0 || passed < 0 || first < 0 || dist < 0)
+                        errors.Add($"{section.Subject} / {year.YearName}: values cannot be negative.");
+                    else if (passed > total)
+                        errors.Add($"{section.Subject} / {year.YearName}: passed students exceed appeared students.");
+                    else if (first + dist > passed)
+                        errors.Add($"{section.Subject} / {year.YearName}: first class + distinction exceed passed students.");
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                TempData["Error"] = string.Join(" ", errors);
+                return RedirectToAction(nameof(AcademicMattersPGAyurveda));
+            }
+
+            foreach (var section in model.Sections.Where(s => !string.IsNullOrWhiteSpace(s.Subject)))
+            {
+                foreach (var year in section.YearData ?? new List<YearDataVM>())
+                {
+                    var existing = existingRecords.FirstOrDefault(x =>
+                        x.Subject == section.Subject &&
+                        x.YearOfStudyId == year.YearOfStudyId);
+
+                    if (existing == null)
+                    {
+                        existing = new CaAcademicPerformance
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyId = ayurvedaFacultyId,
+                            AffiliationType = affiliationType,
+                            CourseLevel = "PG",
+                            Subject = section.Subject,
+                            YearOfStudyId = year.YearOfStudyId,
+                            CreatedOn = DateTime.Now
+                        };
+                        _context.CaAcademicPerformances.Add(existing);
+                        existingRecords.Add(existing);
+                    }
+
+                    existing.RegularStudents = year.RegularStudents;
+                    existing.RepeaterStudents = year.RepeaterStudents;
+                    existing.NumberOfStudentsPassed = year.NumberOfStudentsPassed;
+
+                    int total = (year.RegularStudents ?? 0) + (year.RepeaterStudents ?? 0);
+                    existing.PassPercentage = total == 0
+                        ? 0
+                        : Math.Round((decimal)(year.NumberOfStudentsPassed ?? 0) * 100 / total, 2);
+
+                    existing.FirstClassCount = year.FirstClassCount;
+                    existing.DistinctionCount = year.DistinctionCount;
+                    existing.Remarks = year.Remarks;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Ayurveda PG academic data saved successfully.";
+            return RedirectToAction(nameof(AcademicMattersPGAyurveda));
+        }
+
+
     }
 }

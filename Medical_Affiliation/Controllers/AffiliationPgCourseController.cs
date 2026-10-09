@@ -1355,6 +1355,203 @@ namespace Medical_Affiliation.Controllers
             return courses;
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveAyurvedaPgCoursesForGOK(
+        AffiliationPgCourseViewModel model)
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+            var affiliationType = _userContext.TypeOfAffiliation;
+
+            foreach (var course in model.PgCoursesGOK)
+            {
+                if (string.IsNullOrWhiteSpace(course.CourseCode))
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(course.AcademicYear))
+                    continue;
+
+                var existingCourse =
+                    await _context.AffiliationPgSsCourseDetailsForGoks
+                        .FirstOrDefaultAsync(e =>
+                            e.CollegeCode == collegeCode &&
+                            e.CourseCode == course.CourseCode &&
+                            e.FacultyCode == ayurvedaFacultyCode.ToString());
+
+                var path = await SaveAyurvedaPgFileAsync(
+                    course.GOKDocumentFile,
+                    collegeCode,
+                    course.CourseCode,
+                    "GOK"
+                );
+
+                if (existingCourse == null)
+                {
+                    var entity = new AffiliationPgSsCourseDetailsForGok
+                    {
+                        CourseCode = course.CourseCode,
+                        CourseName = course.CourseName,
+                        CourseLevel = course.CourseLevel,
+                        CoursePrefix = course.CoursePrefix,
+
+                        CollegeCode = collegeCode,
+
+                        PresentIntake = course.CollegeIntake,
+                        SanctionedIntake = course.RguhsIntake,
+
+                        TypeOfAffiliation =
+                            affiliationType.ToString(),
+
+                        Gokdate = course.DateofGOK,
+
+                        FacultyCode =
+                            ayurvedaFacultyCode.ToString(),
+
+                        AcademicYear = course.AcademicYear,
+
+                        DocumentofGokpath = path
+                    };
+
+                    _context.AffiliationPgSsCourseDetailsForGoks
+                        .Add(entity);
+                }
+                else
+                {
+                    existingCourse.SanctionedIntake =
+                        course.RguhsIntake;
+
+                    existingCourse.AcademicYear =
+                        course.AcademicYear;
+
+                    existingCourse.Gokdate =
+                        course.DateofGOK;
+
+                    if (path != null)
+                    {
+                        if (!string.IsNullOrEmpty(
+                                existingCourse.DocumentofGokpath) &&
+                            System.IO.File.Exists(
+                                existingCourse.DocumentofGokpath))
+                        {
+                            System.IO.File.Delete(
+                                existingCourse.DocumentofGokpath);
+                        }
+
+                        existingCourse.DocumentofGokpath = path;
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["GokSavemsg"] =
+                "Ayurveda GOK Details saved successfully.";
+
+            return RedirectToAction(
+                nameof(PgCoursesAyurveda),
+                new
+                {
+                    typeOfAffiliation =
+                        _userContext.TypeOfAffiliation.ToString(),
+                    courseLevel = "PG"
+                }
+            );
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveAyurvedaPgCoursesRguhs(
+    AffiliationPgCourseViewModel model)
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+            var affiliationType = _userContext.TypeOfAffiliation;
+
+            foreach (var course in model.PgCoursesRguhs)
+            {
+                if (string.IsNullOrWhiteSpace(course.CourseCode))
+                    continue;
+
+                var existing =
+                    await _context.AffiliationPgSsCourseDetailsRguhs
+                        .FirstOrDefaultAsync(e =>
+                            e.CollegeCode == collegeCode &&
+                            e.CourseCode == course.CourseCode &&
+                            e.FacultyCode ==
+                                ayurvedaFacultyCode.ToString());
+
+                var path = await SaveAyurvedaPgFileAsync(
+                    course.RGUHSDocumentFile,
+                    collegeCode,
+                    course.CourseCode,
+                    "RGUHS"
+                );
+
+                if (existing == null)
+                {
+                    var entity = new AffiliationPgSsCourseDetailsRguh
+                    {
+                        CollegeCode = collegeCode,
+
+                        FacultyCode =
+                            ayurvedaFacultyCode.ToString(),
+
+                        TypeOfAffiliation =
+                            affiliationType.ToString(),
+
+                        CourseCode = course.CourseCode,
+
+                        CourseLevel = course.CourseLevel,
+
+                        CourseName = course.CourseName,
+
+                        RguhsIntake = course.RguhsIntake,
+
+                        RguhssupportingDocumentPath = path
+                    };
+
+                    _context.AffiliationPgSsCourseDetailsRguhs
+                        .Add(entity);
+                }
+                else
+                {
+                    existing.RguhsIntake =
+                        course.RguhsIntake;
+
+                    if (path != null)
+                    {
+                        if (!string.IsNullOrEmpty(
+                                existing.RguhssupportingDocumentPath) &&
+                            System.IO.File.Exists(
+                                existing.RguhssupportingDocumentPath))
+                        {
+                            System.IO.File.Delete(
+                                existing.RguhssupportingDocumentPath);
+                        }
+
+                        existing.RguhssupportingDocumentPath = path;
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Rguhs"] =
+                "Ayurveda RGUHS Details saved successfully.";
+
+            return RedirectToAction(
+                nameof(PgCoursesAyurveda),
+                new
+                {
+                    typeOfAffiliation =
+                        _userContext.TypeOfAffiliation.ToString(),
+                    courseLevel = "PG"
+                }
+            );
+        }
 
 
     }
