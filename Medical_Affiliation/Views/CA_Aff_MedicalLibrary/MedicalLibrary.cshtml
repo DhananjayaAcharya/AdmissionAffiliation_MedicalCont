@@ -44,7 +44,6 @@
                 min-height: 100vh;
             }
 
-            /* ─── TOP HEADER ─────────────────────────────── */
             .page-header {
                 background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
                 padding: 28px 40px 24px;
@@ -54,48 +53,25 @@
                 border-bottom: 3px solid var(--gold);
             }
 
-                .page-header .emblem {
-                    width: 54px;
-                    height: 54px;
-                    border: 2px solid var(--gold);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
-                }
-
-                    .page-header .emblem i {
-                        font-size: 28px;
-                        color: var(--gold);
-                    }
-
-                    .page-header .emblem svg {
-                        width: 28px;
-                        height: 28px;
-                        fill: var(--gold);
-                    }
-
-            .page-header-text h1 {
-                font-family: 'Playfair Display', serif;
-                font-size: 1.45rem;
-                color: #ffffff;
-                letter-spacing: .02em;
-            }
-
-            .page-header-text p {
-                font-size: .78rem;
-                color: rgba(255,255,255,.55);
-                margin: 3px 0 0;
-                letter-spacing: .06em;
-                text-transform: uppercase;
-            }
-
             .form-wrap {
                 max-width: 1280px;
                 margin: 7rem auto 0;
                 padding: 0 10px 10px;
             }
+
+            /* Validation summary: invisible when empty, plain red list when there are errors */
+            .validation-summary-errors {
+                color: var(--danger);
+                font-size: .85rem;
+                font-weight: 500;
+                margin-bottom: 16px;
+            }
+
+                .validation-summary-errors ul {
+                    list-style: disc;
+                    padding-left: 20px;
+                    margin: 0;
+                }
 
             .section-card {
                 background: var(--surface);
@@ -149,7 +125,6 @@
                 padding: 1.25rem;
             }
 
-            /* Scrollable Table Container */
             .scrollable-table-container {
                 max-height: 420px;
                 overflow-y: auto;
@@ -200,19 +175,13 @@
 
                 .custom-table th:last-child,
                 .custom-table td:last-child {
-                    min-width: 110px;
+                    min-width: 170px;
                 }
 
-                .custom-table td:nth-child(10) {
-                    min-width: 240px;
-                }
-
-            /* Department dropdown wider */
             .dept-dropdown {
                 min-width: 220px;
             }
 
-            /* Form Controls */
             input[type="text"], input[type="number"], select, textarea {
                 width: 100%;
                 font-family: 'DM Sans', sans-serif;
@@ -230,6 +199,13 @@
                     box-shadow: 0 0 0 3px rgba(26,76,139,.1);
                 }
 
+                /* Saved rows look locked until Edit is clicked */
+                input:disabled, select:disabled {
+                    background: #eef1f5;
+                    color: #55657a;
+                    cursor: not-allowed;
+                }
+
             .btn {
                 font-family: 'DM Sans', sans-serif;
                 font-size: 0.85rem;
@@ -239,6 +215,11 @@
                 cursor: pointer;
                 letter-spacing: .03em;
                 transition: all .18s;
+            }
+
+            .btn-sm {
+                padding: 6px 16px;
+                font-size: 0.82rem;
             }
 
             .btn-ghost {
@@ -266,8 +247,7 @@
             .btn-danger.btn-sm {
                 background-color: var(--danger);
                 border: none;
-                padding: 6px 16px;
-                font-size: 0.82rem;
+                color: #fff;
             }
 
             label {
@@ -299,13 +279,11 @@
 </head>
 <body>
 
-    <!-- PAGE HEADER -->
-
     <div class="form-wrap">
         <form asp-action="MedicalLibrary" method="post" enctype="multipart/form-data" id="libraryForm">
             @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+            <div asp-validation-summary="All"></div>
 
             <input type="hidden" asp-for="CourseLevel" />
             <input type="hidden" id="isFirstLogin" value="@Model.IsFirstLogin" />
@@ -375,7 +353,7 @@
                                                         <label class="fw-semibold mb-0">Upload Document <span class="text-danger">*</span></label>
                                                         <input type="file" accept=".pdf" class="form-control form-control-sm pdf-input file-validate"
                                                                style="max-width:280px" asp-for="LibraryServices[@i].UploadedPdf"
-                                                               accept=".pdf" data-has-file="@(!string.IsNullOrEmpty(row.ExistingFileName))" />
+                                                               data-has-file="@(!string.IsNullOrEmpty(row.ExistingFileName))" />
                                                         @if (!string.IsNullOrEmpty(row.ExistingFileName))
                                                         {
                                                             <a asp-action="ViewLibraryServicePdf" asp-route-serviceId="@row.ServiceId"
@@ -413,7 +391,7 @@
                         <div class="d-flex align-items-center gap-3">
                             <label class="fw-semibold">Upload Document <span class="text-danger">*</span></label>
                             <input asp-for="UsageReportPdf" accept=".pdf" type="file" class="form-control form-control-sm file-validate"
-                                   accept=".pdf" style="max-width:280px"
+                                   style="max-width:280px"
                                    data-has-file="@(!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))" />
                             @if (!string.IsNullOrEmpty(Model.ExistingUsageReportFileName))
                             {
@@ -456,14 +434,20 @@
                                     {
                                         for (int i = 0; i < Model.LibraryStaff.Count; i++)
                                         {
-                                            <tr>
+                                            <tr data-saved="@(Model.LibraryStaff[i].Id > 0 ? "true" : "false")">
                                                 <td class="text-center fw-semibold">@(i + 1)</td>
                                                 <td><input asp-for="LibraryStaff[@i].StaffName" class="form-control" /></td>
                                                 <td><input asp-for="LibraryStaff[@i].Designation" class="form-control" /></td>
                                                 <td><input asp-for="LibraryStaff[@i].Qualification" class="form-control" /></td>
                                                 <td><input asp-for="LibraryStaff[@i].Experience" type="number" min="0" class="form-control text-center" /></td>
                                                 <td><input asp-for="LibraryStaff[@i].Category" class="form-control" /></td>
-                                                <td class="text-center">
+                                                <td class="text-center text-nowrap">
+                                                    <input type="hidden" asp-for="LibraryStaff[@i].Id" />
+                                                    <input type="hidden" asp-for="LibraryStaff[@i].IsDeleted" class="is-deleted" />
+                                                    @if (Model.LibraryStaff[i].Id > 0)
+                                                    {
+                                                        <button type="button" class="btn btn-ghost btn-sm editRow">Edit</button>
+                                                    }
                                                     <button type="button" class="btn btn-danger btn-sm deleteStaffRow">Delete</button>
                                                 </td>
                                             </tr>
@@ -480,6 +464,7 @@
                     </div>
                 </div>
             }
+
             <!-- SECTION 4: Department Library Details -->
             <div class="section-card">
                 <div class="section-header">
@@ -514,7 +499,7 @@
                                 {
                                     for (int i = 0; i < Model.DepartmentLibraries.Count; i++)
                                     {
-                                        <tr>
+                                        <tr data-saved="@(Model.DepartmentLibraries[i].Id > 0 ? "true" : "false")">
                                             <td class="text-center fw-semibold">@(i + 1)</td>
                                             <td>
                                                 <select name="DepartmentLibraries[@i].DepartmentCode" class="form-control dept-dropdown">
@@ -533,43 +518,22 @@
                                             <td><input type="number" min="0" class="form-control text-center" name="DepartmentLibraries[@i].CurrentJournals" value="@Model.DepartmentLibraries[i].CurrentJournals" /></td>
                                             @if (ViewBag.IsDentalFaculty == true)
                                             {
-                                                <td>
-                                                    <input type="number"
-                                                           min="0"
-                                                           class="form-control text-center"
-                                                           name="DepartmentLibraries[@i].Titles"
-                                                           value="@Model.DepartmentLibraries[i].Titles" />
-                                                </td>
-
-                                                <td>
-                                                    <input type="number"
-                                                           min="0"
-                                                           class="form-control text-center"
-                                                           name="DepartmentLibraries[@i].InternationalJournals"
-                                                           value="@Model.DepartmentLibraries[i].InternationalJournals" />
-                                                </td>
-
-                                                <td>
-                                                    <input type="number"
-                                                           min="0"
-                                                           class="form-control text-center"
-                                                           name="DepartmentLibraries[@i].BackVolumes"
-                                                           value="@Model.DepartmentLibraries[i].BackVolumes" />
-                                                </td>
-
-                                                <td>
-                                                    <input type="number"
-                                                           min="0"
-                                                           class="form-control text-center"
-                                                           name="DepartmentLibraries[@i].PrintJournalPercentage"
-                                                           value="@Model.DepartmentLibraries[i].PrintJournalPercentage" />
-                                                </td>
+                                                <td><input type="number" min="0" class="form-control text-center" name="DepartmentLibraries[@i].Titles" value="@Model.DepartmentLibraries[i].Titles" /></td>
+                                                <td><input type="number" min="0" class="form-control text-center" name="DepartmentLibraries[@i].InternationalJournals" value="@Model.DepartmentLibraries[i].InternationalJournals" /></td>
+                                                <td><input type="number" min="0" class="form-control text-center" name="DepartmentLibraries[@i].BackVolumes" value="@Model.DepartmentLibraries[i].BackVolumes" /></td>
+                                                <td><input type="number" min="0" class="form-control text-center" name="DepartmentLibraries[@i].PrintJournalPercentage" value="@Model.DepartmentLibraries[i].PrintJournalPercentage" /></td>
                                             }
                                             <td>
                                                 <input type="text" class="form-control mb-2" name="DepartmentLibraries[@i].LibraryStaff1" value="@Model.DepartmentLibraries[i].LibraryStaff1" placeholder="Staff 1" />
                                                 <input type="text" class="form-control" name="DepartmentLibraries[@i].LibraryStaff2" value="@Model.DepartmentLibraries[i].LibraryStaff2" placeholder="Staff 2" />
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center text-nowrap">
+                                                <input type="hidden" name="DepartmentLibraries[@i].Id" value="@Model.DepartmentLibraries[i].Id" />
+                                                <input type="hidden" class="is-deleted" name="DepartmentLibraries[@i].IsDeleted" value="false" />
+                                                @if (Model.DepartmentLibraries[i].Id > 0)
+                                                {
+                                                    <button type="button" class="btn btn-ghost btn-sm editRow">Edit</button>
+                                                }
                                                 <button type="button" class="btn btn-danger btn-sm deleteDepartmentRow">Delete</button>
                                             </td>
                                         </tr>
@@ -662,7 +626,7 @@
 
                         <div id="specialPdfRow" class="align-items-center gap-3" style="display:none;">
                             <input accept=".pdf" type="file" class="form-control file-validate" style="max-width:320px"
-                                   asp-for="OtherDetails.SpecialFeaturesPdf" accept=".pdf" />
+                                   asp-for="OtherDetails.SpecialFeaturesPdf" />
                             @if (Model.OtherDetails?.HasSpecialFeaturesPdf == true)
                             {
                                 <a asp-action="ViewSpecialFeaturesPdf" target="_blank" class="btn btn-ghost">
@@ -677,23 +641,15 @@
             @if (isDentalFaculty)
             {
                 <div class="section-card">
-
                     <div class="section-header">
-                        <div class="icon-wrap"
-                             style="background:#eef4ff;">
-
-                            <i class="bi bi-folder-check"
-                               style="font-size:1.4rem;
-                            color:#1a4c8b;"></i>
+                        <div class="icon-wrap" style="background:#eef4ff;">
+                            <i class="bi bi-folder-check" style="font-size:1.4rem; color:#1a4c8b;"></i>
                         </div>
-
                         <h2>LIBRARY RECORDS</h2>
                     </div>
 
                     <div class="section-body">
-
                         <table class="custom-table">
-
                             <thead>
                                 <tr>
                                     <th>Sl. No</th>
@@ -702,58 +658,40 @@
                                     <th>View</th>
                                 </tr>
                             </thead>
-
                             <tbody>
-
                                 @for (int i = 0; i < Model.DentalLibraryRecords.Count; i++)
                                 {
                                     <tr>
-
-                                        <td>
-                                            @(i + 1)
-                                        </td>
-
+                                        <td>@(i + 1)</td>
                                         <td>
                                             @Model.DentalLibraryRecords[i].RecordName
-
                                             <input type="hidden" asp-for="DentalLibraryRecords[@i].RecordId" />
                                         </td>
-
                                         <td>
-
                                             <input type="file"
                                                    asp-for="DentalLibraryRecords[@i].UploadFile"
                                                    class="form-control file-validate"
                                                    accept=".pdf" />
-
                                         </td>
-
                                         <td>
-
                                             @if (!string.IsNullOrEmpty(Model.DentalLibraryRecords[i].ExistingFileName))
                                             {
                                                 <a asp-action="ViewDentalLibraryRecord"
                                                    asp-route-recordId="@Model.DentalLibraryRecords[i].RecordId"
                                                    target="_blank"
                                                    class="btn btn-ghost">
-                                                    <i class="bi bi-eye"></i>
-                                                    View
-
+                                                    <i class="bi bi-eye"></i> View
                                                 </a>
                                             }
-
                                         </td>
-
                                     </tr>
                                 }
-
                             </tbody>
-
                         </table>
-
                     </div>
                 </div>
             }
+
             <!-- Footer Actions -->
             <div class="form-footer">
 
@@ -773,13 +711,7 @@
                     <i class="bi bi-cloud-arrow-up me-2"></i>Save Changes
                 </button>
 
-                @if (facultyCode == "1")
-                {
-                    <a asp-controller="CA_Med_ResearchPublications" asp-action="CA_Med_ResearchPublicationsDetails"
-                       class="btn btn-primary">Next →</a>
-                }
-
-                @if (facultyCode == "2")
+                @if (facultyCode == "1" || facultyCode == "2")
                 {
                     <a asp-controller="CA_Med_ResearchPublications" asp-action="CA_Med_ResearchPublicationsDetails"
                        class="btn btn-primary">Next →</a>
@@ -799,68 +731,107 @@
             if (ViewBag.IsDentalFaculty == true)
             {
                 dentalColumns = @"
-        <td>
-        <input type='number'
-        min='0'
-        name='DepartmentLibraries[${index}].Titles'
-        class='form-control text-center' />
-        </td>
-
-        <td>
-        <input type='number'
-        min='0'
-        name='DepartmentLibraries[${index}].InternationalJournals'
-        class='form-control text-center' />
-        </td>
-
-        <td>
-        <input type='number'
-        min='0'
-        name='DepartmentLibraries[${index}].BackVolumes'
-        class='form-control text-center' />
-        </td>
-
-        <td>
-        <input type='number'
-        min='0'
-        name='DepartmentLibraries[${index}].PrintJournalPercentage'
-        class='form-control text-center' />
-        </td>
+        <td><input type='number' min='0' name='DepartmentLibraries[${index}].Titles' class='form-control text-center' /></td>
+        <td><input type='number' min='0' name='DepartmentLibraries[${index}].InternationalJournals' class='form-control text-center' /></td>
+        <td><input type='number' min='0' name='DepartmentLibraries[${index}].BackVolumes' class='form-control text-center' /></td>
+        <td><input type='number' min='0' name='DepartmentLibraries[${index}].PrintJournalPercentage' class='form-control text-center' /></td>
         ";
             }
         }
 
-
         <script>
             $(document).ready(function () {
-            var $form = $('form:first');
-            var isFirstLogin = $('#isFirstLogin').val().toString().toLowerCase() === 'true';
+            var $form = $('#libraryForm');
+            var fieldSelector = 'input:not([type=hidden]), select';
 
             $.validator.setDefaults({ ignore: ":hidden:not(.pdf-input)" });
+
+            // The server already checks "PDF required only if none is saved",
+            // so drop the generic required rule on file inputs
+            $('input[type=file]').removeAttr('data-val data-val-required');
 
             function reparseValidation() {
             $form.removeData('validator').removeData('unobtrusiveValidation');
             $.validator.unobtrusive.parse($form);
             }
 
+            // Rename posted fields so indexes stay 0..n-1 (hidden deleted rows included)
             function reindexRows(tableSelector, collectionName) {
-            $(`${tableSelector} tbody tr`).each(function (index) {
-            $(this).find(`[name^="${collectionName}["]`).each(function () {
-            var propertyName = this.name.substring(this.name.indexOf('].') + 2);
-            this.name = `${collectionName}[${index}].${propertyName}`;
+            $(tableSelector + ' tbody tr').each(function (index) {
+            $(this).find('[name^="' + collectionName + '["]').each(function () {
+            var prop = this.name.substring(this.name.indexOf('].') + 2);
+            this.name = collectionName + '[' + index + '].' + prop;
             });
-            $(this).children('td').first().text(index + 1);
             });
             }
 
+            // Renumber only the visible rows
+            function renumber(tableSelector) {
+            $(tableSelector + ' tbody tr:visible').each(function (i) {
+            $(this).children('td').first().text(i + 1);
+            });
+            }
 
-            // Digital Valuation Logic
+            // ---------- Saved rows are locked until Edit is clicked ----------
+            $('#libraryStaffTable tbody tr[data-saved="true"], #libraryDepartmentTable tbody tr[data-saved="true"]')
+            .find(fieldSelector).prop('disabled', true);
+
+            $(document).on('click', '.editRow', function () {
+            $(this).closest('tr').find(fieldSelector).prop('disabled', false);
+            $(this).hide();
+            });
+
+            // Disabled fields are not posted, so unlock everything right before submit
+            $form.on('submit', function () {
+            $form.find(':disabled').prop('disabled', false);
+            });
+
+            // ---------- Delete ----------
+            function removeRow($btn, tableSelector, collectionName) {
+            var $tr = $btn.closest('tr');
+
+            if ($(tableSelector + ' tbody tr:visible').length <= 1) {
+            Swal.fire({ icon: 'warning', title: 'Warning', text: 'At least one record is required.' });
+            return;
+            }
+
+            Swal.fire({
+            icon: 'question',
+            title: 'Delete this record?',
+            text: 'Click "Save Changes" afterwards to apply the deletion.',
+            showCancelButton: true,
+            confirmButtonText: 'Delete'
+            }).then(function (result) {
+            if (!result.isConfirmed) return;
+
+            if ($tr.attr('data-saved') === 'true') {
+            // Saved row: flag it, the server removes it on save
+            $tr.find('.is-deleted').val('true');
+            $tr.hide();
+            } else {
+            // Never saved: just drop it
+            $tr.remove();
+            reindexRows(tableSelector, collectionName);
+            }
+            renumber(tableSelector);
+            });
+            }
+
+            $(document).on('click', '.deleteStaffRow', function () {
+            removeRow($(this), '#libraryStaffTable', 'LibraryStaff');
+            });
+
+            $(document).on('click', '.deleteDepartmentRow', function () {
+            removeRow($(this), '#libraryDepartmentTable', 'DepartmentLibraries');
+            });
+
+            // ---------- Digital Valuation ----------
             $('input[name="OtherDetails.HasDigitalValuationCentre"]').on('change', function () {
             $('#digitalQuestions').toggle($(this).val() === 'Yes');
             reparseValidation();
             }).filter(':checked').trigger('change');
 
-            // Library Service PDF toggle
+            // ---------- Library service PDF toggle ----------
             $(document).on('change', '.lib-yes, .lib-no', function () {
             var $row = $(this).closest('tr');
             var isYes = $row.find('.lib-yes:checked').val() === 'Yes';
@@ -868,99 +839,57 @@
             reparseValidation();
             });
 
-            // Systems Warning
+            // ---------- Systems warning ----------
             $('#digitalQuestions').on('input', 'input[name="OtherDetails.NoOfSystems"]', function () {
             var val = parseInt($(this).val());
             $('#systemsWarning').toggle(!isNaN(val) && val < 10);
             });
 
-            // Add Staff Row
+            // ---------- Add Staff ----------
             $('#addStaffRow').on('click', function () {
             var tbody = $('#libraryStaffTable tbody');
             var index = tbody.find('tr').length;
             var row = $(`
-            <tr>
-            <td class="text-center fw-semibold">${index + 1}</td>
+            <tr data-saved="false">
+            <td class="text-center fw-semibold">${$('#libraryStaffTable tbody tr:visible').length + 1}</td>
             <td><input name="LibraryStaff[${index}].StaffName" class="form-control" /></td>
             <td><input name="LibraryStaff[${index}].Designation" class="form-control" /></td>
             <td><input name="LibraryStaff[${index}].Qualification" class="form-control" /></td>
             <td><input type="number" min="0" name="LibraryStaff[${index}].Experience" class="form-control text-center" /></td>
             <td><input name="LibraryStaff[${index}].Category" class="form-control" /></td>
-            <td class="text-center"><button type="button" class="btn btn-danger btn-sm deleteStaffRow">Delete</button></td>
+            <td class="text-center text-nowrap">
+            <input type="hidden" name="LibraryStaff[${index}].Id" value="0" />
+            <input type="hidden" class="is-deleted" name="LibraryStaff[${index}].IsDeleted" value="false" />
+            <button type="button" class="btn btn-danger btn-sm deleteStaffRow">Delete</button>
+            </td>
             </tr>
             `);
             tbody.append(row);
             });
 
-            $(document).on('click', '.deleteStaffRow', function () {
-            if ($('#libraryStaffTable tbody tr').length <= 1) {
-            Swal.fire({ icon: 'warning', title: 'Warning', text: 'At least one staff record is required.' });
-            return;
-            }
-            $(this).closest('tr').remove();
-            reindexRows('#libraryStaffTable', 'LibraryStaff');
-            });
-
-            // const pdfRow = document.getElementById('specialPdfRow');
-            // // debugger;
-
-            // function togglePdfRow(){
-            //     const selected = document.querySelector('input[name="OtherDetails.SpecialFeaturesQuestion"]:checked');
-            //     const isYes = selected && selected.value == "Yes";
-            //     console.log(isYes);
-            //     if(isYes) pdfRow.style.display = "flex";
-            //     else pdfRow.style.display = "none";
-            // }
-
+            // ---------- Special features PDF toggle ----------
             const pdfRow = document.getElementById('specialPdfRow');
 
-            function togglePdfRow(){
-
-            // Dental page doesn't have this section
-            if (!pdfRow)
-            return;
-
-            const selected =
-            document.querySelector(
-            'input[name="OtherDetails.SpecialFeaturesQuestion"]:checked'
-            );
-
-            const isYes =
-            selected && selected.value == "Yes";
-
-            pdfRow.style.display =
-            isYes ? "flex" : "none";
+            function togglePdfRow() {
+            if (!pdfRow) return;
+            const selected = document.querySelector('input[name="OtherDetails.SpecialFeaturesQuestion"]:checked');
+            const isYes = selected && selected.value == "Yes";
+            pdfRow.style.display = isYes ? "flex" : "none";
             }
 
-            // attach change event
-            // document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]')
-            //     .forEach(radio => {
-            //         radio.addEventListener('change', togglePdfRow);
-            //     });
-
-            // // initial load
-            // togglePdfRow();
-
             const specialFeatureRadios = document.querySelectorAll('input[name="OtherDetails.SpecialFeaturesQuestion"]');
-
-            if (specialFeatureRadios.length > 0)
-            {
-            specialFeatureRadios.forEach(radio => {
-            radio.addEventListener('change', togglePdfRow);
-            });
-
+            if (specialFeatureRadios.length > 0) {
+            specialFeatureRadios.forEach(radio => radio.addEventListener('change', togglePdfRow));
             togglePdfRow();
             }
 
-
-
-            // Add Department Row
+            // ---------- Add Department ----------
             $('#addDepartmentRow').on('click', function () {
             var tbody = $('#libraryDepartmentTable tbody');
             var index = tbody.find('tr').length;
             var row = $(`
-            <tr>
-            <td class="text-center fw-semibold">${index + 1}</td>
+            <tr data-saved="false">
+            <td class="text-center fw-semibold">${$('#libraryDepartmentTable tbody tr:visible').length + 1}</td>
             <td>
             <select name="DepartmentLibraries[${index}].DepartmentCode" class="form-control dept-dropdown">
             <option value="">--Select--</option>
@@ -978,65 +907,42 @@
             <input class="form-control mb-2" name="DepartmentLibraries[${index}].LibraryStaff1" placeholder="Staff 1" />
             <input class="form-control" name="DepartmentLibraries[${index}].LibraryStaff2" placeholder="Staff 2" />
             </td>
-            <td class="text-center"><button type="button" class="btn btn-danger btn-sm deleteDepartmentRow">Delete</button></td>
+            <td class="text-center text-nowrap">
+            <input type="hidden" name="DepartmentLibraries[${index}].Id" value="0" />
+            <input type="hidden" class="is-deleted" name="DepartmentLibraries[${index}].IsDeleted" value="false" />
+            <button type="button" class="btn btn-danger btn-sm deleteDepartmentRow">Delete</button>
+            </td>
             </tr>
             `);
             tbody.append(row);
             });
 
-            $(document).on('click', '.deleteDepartmentRow', function () {
-            if ($('#libraryDepartmentTable tbody tr').length <= 1) {
-            Swal.fire({ icon: 'warning', title: 'Warning', text: 'At least one department record is required.' });
-            return;
-            }
-            $(this).closest('tr').remove();
-            reindexRows('#libraryDepartmentTable', 'DepartmentLibraries');
-            });
-
             // Initial validation
             reparseValidation();
             });
-
         </script>
 
         <script>
             document.addEventListener("change", function (e) {
-
             if (e.target.classList.contains("file-validate")) {
-
             const file = e.target.files[0];
-            const maxSize = 2 * 1024 * 1024; // ✅ 2MB
+            const maxSize = 2 * 1024 * 1024; // 2MB
 
             if (file) {
-
-            // ❌ FILE SIZE CHECK
             if (file.size > maxSize) {
-            Swal.fire({
-            icon: "error",
-            title: "File too large",
-            text: "Maximum allowed size is 2MB"
-            });
-
+            Swal.fire({ icon: "error", title: "File too large", text: "Maximum allowed size is 2MB" });
             e.target.value = "";
             return;
             }
 
-            // ❌ FILE TYPE CHECK
             const ext = file.name.split('.').pop().toLowerCase();
-
             if (ext !== "pdf") {
-            Swal.fire({
-            icon: "error",
-            title: "Invalid file",
-            text: "Only PDF files are allowed"
-            });
-
+            Swal.fire({ icon: "error", title: "Invalid file", text: "Only PDF files are allowed" });
             e.target.value = "";
             return;
             }
             }
             }
-
             });
         </script>
     }

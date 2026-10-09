@@ -23,6 +23,15 @@ namespace Medical_Affiliation.Controllers
         // Government colleges pay this flat amount for every application type.
         private const decimal GovernmentCollegeFee = 3010m;
 
+        // Late fine: Rs. 1,00,000 added automatically to EVERY college (government and
+        // private) and EVERY application type once the cut-off passes.
+        // Cut-off = 13 Oct 2026, 12:00 AM India Standard Time (UTC+05:30), i.e. the fine
+        // applies to anything calculated after the 12 Oct deadline has ended.
+        private const decimal LateFine = 100000m;
+        private const string LateFineFeeHead = "Late fine (applicable from 13 Oct 2026)";
+        private static readonly DateTimeOffset LateFineStart =
+            new DateTimeOffset(2026, 10, 13, 0, 0, 0, TimeSpan.FromHours(5.5));
+
         private readonly ApplicationDbContext _context;
         private readonly string _connectionString;
         private readonly IPaymentReceiptPdfService _paymentReceiptPdfService;
@@ -174,12 +183,40 @@ namespace Medical_Affiliation.Controllers
                     await RunPaymentCalculationAsync(vm);
                 }
 
+                ApplyLateFine(vm);
+
                 vm.HasResult = true;
             }
             catch (SqlException ex)
             {
                 vm.ErrorMessage = "Could not calculate payment: " + ex.Message;
                 vm.HasResult = false;
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Late fine
+        // Adds Rs. 1,00,000 to the fee lines and the grand total for all colleges
+        // and all application types from 13 Oct 2026 00:00 IST onwards. It is
+        // evaluated every time the calculation runs, so it switches on by itself at
+        // the cut-off with no deployment or manual step. Nothing is added before it.
+        // ---------------------------------------------------------------------
+        private static bool IsLateFineActive() => DateTimeOffset.UtcNow >= LateFineStart;
+
+        private static void ApplyLateFine(PaymentCalculationViewModel vm)
+        {
+            if (!IsLateFineActive())
+            {
+                return;
+            }
+
+            // Never add it twice if the view model already carries the line.
+            vm.FeeLines.RemoveAll(f => string.Equals(f.FeeHeadName, LateFineFeeHead, StringComparison.Ordinal));
+            vm.FeeLines.Add(FixedFee(LateFineFeeHead, LateFine));
+
+            if (vm.Summary != null)
+            {
+                vm.Summary.GrandTotal = vm.FeeLines.Sum(f => f.LineAmount);
             }
         }
 

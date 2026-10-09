@@ -33,6 +33,14 @@
         || normalizedAppType.Contains("Increase", StringComparison.OrdinalIgnoreCase)
         || normalizedAppType.Contains("Intake", StringComparison.OrdinalIgnoreCase)
         || payAffiliationTypeId == "3";
+
+    // Late fine: Rs. 1,00,000 added by PaymentCalculationController from 13 Oct 2026, 12:00 AM IST.
+    // Keep this cut-off identical to LateFineStart in the controller.
+    var lateFineStart = new DateTimeOffset(2026, 10, 13, 0, 0, 0, TimeSpan.FromHours(5.5));
+    var lateFineStartMs = lateFineStart.ToUnixTimeMilliseconds();
+    var lateFineApplied = Model.FeeLines.Any(f =>
+        (f.FeeHeadName ?? string.Empty).StartsWith("Late fine", StringComparison.OrdinalIgnoreCase));
+    var lateFineNotYetDue = !lateFineApplied && DateTimeOffset.UtcNow < lateFineStart;
 }
 
 <style>
@@ -113,6 +121,25 @@
             color: #435273;
             font-size: .76rem;
             text-transform: uppercase;
+        }
+
+    .payment-late-fine {
+        margin: 0 0 1.25rem;
+        padding: .9rem 1rem;
+        border: 1px solid #e3a1a1;
+        border-left: 4px solid #b42318;
+        border-radius: 6px;
+        background: #fff1f0;
+        color: #7a1a12;
+        font-size: .9rem;
+        font-weight: 600;
+    }
+
+        .payment-late-fine.upcoming {
+            border-color: #f0c36d;
+            border-left-color: #d98b00;
+            background: #fff8e1;
+            color: #5f4300;
         }
 
     .payment-calculation-page .separation {
@@ -219,6 +246,19 @@
             </div>
         </div>
 
+        @if (lateFineApplied)
+        {
+            <div class="payment-late-fine" role="alert">
+                <strong>Late fine applied:</strong> The due date (12 Oct 2026) has passed, so a late fine of ₹1,00,000 has been added to the Grand Total below. Please pay the exact Grand Total shown.
+            </div>
+        }
+        else if (lateFineNotYetDue)
+        {
+            <div class="payment-late-fine upcoming" role="note">
+                <strong>Please note:</strong> A late fine of ₹1,00,000 is added automatically from 13 Oct 2026, 12:00 AM. This page refreshes with the new Grand Total at that time, so pay before then to avoid the fine.
+            </div>
+        }
+
         <div class="payment-panel">
             <div class="payment-panel-header d-flex justify-content-between align-items-center">
                 <span>Fee Breakdown</span>
@@ -249,7 +289,8 @@
                                         ? $"{f.UnitAmount:N2} × {multiplierValue} seat(s)"
                                         : $"{f.UnitAmount:N2} × 1";
 
-                                <tr>
+                                var isLateFineLine = (f.FeeHeadName ?? string.Empty).StartsWith("Late fine", StringComparison.OrdinalIgnoreCase);
+                                <tr class="@(isLateFineLine ? "table-danger fw-semibold" : string.Empty)">
                                     <td>@f.FeeHeadName</td>
                                     <td>@f.UnitAmount.ToString("N2")</td>
                                     <td>@basisText</td>
@@ -437,6 +478,29 @@
     (function () {
         var pageSnapshot = @Html.Raw(Json.Serialize(snapshotData));
 
+        // ---- Late fine cut-off (13 Oct 2026, 12:00 AM IST) ----
+        var lateFineStartMs = @lateFineStartMs;
+        var lateFineApplied = @(lateFineApplied ? "true" : "false");
+        var lateFineReloadKey = 'paymentLateFineReloaded';
+
+        function lateFineReloadedAlready() {
+            try { return sessionStorage.getItem(lateFineReloadKey) === '1'; } catch (e) { return false; }
+        }
+        function markLateFineReloaded() {
+            try { sessionStorage.setItem(lateFineReloadKey, '1'); } catch (e) { }
+        }
+
+        // A page opened before the cut-off reloads itself the moment the fine starts,
+        // so the Grand Total and Payment Amount always include it.
+        if (!lateFineApplied) {
+            var msToCutoff = lateFineStartMs - Date.now();
+            if (msToCutoff > 0 && msToCutoff < 2147483647) {
+                setTimeout(function () { markLateFineReloaded(); window.location.reload(); }, msToCutoff + 1500);
+            }
+        } else {
+            try { sessionStorage.removeItem(lateFineReloadKey); } catch (e) { }
+        }
+
         // Falls back to a plain alert if SweetAlert2 (Swal) isn't loaded on this
         // page's layout — avoids "Swal is not defined" breaking the save flow.
         function showAlert(opts) {
@@ -522,6 +586,15 @@
 
             if (!token) {
                 showAlert({ icon: "error", title: "Security token missing", text: "Please refresh the page and try again." });
+                return;
+            }
+
+            // Stale page opened before the cut-off: reload so the amount includes the late fine.
+            // (Reloads at most once, so a wrong device clock can never block saving.)
+            if (!lateFineApplied && Date.now() >= lateFineStartMs && !lateFineReloadedAlready()) {
+                markLateFineReloaded();
+                showAlert({ icon: "info", title: "Amount updated", text: "A late fine now applies. The page will refresh with the updated Grand Total." })
+                    .then(function () { window.location.reload(); });
                 return;
             }
 

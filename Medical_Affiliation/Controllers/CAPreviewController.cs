@@ -59,17 +59,37 @@ namespace Medical_Affiliation.Controllers
 
             _paymentCalculationController.ControllerContext = ControllerContext;
             var paymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
+
             var model = await _capreviewService.GetPreviewAsync();
+            DedupeFaculty(model);
             model.PaymentCalculation = paymentCalculation;
-            await ApplyAnnualMbbsIntakeAsync(model);   // <-- added
+
+            await ApplySkillsLabAsync(model);          // Section 11 data from Medical_SkillsLaboratory
+            await ApplySmallGroupTeachingAsync(model); // Building Details data from SmallGroupTeachings
+            await ApplyAnnualMbbsIntakeAsync(model);   // AnnualMbbsIntake from Intake_26_27 (UG only)
+
             var reuploadPath = await FindSealedSignedReuploadPathAsync(
                 model.FacultyCode ?? CurrentFacultyCode,
                 model.CollegeCode ?? CurrentCollegeCode,
                 model.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"));
-            model.HasSealedSignedReupload = !string.IsNullOrWhiteSpace(reuploadPath) && System.IO.File.Exists(reuploadPath);
+
+            model.HasSealedSignedReupload = !string.IsNullOrWhiteSpace(reuploadPath)
+                && System.IO.File.Exists(reuploadPath);
+
             return View(model);
         }
+        private static void DedupeFaculty(CApreviewViewModel model)
+        {
+            var list = model?.FacultyDesigNonTeachDisplayVM?.FacultyDetailDisplayVM;
+            if (list == null) return;
 
+            model.FacultyDesigNonTeachDisplayVM.FacultyDetailDisplayVM = list
+                .GroupBy(f => !string.IsNullOrWhiteSpace(f.AadhaarNo)
+                    ? "A:" + f.AadhaarNo.Trim()
+                    : "N:" + f.NameOfFaculty?.Trim().ToUpper() + "|" + f.Mobile?.Trim())
+                .Select(g => g.OrderByDescending(x => x.Id).First())
+                .ToList();
+        }
         [HttpGet]
         public async Task<IActionResult> ViewSignedReupload()
         {
@@ -107,11 +127,21 @@ namespace Medical_Affiliation.Controllers
             }
 
             var model = await _capreviewService.GetPreviewAsync();
+            DedupeFaculty(model);
             _paymentCalculationController.ControllerContext = ControllerContext;
             model.PaymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
+            await ApplySkillsLabAsync(model);
+            await ApplySmallGroupTeachingAsync(model);
+            await ApplyAnnualMbbsIntakeAsync(model);
             return GeneratePreviewPdf(model);
         }
 
+        // ------------------------------------------------------------------
+        // Principal seal & signature re-upload.
+        // Intentionally has NO "already submitted" check: the re-upload must
+        // stay available before AND after the application is submitted.
+        // Uploading again replaces the previously saved document.
+        // ------------------------------------------------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReuploadSignedDocument(IFormFile? sealedSignedReupload)
@@ -323,7 +353,11 @@ namespace Medical_Affiliation.Controllers
             {
                 paymentCalculation = await GetPaymentCalculationAsync();
                 var submittedModel = await _capreviewService.GetPreviewAsync();
+                DedupeFaculty(submittedModel);
                 submittedModel.PaymentCalculation = paymentCalculation;
+                await ApplySkillsLabAsync(submittedModel);
+                await ApplySmallGroupTeachingAsync(submittedModel);
+                await ApplyAnnualMbbsIntakeAsync(submittedModel);
                 return GeneratePreviewPdf(submittedModel);
             }
 
@@ -337,7 +371,11 @@ namespace Medical_Affiliation.Controllers
 
             paymentCalculation = await GetPaymentCalculationAsync();
             var model = await _capreviewService.GetPreviewAsync();
+            DedupeFaculty(model);
             model.PaymentCalculation = paymentCalculation;
+            await ApplySkillsLabAsync(model);
+            await ApplySmallGroupTeachingAsync(model);
+            await ApplyAnnualMbbsIntakeAsync(model);
             return GeneratePreviewPdf(model);
         }
 
@@ -345,6 +383,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> SubmitApplication()
         {
             var model = await _capreviewService.GetPreviewAsync();
+            DedupeFaculty(model);
             var collegeCode = (model.CollegeCode ?? HttpContext.Session.GetString("CollegeCode"))?.Trim();
             var applicationType = (model.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"))?.Trim();
             var courseLevel = (model.ApplyingCourseLevel
@@ -361,6 +400,9 @@ namespace Medical_Affiliation.Controllers
 
             _paymentCalculationController.ControllerContext = ControllerContext;
             model.PaymentCalculation = await _paymentCalculationController.GetCurrentCalculationAsync();
+            await ApplySkillsLabAsync(model);
+            await ApplySmallGroupTeachingAsync(model);
+            await ApplyAnnualMbbsIntakeAsync(model);
             return GeneratePreviewPdf(model);
         }
 
@@ -544,20 +586,20 @@ namespace Medical_Affiliation.Controllers
 
             var fileName = Path.GetFileName(file.DocumentFilePth);
 
-            // 🔥 Detect content type dynamically
+            // Detect content type dynamically
             var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
             if (!provider.TryGetContentType(file.DocumentFilePth, out string contentType))
             {
                 contentType = "application/octet-stream";
             }
 
-            // 📥 Download mode
+            // Download mode
             if (mode == "download")
             {
                 return PhysicalFile(file.DocumentFilePth, contentType, fileName);
             }
 
-            // 👀 Preview mode (inline)
+            // Preview mode (inline)
             return PhysicalFile(file.DocumentFilePth, contentType);
         }
         public async Task<IActionResult> ViewServiceFile(int id)
@@ -824,9 +866,160 @@ namespace Medical_Affiliation.Controllers
             Response.Headers["X-Content-Type-Options"] = "nosniff";
             return File(bytes, "application/pdf");
         }
-        private async Task ApplyAnnualMbbsIntakeAsync(Medical_Affiliation.Models.CApreviewViewModel model)
+
+        // ------------------------------------------------------------------
+        // Section 11 - Skills Laboratory: load the row from Medical_SkillsLaboratory
+        // and copy it onto model.PhysicalFacilities.SkillsLab (matched by property name).
+        // ------------------------------------------------------------------
+        private async Task ApplySkillsLabAsync(Medical_Affiliation.Models.CApreviewViewModel model)
         {
             if (model?.PhysicalFacilities == null)
+                return;
+
+            var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
+            var facultyCode = (model.FacultyCode ?? CurrentFacultyCode)?.Trim();
+            var affiliationType = CurrentAffiliationType;
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCode))
+                return;
+
+            var row = await _context.Database.SqlQuery<SkillsLabRow>($@"
+                SELECT TOP (1) *
+                FROM dbo.Medical_SkillsLaboratory
+                WHERE LTRIM(RTRIM(CollegeCode)) = {collegeCode}
+                  AND LTRIM(RTRIM(CAST(FacultyCode AS varchar(20)))) = {facultyCode}
+                ORDER BY Id DESC").FirstOrDefaultAsync();
+
+            if (row == null)
+                return;
+
+            var pf = model.PhysicalFacilities;
+            var prop = pf.GetType().GetProperty("SkillsLab");
+            if (prop == null) return;
+
+            var target = prop.GetValue(pf) ?? Activator.CreateInstance(prop.PropertyType);
+            if (target == null) return;
+
+            // Copy by matching property name (handles bool? -> bool, int? -> int, etc.)
+            foreach (var src in typeof(SkillsLabRow).GetProperties())
+            {
+                var dst = target.GetType().GetProperty(src.Name);
+                if (dst == null || !dst.CanWrite) continue;
+
+                var value = src.GetValue(row);
+                var dstType = Nullable.GetUnderlyingType(dst.PropertyType) ?? dst.PropertyType;
+
+                if (value == null)
+                {
+                    if (!dst.PropertyType.IsValueType || Nullable.GetUnderlyingType(dst.PropertyType) != null)
+                        dst.SetValue(target, null);
+                    continue;
+                }
+
+                try { dst.SetValue(target, Convert.ChangeType(value, dstType)); }
+                catch { /* type mismatch - skip this field */ }
+            }
+
+            prop.SetValue(pf, target);
+        }
+
+        // ------------------------------------------------------------------
+        // Building Details > General Details (Section 10 / PDF): load the row from
+        // dbo.SmallGroupTeachings by college code and copy it onto
+        // model.PhysicalFacilities.SmallGroupTeaching (matched by property name).
+        // Columns are read generically, so int/bit/decimal/varchar differences
+        // between the table and the model cannot cause cast errors.
+        // Best row = same college, preferring matching faculty + course level, newest Id.
+        // ------------------------------------------------------------------
+        private async Task ApplySmallGroupTeachingAsync(Medical_Affiliation.Models.CApreviewViewModel model)
+        {
+            if (model?.PhysicalFacilities == null)
+                return;
+
+            var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
+            var facultyCode = (model.FacultyCode ?? CurrentFacultyCode)?.Trim() ?? string.Empty;
+            var courseLevel = (!string.IsNullOrWhiteSpace(CurrentCourseLevel)
+                    ? CurrentCourseLevel
+                    : model.ApplyingCourseLevel ?? string.Empty)
+                .Trim().ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return;
+
+            var connectionString = _context.Database.GetConnectionString();
+            if (string.IsNullOrWhiteSpace(connectionString))
+                return;
+
+            await using var connection = new SqlConnection(connectionString);
+            await using var command = new SqlCommand(@"
+                SELECT TOP (1) *
+                FROM dbo.SmallGroupTeachings
+                WHERE LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = @CollegeCode
+                ORDER BY
+                    CASE WHEN LTRIM(RTRIM(CAST(FacultyCode AS varchar(50)))) = @FacultyCode THEN 0 ELSE 1 END,
+                    CASE WHEN UPPER(LTRIM(RTRIM(ISNULL(CAST(CourseLevel AS varchar(50)), '')))) = @CourseLevel THEN 0 ELSE 1 END,
+                    Id DESC;", connection);
+
+            command.Parameters.Add("@CollegeCode", System.Data.SqlDbType.VarChar, 50).Value = collegeCode;
+            command.Parameters.Add("@FacultyCode", System.Data.SqlDbType.VarChar, 50).Value = facultyCode;
+            command.Parameters.Add("@CourseLevel", System.Data.SqlDbType.VarChar, 50).Value = courseLevel;
+
+            await connection.OpenAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+            if (!await reader.ReadAsync())
+                return;
+
+            var pf = model.PhysicalFacilities;
+            var prop = pf.GetType().GetProperty("SmallGroupTeaching");
+            if (prop == null) return;
+
+            var target = prop.GetValue(pf) ?? Activator.CreateInstance(prop.PropertyType);
+            if (target == null) return;
+
+            for (var i = 0; i < reader.FieldCount; i++)
+            {
+                var dst = target.GetType().GetProperty(reader.GetName(i));
+                if (dst == null || !dst.CanWrite) continue;
+
+                var raw = reader.GetValue(i);
+                var nullable = !dst.PropertyType.IsValueType || Nullable.GetUnderlyingType(dst.PropertyType) != null;
+                var dstType = Nullable.GetUnderlyingType(dst.PropertyType) ?? dst.PropertyType;
+
+                try
+                {
+                    if (raw == null || raw is DBNull)
+                    {
+                        if (nullable) dst.SetValue(target, null);
+                        continue;
+                    }
+
+                    object converted;
+                    if (dstType == typeof(bool))
+                    {
+                        var text = Convert.ToString(raw)?.Trim();
+                        converted = text != null && (text.Equals("1") || text.Equals("true", StringComparison.OrdinalIgnoreCase)
+                            || text.Equals("yes", StringComparison.OrdinalIgnoreCase) || text.Equals("y", StringComparison.OrdinalIgnoreCase));
+                    }
+                    else if (dstType == typeof(string))
+                    {
+                        converted = Convert.ToString(raw)?.Trim() ?? string.Empty;
+                    }
+                    else
+                    {
+                        converted = Convert.ChangeType(raw, dstType, System.Globalization.CultureInfo.InvariantCulture);
+                    }
+
+                    dst.SetValue(target, converted);
+                }
+                catch { /* type mismatch - skip this field */ }
+            }
+
+            prop.SetValue(pf, target);
+        }
+
+        private async Task ApplyAnnualMbbsIntakeAsync(Medical_Affiliation.Models.CApreviewViewModel model)
+        {
+            if (model == null)
                 return;
 
             var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
@@ -852,6 +1045,29 @@ namespace Medical_Affiliation.Controllers
           AND UPPER(LTRIM(RTRIM(ug_pg))) = {courseLevel}
           AND UPPER(LTRIM(RTRIM(course))) = 'MBBS'
         ORDER BY SLNO DESC").FirstOrDefaultAsync();
+
+            // Section 06 - Details of MBBS Course - UG: "Intake 2026-27" comes from Intake_26_27.
+            // The model property keeps its old name (IntakeDuring202526) but now carries the 2026-27 intake.
+            if (intake > 0)
+            {
+                var courseDetail = model.InstitutionBasicVM?.AffiliationCourseDetailVM;
+                var intakeProp = courseDetail?.GetType().GetProperty("IntakeDuring202526");
+                if (courseDetail != null && intakeProp != null && intakeProp.CanWrite)
+                {
+                    var intakeType = Nullable.GetUnderlyingType(intakeProp.PropertyType) ?? intakeProp.PropertyType;
+                    try
+                    {
+                        object value = intakeType == typeof(string)
+                            ? intake.ToString()
+                            : Convert.ChangeType(intake, intakeType);
+                        intakeProp.SetValue(courseDetail, value);
+                    }
+                    catch { /* unexpected type - leave as is */ }
+                }
+            }
+
+            if (model.PhysicalFacilities == null)
+                return;
 
             // Section 10 - Land, Building & Teaching Facilities
             if (model.PhysicalFacilities.SmallGroupTeaching != null)
@@ -882,5 +1098,70 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+    }
+}
+
+// ----------------------------------------------------------------------
+// Row DTO for dbo.Medical_SkillsLaboratory.
+// Lives in Medical_Affiliation.Models so Preview.cshtml (which has
+// "@using Medical_Affiliation.Models") can see it.
+// If you already created SkillsLabRow in your Models folder, delete this
+// copy to avoid a duplicate-type error.
+// If a column type differs (e.g. FacultyCode is int, or area columns are
+// float), change the property type to match the column.
+// ----------------------------------------------------------------------
+namespace Medical_Affiliation.Models
+{
+    public class SkillsLabRow
+    {
+        public int Id { get; set; }
+        public string? FacultyCode { get; set; }
+        public int? AnnualMbbsIntake { get; set; }
+        public decimal? TotalAreaAvailableSqm { get; set; }
+        public decimal? TotalAreaRequiredSqm { get; set; }
+        public decimal? TotalAreaDeficiencySqm { get; set; }
+        public bool? SixWeeksTrainingCompletedBeforeClinical { get; set; }
+        public int? NumberOfExaminationRooms { get; set; }
+        public bool? HasMinFourExamRooms { get; set; }
+        public bool? HasDemoRoomSmallGroups { get; set; }
+        public bool? HasDebriefArea { get; set; }
+        public bool? HasFacultyCoordinatorRoom { get; set; }
+        public bool? HasSupportStaffRoom { get; set; }
+        public bool? HasStorageForMannequins { get; set; }
+        public bool? HasVideoRecordingFacility { get; set; }
+        public int? NumberOfSkillStations { get; set; }
+        public bool? HasGroupAndIndividualStations { get; set; }
+        public bool? HasRequiredTrainersAndMannequins { get; set; }
+        public bool? HasDedicatedTechnicalOfficer { get; set; }
+        public bool? HasAdequateSupportStaff { get; set; }
+        public bool? TeachingAreasHaveAV { get; set; }
+        public bool? TeachingAreasHaveInternet { get; set; }
+        public bool? SkillsLabEnabledForELearning { get; set; }
+        public string? CollegeCode { get; set; }
+        public int? AnnualBdsIntake { get; set; }
+        public int? AffiliationTypeId { get; set; }
+    }
+
+    // ------------------------------------------------------------------
+    // Row DTO for the existing dbo.AssociatedInstitutions table
+    // (used by Section 12 - Associated Institutions in Preview.cshtml).
+    // Read-only: the table already exists, nothing here creates or alters it.
+    // If you already have a class with this name in your Models folder,
+    // delete this copy. If a column type differs (e.g. FacultyCode is int),
+    // change the matching property type.
+    // ------------------------------------------------------------------
+    public class AssociatedInstitutionRow
+    {
+        public int Id { get; set; }
+        public string? TypeOfAffiliation { get; set; }
+        public string? CollegeCode { get; set; }
+        public string? AssociatedCollegeCode { get; set; }
+        public string? AssociatedFacultyCode { get; set; }
+        public string? FacultyCode { get; set; }
+        public string? CourseCode { get; set; }
+        public string? CourseName { get; set; }
+        public string? CourseLevel { get; set; }
+        public int? AnnualIntake { get; set; }
+        public DateTime? CreatedOn { get; set; }
     }
 }

@@ -601,7 +601,7 @@ public class PreviewReportPdf : IDocument
             });
 
             AddTextRow(table, "Course Name", item.CourseName);
-            AddTextRow(table, "Intake 2025-26", item.IntakeDuring202526);
+            AddTextRow(table, "Intake 2026-27", item.IntakeDuring202526);
             AddTextRow(table, "Intake Slab", item.IntakeSlab);
             AddTextRow(table, "Permission Type", item.TypeofPermission);
             AddTextRow(table, "First Year of LOP", item.YearOfLop);

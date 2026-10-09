@@ -84,6 +84,19 @@ namespace Medical_Affiliation.Controllers
             return (courseLevel, affiliationType.Value);
         }
 
+        // Removes every ModelState entry that belongs to one posted row
+        private void ClearModelStateFor(string prefix)
+        {
+            var keys = ModelState.Keys
+                .Where(k => k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            foreach (var key in keys)
+                ModelState.Remove(key);
+        }
+
+        // =====================================================================
+        // GET
+        // =====================================================================
         [HttpGet]
         public async Task<IActionResult> MedicalLibrary()
         {
@@ -102,7 +115,6 @@ namespace Medical_Affiliation.Controllers
             };
 
             ViewBag.IsDentalFaculty = facultyCode == 2;
-
 
             // ===================== 1. LIBRARY SERVICES =====================
             var savedServices = _context.CaMedicalLibraryServices
@@ -125,7 +137,6 @@ namespace Medical_Affiliation.Controllers
                 {
                     ServiceId = m.ServiceId,
                     IsAvailable = saved?.IsAvailable,
-
                     ExistingFileName = saved?.UploadedFileName,
                     UploadedPdf = null
                 };
@@ -170,7 +181,6 @@ namespace Medical_Affiliation.Controllers
             }).ToList();
 
             // ===================== 4. DEPARTMENTAL LIBRARY =====================
-            // ===================== 4. DEPARTMENTAL LIBRARY (FIXED) =====================
             var savedDepartmentCandidates = _context.CaMedicalDepartmentLibraries
                 .Where(x => x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
@@ -185,7 +195,6 @@ namespace Medical_Affiliation.Controllers
                 ? savedDepartmentCandidates.Where(x => x.CourseLevel != null && x.CourseLevel.Trim().ToUpper() == courseLevel).ToList()
                 : savedDepartmentCandidates;
 
-            // If data exists → load only saved rows
             if (savedDepartments.Any())
             {
                 model.DepartmentLibraries = savedDepartments.Select(s =>
@@ -196,16 +205,13 @@ namespace Medical_Affiliation.Controllers
                     if (!string.IsNullOrWhiteSpace(s.LibraryStaff))
                     {
                         var parts = s.LibraryStaff.Split('|', StringSplitOptions.RemoveEmptyEntries);
-
-                        if (parts.Length > 0)
-                            staff1 = parts[0].Trim();
-
-                        if (parts.Length > 1)
-                            staff2 = parts[1].Trim();
+                        if (parts.Length > 0) staff1 = parts[0].Trim();
+                        if (parts.Length > 1) staff2 = parts[1].Trim();
                     }
 
                     return new DepartmentLibraryViewModel
                     {
+                        Id = s.DepartmentalLibraryId,
                         DepartmentCode = s.DepartmentCode,
                         TotalBooks = s.TotalBooks,
                         BooksAddedInYear = s.BooksAddedInYear,
@@ -218,17 +224,15 @@ namespace Medical_Affiliation.Controllers
                         PrintJournalPercentage = s.PrintJournalPercentage,
                     };
                 }).ToList();
-
             }
             else
             {
-                // FIRST LOGIN → ONE EMPTY ROW ONLY
+                // First visit: one empty row only
                 model.DepartmentLibraries = new List<DepartmentLibraryViewModel>
-    {
-        new DepartmentLibraryViewModel()
-    };
+                {
+                    new DepartmentLibraryViewModel()
+                };
             }
-
 
             // ===================== 5. OTHER DETAILS =====================
             var otherDetailsCandidates = _context.CaMedicalLibraryOtherDetails
@@ -252,114 +256,72 @@ namespace Medical_Affiliation.Controllers
                     NoOfSystems = otherDetails.NoOfSystems,
                     HasStableInternet = NormalizeYesNo(otherDetails.HasStableInternet),
                     HasCccameraSystem = NormalizeYesNo(otherDetails.HasCccameraSystem),
-
-                    SpecialFeaturesQuestion =
-                            otherDetails.SpecialFeaturesAchievementsPdfPath != null ? "Yes" : "No",
-
-                    HasSpecialFeaturesPdf =
-                            otherDetails.SpecialFeaturesAchievementsPdfPath != null,
-
-
+                    SpecialFeaturesQuestion = otherDetails.SpecialFeaturesAchievementsPdfPath != null ? "Yes" : "No",
+                    HasSpecialFeaturesPdf = otherDetails.SpecialFeaturesAchievementsPdfPath != null,
                     UploadedFileName = otherDetails.UploadedFileName,
                     CreatedDate = otherDetails.CreatedDate
                 };
-
-
             }
 
             // ===================== 6. ViewBag Masters =====================
             ViewBag.LibraryServiceMasters = masterServices;
             ViewBag.DepartmentMasters = _context.DepartmentMasters
-                                     .Where(d => d.FacultyCode == facultyCode)
-                                     .OrderBy(d => d.DepartmentCode)
-                                     .ToList();
+                .Where(d => d.FacultyCode == facultyCode)
+                .OrderBy(d => d.DepartmentCode)
+                .ToList();
 
-            bool hasLibraryServicePdf = model.LibraryServices.Any(s =>
-                                 !string.IsNullOrEmpty(s.ExistingFileName));
-
-            bool hasUsageReportPdf =
-                !string.IsNullOrEmpty(model.ExistingUsageReportFileName);
-
-            bool hasSpecialFeaturesPdf =
-                model.OtherDetails?.HasSpecialFeaturesPdf == true;
+            bool hasLibraryServicePdf = model.LibraryServices.Any(s => !string.IsNullOrEmpty(s.ExistingFileName));
+            bool hasUsageReportPdf = !string.IsNullOrEmpty(model.ExistingUsageReportFileName);
+            bool hasSpecialFeaturesPdf = model.OtherDetails?.HasSpecialFeaturesPdf == true;
 
             model.IsFirstLogin = !(hasLibraryServicePdf || hasUsageReportPdf || hasSpecialFeaturesPdf);
 
-            // =====================================================
-            // DENTAL LIBRARY RECORDS
-            // =====================================================
-
+            // ===================== DENTAL LIBRARY RECORDS =====================
             if (facultyCode == 2)
             {
-                var masterRecords =
-                    _context.CaMstDentalLibraryRecords
+                var masterRecords = _context.CaMstDentalLibraryRecords
                     .OrderBy(x => x.DisplayOrder)
                     .ToList();
 
-                var uploadedRecords =
-                    _context.CaDentalLibraryRecords
-                    .Where(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        x.AffiliationType == affiliationType)
+                var uploadedRecords = _context.CaDentalLibraryRecords
+                    .Where(x => x.CollegeCode == collegeCode &&
+                                x.FacultyCode == facultyCode &&
+                                x.AffiliationType == affiliationType)
                     .ToList();
 
-                model.DentalLibraryRecords =
-                    masterRecords.Select(m =>
+                model.DentalLibraryRecords = masterRecords.Select(m =>
+                {
+                    var uploaded = uploadedRecords.FirstOrDefault(x => x.RecordId == m.RecordId);
+                    return new DentalLibraryRecordViewModel
                     {
-                        var uploaded =
-                            uploadedRecords.FirstOrDefault(x =>
-                                x.RecordId == m.RecordId);
-
-                        return new DentalLibraryRecordViewModel
-                        {
-                            RecordId = m.RecordId,
-
-                            RecordName = m.RecordName,
-
-                            ExistingFileName =
-                                uploaded?.FileName
-                        };
-                    }).ToList();
+                        RecordId = m.RecordId,
+                        RecordName = m.RecordName,
+                        ExistingFileName = uploaded?.FileName
+                    };
+                }).ToList();
             }
 
             return View("MedicalLibrary", model);
         }
+
         private async Task<string?> SaveLibraryFileAsync(
-    IFormFile? file,
-    string folder,
-    string facultyCode)
+            IFormFile? file,
+            string folder,
+            string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-            // Select base path
-            string rootPath = facultyCode == "2"
-                ? BaseDentalPath
-                : BaseMedicalPath;
+            string rootPath = facultyCode == "2" ? BaseDentalPath : BaseMedicalPath;
+            string basePath = Path.Combine(rootPath, "MedicalLibrary");
+            string fullFolder = Path.Combine(basePath, folder);
 
-            // MedicalLibrary folder
-            string basePath =
-                Path.Combine(rootPath, "MedicalLibrary");
-
-            // Dynamic subfolder
-            string fullFolder =
-                Path.Combine(basePath, folder);
-
-            // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
-            // Unique file name
-            string fileName =
-                Guid.NewGuid().ToString() +
-                Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
 
-            // Full file path
-            string fullPath =
-                Path.Combine(fullFolder, fileName);
-
-            // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
@@ -368,6 +330,9 @@ namespace Medical_Affiliation.Controllers
             return fullPath;
         }
 
+        // =====================================================================
+        // POST
+        // =====================================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MedicalLibrary(CA_Aff_MedicalLibraryViewModel model)
@@ -378,45 +343,48 @@ namespace Medical_Affiliation.Controllers
             var libraryContext = await ResolveLibraryContextAsync(model.AffiliationType, model.CourseLevel);
             var courseLevel = libraryContext.CourseLevel;
 
-            string collegeCode =
-                HttpContext.Session.GetString("CollegeCode") ?? "";
-
-            int facultyCode = Convert.ToInt32(
-                HttpContext.Session.GetString("FacultyCode")
-            );
-
+            string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
+            int facultyCode = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode"));
             int affiliationType = libraryContext.AffiliationType;
+            string facultyCodeText = facultyCode.ToString(); // NEW
 
             model.CollegeCode = collegeCode;
             model.FacultyCode = facultyCode;
             model.AffiliationType = affiliationType;
             model.CourseLevel = courseLevel;
 
-            // =====================================================
-            // VALIDATIONS
-            // =====================================================
+            model.LibraryServices ??= new List<LibraryServiceRowViewModel>();
+            model.LibraryStaff ??= new List<LibraryStaffViewModel>();
+            model.DepartmentLibraries ??= new List<DepartmentLibraryViewModel>();
+            model.DentalLibraryRecords ??= new List<DentalLibraryRecordViewModel>();
+
+            // NEW: PDF rules are checked against the database below, so drop the stale
+            // view-model errors (ExistingFileName / HasSpecialFeaturesPdf are not posted back)
+            var stalePdfKeys = ModelState.Keys
+                .Where(k => k.EndsWith(".UploadedPdf", StringComparison.OrdinalIgnoreCase)
+                         || k.EndsWith("SpecialFeaturesPdf", StringComparison.OrdinalIgnoreCase)
+                         || k.Equals("UsageReportPdf", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            foreach (var key in stalePdfKeys)
+                ModelState.Remove(key);
 
             // =====================================================
             // MEDICAL VALIDATIONS
             // =====================================================
-
             if (facultyCode != 2)
             {
-                // =====================
-                // LIBRARY SERVICES
-                // =====================
-
-                var existingServices =
-                    _context.CaMedicalLibraryServices
-                    .Where(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
-                        x.AffiliationType == affiliationType)
+                var existingServices = _context.CaMedicalLibraryServices
+                    .Where(x => x.CollegeCode == collegeCode &&
+                                x.FacultyCode == facultyCode &&
+                                (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                                x.AffiliationType == affiliationType)
                     .ToList();
 
-                foreach (var row in model.LibraryServices)
+                // CHANGED: for loop + field key so the message shows next to the right input
+                for (var i = 0; i < model.LibraryServices.Count; i++)
                 {
+                    var row = model.LibraryServices[i];
+
                     bool pdfExists = existingServices.Any(x =>
                         x.ServiceId == row.ServiceId &&
                         !string.IsNullOrEmpty(x.UploadedFileName));
@@ -426,73 +394,33 @@ namespace Medical_Affiliation.Controllers
                         row.UploadedPdf == null &&
                         !pdfExists)
                     {
-                        ModelState.AddModelError(
-                            "",
-                            "User Education Programme PDF is mandatory."
-                        );
+                        ModelState.AddModelError($"LibraryServices[{i}].UploadedPdf",
+                            "User Education Programme PDF is mandatory.");
                     }
                 }
-
-                // =====================
-                // DIGITAL VALUATION
-                // =====================
 
                 if (model.OtherDetails != null &&
                     model.OtherDetails.HasDigitalValuationCentre == "Yes")
                 {
-                    if (!model.OtherDetails.NoOfSystems.HasValue ||
-                        model.OtherDetails.NoOfSystems <= 0)
-                    {
-                        ModelState.AddModelError(
-                            "OtherDetails.NoOfSystems",
-                            "Number of systems is required."
-                        );
-                    }
+                    if (!model.OtherDetails.NoOfSystems.HasValue || model.OtherDetails.NoOfSystems <= 0)
+                        ModelState.AddModelError("OtherDetails.NoOfSystems", "Number of systems is required.");
 
-                    if (string.IsNullOrWhiteSpace(
-                        model.OtherDetails.HasStableInternet))
-                    {
-                        ModelState.AddModelError(
-                            "OtherDetails.HasStableInternet",
-                            "LAN / Stable Internet is required."
-                        );
-                    }
+                    if (string.IsNullOrWhiteSpace(model.OtherDetails.HasStableInternet))
+                        ModelState.AddModelError("OtherDetails.HasStableInternet", "LAN / Stable Internet is required.");
 
-                    if (string.IsNullOrWhiteSpace(
-                        model.OtherDetails.HasCccameraSystem))
-                    {
-                        ModelState.AddModelError(
-                            "OtherDetails.HasCccameraSystem",
-                            "CCTV Camera System is required."
-                        );
-                    }
+                    if (string.IsNullOrWhiteSpace(model.OtherDetails.HasCccameraSystem))
+                        ModelState.AddModelError("OtherDetails.HasCccameraSystem", "CCTV Camera System is required.");
                 }
 
-                // =====================
-                // USAGE REPORT
-                // =====================
+                bool hasExistingUsagePdf = _context.CaMedicalLibraryUsageReports.Any(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                    x.AffiliationType == affiliationType &&
+                    !string.IsNullOrEmpty(x.UploadedFileName));
 
-                bool hasExistingUsagePdf =
-                    _context.CaMedicalLibraryUsageReports.Any(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
-                        x.AffiliationType == affiliationType &&
-                        !string.IsNullOrEmpty(x.UploadedFileName)
-                    );
-
-                if (!hasExistingUsagePdf &&
-                    model.UsageReportPdf == null)
-                {
-                    ModelState.AddModelError(
-                        nameof(model.UsageReportPdf),
-                        "Usage Report PDF is mandatory."
-                    );
-                }
-
-                // =====================
-                // REMOVE VALIDATION IF NO
-                // =====================
+                if (!hasExistingUsagePdf && model.UsageReportPdf == null)
+                    ModelState.AddModelError(nameof(model.UsageReportPdf), "Usage Report PDF is mandatory.");
 
                 if (model.OtherDetails?.HasDigitalValuationCentre == "No")
                 {
@@ -501,110 +429,55 @@ namespace Medical_Affiliation.Controllers
                     ModelState.Remove("OtherDetails.HasCccameraSystem");
                 }
 
-                // =====================
-                // SPECIAL FEATURES
-                // =====================
-
-                bool hasExistingSpecialPdf =
-                    _context.CaMedicalLibraryOtherDetails.Any(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
-                        x.AffiliationType == affiliationType &&
-                        x.SpecialFeaturesAchievementsPdfPath != null
-                    );
+                bool hasExistingSpecialPdf = _context.CaMedicalLibraryOtherDetails.Any(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                    x.AffiliationType == affiliationType &&
+                    x.SpecialFeaturesAchievementsPdfPath != null);
 
                 if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes")
                 {
-                    if (model.OtherDetails.SpecialFeaturesPdf == null &&
-                        !hasExistingSpecialPdf)
-                    {
-                        ModelState.AddModelError(
-                            "OtherDetails.SpecialFeaturesPdf",
-                            "Special Features PDF is required."
-                        );
-                    }
+                    if (model.OtherDetails.SpecialFeaturesPdf == null && !hasExistingSpecialPdf)
+                        ModelState.AddModelError("OtherDetails.SpecialFeaturesPdf", "Special Features PDF is required.");
                 }
                 else
                 {
                     ModelState.Remove("OtherDetails.SpecialFeaturesPdf");
                 }
 
-                // =====================
-                // DIGITAL VALUATION REQUIRED
-                // =====================
+                if (string.IsNullOrWhiteSpace(model.OtherDetails?.HasDigitalValuationCentre))
+                    ModelState.AddModelError("OtherDetails.HasDigitalValuationCentre", "Please select Yes or No for Digital Valuation Centre.");
 
-                if (string.IsNullOrWhiteSpace(
-                    model.OtherDetails?.HasDigitalValuationCentre))
-                {
-                    ModelState.AddModelError(
-                        "OtherDetails.HasDigitalValuationCentre",
-                        "Please select Yes or No for Digital Valuation Centre."
-                    );
-                }
-
-                // =====================
-                // SPECIAL FEATURES REQUIRED
-                // =====================
-
-                if (string.IsNullOrWhiteSpace(
-                    model.OtherDetails?.SpecialFeaturesQuestion))
-                {
-                    ModelState.AddModelError(
-                        "OtherDetails.SpecialFeaturesQuestion",
-                        "Please select Yes or No for Special Features."
-                    );
-                }
+                if (string.IsNullOrWhiteSpace(model.OtherDetails?.SpecialFeaturesQuestion))
+                    ModelState.AddModelError("OtherDetails.SpecialFeaturesQuestion", "Please select Yes or No for Special Features.");
             }
 
             // =====================================================
             // DENTAL VALIDATIONS
             // =====================================================
-
             if (facultyCode == 2)
             {
-                if (model.DepartmentLibraries == null ||
-                    !model.DepartmentLibraries.Any())
-                {
-                    ModelState.AddModelError(
-                        "",
-                        "At least one department is required."
-                    );
-                }
+                var activeDepartments = model.DepartmentLibraries.Where(d => !d.IsDeleted).ToList();
 
-                foreach (var dept in model.DepartmentLibraries)
+                if (!activeDepartments.Any())
+                    ModelState.AddModelError("", "At least one department is required.");
+
+                foreach (var dept in activeDepartments)
                 {
                     if (string.IsNullOrWhiteSpace(dept.DepartmentCode))
-                    {
-                        ModelState.AddModelError(
-                            "",
-                            "Department is required."
-                        );
-                    }
+                        ModelState.AddModelError("", "Department is required.");
                 }
-            }
 
-            // =====================================================
-            // MODELSTATE CHECK
-            // =====================================================
-
-            if (facultyCode == 2)
-            {
                 ModelState.Remove("OtherDetails.SpecialFeaturesQuestion");
-
                 ModelState.Remove("OtherDetails.HasDigitalValuationCentre");
-
                 ModelState.Remove("OtherDetails.NoOfSystems");
-
                 ModelState.Remove("OtherDetails.HasStableInternet");
-
                 ModelState.Remove("OtherDetails.HasCccameraSystem");
-
                 ModelState.Remove("UsageReportPdf");
             }
 
-            // Blank template rows are optional. Remove their generated
-            // validation errors before validating rows that contain data.
+            // Blank template rows and rows marked as deleted must not produce validation errors
             for (var index = 0; index < model.DepartmentLibraries.Count; index++)
             {
                 var department = model.DepartmentLibraries[index];
@@ -615,13 +488,8 @@ namespace Medical_Affiliation.Controllers
                     && string.IsNullOrWhiteSpace(department.LibraryStaff1)
                     && string.IsNullOrWhiteSpace(department.LibraryStaff2);
 
-                if (isBlank)
-                {
-                    ModelState.Remove($"DepartmentLibraries[{index}].DepartmentCode");
-                    ModelState.Remove($"DepartmentLibraries[{index}].TotalBooks");
-                    ModelState.Remove($"DepartmentLibraries[{index}].BooksAddedInYear");
-                    ModelState.Remove($"DepartmentLibraries[{index}].CurrentJournals");
-                }
+                if (isBlank || department.IsDeleted)
+                    ClearModelStateFor($"DepartmentLibraries[{index}].");
             }
 
             for (var index = 0; index < model.LibraryStaff.Count; index++)
@@ -633,14 +501,8 @@ namespace Medical_Affiliation.Controllers
                     && !staff.Experience.HasValue
                     && string.IsNullOrWhiteSpace(staff.Category);
 
-                if (isBlank)
-                {
-                    ModelState.Remove($"LibraryStaff[{index}].StaffName");
-                    ModelState.Remove($"LibraryStaff[{index}].Designation");
-                    ModelState.Remove($"LibraryStaff[{index}].Qualification");
-                    ModelState.Remove($"LibraryStaff[{index}].Experience");
-                    ModelState.Remove($"LibraryStaff[{index}].Category");
-                }
+                if (isBlank || staff.IsDeleted)
+                    ClearModelStateFor($"LibraryStaff[{index}].");
             }
 
             if (!ModelState.IsValid)
@@ -652,19 +514,14 @@ namespace Medical_Affiliation.Controllers
             // =====================================================
             // SAVE TRANSACTION
             // =====================================================
-
             using var transaction = _context.Database.BeginTransaction();
 
             try
             {
-                // =====================================================
-                // 1. LIBRARY SERVICES
-                // =====================================================
-
+                // ---------- 1. LIBRARY SERVICES ----------
                 foreach (var row in model.LibraryServices)
                 {
-                    var entity =
-                        _context.CaMedicalLibraryServices
+                    var entity = _context.CaMedicalLibraryServices
                         .FirstOrDefault(x =>
                             x.CollegeCode == collegeCode &&
                             x.FacultyCode == facultyCode &&
@@ -682,7 +539,6 @@ namespace Medical_Affiliation.Controllers
                             CourseLevel = courseLevel,
                             ServiceId = row.ServiceId ?? 0
                         };
-
                         _context.CaMedicalLibraryServices.Add(entity);
                     }
 
@@ -692,11 +548,7 @@ namespace Medical_Affiliation.Controllers
                         row.UploadedPdf != null &&
                         row.UploadedPdf.Length > 0)
                     {
-                        var path = await SaveLibraryFileAsync(
-                            row.UploadedPdf,
-                            "LibraryServices",
-                            FacultyCode
-                        );
+                        var path = await SaveLibraryFileAsync(row.UploadedPdf, "LibraryServices", facultyCodeText); // CHANGED
 
                         if (path != null)
                         {
@@ -712,20 +564,15 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
 
-                // =====================================================
-                // 2. USAGE REPORT
-                // =====================================================
-
-                var usage =
-                    _context.CaMedicalLibraryUsageReports
+                // ---------- 2. USAGE REPORT ----------
+                var usage = _context.CaMedicalLibraryUsageReports
                     .FirstOrDefault(x =>
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == facultyCode &&
                         (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                         x.AffiliationType == affiliationType);
 
-                if (usage == null &&
-                    model.UsageReportPdf != null)
+                if (usage == null && model.UsageReportPdf != null)
                 {
                     usage = new CaMedicalLibraryUsageReport
                     {
@@ -734,7 +581,6 @@ namespace Medical_Affiliation.Controllers
                         AffiliationType = affiliationType,
                         CourseLevel = courseLevel
                     };
-
                     _context.CaMedicalLibraryUsageReports.Add(usage);
                 }
 
@@ -742,11 +588,7 @@ namespace Medical_Affiliation.Controllers
                     model.UsageReportPdf != null &&
                     model.UsageReportPdf.Length > 0)
                 {
-                    var path = await SaveLibraryFileAsync(
-                        model.UsageReportPdf,
-                        "UsageReports",
-                        FacultyCode
-                    );
+                    var path = await SaveLibraryFileAsync(model.UsageReportPdf, "UsageReports", facultyCodeText); // CHANGED
 
                     if (path != null)
                     {
@@ -761,108 +603,113 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
 
-                // =====================================================
-                // 3. LIBRARY STAFF
-                // =====================================================
-
-                var oldStaff =
-                    _context.CaMedicalLibraryStaffs
-                    .Where(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
-                        x.AffiliationType == affiliationType)
+                // ---------- 3. LIBRARY STAFF (update in place) ----------
+                var existingStaff = _context.CaMedicalLibraryStaffs
+                    .Where(x => x.CollegeCode == collegeCode &&
+                                x.FacultyCode == facultyCode &&
+                                (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                                x.AffiliationType == affiliationType)
                     .ToList();
-
-                _context.CaMedicalLibraryStaffs.RemoveRange(oldStaff);
 
                 foreach (var staff in model.LibraryStaff)
                 {
+                    var entity = staff.Id > 0
+                        ? existingStaff.FirstOrDefault(x => x.Id == staff.Id)
+                        : null;
+
                     if (staff.IsDeleted)
+                    {
+                        if (entity != null)
+                            _context.CaMedicalLibraryStaffs.Remove(entity);
+                        continue;
+                    }
+
+                    var isBlank = string.IsNullOrWhiteSpace(staff.StaffName)
+                        && string.IsNullOrWhiteSpace(staff.Designation)
+                        && string.IsNullOrWhiteSpace(staff.Qualification)
+                        && !staff.Experience.HasValue
+                        && string.IsNullOrWhiteSpace(staff.Category);
+                    if (isBlank)
                         continue;
 
-                    _context.CaMedicalLibraryStaffs.Add(
-                        new CaMedicalLibraryStaff
+                    if (entity == null)
+                    {
+                        entity = new CaMedicalLibraryStaff
                         {
                             CollegeCode = collegeCode,
                             FacultyCode = facultyCode,
-                            CourseLevel = courseLevel,
-                            AffiliationType = affiliationType,
-                            StaffName = staff.StaffName,
-                            Designation = staff.Designation,
-                            Qualification = staff.Qualification,
-                            Experience = staff.Experience ?? 0,
-                            Category = staff.Category
-                        });
+                            AffiliationType = affiliationType
+                        };
+                        _context.CaMedicalLibraryStaffs.Add(entity);
+                    }
+
+                    entity.CourseLevel = courseLevel;
+                    entity.StaffName = staff.StaffName;
+                    entity.Designation = staff.Designation;
+                    entity.Qualification = staff.Qualification;
+                    entity.Experience = staff.Experience ?? 0;
+                    entity.Category = staff.Category;
                 }
 
-                // =====================================================
-                // 4. DEPARTMENT LIBRARY
-                // =====================================================
-
-                var oldDepts =
-                    _context.CaMedicalDepartmentLibraries
-                    .Where(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
-                        x.AffiliationType == affiliationType)
+                // ---------- 4. DEPARTMENT LIBRARY (update in place) ----------
+                var existingDepts = _context.CaMedicalDepartmentLibraries
+                    .Where(x => x.CollegeCode == collegeCode &&
+                                x.FacultyCode == facultyCode &&
+                                (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                                x.AffiliationType == affiliationType)
                     .ToList();
-
-                _context.CaMedicalDepartmentLibraries.RemoveRange(oldDepts);
 
                 foreach (var dept in model.DepartmentLibraries)
                 {
+                    var entity = dept.Id > 0
+                        ? existingDepts.FirstOrDefault(x => x.DepartmentalLibraryId == dept.Id)
+                        : null;
+
+                    if (dept.IsDeleted)
+                    {
+                        if (entity != null)
+                            _context.CaMedicalDepartmentLibraries.Remove(entity);
+                        continue;
+                    }
+
                     if (string.IsNullOrWhiteSpace(dept.DepartmentCode))
                         continue;
 
                     var staffList = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(dept.LibraryStaff1)) staffList.Add(dept.LibraryStaff1.Trim());
+                    if (!string.IsNullOrWhiteSpace(dept.LibraryStaff2)) staffList.Add(dept.LibraryStaff2.Trim());
 
-                    if (!string.IsNullOrWhiteSpace(dept.LibraryStaff1))
-                        staffList.Add(dept.LibraryStaff1.Trim());
-
-                    if (!string.IsNullOrWhiteSpace(dept.LibraryStaff2))
-                        staffList.Add(dept.LibraryStaff2.Trim());
-
-                    string combinedStaff =
-                        string.Join(" | ", staffList);
-
-                    _context.CaMedicalDepartmentLibraries.Add(
-                        new CaMedicalDepartmentLibrary
+                    if (entity == null)
+                    {
+                        entity = new CaMedicalDepartmentLibrary
                         {
                             CollegeCode = collegeCode,
                             FacultyCode = facultyCode,
-                            CourseLevel = courseLevel,
-                            AffiliationType = affiliationType,
+                            AffiliationType = affiliationType
+                        };
+                        _context.CaMedicalDepartmentLibraries.Add(entity);
+                    }
 
-                            DepartmentCode = dept.DepartmentCode,
-
-                            TotalBooks = dept.TotalBooks ?? 0,
-                            BooksAddedInYear = dept.BooksAddedInYear ?? 0,
-                            CurrentJournals = dept.CurrentJournals ?? 0,
-
-                            Titles = dept.Titles,
-                            InternationalJournals = dept.InternationalJournals,
-                            BackVolumes = dept.BackVolumes,
-                            PrintJournalPercentage =
-                                dept.PrintJournalPercentage,
-
-                            LibraryStaff = combinedStaff
-                        });
+                    entity.CourseLevel = courseLevel;
+                    entity.DepartmentCode = dept.DepartmentCode;
+                    entity.TotalBooks = dept.TotalBooks ?? 0;
+                    entity.BooksAddedInYear = dept.BooksAddedInYear ?? 0;
+                    entity.CurrentJournals = dept.CurrentJournals ?? 0;
+                    entity.Titles = dept.Titles;
+                    entity.InternationalJournals = dept.InternationalJournals;
+                    entity.BackVolumes = dept.BackVolumes;
+                    entity.PrintJournalPercentage = dept.PrintJournalPercentage;
+                    entity.LibraryStaff = string.Join(" | ", staffList);
                 }
 
-                // =====================================================
-                // 5. OTHER DETAILS
-                // =====================================================
+                // ---------- 5. OTHER DETAILS (medical only) ----------
                 if (facultyCode != 2)
                 {
-                    var otherEntityCandidates =
-                        _context.CaMedicalLibraryOtherDetails
-                        .Where(x =>
-                            x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
-                            x.AffiliationType == affiliationType)
+                    var otherEntityCandidates = _context.CaMedicalLibraryOtherDetails
+                        .Where(x => x.CollegeCode == collegeCode &&
+                                    x.FacultyCode == facultyCode &&
+                                    (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                                    x.AffiliationType == affiliationType)
                         .ToList();
 
                     var otherEntity = otherEntityCandidates.FirstOrDefault(x =>
@@ -880,26 +727,17 @@ namespace Medical_Affiliation.Controllers
                             CourseLevel = courseLevel,
                             CreatedDate = DateTime.Now
                         };
-
                         _context.CaMedicalLibraryOtherDetails.Add(otherEntity);
                     }
 
                     if (model.OtherDetails != null)
-                    {
-                        otherEntity.HasDigitalValuationCentre =
-                            model.OtherDetails.HasDigitalValuationCentre;
-                    }
+                        otherEntity.HasDigitalValuationCentre = model.OtherDetails.HasDigitalValuationCentre;
 
                     if (model.OtherDetails?.HasDigitalValuationCentre == "Yes")
                     {
-                        otherEntity.NoOfSystems =
-                            model.OtherDetails.NoOfSystems;
-
-                        otherEntity.HasStableInternet =
-                            model.OtherDetails.HasStableInternet;
-
-                        otherEntity.HasCccameraSystem =
-                            model.OtherDetails.HasCccameraSystem;
+                        otherEntity.NoOfSystems = model.OtherDetails.NoOfSystems;
+                        otherEntity.HasStableInternet = model.OtherDetails.HasStableInternet;
+                        otherEntity.HasCccameraSystem = model.OtherDetails.HasCccameraSystem;
                     }
                     else
                     {
@@ -913,38 +751,26 @@ namespace Medical_Affiliation.Controllers
                         model.OtherDetails.SpecialFeaturesPdf.Length > 0)
                     {
                         var path = await SaveLibraryFileAsync(
-                            model.OtherDetails.SpecialFeaturesPdf,
-                            "SpecialFeatures",
-                            FacultyCode
-                        );
+                            model.OtherDetails.SpecialFeaturesPdf, "SpecialFeatures", facultyCodeText); // CHANGED
 
                         if (path != null)
                         {
-                            if (!string.IsNullOrEmpty(
-                                otherEntity.SpecialFeaturesAchievementsPdfPath) &&
-                                System.IO.File.Exists(
-                                    otherEntity.SpecialFeaturesAchievementsPdfPath))
+                            if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementsPdfPath) &&
+                                System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementsPdfPath))
                             {
-                                System.IO.File.Delete(
-                                    otherEntity.SpecialFeaturesAchievementsPdfPath);
+                                System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementsPdfPath);
                             }
 
-                            otherEntity.SpecialFeaturesAchievementsPdfPath =
-                                path;
-
-                            otherEntity.UploadedFileName =
-                                model.OtherDetails.SpecialFeaturesPdf.FileName;
+                            otherEntity.SpecialFeaturesAchievementsPdfPath = path;
+                            otherEntity.UploadedFileName = model.OtherDetails.SpecialFeaturesPdf.FileName;
                         }
                     }
                     else if (model.OtherDetails?.SpecialFeaturesQuestion == "No")
                     {
-                        if (!string.IsNullOrEmpty(
-                            otherEntity.SpecialFeaturesAchievementsPdfPath) &&
-                            System.IO.File.Exists(
-                                otherEntity.SpecialFeaturesAchievementsPdfPath))
+                        if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementsPdfPath) &&
+                            System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementsPdfPath))
                         {
-                            System.IO.File.Delete(
-                                otherEntity.SpecialFeaturesAchievementsPdfPath);
+                            System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementsPdfPath);
                         }
 
                         otherEntity.SpecialFeaturesAchievementsPdfPath = null;
@@ -952,25 +778,18 @@ namespace Medical_Affiliation.Controllers
                     }
                 }
 
-                // =====================================================
-                // DENTAL LIBRARY RECORDS
-                // =====================================================
-
+                // ---------- DENTAL LIBRARY RECORDS ----------
                 if (facultyCode == 2)
                 {
-                    var oldRecords =
-                        _context.CaDentalLibraryRecords
-                        .Where(x =>
-                            x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode &&
-                            x.AffiliationType == affiliationType)
+                    var oldRecords = _context.CaDentalLibraryRecords
+                        .Where(x => x.CollegeCode == collegeCode &&
+                                    x.FacultyCode == facultyCode &&
+                                    x.AffiliationType == affiliationType)
                         .ToList();
 
                     foreach (var row in model.DentalLibraryRecords)
                     {
-                        var entity =
-                            oldRecords.FirstOrDefault(x =>
-                                x.RecordId == row.RecordId);
+                        var entity = oldRecords.FirstOrDefault(x => x.RecordId == row.RecordId);
 
                         if (entity == null)
                         {
@@ -982,19 +801,12 @@ namespace Medical_Affiliation.Controllers
                                 AffiliationType = affiliationType,
                                 RecordId = row.RecordId
                             };
-
                             _context.CaDentalLibraryRecords.Add(entity);
                         }
 
-                        if (row.UploadFile != null &&
-                            row.UploadFile.Length > 0)
+                        if (row.UploadFile != null && row.UploadFile.Length > 0)
                         {
-                            var path =
-                                await SaveLibraryFileAsync(
-                                    row.UploadFile,
-                                    "DentalLibraryRecords",
-                                    FacultyCode
-                                );
+                            var path = await SaveLibraryFileAsync(row.UploadFile, "DentalLibraryRecords", facultyCodeText); // CHANGED
 
                             if (path != null)
                             {
@@ -1005,16 +817,13 @@ namespace Medical_Affiliation.Controllers
                                 }
 
                                 entity.FilePath = path;
-
-                                entity.FileName =
-                                    row.UploadFile.FileName;
+                                entity.FileName = row.UploadFile.FileName;
                             }
                         }
                     }
                 }
 
                 _context.SaveChanges();
-
                 transaction.Commit();
 
                 return RedirectToAction(nameof(MedicalLibrary));
@@ -1022,14 +831,8 @@ namespace Medical_Affiliation.Controllers
             catch (Exception ex)
             {
                 transaction.Rollback();
-
-                ModelState.AddModelError(
-                    "",
-                    "Unexpected error: " + ex.Message
-                );
-
+                ModelState.AddModelError("", "Unexpected error: " + ex.Message);
                 LoadMedicalLibraryMasters(model);
-
                 return View("MedicalLibrary", model);
             }
         }
@@ -1037,22 +840,14 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewDentalLibraryRecord(int recordId)
         {
-            string collegeCode =
-                HttpContext.Session.GetString("CollegeCode") ?? "";
-
-            int facultyCode =
-                Convert.ToInt32(
-                    HttpContext.Session.GetString("FacultyCode")
-                );
-
-            int affiliationType =
-                HttpContext.Session.GetInt32("AffiliationType") ?? 2;
+            string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
+            int facultyCode = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode"));
+            int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
 
             var courseLevel = (HttpContext.Session.GetString("CourseLevel") ?? CourseLevel)
                 .Trim().ToUpperInvariant();
 
-            var record =
-                await _context.CaDentalLibraryRecords
+            var record = await _context.CaDentalLibraryRecords
                 .FirstOrDefaultAsync(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode &&
@@ -1060,421 +855,93 @@ namespace Medical_Affiliation.Controllers
                     x.AffiliationType == affiliationType &&
                     x.RecordId == recordId);
 
-            if (record == null ||
-                string.IsNullOrEmpty(record.FilePath))
-            {
+            if (record == null || string.IsNullOrEmpty(record.FilePath))
                 return NotFound();
-            }
 
             if (!System.IO.File.Exists(record.FilePath))
-            {
                 return NotFound();
-            }
 
-            return PhysicalFile(
-                record.FilePath,
-                "application/pdf"
-            );
+            return PhysicalFile(record.FilePath, "application/pdf");
         }
-
-        //    [HttpPost]
-        //    [ValidateAntiForgeryToken]
-        //    public async Task<IActionResult> MedicalLibrary(CA_Aff_MedicalLibraryViewModel model)
-        //    {
-        //        if (model == null)
-        //            return RedirectToAction(nameof(MedicalLibrary));
-
-        //        var courseLevel = HttpContext.Session.GetString("CourseLevel");
-
-        //        string collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
-        //        int facultyCode = Convert.ToInt32(HttpContext.Session.GetString("FacultyCode"));
-        //        int affiliationType = HttpContext.Session.GetInt32("AffiliationType") ?? 2;
-
-        //        model.CollegeCode = collegeCode;
-        //        model.FacultyCode = facultyCode;
-        //        model.AffiliationType = affiliationType;
-        //        model.CourseLevel = courseLevel;
-
-        //        // =====================================================
-        //        // VALIDATION – ONLY WHAT IS ACTUALLY MANDATORY
-        //        // =====================================================
-        //        // 🔴 Library Services – ONLY mandatory section
-
-        //        // Load all existing services for this college/faculty/affiliation once
-        //        var existingServices = _context.CaMedicalLibraryServices
-        //            .Where(x => x.CollegeCode == collegeCode &&
-        //                        x.FacultyCode == facultyCode &&
-        //                        x.CourseLevel == courseLevel &&
-        //                        x.AffiliationType == affiliationType)
-        //            .ToList();
-
-        //        foreach (var row in model.LibraryServices)
-        //        {
-        //            bool pdfExists = existingServices
-        //.Any(x => x.ServiceId == row.ServiceId && !string.IsNullOrEmpty(x.UploadedFileName));
-
-
-        //            if (row.ServiceId == 6 && row.IsAvailable == "Yes" && row.UploadedPdf == null && !pdfExists)
-        //            {
-        //                ModelState.AddModelError("", "User Education Programme PDF is mandatory.");
-        //            }
-
-        //        }
-
-
-        //        // 🔴 Other Details – CONDITIONAL ONLY
-        //        var otherDetailsVm = model.OtherDetails ?? new MedicalLibraryOtherDetailsViewModel();
-
-
-        //        if (model.OtherDetails != null && model.OtherDetails.HasDigitalValuationCentre == "Yes")
-        //        {
-        //            if (!model.OtherDetails.NoOfSystems.HasValue || model.OtherDetails.NoOfSystems <= 0)
-        //                ModelState.AddModelError(nameof(model.OtherDetails.NoOfSystems), "Number of systems is required.");
-
-        //            if (string.IsNullOrWhiteSpace(model.OtherDetails.HasStableInternet))
-        //                ModelState.AddModelError(nameof(model.OtherDetails.HasStableInternet), "LAN / Stable Internet is required.");
-
-        //            if (string.IsNullOrWhiteSpace(model.OtherDetails.HasCccameraSystem))
-        //                ModelState.AddModelError(nameof(model.OtherDetails.HasCccameraSystem), "CCTV Camera System is required.");
-        //        }
-
-        //        // PDF optional, no validation needed
-
-        //        // 🔴 Usage Report – mandatory only on first upload
-        //        bool hasExistingUsagePdf = _context.CaMedicalLibraryUsageReports.Any(x =>
-        //                                    x.CollegeCode == collegeCode &&
-        //                                    x.FacultyCode == facultyCode &&
-        //                                    x.CourseLevel == courseLevel &&
-        //                                    x.AffiliationType == affiliationType &&
-        //                                    !string.IsNullOrEmpty(x.UploadedFileName)
-        //                                );
-
-        //        if (!hasExistingUsagePdf && model.UsageReportPdf == null)
-        //        {
-        //            ModelState.AddModelError(
-        //                nameof(model.UsageReportPdf),
-        //                "Usage Report PDF is mandatory."
-        //            );
-        //        }
-
-
-        //        if (model.OtherDetails?.HasDigitalValuationCentre == "No")
-        //        {
-        //            ModelState.Remove("OtherDetails.NoOfSystems");
-        //            ModelState.Remove("OtherDetails.HasStableInternet");
-        //            ModelState.Remove("OtherDetails.HasCccameraSystem");
-        //        }
-
-        //        // =====================
-        //        // SPECIAL FEATURES – CONDITIONAL VALIDATION
-        //        // =====================
-
-        //        bool hasExistingSpecialPdf = _context.CaMedicalLibraryOtherDetails.Any(x =>
-        //            x.CollegeCode == collegeCode &&
-        //            x.FacultyCode == facultyCode &&
-        //            x.CourseLevel == courseLevel &&
-        //            x.AffiliationType == affiliationType &&
-        //            x.SpecialFeaturesAchievementspdfPath != null
-        //        );
-
-        //        if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes")
-        //        {
-        //            if (model.OtherDetails.SpecialFeaturesPdf == null && !hasExistingSpecialPdf)
-        //            {
-        //                ModelState.AddModelError(
-        //                    "OtherDetails.SpecialFeaturesPdf",
-        //                    "Special Features PDF is required."
-        //                );
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // User selected No → remove validation
-        //            ModelState.Remove("OtherDetails.SpecialFeaturesPdf");
-        //        }
-
-        //        // 🔴 Digital Valuation Yes/No mandatory
-        //        if (string.IsNullOrWhiteSpace(model.OtherDetails?.HasDigitalValuationCentre))
-        //        {
-        //            ModelState.AddModelError(
-        //                "OtherDetails.HasDigitalValuationCentre",
-        //                "Please select Yes or No for Digital Valuation Centre."
-        //            );
-        //        }
-
-        //        // 🔴 Special Features Yes/No mandatory
-        //        if (string.IsNullOrWhiteSpace(model.OtherDetails?.SpecialFeaturesQuestion))
-        //        {
-        //            ModelState.AddModelError(
-        //                "OtherDetails.SpecialFeaturesQuestion",
-        //                "Please select Yes or No for Special Features."
-        //            );
-        //        }
-
-
-
-        //        if (!ModelState.IsValid)
-        //        {
-        //            LoadMedicalLibraryMasters(model);
-        //            return View("MedicalLibrary", model);
-        //        }
-
-        //        // =====================================================
-        //        // SAVE TRANSACTION
-        //        // =====================================================
-        //        using var transaction = _context.Database.BeginTransaction();
-        //        try
-        //        {
-        //            // 1. LIBRARY SERVICES
-        //            foreach (var row in model.LibraryServices)
-        //            {
-        //                var entity = _context.CaMedicalLibraryServices.FirstOrDefault(x =>
-        //                    x.CollegeCode == collegeCode &&
-        //                    x.FacultyCode == facultyCode &&
-        //                    x.CourseLevel == courseLevel &&
-        //                    x.AffiliationType == affiliationType &&
-        //                    x.ServiceId == row.ServiceId);
-
-        //                if (entity == null)
-        //                {
-        //                    entity = new CaMedicalLibraryService
-        //                    {
-        //                        CollegeCode = collegeCode,
-        //                        FacultyCode = facultyCode,
-        //                        AffiliationType = affiliationType,
-        //                        CourseLevel = courseLevel,
-        //                        ServiceId = row.ServiceId ?? 0
-        //                    };
-        //                    _context.CaMedicalLibraryServices.Add(entity);
-        //                }
-
-        //                entity.IsAvailable = row.IsAvailable;
-
-        //                // Upload / replace PDF ONLY when user uploads a new one
-        //                if (row.ServiceId == 6 && row.UploadedPdf != null && row.UploadedPdf.Length > 0)
-        //                {
-        //                    var path = await SaveLibraryFileAsync(row.UploadedPdf, "LibraryServices");
-
-        //                    if (path != null)
-        //                    {
-        //                        if (!string.IsNullOrEmpty(entity.UploadedPdfPath) &&
-        //                            System.IO.File.Exists(entity.UploadedPdfPath))
-        //                        {
-        //                            System.IO.File.Delete(entity.UploadedPdfPath);
-        //                        }
-
-        //                        entity.UploadedPdfPath = path;
-        //                        entity.UploadedFileName = row.UploadedPdf.FileName;
-        //                    }
-        //                }
-
-        //            }
-
-        //            // 2. USAGE REPORT
-        //            var usage = _context.CaMedicalLibraryUsageReports.FirstOrDefault(x =>
-        //                x.CollegeCode == collegeCode &&
-        //                x.FacultyCode == facultyCode &&
-        //                x.CourseLevel == courseLevel &&
-        //                x.AffiliationType == affiliationType);
-
-        //            if (usage == null && model.UsageReportPdf != null)
-        //            {
-        //                usage = new CaMedicalLibraryUsageReport
-        //                {
-        //                    CollegeCode = collegeCode,
-        //                    FacultyCode = facultyCode,
-        //                    AffiliationType = affiliationType,
-        //                    CourseLevel = courseLevel
-        //                };
-        //                _context.CaMedicalLibraryUsageReports.Add(usage);
-        //            }
-
-        //            if (usage != null && model.UsageReportPdf != null && model.UsageReportPdf.Length > 0)
-        //            {
-        //                var path = await SaveLibraryFileAsync(model.UsageReportPdf, "UsageReports");
-
-        //                if (path != null)
-        //                {
-        //                    if (!string.IsNullOrEmpty(usage.UploadedFileDataPath) &&
-        //                        System.IO.File.Exists(usage.UploadedFileDataPath))
-        //                    {
-        //                        System.IO.File.Delete(usage.UploadedFileDataPath);
-        //                    }
-
-        //                    usage.UploadedFileDataPath = path;
-        //                    usage.UploadedFileName = model.UsageReportPdf.FileName;
-        //                }
-        //            }
-
-        //            // 3. LIBRARY STAFF
-        //            var oldStaff = _context.CaMedicalLibraryStaffs
-        //                .Where(x => x.CollegeCode == collegeCode &&
-        //                            x.FacultyCode == facultyCode &&
-        //                            x.CourseLevel == courseLevel &&
-        //                            x.AffiliationType == affiliationType)
-        //                .ToList();
-        //            _context.CaMedicalLibraryStaffs.RemoveRange(oldStaff);
-
-        //            foreach (var staff in model.LibraryStaff)
-        //            {
-        //                if (staff.IsDeleted)
-        //                    continue; // skip this row
-
-        //                _context.CaMedicalLibraryStaffs.Add(new CaMedicalLibraryStaff
-        //                {
-        //                    CollegeCode = collegeCode,
-        //                    FacultyCode = facultyCode,
-        //                    CourseLevel = courseLevel,
-        //                    AffiliationType = affiliationType,
-        //                    StaffName = staff.StaffName,
-        //                    Designation = staff.Designation,
-        //                    Qualification = staff.Qualification,
-        //                    Experience = staff.Experience ?? 0,
-        //                    Category = staff.Category
-        //                });
-        //            }
-
-
-        //            // 4. DEPARTMENT LIBRARY
-        //            var oldDepts = _context.CaMedicalDepartmentLibraries
-        //                .Where(x => x.CollegeCode == collegeCode &&
-        //                            x.FacultyCode == facultyCode &&
-        //                            x.CourseLevel == courseLevel &&
-        //                            x.AffiliationType == affiliationType)
-        //                .ToList();
-        //            _context.CaMedicalDepartmentLibraries.RemoveRange(oldDepts);
-
-        //            foreach (var dept in model.DepartmentLibraries)
-        //            {
-        //                if (string.IsNullOrWhiteSpace(dept.DepartmentCode))
-        //                    continue;
-
-        //                // Combine staff names safely
-        //                var staffList = new List<string>();
-
-        //                if (!string.IsNullOrWhiteSpace(dept.LibraryStaff1))
-        //                    staffList.Add(dept.LibraryStaff1.Trim());
-
-        //                if (!string.IsNullOrWhiteSpace(dept.LibraryStaff2))
-        //                    staffList.Add(dept.LibraryStaff2.Trim());
-
-        //                string combinedStaff = string.Join(" | ", staffList);
-
-        //                _context.CaMedicalDepartmentLibraries.Add(new CaMedicalDepartmentLibrary
-        //                {
-        //                    CollegeCode = collegeCode,
-        //                    FacultyCode = facultyCode,
-        //                    CourseLevel = courseLevel,
-        //                    AffiliationType = affiliationType,
-        //                    DepartmentCode = dept.DepartmentCode,
-        //                    TotalBooks = dept.TotalBooks ?? 0,
-        //                    BooksAddedInYear = dept.BooksAddedInYear ?? 0,
-        //                    CurrentJournals = dept.CurrentJournals ?? 0,
-        //                    LibraryStaff = combinedStaff  , // 👈 SAVED IN ONE COLUMN
-        //                    Titles = dept.Titles,
-        //                    InternationalJournals = dept.InternationalJournals,
-        //                    BackVolumes = dept.BackVolumes,
-        //                    PrintJournalPercentage = dept.PrintJournalPercentage,
-        //                });
-        //            }
-
-
-        //            // 5. OTHER DETAILS
-        //            var otherEntity = _context.CaMedicalLibraryOtherDetails.FirstOrDefault(x =>
-        //                x.CollegeCode == collegeCode &&
-        //                x.FacultyCode == facultyCode &&
-        //                x.CourseLevel == courseLevel &&
-        //                x.AffiliationType == affiliationType);
-
-        //            if (otherEntity == null)
-        //            {
-        //                otherEntity = new CaMedicalLibraryOtherDetail
-        //                {
-        //                    CollegeCode = collegeCode,
-        //                    FacultyCode = facultyCode,
-        //                    AffiliationType = affiliationType,
-        //                    CourseLevel = courseLevel,
-        //                    CreatedDate = DateTime.Now
-        //                };
-        //                _context.CaMedicalLibraryOtherDetails.Add(otherEntity);
-        //            }
-
-        //            if (model.OtherDetails != null)
-        //            {
-        //                otherEntity.HasDigitalValuationCentre = model.OtherDetails.HasDigitalValuationCentre;
-        //            }
-
-
-        //            // 1️⃣ Digital Valuation fields
-        //            if (model.OtherDetails.HasDigitalValuationCentre == "Yes")
-        //            {
-        //                otherEntity.NoOfSystems = model.OtherDetails.NoOfSystems;
-        //                otherEntity.HasStableInternet = model.OtherDetails.HasStableInternet;
-        //                otherEntity.HasCccameraSystem = model.OtherDetails.HasCccameraSystem;
-        //            }
-        //            else
-        //            {
-        //                otherEntity.NoOfSystems = null;
-        //                otherEntity.HasStableInternet = null;
-        //                otherEntity.HasCccameraSystem = null;
-        //            }
-
-        //            // 2️⃣ Special Features PDF
-        //            if (model.OtherDetails?.SpecialFeaturesQuestion == "Yes" &&
-        //model.OtherDetails.SpecialFeaturesPdf != null &&
-        //model.OtherDetails.SpecialFeaturesPdf.Length > 0)
-        //            {
-        //                var path = await SaveLibraryFileAsync(model.OtherDetails.SpecialFeaturesPdf, "SpecialFeatures");
-
-        //                if (path != null)
-        //                {
-        //                    if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementspdfPath) &&
-        //                        System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementspdfPath))
-        //                    {
-        //                        System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementspdfPath);
-        //                    }
-
-        //                    otherEntity.SpecialFeaturesAchievementspdfPath = path;
-        //                    otherEntity.UploadedFileName = model.OtherDetails.SpecialFeaturesPdf.FileName;
-        //                }
-        //            }
-        //            else if (model.OtherDetails?.SpecialFeaturesQuestion == "No")
-        //            {
-        //                if (!string.IsNullOrEmpty(otherEntity.SpecialFeaturesAchievementspdfPath) &&
-        //                    System.IO.File.Exists(otherEntity.SpecialFeaturesAchievementspdfPath))
-        //                {
-        //                    System.IO.File.Delete(otherEntity.SpecialFeaturesAchievementspdfPath);
-        //                }
-
-        //                otherEntity.SpecialFeaturesAchievementspdfPath = null;
-        //                otherEntity.UploadedFileName = null;
-        //            }
-
-
-        //            _context.SaveChanges();
-        //            transaction.Commit();
-
-        //            TempData["Success"] = "Medical Library details saved successfully.";
-        //            return RedirectToAction(nameof(MedicalLibrary));
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            transaction.Rollback();
-        //            ModelState.AddModelError("", "Unexpected error: " + ex.Message);
-        //            LoadMedicalLibraryMasters(model);
-        //            return View("MedicalLibrary", model);
-        //        }
-        //    }
 
         private void LoadMedicalLibraryMasters(CA_Aff_MedicalLibraryViewModel model)
         {
-            // Reload master lists for validation failure
             ViewBag.LibraryServiceMasters = _context.CaMstMediLibraryServices.OrderBy(s => s.ServiceId).ToList();
             ViewBag.DepartmentMasters = _context.DepartmentMasters
                 .Where(d => d.FacultyCode == model.FacultyCode)
                 .OrderBy(d => d.DepartmentCode)
                 .ToList();
             ViewBag.IsDentalFaculty = model.FacultyCode == 2;
+
+            RestoreExistingFiles(model);
+        }
+
+        // Existing-file info is not posted back, so reload it before re-rendering the view
+        private void RestoreExistingFiles(CA_Aff_MedicalLibraryViewModel model)
+        {
+            var collegeCode = model.CollegeCode;
+            var facultyCode = model.FacultyCode;
+            var affiliationType = model.AffiliationType;
+            var courseLevel = (model.CourseLevel ?? string.Empty).Trim().ToUpperInvariant();
+
+            // Library services
+            var savedServices = _context.CaMedicalLibraryServices
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                            x.AffiliationType == affiliationType)
+                .ToList();
+
+            foreach (var row in model.LibraryServices ?? new List<LibraryServiceRowViewModel>())
+            {
+                row.ExistingFileName = savedServices
+                    .Where(s => s.ServiceId == row.ServiceId && !string.IsNullOrEmpty(s.UploadedFileName))
+                    .OrderByDescending(s => s.LibraryServiceId)
+                    .Select(s => s.UploadedFileName)
+                    .FirstOrDefault();
+            }
+
+            // Usage report
+            model.ExistingUsageReportFileName = _context.CaMedicalLibraryUsageReports
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                            x.AffiliationType == affiliationType &&
+                            !string.IsNullOrEmpty(x.UploadedFileName))
+                .OrderByDescending(x => x.UsageReportId)
+                .Select(x => x.UploadedFileName)
+                .FirstOrDefault();
+
+            // Special features
+            var other = _context.CaMedicalLibraryOtherDetails
+                .Where(x => x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                            x.AffiliationType == affiliationType)
+                .FirstOrDefault();
+
+            if (model.OtherDetails != null)
+            {
+                model.OtherDetails.HasSpecialFeaturesPdf = other?.SpecialFeaturesAchievementsPdfPath != null;
+                model.OtherDetails.UploadedFileName = other?.UploadedFileName;
+            }
+
+            // Dental library records (name + existing file)
+            if (facultyCode == 2 && model.DentalLibraryRecords != null)
+            {
+                var masters = _context.CaMstDentalLibraryRecords.ToList();
+                var uploaded = _context.CaDentalLibraryRecords
+                    .Where(x => x.CollegeCode == collegeCode &&
+                                x.FacultyCode == facultyCode &&
+                                x.AffiliationType == affiliationType)
+                    .ToList();
+
+                foreach (var rec in model.DentalLibraryRecords)
+                {
+                    rec.RecordName = masters.FirstOrDefault(m => m.RecordId == rec.RecordId)?.RecordName;
+                    rec.ExistingFileName = uploaded.FirstOrDefault(u => u.RecordId == rec.RecordId)?.FileName;
+                }
+            }
         }
 
         private static string? NormalizeYesNo(string? value)
@@ -1505,7 +972,7 @@ namespace Medical_Affiliation.Controllers
             var record = await _context.CaMedicalLibraryOtherDetails.FirstOrDefaultAsync(x =>
                 x.CollegeCode == collegeCode &&
                 x.FacultyCode == facultyCode &&
-                    (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
+                (string.IsNullOrEmpty(x.CourseLevel) || x.CourseLevel.Trim().ToUpper() == courseLevel) &&
                 x.AffiliationType == affiliationType);
 
             if (record == null || string.IsNullOrEmpty(record.SpecialFeaturesAchievementsPdfPath))
@@ -1521,9 +988,9 @@ namespace Medical_Affiliation.Controllers
                 contentType = "application/octet-stream";
 
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
-
             return PhysicalFile(record.SpecialFeaturesAchievementsPdfPath, contentType);
-        } 
+        }
+
         [HttpGet]
         public async Task<IActionResult> ViewLibraryServicePdf(int serviceId)
         {
@@ -1554,9 +1021,9 @@ namespace Medical_Affiliation.Controllers
                 contentType = "application/octet-stream";
 
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
-
             return PhysicalFile(record.UploadedPdfPath, contentType);
         }
+
         [HttpGet]
         public async Task<IActionResult> ViewUsageReportPdf()
         {
@@ -1586,9 +1053,7 @@ namespace Medical_Affiliation.Controllers
                 contentType = "application/octet-stream";
 
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
-
             return PhysicalFile(record.UploadedFileDataPath, contentType);
         }
-
     }
 }

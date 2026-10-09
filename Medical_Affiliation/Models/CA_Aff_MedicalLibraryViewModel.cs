@@ -71,30 +71,15 @@ namespace Medical_Affiliation.Models
         public List<DentalLibraryRecordViewModel> DentalLibraryRecords { get; set; } = new();
     }
 
-    public class LibraryServiceRowViewModel : IValidatableObject
+    public class LibraryServiceRowViewModel
     {
-        public int?  ServiceId{ get; set; }
+        public int? ServiceId { get; set; }
 
         [Required(ErrorMessage = "Please select Yes or No")]
-        public string? IsAvailable { get; set; }   // Yes / No
+        public string? IsAvailable { get; set; }
 
-        // Mandatory ONLY for User Education Programme (ServiceId = 6)
         public IFormFile? UploadedPdf { get; set; }
         public string? ExistingFileName { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (ServiceId == 6 &&
-                IsAvailable == "Yes" &&
-                UploadedPdf == null &&
-                string.IsNullOrEmpty(ExistingFileName))
-            {
-                yield return new ValidationResult(
-                    "PDF is mandatory for this service.",
-                    new[] { nameof(UploadedPdf) }
-                );
-            }
-        }
     }
     public class LibraryStaffViewModel
     {
@@ -130,7 +115,7 @@ namespace Medical_Affiliation.Models
 
         [Required]
         public int? CurrentJournals { get; set; }
-
+        public int Id { get; set; }
 
         public string? LibraryStaff1 { get; set; }
         public string? LibraryStaff2 { get; set; }

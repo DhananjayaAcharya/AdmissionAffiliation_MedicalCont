@@ -1,29 +1,30 @@
 ﻿@model SidebarViewModel
-@inject IHttpContextAccessor HttpContextAccessor
 @{
-    var isSubmitDisplayString = HttpContextAccessor.HttpContext.Session.GetString("IsSubmitDisplay");
-    var ugCourse = HttpContextAccessor.HttpContext.Session.GetString("UgCourse");
-    var facultyCode = HttpContextAccessor.HttpContext.Session.GetString("FacultyCode");
-    var collegecode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
-    bool isSubmitDisplay = false;
-    var showNodalOfficer = HttpContextAccessor.HttpContext.Session.GetString("ShowNodalOfficer");
-    var showIntakeDetails = HttpContextAccessor.HttpContext.Session.GetString("ShowIntakeDetails");
-    var showRepository = HttpContextAccessor.HttpContext.Session.GetString("ShowRepository");
-    var sidebarActionMethod = HttpContextAccessor.HttpContext.Session.GetString("sidebarActionMethod");
-    var sidebarController = HttpContextAccessor.HttpContext.Session.GetString("sidebarController");
+    // ── Session values (single source of truth, null-safe) ───────────────────
+    string S(string key) => Context.Session.GetString(key) ?? "";
 
-    if (!string.IsNullOrEmpty(isSubmitDisplayString))
+    // Model wins; session is the fallback, so the menu and the guard below never disagree
+    var facultyCode = !string.IsNullOrEmpty(Model?.FacultyCode) ? Model.FacultyCode : S("FacultyCode");
+    var collegeCode = S("CollegeCode");
+    var currentLevel = S("CourseLevel").Trim().ToLowerInvariant();   // set by SetCourseLevel
+    var currentTypeId = S("TypeOfAffiliationId");                      // set by SetCourseLevel
+
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    // Controllers that belong to the "Application for Affiliation" flow
+    var affiliationControllers = new[]
     {
-        bool.TryParse(isSubmitDisplayString, out isSubmitDisplay);
-    }
-
-    string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
-    string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        "CollegeBasicDetails",
+        "ContinuesAffiliation_Facultybased",
+        "ContinuousAffiliationIncreaseintake",
+        "CourseAffiliation"
+    };
+    bool affiliationActive = affiliationControllers.Contains(currentController);
 }
 
 <style>
     :root {
-        /* Aligned to the RGUHS portal design system (navy / gold / teal) */
         --sb-navy: #0a3d91;
         --sb-navy-mid: #0d4fb0;
         --sb-navy-deep: #082f70;
@@ -36,9 +37,8 @@
         --sb-hover: rgba(255,255,255,.06);
         --sb-active: linear-gradient(135deg, var(--sb-gold) 0%, var(--sb-navy-mid) 100%);
         --sb-border: rgba(255,255,255,.09);
-        --header-height: 71px; /* 68px topbar + 3px gov strip — must match Dashboard header exactly */
+        --header-height: 71px; /* 68px topbar + 3px gov strip — must match Dashboard header */
         --sb-radius: 8px;
-        --sb-radius-lg: 10px;
         --sb-ease: cubic-bezier(.4,0,.2,1);
         --sb-dur: .2s;
         --sb-width: 280px;
@@ -63,6 +63,7 @@
         border-right: 1px solid var(--sb-border);
         font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
         transition: width var(--sb-dur) var(--sb-ease);
+        scrollbar-width: thin;
     }
 
         .sidebar::-webkit-scrollbar {
@@ -74,14 +75,11 @@
             border-radius: 10px;
         }
 
-        /* ── Collapsed state ────────────────────────────────────── */
         .sidebar.collapsed {
             width: var(--sb-width-collapsed) !important;
         }
 
-    /* ── Collapse / expand handle — always visible, sits in the
-           header corner in both states so it's never possible to get
-           "stuck" collapsed with no way back. ──────────────────── */
+    /* Collapse / expand handle — always visible so the sidebar can never get "stuck" */
     .sidebar-handle {
         position: absolute;
         top: 14px;
@@ -125,7 +123,7 @@
         transform: rotate(180deg);
     }
 
-    /* ── Official header strip ─────────────────────────────── */
+    /* Header strip */
     .sidebar-header {
         position: relative;
         text-align: left;
@@ -212,7 +210,6 @@
             font-size: 10px;
         }
 
-    /* ── Section label ──────────────────────────────────────── */
     .sidebar-section-label {
         font-size: 10px;
         font-weight: 700;
@@ -227,7 +224,7 @@
         display: none;
     }
 
-    /* ── Menu ────────────────────────────────────────────────── */
+    /* Menu */
     .sidebar-menu {
         list-style: none;
         padding: 4px 12px 0;
@@ -253,13 +250,14 @@
         font-weight: 500;
         font-size: 0.9rem;
         letter-spacing: .1px;
-        transition: background var(--sb-dur) var(--sb-ease), color var(--sb-dur) var(--sb-ease), padding var(--sb-dur) var(--sb-ease), justify-content var(--sb-dur) var(--sb-ease);
+        transition: background var(--sb-dur) var(--sb-ease), color var(--sb-dur) var(--sb-ease), padding var(--sb-dur) var(--sb-ease);
         cursor: pointer;
         user-select: none;
         border: 1px solid transparent;
     }
 
-        .sidebar-link i:first-child {
+        .sidebar-link i:first-child,
+        .sidebar-link .notification-nav-icon i {
             margin-right: 12px;
             font-size: 1.02rem;
             width: 20px;
@@ -275,7 +273,8 @@
             border-color: var(--sb-border);
         }
 
-            .sidebar-link:hover i:first-child {
+            .sidebar-link:hover i:first-child,
+            .sidebar-link:hover .notification-nav-icon i {
                 color: var(--sb-gold-lt);
             }
 
@@ -287,7 +286,8 @@
             border-color: transparent;
         }
 
-            .sidebar-link.active i:first-child {
+            .sidebar-link.active i:first-child,
+            .sidebar-link.active .notification-nav-icon i {
                 color: #fff;
             }
 
@@ -303,14 +303,13 @@
             color: var(--sb-gold-lt);
         }
 
-    /* Collapsed menu items become centred icon-only tiles with a
-           native tooltip (title attribute) standing in for the label. */
     .sidebar.collapsed .sidebar-link {
         justify-content: center;
         padding: 0.75rem 0;
     }
 
-        .sidebar.collapsed .sidebar-link i:first-child {
+        .sidebar.collapsed .sidebar-link i:first-child,
+        .sidebar.collapsed .sidebar-link .notification-nav-icon i {
             margin-right: 0;
         }
 
@@ -319,7 +318,7 @@
         display: none;
     }
 
-    /* ── Custom dropdown panel (replaces native select) ─────── */
+    /* Affiliation dropdown */
     .affiliation-dropdown {
         margin: 0.3rem 0 0.4rem 0.35rem;
         padding: 0.35rem;
@@ -333,7 +332,7 @@
     }
 
         .affiliation-dropdown.open {
-            max-height: fit-content;
+            max-height: 640px;
             opacity: 1;
         }
 
@@ -346,9 +345,6 @@
             border: none;
         }
 
-    /* Flyout panels have nowhere to sit at 68px wide — collapse the
-           sidebar keeps the item clickable (it auto-expands, see JS) but
-           hides the inline panel until then. */
     .sidebar.collapsed .affiliation-dropdown {
         display: none !important;
     }
@@ -385,6 +381,14 @@
             color: var(--sb-text-muted);
         }
 
+            .affiliation-option i.bi-chevron-right {
+                transition: transform 0.2s ease;
+            }
+
+        .affiliation-option.expanded i.bi-chevron-right {
+            transform: rotate(90deg);
+        }
+
     .affiliation-loading {
         display: flex;
         align-items: center;
@@ -400,7 +404,6 @@
             border-width: 2px;
         }
 
-    /* ── UG / PG submenu ─────────────────────────────────────── */
     .affiliation-submenu {
         margin-top: 0.25rem;
         padding-left: 1.4rem;
@@ -409,13 +412,12 @@
         overflow: hidden;
         max-height: 0;
         opacity: 0;
-        transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+        transition: max-height 0.25s ease, opacity 0.2s ease;
     }
 
         .affiliation-submenu.show {
-            max-height: 6.5rem;
+            max-height: 8rem;
             opacity: 1;
-            padding-left: 1.4rem;
         }
 
     .affiliation-subitem {
@@ -439,21 +441,18 @@
             font-weight: 600;
         }
 
-            .affiliation-subitem.readonly {
+        .affiliation-subitem.readonly {
+            color: var(--sb-text-muted);
+            cursor: default;
+            opacity: 0.65;
+        }
+
+            .affiliation-subitem.readonly:hover {
+                background: transparent;
                 color: var(--sb-text-muted);
-                cursor: default;
-                opacity: 0.65;
             }
 
-    .affiliation-option i.bi-chevron-right {
-        transition: transform 0.2s ease;
-    }
-
-    .affiliation-option.expanded i.bi-chevron-right {
-        transform: rotate(90deg);
-    }
-
-    /* ── Footer — Account controls ──────────────────────────── */
+    /* Footer */
     .sidebar-footer {
         margin-top: 1rem;
         padding: 16px 16px 4px;
@@ -519,7 +518,6 @@
                 color: var(--sb-gold-lt);
             }
 
-        /* Primary emphasis for the password action */
         .sidebar-action-btn.primary {
             background: rgba(29,95,214,.10);
             border-color: rgba(29,95,214,.30);
@@ -541,15 +539,6 @@
                     color: #fff;
                 }
 
-    body > .password-modal {
-        z-index: 2000;
-    }
-
-    body > .password-modal + .modal-backdrop,
-    .modal-backdrop.password-modal-backdrop {
-        z-index: 1990;
-    }
-
     .sidebar.collapsed .sidebar-action-btn {
         justify-content: center;
         padding: 0.68rem 0;
@@ -563,161 +552,160 @@
         display: none;
     }
 
-    /* Compliance micro-footer */
-    .sidebar-compliance {
+    /* Password modal */
+    .password-modal {
+        z-index: 2000;
+    }
+
+        .password-modal .modal-dialog {
+            max-width: 460px;
+        }
+
+        .password-modal .modal-content {
+            border: 1px solid #dbe7f5;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 22px 55px rgba(5, 25, 65, .25);
+        }
+
+        .password-modal .modal-header {
+            padding: 1.35rem 1.5rem;
+            background: linear-gradient(135deg, var(--sb-navy-deep), var(--sb-navy));
+            border-bottom: 2px solid var(--sb-gold);
+        }
+
+        .password-modal .modal-title {
+            color: #fff;
+            font-size: 1.08rem;
+            font-weight: 700;
+        }
+
+        .password-modal .btn-close {
+            filter: invert(1) grayscale(1) brightness(2);
+        }
+
+        .password-modal .modal-body {
+            padding: 1.5rem;
+            background: #fff;
+        }
+
+        .password-modal .password-field-label {
+            display: flex;
+            justify-content: space-between;
+            gap: .75rem;
+            margin-bottom: .45rem;
+            color: #243b53;
+            font-size: .8rem;
+            font-weight: 700;
+        }
+
+        .password-modal .password-required {
+            color: #b42318;
+            font-size: .7rem;
+            font-weight: 500;
+        }
+
+        .password-modal .password-input-wrap {
+            position: relative;
+        }
+
+            .password-modal .password-input-wrap .form-control {
+                height: 44px;
+                padding-right: 3rem;
+                border-color: #cbd8e8;
+                border-radius: 8px;
+                color: #102a43;
+            }
+
+                .password-modal .password-input-wrap .form-control:focus {
+                    border-color: var(--sb-gold);
+                    box-shadow: 0 0 0 3px rgba(29,95,214,.13);
+                }
+
+        .password-modal .password-visibility {
+            position: absolute;
+            top: 50%;
+            right: .7rem;
+            width: 30px;
+            height: 30px;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #627d98;
+            cursor: pointer;
+        }
+
+            .password-modal .password-visibility:hover {
+                color: var(--sb-navy);
+            }
+
+        .password-modal .password-rules {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .45rem .8rem;
+            margin-top: .85rem;
+            padding: .85rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #627d98;
+            font-size: .72rem;
+        }
+
+        .password-modal .password-rule {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+        }
+
+            .password-modal .password-rule i {
+                color: #9fb3c8;
+            }
+
+            .password-modal .password-rule.ok {
+                color: #1e7e4e;
+            }
+
+                .password-modal .password-rule.ok i {
+                    color: #1e7e4e;
+                }
+
+        .password-modal .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: .65rem;
+            padding: 1rem 1.5rem 1.35rem;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+    /* Notification badge */
+    .notification-nav-icon {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 20px;
+        background: #dc2626;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 800;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        margin-top: 10px;
-        padding-top: 12px;
-        border-top: 1px solid var(--sb-border);
-        font-size: 9.5px;
-        color: rgba(255,255,255,.28);
-        letter-spacing: .3px;
-        text-transform: uppercase;
+        border: 2px solid var(--sb-navy);
     }
 
-    .password-modal .modal-dialog {
-        max-width: 460px;
-    }
-
-    .password-modal .modal-content {
-        border: 1px solid #dbe7f5;
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 22px 55px rgba(5, 25, 65, .25);
-    }
-
-    .password-modal .modal-header {
-        padding: 1.35rem 1.5rem;
-        background: linear-gradient(135deg, var(--sb-navy-deep), var(--sb-navy));
-        border-bottom: 2px solid var(--sb-gold);
-    }
-
-    .password-modal .modal-header-inner {
-        display: flex;
-        align-items: center;
-        gap: .8rem;
-    }
-
-    .password-modal .modal-ico {
-        width: 42px;
-        height: 42px;
-        display: grid;
-        place-items: center;
-        border-radius: 10px;
-        color: var(--sb-gold-lt);
-        background: var(--sb-gold-ring);
-        border: 1px solid rgba(127,176,255,.35);
-        font-size: 1.15rem;
-    }
-
-    .password-modal .modal-title {
-        color: #fff;
-        font-size: 1.08rem;
-        font-weight: 700;
-    }
-
-    .password-modal .modal-sub {
-        margin-top: .18rem;
-        color: rgba(255,255,255,.68);
-        font-size: .76rem;
-    }
-
-    .password-modal .modal-body {
-        padding: 1.5rem;
-        background: #fff;
-    }
-
-    .password-modal .password-field-label {
-        display: flex;
-        justify-content: space-between;
-        gap: .75rem;
-        margin-bottom: .45rem;
-        color: #243b53;
-        font-size: .8rem;
-        font-weight: 700;
-    }
-
-    .password-modal .password-required {
-        color: #b42318;
-        font-size: .7rem;
-        font-weight: 500;
-    }
-
-    .password-modal .password-input-wrap {
-        position: relative;
-    }
-
-    .password-modal .password-input-wrap .form-control {
-        height: 44px;
-        padding-right: 3rem;
-        border-color: #cbd8e8;
-        border-radius: 8px;
-        color: #102a43;
-    }
-
-    .password-modal .password-input-wrap .form-control:focus {
-        border-color: var(--sb-gold);
-        box-shadow: 0 0 0 3px rgba(29,95,214,.13);
-    }
-
-    .password-modal .password-visibility {
-        position: absolute;
-        top: 50%;
-        right: .7rem;
-        width: 30px;
-        height: 30px;
-        transform: translateY(-50%);
-        border: 0;
-        background: transparent;
-        color: #627d98;
-        cursor: pointer;
-    }
-
-    .password-modal .password-visibility:hover {
-        color: var(--sb-navy);
-    }
-
-    .password-modal .password-rules {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: .45rem .8rem;
-        margin-top: .85rem;
-        padding: .85rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        background: #f8fafc;
-        color: #627d98;
-        font-size: .72rem;
-    }
-
-    .password-modal .password-rule {
-        display: flex;
-        align-items: center;
-        gap: .35rem;
-    }
-
-    .password-modal .password-rule i {
-        color: #9fb3c8;
-    }
-
-    .password-modal .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: .65rem;
-        padding: 1rem 1.5rem 1.35rem;
-        border-top: 1px solid #e2e8f0;
-        background: #f8fafc;
-    }
-
-        .sidebar-compliance i {
-            color: var(--sb-teal);
-            font-size: 11px;
-        }
-
-    /* Mobile / responsive */
+    /* Responsive */
     @@media (max-width: 991px) {
         .sidebar {
             position: relative;
@@ -729,9 +717,7 @@
             border-right: none;
             border-bottom: 1px solid var(--sb-border);
         }
-        /* The icon-only collapsed rail is a desktop affordance — the
-               sidebar already stacks full-width and inline on mobile, so
-               collapsing it would just hide the nav with no space saved. */
+
         .sidebar-handle {
             display: none;
         }
@@ -755,6 +741,10 @@
                 justify-content: flex-start;
                 padding: 0.75rem 0.85rem;
             }
+
+            .sidebar.collapsed .affiliation-dropdown {
+                display: block !important;
+            }
     }
 
     @@media (max-width: 1200px) and (min-width: 992px) {
@@ -768,75 +758,16 @@
         }
     }
 
-    @@media (min-width: 1024px) {
-        .sidebar {
-            height: calc(100vh - var(--header-height));
-            overflow-y: auto;
-            scrollbar-width: thin;
-        }
-    }
-
     @@media (prefers-reduced-motion: reduce) {
-        .sidebar,
-        .sidebar-header,
-        .sidebar-link,
-        .sidebar-handle,
-        .sidebar-handle i,
-        .sidebar-footer {
+        .sidebar, .sidebar-header, .sidebar-link, .sidebar-handle, .sidebar-handle i, .sidebar-footer {
             transition: none;
         }
     }
-
-    .sidebar .dropdown-menu {
-        position: static !important;
-        display: block;
-        margin-left: 10px;
-        background: transparent;
-        border: none;
-    }
-
-    .sidebar .dropdown-item {
-        color: var(--sb-text);
-        padding-left: 20px;
-    }
-
-        .sidebar .dropdown-item:hover {
-            background: var(--sb-hover);
-        }
-
-    .d-none {
-        display: none !important;
-    }
-
-    .notification-nav-icon {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .notification-badge {
-        position: absolute;
-        top: -8px;
-        right: -12px;
-        min-width: 18px;
-        height: 18px;
-        padding: 0 5px;
-        border-radius: 20px;
-        background: #dc2626;
-        color: #fff;
-        font-size: 10px;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid #fff;
-    }
 </style>
 
-@if (!string.IsNullOrEmpty(Model.FacultyCode))
+@if (!string.IsNullOrEmpty(facultyCode))
 {
-    <aside class="sidebar">
+    <aside class="sidebar" aria-label="Sidebar navigation">
 
         <button type="button"
                 class="sidebar-handle"
@@ -866,10 +797,12 @@
             {
                 <li class="sidebar-item">
                     <a href="#" id="admissionAffiliationToggle"
-                       class="sidebar-link @(currentController == "CollegeBasicDetails" ? "active" : "")"
-                       title="Admission Affiliation"
+                       role="button"
+                       aria-expanded="false"
+                       aria-controls="affiliationDropdownPanel"
+                       class="sidebar-link @(affiliationActive ? "active" : "")"
+                       title="Application for Affiliation"
                        onclick="toggleAffiliationDropdown(event)">
-
                         <i class="bi bi-building"></i>
                         <span class="sidebar-link-label">Application for Affiliation</span>
                         <i class="bi bi-chevron-down chevron"></i>
@@ -880,43 +813,26 @@
                     </div>
                 </li>
 
-
-
                 <li class="sidebar-item">
-
                     <a asp-controller="AffiliationNotifications"
                        asp-action="Index"
-                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "AffiliationNotifications" ? "active" : "")"
+                       class="sidebar-link @(currentController == "AffiliationNotifications" ? "active" : "")"
                        title="Notifications">
-
                         <span class="notification-nav-icon">
-
                             <i class="bi bi-bell-fill"></i>
-
-                            <span id="sidebarNotificationBadge"
-                                  class="notification-badge"
-                                  style="display:none;">
-                            </span>
-
+                            <span id="sidebarNotificationBadge" class="notification-badge" style="display:none;"></span>
                         </span>
-
-                        <span class="sidebar-link-label">
-                            Notifications
-                        </span>
-
+                        <span class="sidebar-link-label">Notifications</span>
                     </a>
-
                 </li>
-
 
                 @if (facultyCode == "1")
                 {
                     <li class="sidebar-item">
                         <a asp-controller="Home"
                            asp-action="Dashboard"
-                           class="sidebar-link @(currentController == "UGFaculty" ? "active" : "")"
+                           class="sidebar-link @(currentController == "Home" && currentAction == "Dashboard" ? "active" : "")"
                            title="Update UG Medical Faculty Details">
-
                             <i class="bi bi-building"></i>
                             <span class="sidebar-link-label">Update UG Medical Faculty Details</span>
                         </a>
@@ -928,7 +844,7 @@
             {
                 <li class="sidebar-item">
                     <a asp-controller="Fellowship" asp-action="FellowshipMedical_Details"
-                       class="sidebar-link @(currentController == "Fellowship" ? "active" : "")"
+                       class="sidebar-link @(currentController == "Fellowship" && currentAction == "FellowshipMedical_Details" ? "active" : "")"
                        title="Fellowship Application">
                         <i class="bi bi-mortarboard"></i>
                         <span class="sidebar-link-label">Fellowship Application</span>
@@ -936,59 +852,72 @@
                 </li>
                 <li class="sidebar-item">
                     <a asp-controller="Fellowship" asp-action="AcceptedRejectedDashboard"
-                       class="sidebar-link"
+                       class="sidebar-link @(currentController == "Fellowship" && currentAction == "AcceptedRejectedDashboard" ? "active" : "")"
                        title="Approved / Rejected Applications">
                         <i class="bi bi-check2-circle"></i>
                         <span class="sidebar-link-label">Approved / Rejected Applications</span>
                     </a>
                 </li>
             }
-
-            <!-- Digital Repository – shown conditionally based on faculty -->
-
         </ul>
 
         <!-- Account controls -->
         <div class="sidebar-footer">
             <div class="sidebar-footer-label">Account</div>
 
-            <button class="sidebar-action-btn" onclick="goToCollegeProfile(event)" title="College Profile">
+            <button type="button" class="sidebar-action-btn" onclick="goToCollegeProfile(event)" title="College Profile">
                 <i class="bi bi-person-vcard"></i> <span class="sidebar-action-label">College Profile</span>
             </button>
 
-            <button class="sidebar-action-btn primary" data-bs-toggle="modal" data-bs-target="#updatePasswordModal" title="Update Password">
+            <button type="button" class="sidebar-action-btn primary" data-bs-toggle="modal" data-bs-target="#updatePasswordModal" title="Update Password">
                 <i class="bi bi-lock"></i> <span class="sidebar-action-label">Update Password</span>
             </button>
-
         </div>
     </aside>
+
+    <!-- Hidden form: persists level + affiliation type in SESSION via SetCourseLevel.
+         (asp-* + method=post already emits the anti-forgery token.) -->
+    <form id="setLevelForm"
+          asp-controller="ContinuesAffiliation_Facultybased"
+          asp-action="SetCourseLevel"
+          method="post"
+          style="display:none;">
+        <input type="hidden" name="level" id="hiddenLevel" />
+        <input type="hidden" name="affiliationTypeId" id="hiddenAffiliationId" />
+        <input type="hidden" name="facultyCode" id="hiddenFacultyCode" />
+    </form>
 
     <!-- Update Password Modal -->
     <div class="modal fade password-modal" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form asp-action="UpdatePassword" asp-controller="Login" method="post">
-                    @Html.AntiForgeryToken()
+                <form asp-action="UpdatePassword" asp-controller="Login" method="post" id="updatePasswordForm">
                     <div class="modal-header">
                         <h5 class="modal-title" id="updatePasswordModalLabel">Change Password</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" name="CollegeCode" value="@collegecode" />
+                        <input type="hidden" name="CollegeCode" value="@collegeCode" />
                         <div class="password-field">
                             <label for="NewPassword" class="password-field-label">
                                 <span>New password</span>
                                 <span class="password-required">Required</span>
                             </label>
                             <div class="password-input-wrap">
-                                <input type="password" class="form-control" id="NewPassword" name="UpdatedPassword" required minlength="8" maxlength="20" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{8,20}$" title="Password must be 8-20 characters and include uppercase, lowercase, number, and special character." autocomplete="new-password" />
-                                <button type="button" class="password-visibility toggle-password" aria-label="Show password" title="Show password"><i class="bi bi-eye" id="toggleIcon"></i></button>
+                                <input type="password" class="form-control" id="NewPassword" name="UpdatedPassword"
+                                       required minlength="8" maxlength="20"
+                                       pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{8,20}$"
+                                       title="Password must be 8-20 characters and include uppercase, lowercase, number, and special character."
+                                       autocomplete="new-password" />
+                                <button type="button" class="password-visibility toggle-password" aria-label="Show password" title="Show password">
+                                    <i class="bi bi-eye" id="toggleIcon"></i>
+                                </button>
                             </div>
                             <div class="password-rules" aria-label="Password requirements">
-                                <span class="password-rule"><i class="bi bi-check2-circle"></i>8 to 20 characters</span>
-                                <span class="password-rule"><i class="bi bi-check2-circle"></i>Uppercase letter</span>
-                                <span class="password-rule"><i class="bi bi-check2-circle"></i>Lowercase letter</span>
-                                <span class="password-rule"><i class="bi bi-check2-circle"></i>Number and symbol</span>
+                                <span class="password-rule" data-rule="length"><i class="bi bi-check2-circle"></i>8 to 20 characters</span>
+                                <span class="password-rule" data-rule="upper"><i class="bi bi-check2-circle"></i>Uppercase letter</span>
+                                <span class="password-rule" data-rule="lower"><i class="bi bi-check2-circle"></i>Lowercase letter</span>
+                                <span class="password-rule" data-rule="numsym"><i class="bi bi-check2-circle"></i>Number and symbol</span>
                             </div>
                         </div>
                     </div>
@@ -997,380 +926,327 @@
                         <button type="submit" class="btn btn-primary">Update Password</button>
                     </div>
                 </form>
-                <!-- Hidden form that will POST the level & affiliation‑type id -->
-                <form id="setLevelForm"
-                      asp-controller="ContinuesAffiliation_Facultybased"
-                      asp-action="SetCourseLevel"
-                      method="post"
-                      style="display:none;">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="level" id="hiddenLevel" />
-                    <input type="hidden" name="affiliationTypeId" id="hiddenAffiliationId" />
-                    <input type="hidden" name="facultyCode" id="hiddenFacultyCode" />
-                </form>
-
-
             </div>
         </div>
     </div>
 }
 
 <script>
-     const currentFacultyCode = "@facultyCode";
-     document.addEventListener("DOMContentLoaded", function () {
-         const passwordModal = document.getElementById("updatePasswordModal");
-         if (passwordModal && passwordModal.parentElement !== document.body) {
-             document.body.appendChild(passwordModal);
-         }
+    // ── Values coming from the server session (safely JSON-encoded) ──────────
+    const currentFacultyCode = @Html.Raw(Json.Serialize(facultyCode ?? ""));
+    const currentLevel       = @Html.Raw(Json.Serialize(currentLevel));
+    const currentTypeId      = @Html.Raw(Json.Serialize(currentTypeId));
 
-         const toggleBtn = document.querySelector(".toggle-password");
-         const passwordInput = document.getElementById("NewPassword");
-         const toggleIcon = document.getElementById("toggleIcon");
-        console.log(currentFacultyCode);
+    const getAffiliationTypesUrl = @Html.Raw(Json.Serialize(Url.Action("GetAffiliationTypes", "ContinuesAffiliation_Facultybased")));
+    const getCourseLevelsUrl     = @Html.Raw(Json.Serialize(Url.Action("GetCourseLevels", "ContinuesAffiliation_Facultybased")));
+    const loginUrl               = @Html.Raw(Json.Serialize(Url.Action("Login", "Account")));
 
-         if (toggleBtn && passwordInput && toggleIcon) {
-             toggleBtn.addEventListener("click", function () {
-                 const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-                 passwordInput.setAttribute("type", type);
-                 toggleIcon.className = type === "password" ? "bi bi-eye" : "bi bi-eye-slash";
-             });
-         }
-
-         // Restore the collapsed/expanded sidebar state. Collapsing is a
-         // desktop affordance only — below the 992px breakpoint the
-         // sidebar stacks full-width, so a stored "collapsed" flag from a
-         // previous desktop session is deliberately ignored here.
-         if (window.innerWidth >= 992) {
-             setSidebarCollapsed(localStorage.getItem("rguhsSidebarCollapsed") === "true");
-         }
-     });
-
-     // Keep the sidebar usable if the viewport is resized down while collapsed.
-     window.addEventListener("resize", function () {
-         if (window.innerWidth < 992 && isSidebarCollapsed()) {
-             setSidebarCollapsed(false);
-         }
-     });
-
-     function isSidebarCollapsed() {
-         const sidebar = document.querySelector(".sidebar");
-         return !!sidebar && sidebar.classList.contains("collapsed");
-     }
-
-     // Applies (or clears) the collapsed state, keeps the handle's a11y
-     // attributes in sync, persists the choice, and notifies the rest of
-     // the page (e.g. a layout that needs to adjust its own margin-left
-     // to match the sidebar's current width) via a CustomEvent.
-     function setSidebarCollapsed(collapsed) {
-         const sidebar = document.querySelector(".sidebar");
-         const handle = document.querySelector(".sidebar-handle");
-         if (!sidebar || !handle) return;
-
-         sidebar.classList.toggle("collapsed", collapsed);
-         document.body.classList.toggle("app-sidebar-collapsed", collapsed);
-
-         localStorage.setItem("rguhsSidebarCollapsed", collapsed ? "true" : "false");
-
-         handle.setAttribute("aria-expanded", collapsed ? "false" : "true");
-         handle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
-         handle.setAttribute("title", collapsed ? "Expand sidebar" : "Collapse sidebar");
-
-         window.dispatchEvent(new CustomEvent("sidebarToggle", { detail: { collapsed: collapsed } }));
-     }
-
-     function toggleSidebar() {
-         setSidebarCollapsed(!isSidebarCollapsed());
-     }
-
-     function toggleMenu(e, id) {
-         e.preventDefault();
-         const menu = document.getElementById(id);
-         if (!menu) return;
-         menu.classList.toggle("d-none");
-     }
-
-     // ---- Admission Affiliation: custom dropdown, opens directly on first click ----
-
-     let affiliationTypesLoaded = false;
-     let affiliationOptionsCache = [];
-
-     const getAffiliationTypesUrl = '@Url.Action("GetAffiliationTypes", "ContinuesAffiliation_Facultybased")';
-
-    // Map TypeId -> destination route. Only entries with a mapped route are selectable.
-    const affiliationRouteMap = {
-        "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-        "1": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-        "3": '@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")',
-        "4": '@Url.Action("Index", "CourseAffiliation")',
-        // "5": '@Url.Action("Institution_Details", "ChangeOfName_Facultybased")',
-        // "6": '@Url.Action("Institution_Details", "ChangeOfAddress_Facultybased")',
-        // "7": '@Url.Action("Institution_Details", "ChangeOfNameAndAddress_Facultybased")',
-        // "8": '@Url.Action("Institution_Details", "RenewalOfConsent_Facultybased")',
+    // Only affiliation types listed here are selectable (value = destination, kept for reference;
+    // the actual redirect is done by SetCourseLevel on the server).
+    const affiliationBaseUrlMap = {
+        "2": @Html.Raw(Json.Serialize(Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased"))),
+        "3": @Html.Raw(Json.Serialize(Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")))
     };
 
-     const affiliationBaseUrlMap = {
-@*          "1": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")', *@
-         "2": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")',
-         "3": '@Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")',
-  @*        "4": '@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")', *@
- 
-     };
+    const SIDEBAR_KEY = "rguhsSidebarCollapsed";
 
-     // -----------------------------------------------------------------
-     // Map: level (ug / pg) → query‑string that will be appended to the base URL
-     // -----------------------------------------------------------------
-     const levelQueryMap = {
-         ug: "?level=ug",
-         pg: "?level=pg",
-         ss: "?level=ss"
-     };
+    // ── Small storage helpers (localStorage can throw in private mode) ───────
+    function readStored(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+    function writeStored(key, val) { try { localStorage.setItem(key, val); } catch (e) { /* ignore */ } }
 
-     /* --------------------------------------------------------------
-        Render the affiliation types (parent rows) + their UG/PG sub‑menus
-        -------------------------------------------------------------- */
-     function renderAffiliationOptions(items) {
-         const panel = document.getElementById("affiliationDropdownPanel");
-         panel.innerHTML = "";
-
-         if (!items || items.length === 0) {
-             const empty = document.createElement("div");
-             empty.className = "affiliation-loading";
-             empty.textContent = "No affiliation types available.";
-             panel.appendChild(empty);
-             return;
-         }
-
-         items.forEach(item => {
-
-             /* ---------- Sub‑menu (UG / PG) – only for enabled rows ---------- */
-             const facultyCode = "@facultyCode";
-
-             const hasRoute = !!affiliationBaseUrlMap[item.typeId];
-             const isDisabled =
-                    !hasRoute ||
-                    (facultyCode === "2" && item.typeId.toString() === "3");
-
-            @* const isDisabled = !hasRoute; *@
-
-             /* ---------- Parent row (affiliation type) ---------- */
-             const parentDiv = document.createElement("div");
-             parentDiv.className = `affiliation-option${isDisabled ? " disabled" : ""}`;
-             parentDiv.innerHTML = `
-                 <i class="bi bi-dot"></i>
-                 <span>${item.typeDescription}</span>
-                 <i class="bi bi-chevron-right ms-auto"></i>
-             `;
-             parentDiv.dataset.typeId = item.typeId;      // store for later use
-             parentDiv.addEventListener("click", toggleUgPgSubmenu);
-             panel.appendChild(parentDiv);
-
-             
-
-            const showSubMenu =
-                facultyCode === "1" ||
-                facultyCode === "2" ||
-                facultyCode === "4";
-
-            const createSubMenu = !isDisabled && showSubMenu;
-            const getCourseLevelsUrl = '@Url.Action("GetCourseLevels", "ContinuesAffiliation_Facultybased")';
-
-
-            if (createSubMenu) {
-
-                const subMenu = document.createElement("div");
-                subMenu.className = "affiliation-submenu";
-                subMenu.dataset.parentId = item.typeId;
-
-                let levels = [];
-
-                  if (facultyCode === "2" || facultyCode === "4") {
-                    levels = ["ug", "pg"];
-                }
-                else if (facultyCode === "1" ) {
-                    fetch(getCourseLevelsUrl)
-                    .then(res => res.json())
-                    .then(data => {
-                        data.forEach(level => {
-                            const normalizedLevel = level.trim().toLowerCase();
-                            const levelItem = document.createElement(normalizedLevel === "ug" ? "a" : "span");
-                            levelItem.className = `affiliation-subitem${normalizedLevel === "ug" ? "" : " readonly"}`;
-                            levelItem.textContent = level.toUpperCase();
-
-                            if (normalizedLevel === "ug") {
-                                levelItem.href = "#";
-                                levelItem.dataset.level = normalizedLevel;
-                                levelItem.addEventListener("click", navigateToLevel);
-                            }
-
-                            subMenu.appendChild(levelItem);
-                        });
-                    });
-
-                    panel.appendChild(subMenu);
-                    return;
-
-                }
-                levels.forEach(level => {
-                    const normalizedLevel = level.trim().toLowerCase();
-
-                    const isPg = normalizedLevel === "pg";
-                    const isClickable =
-                        normalizedLevel === "ug" ||
-                        (isPg && facultyCode === "2");
-
-                    const levelItem = document.createElement(
-                        isClickable ? "a" : "span"
-                    );
-
-                    levelItem.className =
-                        `affiliation-subitem${isClickable ? "" : " readonly"}`;
-
-                    levelItem.textContent = normalizedLevel.toUpperCase();
-
-                    if (isClickable) {
-                        levelItem.href = "#";
-                        levelItem.dataset.level = normalizedLevel;
-                        levelItem.addEventListener("click", navigateToLevel);
-                    }
-
-                    subMenu.appendChild(levelItem);
-                });
-
-                panel.appendChild(subMenu);
-            }
-             // If the row is disabled we simply do **not** add a submenu element.
-         });
-     }
-
-     /* --------------------------------------------------------------
-        Open/close a specific UG/PG submenu (accordion style)
-        -------------------------------------------------------------- */
-     function toggleUgPgSubmenu(e) {
-         e.stopPropagation();                     // stop bubbling to the document
-         const parent = e.currentTarget;
-
-         // ---- 1️⃣  Ignore clicks on disabled rows ----
-         if (parent.classList.contains("disabled")) {
-             return;                               // do nothing – the option is not selectable
-         }
-
-         const typeId = parent.dataset.typeId;
-
-         const panel = document.getElementById("affiliationDropdownPanel");
-         const subMenu = panel.querySelector(
-             `.affiliation-submenu[data-parent-id="${typeId}"]`
-         );
-         if (!subMenu) return;                    // safety – should never happen for enabled rows
-
-         // Close any other open submenu (accordion style)
-         document.querySelectorAll(".affiliation-submenu").forEach(m => {
-             if (m !== subMenu) m.classList.remove("show");
-         });
-
-         // Toggle this one
-         subMenu.classList.toggle("show");
-     }
-
-
-     // --------------------------------------------------------------
-     // Helper: fetch the anti‑forgery token that MVC renders in the form
-     // --------------------------------------------------------------
-     function getAntiForgeryToken() {
-         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-         return tokenInput ? tokenInput.value : '';
-     }
-
-     /* --------------------------------------------------------------
-    Persist level & affiliation‑type‑id via a **normal form POST**
-    -------------------------------------------------------------- */
-     function navigateToLevel(e) {
-         e.preventDefault();
-         e.stopPropagation();               // stop bubbling to the parent row
-
-         const level      = e.currentTarget.dataset.level;          // "ug" or "pg"
-
-         // ---- 1️⃣ Get the affiliation‑type id from the submenu ----
-         const subMenu = e.currentTarget.closest('.affiliation-submenu');
-         if (!subMenu) {
-             console.error('Unable to find affiliation submenu for the clicked link');
-             return;
-         }
-         const typeId = subMenu.dataset.parentId;                  // e.g. "2"
-
-         // ---- 2️⃣ Resolve the target URL for this affiliation type ----
-         const baseUrl = affiliationBaseUrlMap[typeId];
-         if (!baseUrl) {
-             alert('No URL configured for this affiliation type.');
-             return;
-         }
-
-         // ---- 3️⃣ Fill the hidden form fields (level + affiliationTypeId) ----
-         document.getElementById('hiddenLevel').value = level;
-         document.getElementById('hiddenAffiliationId').value = typeId;
-
-        document.getElementById('hiddenFacultyCode').value = currentFacultyCode;
-
-         // ---- 4️⃣ Submit the form – a normal browser POST, **no fetch/XHR** ----
-         document.getElementById('setLevelForm').submit();
-     }
-
-
-     // --------------------------------------------------------------
-     // Toggle the main affiliation dropdown (unchanged, except that a
-     // collapsed sidebar is now auto-expanded first — there's nowhere
-     // for the inline panel to render at 68px wide).
-     // --------------------------------------------------------------
-     function toggleAffiliationDropdown(e) {
-         e.preventDefault();
-
-         if (isSidebarCollapsed()) {
-             setSidebarCollapsed(false);
-             window.setTimeout(function () { toggleAffiliationDropdown(e); }, 90);
-             return;
-         }
-
-         const panel = document.getElementById("affiliationDropdownPanel");
-         const toggleLink = document.getElementById("admissionAffiliationToggle");
-         const isOpen = panel.classList.contains("open");
-
-         if (isOpen) {
-             panel.classList.remove("open");
-             panel.classList.add("d-none-collapsed");
-             toggleLink.classList.remove("expanded");
-             return;
-         }
-
-         panel.classList.remove("d-none-collapsed");
-         panel.classList.add("open");
-         toggleLink.classList.add("expanded");
-
-         if (!affiliationTypesLoaded) {
-             panel.innerHTML = '<div class="affiliation-loading"><span class="spinner-border" role="status"></span> Loading...</div>';
-
-             fetch(getAffiliationTypesUrl)
-                 .then(res => {
-                     if (!res.ok) throw new Error("Network response was not ok");
-                     return res.json();
-                 })
-                 .then(data => {
-                     affiliationOptionsCache = data;
-                     affiliationTypesLoaded = true;
-                     renderAffiliationOptions(data);
-                 })
-                 .catch(err => {
-                     console.error("Failed to load affiliation types:", err);
-                     panel.innerHTML = '<div class="affiliation-loading">Failed to load. Try again.</div>';
-                 });
-         } else {
-             renderAffiliationOptions(affiliationOptionsCache);
-         }
-     }
-
-
-     function handleAffiliationTypeSelect(typeId) {
-         if (!typeId) return;
-
-        const separator = baseUrl.indexOf('?') !== -1 ? '&' : '?';
-        window.location.href = baseUrl + separator + 'courseLevel=' + encodeURIComponent(courseLevel);
+    // ── Sidebar collapse / expand ────────────────────────────────────────────
+    function isSidebarCollapsed() {
+        const sidebar = document.querySelector(".sidebar");
+        return !!sidebar && sidebar.classList.contains("collapsed");
     }
+
+    function setSidebarCollapsed(collapsed) {
+        const sidebar = document.querySelector(".sidebar");
+        const handle = document.querySelector(".sidebar-handle");
+        if (!sidebar || !handle) return;
+
+        sidebar.classList.toggle("collapsed", collapsed);
+        document.body.classList.toggle("app-sidebar-collapsed", collapsed);
+        writeStored(SIDEBAR_KEY, collapsed ? "true" : "false");
+
+        handle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        handle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+        handle.setAttribute("title", collapsed ? "Expand sidebar" : "Collapse sidebar");
+
+        window.dispatchEvent(new CustomEvent("sidebarToggle", { detail: { collapsed: collapsed } }));
+    }
+
+    function toggleSidebar() { setSidebarCollapsed(!isSidebarCollapsed()); }
+
+    window.addEventListener("resize", function () {
+        if (window.innerWidth < 992 && isSidebarCollapsed()) setSidebarCollapsed(false);
+    });
+
+    // ── Fetch helper: handles expired session (redirect to login) ────────────
+    async function fetchJson(url) {
+        const res = await fetch(url, {
+            credentials: "same-origin",
+            headers: { "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" }
+        });
+
+        // An expired session makes the server redirect to the login page (HTML)
+        if (res.redirected || res.status === 401 || res.status === 403) {
+            window.location.href = res.redirected ? res.url : loginUrl;
+            throw new Error("Session expired");
+        }
+        if (!res.ok) throw new Error("Request failed (" + res.status + ")");
+        return res.json();
+    }
+
+    // ── Affiliation dropdown ────────────────────────────────────────────────
+    let affiliationOptionsCache = null;
+    let courseLevelsPromise = null;
+
+    function loadCourseLevels() {
+        if (!courseLevelsPromise) {
+            courseLevelsPromise = fetchJson(getCourseLevelsUrl).catch(function (err) {
+                courseLevelsPromise = null;   // allow retry
+                throw err;
+            });
+        }
+        return courseLevelsPromise;
+    }
+
+    function isLevelClickable(level) {
+        return level === "ug" || (level === "pg" && currentFacultyCode === "2");
+    }
+
+    function addLevelItem(subMenu, rawLevel, typeId) {
+        const level = String(rawLevel).trim().toLowerCase();
+        const clickable = isLevelClickable(level);
+        const isCurrent = clickable && level === currentLevel && String(typeId) === String(currentTypeId);
+
+        const el = document.createElement(clickable ? "a" : "span");
+        el.className = "affiliation-subitem" + (clickable ? "" : " readonly") + (isCurrent ? " active" : "");
+        el.textContent = level.toUpperCase();
+
+        if (clickable) {
+            el.href = "#";
+            el.dataset.level = level;
+            el.addEventListener("click", navigateToLevel);
+        }
+        subMenu.appendChild(el);
+
+        if (isCurrent) {
+            subMenu.classList.add("show");
+            const parent = subMenu.previousElementSibling;
+            if (parent) parent.classList.add("expanded");
+        }
+    }
+
+    function renderAffiliationOptions(items) {
+        const panel = document.getElementById("affiliationDropdownPanel");
+        panel.innerHTML = "";
+
+        if (!items || items.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "affiliation-loading";
+            empty.textContent = "No affiliation types available.";
+            panel.appendChild(empty);
+            return;
+        }
+
+        const showSubMenu = ["1", "2", "4"].includes(currentFacultyCode);
+
+        items.forEach(function (item) {
+            const typeId = String(item.typeId);
+            const hasRoute = !!affiliationBaseUrlMap[typeId];
+            const isDisabled = !hasRoute || (currentFacultyCode === "2" && typeId === "3");
+
+            // Parent row (built with DOM APIs, so text can never inject HTML)
+            const parentDiv = document.createElement("div");
+            parentDiv.className = "affiliation-option" + (isDisabled ? " disabled" : "");
+            parentDiv.dataset.typeId = typeId;
+
+            const dot = document.createElement("i");
+            dot.className = "bi bi-dot";
+            const label = document.createElement("span");
+            label.textContent = item.typeDescription;
+            const arrow = document.createElement("i");
+            arrow.className = "bi bi-chevron-right ms-auto";
+
+            parentDiv.append(dot, label, arrow);
+            parentDiv.addEventListener("click", toggleUgPgSubmenu);
+            panel.appendChild(parentDiv);
+
+            if (isDisabled || !showSubMenu) return;
+
+            const subMenu = document.createElement("div");
+            subMenu.className = "affiliation-submenu";
+            subMenu.dataset.parentId = typeId;
+            panel.appendChild(subMenu);
+
+            if (currentFacultyCode === "1") {
+                // Faculty 1: levels depend on the college, fetched once and cached
+                loadCourseLevels()
+                    .then(function (levels) { (levels || []).forEach(function (l) { addLevelItem(subMenu, l, typeId); }); })
+                    .catch(function () {
+                        const err = document.createElement("span");
+                        err.className = "affiliation-subitem readonly";
+                        err.textContent = "Unable to load levels";
+                        subMenu.appendChild(err);
+                        subMenu.classList.add("show");
+                    });
+            } else {
+                ["ug", "pg"].forEach(function (l) { addLevelItem(subMenu, l, typeId); });
+            }
+        });
+    }
+
+    function toggleUgPgSubmenu(e) {
+        e.stopPropagation();
+        const parent = e.currentTarget;
+        if (parent.classList.contains("disabled")) return;
+
+        const panel = document.getElementById("affiliationDropdownPanel");
+        const subMenu = panel.querySelector('.affiliation-submenu[data-parent-id="' + parent.dataset.typeId + '"]');
+        if (!subMenu) return;
+
+        // Accordion: close the others
+        panel.querySelectorAll(".affiliation-submenu").forEach(function (m) { if (m !== subMenu) m.classList.remove("show"); });
+        panel.querySelectorAll(".affiliation-option").forEach(function (o) { if (o !== parent) o.classList.remove("expanded"); });
+
+        subMenu.classList.toggle("show");
+        parent.classList.toggle("expanded", subMenu.classList.contains("show"));
+    }
+
+    // Stores level + type in the SESSION (server side) with a normal form POST
+    let levelSubmitting = false;
+    function navigateToLevel(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (levelSubmitting) return;
+
+        const level = e.currentTarget.dataset.level;
+        const subMenu = e.currentTarget.closest(".affiliation-submenu");
+        const typeId = subMenu ? subMenu.dataset.parentId : null;
+
+        if (!typeId || !affiliationBaseUrlMap[typeId]) {
+            alert("No URL configured for this affiliation type.");
+            return;
+        }
+
+        levelSubmitting = true;
+        document.getElementById("hiddenLevel").value = level;
+        document.getElementById("hiddenAffiliationId").value = typeId;
+        document.getElementById("hiddenFacultyCode").value = currentFacultyCode;
+        document.getElementById("setLevelForm").submit();
+    }
+
+    function openAffiliationDropdown() {
+        const panel = document.getElementById("affiliationDropdownPanel");
+        const toggleLink = document.getElementById("admissionAffiliationToggle");
+        if (!panel || !toggleLink) return;
+
+        panel.classList.remove("d-none-collapsed");
+        panel.classList.add("open");
+        toggleLink.classList.add("expanded");
+        toggleLink.setAttribute("aria-expanded", "true");
+
+        if (affiliationOptionsCache) {
+            renderAffiliationOptions(affiliationOptionsCache);
+            return;
+        }
+
+        panel.innerHTML = '<div class="affiliation-loading"><span class="spinner-border" role="status"></span> Loading...</div>';
+
+        fetchJson(getAffiliationTypesUrl)
+            .then(function (data) {
+                affiliationOptionsCache = data;
+                renderAffiliationOptions(data);
+            })
+            .catch(function (err) {
+                if (err && err.message === "Session expired") return;   // already redirecting
+                console.error("Failed to load affiliation types:", err);
+                panel.innerHTML = '<div class="affiliation-loading">Failed to load. Click again to retry.</div>';
+                panel.classList.remove("open");
+                panel.classList.add("d-none-collapsed");
+                toggleLink.classList.remove("expanded");
+                toggleLink.setAttribute("aria-expanded", "false");
+            });
+    }
+
+    function closeAffiliationDropdown() {
+        const panel = document.getElementById("affiliationDropdownPanel");
+        const toggleLink = document.getElementById("admissionAffiliationToggle");
+        if (!panel || !toggleLink) return;
+        panel.classList.remove("open");
+        panel.classList.add("d-none-collapsed");
+        toggleLink.classList.remove("expanded");
+        toggleLink.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleAffiliationDropdown(e) {
+        e.preventDefault();
+
+        // A collapsed 68px rail has no room for the panel: expand first, then open
+        if (isSidebarCollapsed()) {
+            setSidebarCollapsed(false);
+            window.setTimeout(openAffiliationDropdown, 90);
+            return;
+        }
+
+        const panel = document.getElementById("affiliationDropdownPanel");
+        if (panel.classList.contains("open")) closeAffiliationDropdown();
+        else openAffiliationDropdown();
+    }
+
+    // Lets the notifications code update the bell badge:  setSidebarNotificationCount(5)
+    function setSidebarNotificationCount(count) {
+        const badge = document.getElementById("sidebarNotificationBadge");
+        if (!badge) return;
+        const n = Number(count) || 0;
+        badge.textContent = n > 99 ? "99+" : String(n);
+        badge.style.display = n > 0 ? "flex" : "none";
+    }
+
+    // ── Page init ────────────────────────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Modal must live directly under <body> to sit above the fixed sidebar
+        const passwordModal = document.getElementById("updatePasswordModal");
+        if (passwordModal && passwordModal.parentElement !== document.body) {
+            document.body.appendChild(passwordModal);
+        }
+
+        // Show / hide password
+        const toggleBtn = document.querySelector(".toggle-password");
+        const passwordInput = document.getElementById("NewPassword");
+        const toggleIcon = document.getElementById("toggleIcon");
+
+        if (toggleBtn && passwordInput && toggleIcon) {
+            toggleBtn.addEventListener("click", function () {
+                const hidden = passwordInput.getAttribute("type") === "password";
+                passwordInput.setAttribute("type", hidden ? "text" : "password");
+                toggleIcon.className = hidden ? "bi bi-eye-slash" : "bi bi-eye";
+                toggleBtn.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
+            });
+        }
+
+        // Live password-rule feedback
+        if (passwordInput) {
+            const rules = {
+                length: function (v) { return v.length >= 8 && v.length <= 20; },
+                upper:  function (v) { return /[A-Z]/.test(v); },
+                lower:  function (v) { return /[a-z]/.test(v); },
+                numsym: function (v) { return /\d/.test(v) && /[@@$!%*?&]/.test(v); }
+            };
+            passwordInput.addEventListener("input", function () {
+                document.querySelectorAll(".password-rule").forEach(function (el) {
+                    const fn = rules[el.dataset.rule];
+                    el.classList.toggle("ok", !!fn && fn(passwordInput.value));
+                });
+            });
+        }
+
+        // Restore collapsed state (desktop only)
+        if (window.innerWidth >= 992) {
+            setSidebarCollapsed(readStored(SIDEBAR_KEY) === "true");
+        }
+    });
 </script>

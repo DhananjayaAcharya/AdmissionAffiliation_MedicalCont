@@ -1,6 +1,7 @@
 @model Medical_Affiliation.Models.CApreviewViewModel
 @inject Medical_Affiliation.DATA.ApplicationDbContext _context
 @using Microsoft.EntityFrameworkCore
+@using Medical_Affiliation.Models
 @{
     ViewData["Title"] = "Details Preview";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
@@ -33,18 +34,75 @@
             WHERE CollegeCode = {previewCollegeCode}
               AND LTRIM(RTRIM(TypeOfAffiliation)) = LTRIM(RTRIM({previewApplicationType}))
               AND UPPER(LTRIM(RTRIM(CourseLevel))) = {previewCourseLevel}").FirstOrDefaultAsync() > 0;
+
+    // ---- Section 11: Skills Laboratory (direct from Medical_SkillsLaboratory) ----
+    var slFacultyCode = (Model.FacultyCode ?? Context.Session.GetString("FacultyCode") ?? string.Empty).Trim();
+    var slAffiliationType = Context.Session.GetInt32("AffiliationType")
+        ?? (int.TryParse(Context.Session.GetString("TypeOfAffiliation"), out var slAffType) ? slAffType : 2);
+
+    SkillsLabRow? skillsLab = null;
+    if (!string.IsNullOrWhiteSpace(previewCollegeCode) && !string.IsNullOrWhiteSpace(slFacultyCode))
+    {
+        skillsLab = await _context.Database.SqlQuery<SkillsLabRow>($@"
+            SELECT TOP (1) *
+            FROM dbo.Medical_SkillsLaboratory
+            WHERE LTRIM(RTRIM(CollegeCode)) = {previewCollegeCode}
+              AND LTRIM(RTRIM(CAST(FacultyCode AS varchar(20)))) = {slFacultyCode}
+            ORDER BY Id DESC").FirstOrDefaultAsync();
+    }
+
+    // Annual MBBS intake: UG uses Intake_26_27 (same source as Section 10)
+    int? slAnnualMbbsIntake = skillsLab?.AnnualMbbsIntake;
+    if (isUgPreview && !string.IsNullOrWhiteSpace(previewCollegeCode) && !string.IsNullOrWhiteSpace(slFacultyCode))
+    {
+        slAnnualMbbsIntake = await _context.Database.SqlQuery<int>($@"
+            SELECT TOP (1) COALESCE(TRY_CAST(Intake_26_27 AS int), 0) AS [Value]
+            FROM dbo.Mst_MedicalCollegeCourseIntake
+            WHERE LTRIM(RTRIM(coll_code)) = {previewCollegeCode}
+              AND LTRIM(RTRIM(CAST(Facultycode AS varchar(20)))) = {slFacultyCode}
+              AND UPPER(LTRIM(RTRIM(ug_pg))) = {previewCourseLevel}
+              AND UPPER(LTRIM(RTRIM(course))) = 'MBBS'
+            ORDER BY SLNO DESC").FirstOrDefaultAsync();
+    }
+
+    // ---- Section 12: Associated Institutions (from dbo.AssociatedInstitutions, by college code) ----
+    // If your connection string does not point at Admission_Affiliation, use
+    // [Admission_Affiliation].[dbo].[AssociatedInstitutions] in the FROM clause.
+    List<AssociatedInstitutionRow> associatedInstitutions = new();
+    if (!string.IsNullOrWhiteSpace(previewCollegeCode))
+    {
+        associatedInstitutions = await _context.Database.SqlQuery<AssociatedInstitutionRow>($@"
+            SELECT Id,
+                   CAST(TypeOfAffiliation AS varchar(100))      AS TypeOfAffiliation,
+                   CAST(CollegeCode AS varchar(50))             AS CollegeCode,
+                   CAST(AssociatedCollegeCode AS varchar(50))   AS AssociatedCollegeCode,
+                   CAST(AssociatedFacultyCode AS varchar(50))   AS AssociatedFacultyCode,
+                   CAST(FacultyCode AS varchar(50))             AS FacultyCode,
+                   CAST(CourseCode AS varchar(50))              AS CourseCode,
+                   CAST(CourseName AS varchar(300))             AS CourseName,
+                   CAST(CourseLevel AS varchar(50))             AS CourseLevel,
+                   AnnualIntake,
+                   CreatedOn
+            FROM dbo.AssociatedInstitutions
+            WHERE LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = {previewCollegeCode}
+            ORDER BY AssociatedCollegeCode, CourseName").ToListAsync();
+    }
+
+    string Yn(bool? v) => v.HasValue ? (v.Value ? "Yes" : "No") : "—";
+    string Num(int? v) => v.HasValue ? v.Value.ToString() : "—";
+    string Dec(decimal? v) => v.HasValue ? v.Value.ToString("N2") : "—";
 }
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
     /* ==========================================================
-           Palette shared with the continuous-affiliation shell:
-           gradient  #173d56 -> #176b87 -> #25859a
-           accent    #dcae3f -> #f1d27a -> #dcae3f
-           body bg   #eef3f8
-           fonts     EB Garamond (display) / DM Sans (body)
-           ========================================================== */
+                   Palette shared with the continuous-affiliation shell:
+                   gradient  #173d56 -> #176b87 -> #25859a
+                   accent    #dcae3f -> #f1d27a -> #dcae3f
+                   body bg   #eef3f8
+                   fonts     EB Garamond (display) / DM Sans (body)
+                   ========================================================== */
     :root {
         --ink: #1d2b3a;
         --navy-deep: #173d56;
@@ -440,61 +498,83 @@
             color: #fff;
         }
 
-        .application-readonly .preview-report-edit,
-        .application-readonly .preview-tab-row a,
-        .application-readonly .submit-application-btn {
-            display: none;
-        }
+    /* After submission: hide only the Edit links and the Submit button.
+           The Principal Seal & Signature re-upload block is NOT affected and
+           stays visible and enabled at all times. */
+    /* After submission: hide only the Edit links and the main Submit button.
+           The Principal Seal & Signature re-upload block is NOT affected and
+           stays visible and enabled at all times. */
+    .application-readonly .preview-report-edit,
+    .application-readonly .preview-tab-row a,
+    .application-readonly .submit-application-btn {
+        display: none;
+    }
 
-        .application-readonly .reupload-highlight {
+    /* Principal Seal & Signature Re-upload: always visible and always enabled,
+           before AND after the application is submitted. */
+    #SealReupload {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        max-height: none !important;
+        position: static !important;
+    }
+
+        #SealReupload .reupload-body {
             display: block !important;
             visibility: visible !important;
-            pointer-events: auto !important;
         }
 
-        .application-readonly .reupload-form,
-        .application-readonly .reupload-form .form-control,
-        .application-readonly .reupload-form .reupload-btn {
+        #SealReupload .reupload-form {
+            display: flex !important;
             visibility: visible !important;
             pointer-events: auto !important;
         }
 
-        .application-readonly .reupload-form {
-            display: flex !important;
-        }
-
-        .application-readonly .reupload-form .reupload-btn {
-            display: inline-flex !important;
-        }
-
-        .readonly-status {
-            display: inline-flex;
-            align-items: center;
-            gap: .4rem;
-            background: rgba(255, 255, 255, .14);
-            border: 1px solid rgba(255, 255, 255, .35);
-            border-radius: 8px;
-            color: #fff;
-            font-size: .8rem;
-            font-weight: 700;
-            padding: .6rem .85rem;
-        }
-
-        .preview-report-heading span {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-
-            .preview-report-heading span::before {
-                content: "";
-                display: inline-block;
-                width: 3px;
-                height: 1.05rem;
-                background: var(--gold);
-                margin-right: 0.65rem;
-                border-radius: 2px;
+            #SealReupload .reupload-form .form-control {
+                display: block !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                opacity: 1 !important;
             }
+
+            #SealReupload .reupload-form .reupload-btn {
+                display: inline-flex !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                opacity: 1 !important;
+                cursor: pointer;
+            }
+
+    .readonly-status {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: rgba(255, 255, 255, .14);
+        border: 1px solid rgba(255, 255, 255, .35);
+        border-radius: 8px;
+        color: #fff;
+        font-size: .8rem;
+        font-weight: 700;
+        padding: .6rem .85rem;
+    }
+
+    .preview-report-heading span {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+
+        .preview-report-heading span::before {
+            content: "";
+            display: inline-block;
+            width: 3px;
+            height: 1.05rem;
+            background: var(--gold);
+            margin-right: 0.65rem;
+            border-radius: 2px;
+        }
 
     .preview-report-body {
         padding: 1.15rem 1.25rem;
@@ -794,21 +874,21 @@
         text-transform: uppercase;
     }
 
-    .reupload-header i {
-        color: var(--gold-ink);
-        font-size: 1rem;
-    }
+        .reupload-header i {
+            color: var(--gold-ink);
+            font-size: 1rem;
+        }
 
     .reupload-body {
         padding: 1rem 1rem 1.1rem;
     }
 
-    .reupload-body p {
-        color: var(--ink);
-        font-size: 0.92rem;
-        font-weight: 600;
-        margin: 0 0 0.9rem;
-    }
+        .reupload-body p {
+            color: var(--ink);
+            font-size: 0.92rem;
+            font-weight: 600;
+            margin: 0 0 0.9rem;
+        }
 
     .reupload-form {
         display: flex;
@@ -817,17 +897,17 @@
         flex-wrap: wrap;
     }
 
-    .reupload-form .form-control {
-        flex: 1 1 320px;
-        min-width: 220px;
-        border-color: #d7b861;
-        background: rgba(255, 255, 255, 0.8);
-    }
+        .reupload-form .form-control {
+            flex: 1 1 320px;
+            min-width: 220px;
+            border-color: #d7b861;
+            background: rgba(255, 255, 255, 0.8);
+        }
 
-    .reupload-form .form-control:focus {
-        border-color: var(--navy-light);
-        box-shadow: 0 0 0 0.2rem rgba(37, 124, 157, 0.18);
-    }
+            .reupload-form .form-control:focus {
+                border-color: var(--navy-light);
+                box-shadow: 0 0 0 0.2rem rgba(37, 124, 157, 0.18);
+            }
 
     .reupload-btn {
         display: inline-flex;
@@ -844,10 +924,10 @@
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .reupload-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 20px rgba(134, 95, 14, 0.2);
-    }
+        .reupload-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(134, 95, 14, 0.2);
+        }
 
     /* ========================= */
     /* FOOTER ACTIONS */
@@ -1025,8 +1105,8 @@
                         else
                         {
                             <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal" disabled="@(!Model.IsApplicationComplete)" title="@(Model.IsApplicationComplete ? "Submit application" : $"Complete the application to 100% ({Model.CompletionPercentage}% complete)")">
-                            <i class="bi bi-send-check-fill"></i>
-                            Submit Application
+                                <i class="bi bi-send-check-fill"></i>
+                                Submit Application
                             </button>
                         }
                     </div>
@@ -1052,7 +1132,11 @@
             </div>
         </div>
 
-        <div class="reupload-highlight">
+        <!-- ================================================================ -->
+        <!-- PRINCIPAL SEAL & SIGNATURE RE-UPLOAD                              -->
+        <!-- Always rendered and always enabled (before AND after submission). -->
+        <!-- ================================================================ -->
+        <div class="reupload-highlight" id="SealReupload">
             <div class="reupload-header">
                 <i class="bi bi-file-earmark-arrow-up-fill"></i>
                 Principal Seal &amp; Signature Re-upload
@@ -1077,7 +1161,7 @@
                     @Html.AntiForgeryToken()
                     <input type="file" class="form-control" name="sealedSignedReupload" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
                     <button type="submit" class="reupload-btn">
-                        <i class="bi bi-upload"></i> Upload sealed & Signed copy
+                        <i class="bi bi-upload"></i> Upload sealed &amp; Signed copy
                     </button>
                 </form>
             </div>
@@ -1419,9 +1503,87 @@
                 </div>
                 <div id="SkillsLaboratory" class="preview-report-section">
                     <h2 class="preview-report-heading"><span>11 · Skills Laboratory</span><a class="preview-report-edit" href="@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><partial name="PhysicalFacilities/_SkillsLab" model="Model.PhysicalFacilities.SkillsLab" /></div>
+                    <div class="preview-report-body">
+                        @if (skillsLab != null)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm data-table align-middle mb-0">
+                                    <tbody>
+                                        <tr><th>Annual MBBS Intake</th><td>@Num(slAnnualMbbsIntake)</td><th></th><td></td></tr>
+                                        <tr><th>Total Area Available (Sq.m)</th><td>@Dec(skillsLab.TotalAreaAvailableSqm)</td><th>Total Area Required (Sq.m)</th><td>@Dec(skillsLab.TotalAreaRequiredSqm)</td></tr>
+                                        <tr><th>Area Deficiency (Sq.m)</th><td>@Dec(skillsLab.TotalAreaDeficiencySqm)</td><th>6 Weeks Training Completed Before Clinical</th><td>@Yn(skillsLab.SixWeeksTrainingCompletedBeforeClinical)</td></tr>
+                                        <tr><th>Number of Examination Rooms</th><td>@Num(skillsLab.NumberOfExaminationRooms)</td><th>Minimum Four Exam Rooms</th><td>@Yn(skillsLab.HasMinFourExamRooms)</td></tr>
+                                        <tr><th>Demo Room for Small Groups</th><td>@Yn(skillsLab.HasDemoRoomSmallGroups)</td><th>Debrief Area</th><td>@Yn(skillsLab.HasDebriefArea)</td></tr>
+                                        <tr><th>Faculty Coordinator Room</th><td>@Yn(skillsLab.HasFacultyCoordinatorRoom)</td><th>Support Staff Room</th><td>@Yn(skillsLab.HasSupportStaffRoom)</td></tr>
+                                        <tr><th>Storage for Mannequins</th><td>@Yn(skillsLab.HasStorageForMannequins)</td><th>Video Recording Facility</th><td>@Yn(skillsLab.HasVideoRecordingFacility)</td></tr>
+                                        <tr><th>Number of Skill Stations</th><td>@Num(skillsLab.NumberOfSkillStations)</td><th>Group &amp; Individual Stations</th><td>@Yn(skillsLab.HasGroupAndIndividualStations)</td></tr>
+                                        <tr><th>Required Trainers &amp; Mannequins</th><td>@Yn(skillsLab.HasRequiredTrainersAndMannequins)</td><th>Dedicated Technical Officer</th><td>@Yn(skillsLab.HasDedicatedTechnicalOfficer)</td></tr>
+                                        <tr><th>Adequate Support Staff</th><td>@Yn(skillsLab.HasAdequateSupportStaff)</td><th>Teaching Areas Have AV</th><td>@Yn(skillsLab.TeachingAreasHaveAV)</td></tr>
+                                        <tr><th>Teaching Areas Have Internet</th><td>@Yn(skillsLab.TeachingAreasHaveInternet)</td><th>Enabled for E-Learning</th><td>@Yn(skillsLab.SkillsLabEnabledForELearning)</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">No skills laboratory details available.</div>
+                        }
+                    </div>
                 </div>
             }
+
+            <!-- ========================= -->
+            <!-- 12 · ASSOCIATED INSTITUTIONS -->
+            <!-- ========================= -->
+            <div id="AssociatedInstitutions" class="preview-report-section">
+                <h2 class="preview-report-heading">
+                    <span>12 · Associated Institutions</span>
+                    <a class="preview-report-edit" href="@Url.Action("AssociatedInstitutions", "AffiliationSS")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
+                </h2>
+                <div class="preview-report-body">
+                    @if (associatedInstitutions.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm data-table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Associated College Code</th>
+                                        <th>Associated Faculty Code</th>
+                                        <th>Course Code</th>
+                                        <th>Course Name</th>
+                                        <th>Course Level</th>
+                                        <th>Affiliation Type</th>
+                                        <th class="text-center">Annual Intake</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var aiSno = 0;
+                                    }
+                                    @foreach (var ai in associatedInstitutions)
+                                    {
+                                        <tr>
+                                            <td>@(++aiSno)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(ai.AssociatedCollegeCode) ? "—" : ai.AssociatedCollegeCode)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(ai.AssociatedFacultyCode) ? "—" : ai.AssociatedFacultyCode)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(ai.CourseCode) ? "—" : ai.CourseCode)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(ai.CourseName) ? "—" : ai.CourseName)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(ai.CourseLevel) ? "—" : ai.CourseLevel)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(ai.TypeOfAffiliation) ? "—" : ai.TypeOfAffiliation)</td>
+                                            <td class="text-center">@(ai.AnnualIntake?.ToString() ?? "—")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">No associated institutions available for this college.</div>
+                    }
+                </div>
+            </div>
 
             @if (Model.CAHospitalAFfiliationCompVM != null)
             {
@@ -1765,11 +1927,11 @@
 
         @if (TempData["PreviewError"] != null)
         {
-                    <text>
-                        if (consentModal) {
-                            consentModal.show();
-                        }
-                    </text>
+                            <text>
+                                        if (consentModal) {
+                                            consentModal.show();
+                                        }
+                            </text>
         }
 
         const tabPreviewModalElement = document.getElementById('tabPreviewModal');
@@ -1864,4 +2026,55 @@
             });
         }
     });
+</script>
+
+<script>
+    // Principal Seal & Signature re-upload: keep the section, file input and upload button
+    // visible and enabled at all times (also after the application is submitted), even if a
+    // layout script, other stylesheet or browser extension tries to hide or disable them.
+    (function () {
+        function force(el, display) {
+            if (!el) return;
+            el.hidden = false;
+            el.removeAttribute('hidden');
+            el.removeAttribute('disabled');
+            el.removeAttribute('readonly');
+            el.removeAttribute('aria-disabled');
+            if ('disabled' in el) el.disabled = false;
+            el.style.setProperty('display', display, 'important');
+            el.style.setProperty('visibility', 'visible', 'important');
+            el.style.setProperty('opacity', '1', 'important');
+            el.style.setProperty('pointer-events', 'auto', 'important');
+        }
+
+        function keepReuploadAvailable() {
+            var section = document.getElementById('SealReupload');
+            if (!section) return;
+            force(section, 'block');
+            force(section.querySelector('.reupload-body'), 'block');
+            force(section.querySelector('.reupload-form'), 'flex');
+            force(section.querySelector('input[type="file"]'), 'block');
+            force(section.querySelector('.reupload-btn'), 'inline-flex');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            keepReuploadAvailable();
+            var section = document.getElementById('SealReupload');
+            if (!section) return;
+            var options = {
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['style', 'class', 'hidden', 'disabled', 'readonly', 'aria-disabled']
+            };
+            var observer = new MutationObserver(function () {
+                // Pause while we restore state so our own changes don't re-trigger the observer.
+                observer.disconnect();
+                keepReuploadAvailable();
+                observer.observe(section, options);
+            });
+            observer.observe(section, options);
+        });
+        window.addEventListener('pageshow', keepReuploadAvailable);
+        window.addEventListener('load', keepReuploadAvailable);
+    })();
 </script>
