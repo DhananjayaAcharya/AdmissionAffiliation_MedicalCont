@@ -219,11 +219,13 @@ namespace Medical_Affiliation.Controllers
             var facultyCodeValue = FacultyCode;
             var collegeCode = CollegeCode;
 
-            if (string.IsNullOrWhiteSpace(facultyCodeValue) || string.IsNullOrWhiteSpace(collegeCode))
-                return RedirectToAction("ClgLogin");
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
 
             if (!int.TryParse(facultyCodeValue, out var facultyCode) || facultyCode != 2)
-                return RedirectToAction("Dashboard", "Collegelogin");
+                return RedirectToAction("MainDashboard", "MultiLogin");
 
             var vm = new EquipmentPageVM
             {

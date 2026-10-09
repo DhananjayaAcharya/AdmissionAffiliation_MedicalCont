@@ -888,8 +888,10 @@ namespace Medical_Affiliation.Controllers
             var collegeName = HttpContext.Session.GetString("CollegeName");
 
             // 1. Session Validation
-            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode))
-                return RedirectToAction("Index", "Home");
+            var result = await SessionOutAsync();
+
+            if (result != null)
+                return result;
 
             if (!int.TryParse(facultyCode, out int facultyId))
                 return BadRequest("Invalid faculty code");

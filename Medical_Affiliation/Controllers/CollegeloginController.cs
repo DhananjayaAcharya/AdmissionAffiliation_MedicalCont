@@ -236,6 +236,33 @@ namespace Admission_Affiliation.Controllers
                     .ToList()
             };
 
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (facultyCode == "2")
+            {
+                // Session exists → don't perform logout
+                if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCode))
+                {
+                    // Session does not exist → perform logout
+                    HttpContext.Session.Clear();
+
+                    return RedirectToAction("MultiLogin", "MainDashboard");
+                }
+
+                // Session exists → load affiliation types
+                var affiliationTypes = _context.TypeOfAffiliations
+                    .AsNoTracking()
+                    .OrderBy(x => x.TypeDescription)
+                    .Select(x => new
+                    {
+                        Id = x.TypeId,
+                        Name = x.TypeDescription
+                    })
+                    .ToList();
+
+                ViewBag.AffiliationTypes = affiliationTypes;
+            }
+
             // Surface profile values to the viewbag for backwards compatibility in the view
             ViewBag.CollegeCode = college.CollegeCode;
             ViewBag.CollegeName = college.CollegeName;
@@ -254,6 +281,297 @@ namespace Admission_Affiliation.Controllers
             ViewBag.ShowAffiliationNotification = true;
 
             return View(model);
+        }
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth")]
+        [HttpGet]
+        public async Task<IActionResult> GetDentalApplicationReport( int affiliationTypeId, string courseLevel)
+        {
+            try
+            {
+                // -------------------------------------------------
+                // Get logged-in college
+                // -------------------------------------------------
+
+                var collegeCode =
+                    User.FindFirst("CollegeCode")?.Value?.Trim();
+
+                var facultyCode =
+                    User.FindFirst("FacultyCode")?.Value?.Trim();
+
+
+                // -------------------------------------------------
+                // Dental only
+                // -------------------------------------------------
+
+                if (facultyCode != "2")
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "This report is available only for Dental."
+                    });
+                }
+
+
+                // -------------------------------------------------
+                // Validate CollegeCode
+                // -------------------------------------------------
+
+                if (string.IsNullOrWhiteSpace(collegeCode))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "College code not found."
+                    });
+                }
+
+
+                // -------------------------------------------------
+                // Validate Affiliation Type
+                // -------------------------------------------------
+
+                if (affiliationTypeId <= 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Please select Type of Affiliation."
+                    });
+                }
+
+
+                var affiliationTypeExists =
+                    await _context.TypeOfAffiliations
+                        .AsNoTracking()
+                        .AnyAsync(x =>
+                            x.TypeId == affiliationTypeId);
+
+
+                if (!affiliationTypeExists)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid Type of Affiliation."
+                    });
+                }
+
+
+                // -------------------------------------------------
+                // Validate Course Level
+                // -------------------------------------------------
+
+                courseLevel =
+                    courseLevel?.Trim().ToUpperInvariant();
+
+
+                var allowedCourseLevels = new[]
+                {
+            "UG",
+            "PG",
+            "SS"
+        };
+
+
+                if (!allowedCourseLevels.Contains(courseLevel))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid Course Level."
+                    });
+                }
+
+
+                // -------------------------------------------------
+                // Get CaProgress records
+                // -------------------------------------------------
+
+                var progressRecords =
+                    await _context.CaProgresses
+                        .AsNoTracking()
+                        .Where(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.CourseLevel != null &&
+                            x.CourseLevel.Trim().ToUpper() == courseLevel)
+                        .Select(x => new
+                        {
+                            x.StepKey,
+                            x.IsCompleted
+                        })
+                        .ToListAsync();
+
+
+                // -------------------------------------------------
+                // Get unique completed steps
+                // -------------------------------------------------
+
+                var completedSteps =
+                    progressRecords
+                        .Where(x =>
+                            x.IsCompleted == true &&
+                            !string.IsNullOrWhiteSpace(x.StepKey))
+                        .Select(x => x.StepKey!)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+
+                // -------------------------------------------------
+                // Define Dental application steps
+                // -------------------------------------------------
+
+                var totalSteps = new HashSet<string>(
+                    new[]
+                    {
+                "Institution",
+                "TrustDetails",
+                "TrustMemberDetails",
+                "DeanDetails",
+                "PrincipalDetails",
+
+                "IntakeDetails",
+                "BDSDetails",
+                "PgCourses",
+                "SsCoursesApplied",
+                "DentalFacultyDetails",
+
+                "CourseSubjectSelection",
+                "CourseGeneralDetails",
+                "CourseInfrastructureDetails",
+                "CourseSummaryDetails",
+                "CourseAcademicActivities",
+                "CourseServicesWorkload",
+                "CourseStaffDetails",
+
+                "ClinicalFacilities",
+                "LandBuilding",
+                "DentalSkillsLab",
+                "ChairDistribution",
+                "BedDistribution",
+                "DepartmentUnits",
+                "Hostel",
+                "DentalEquipmentDetails",
+                "Vehicle",
+
+                "AcademicMatters",
+                "PGAcademicMatters",
+                "Finance",
+                "StaffDetails",
+
+                "LibraryServices",
+                "Research",
+                "Library",
+
+                "FacultyDetails",
+                "NonTeachingStaff",
+
+                "PaymentCalculation",
+                "GeoPhoto"
+                    },
+                    StringComparer.OrdinalIgnoreCase);
+
+
+                // -------------------------------------------------
+                // Course-level specific steps
+                // -------------------------------------------------
+
+                if (courseLevel == "UG")
+                {
+                    totalSteps.Remove("PgCourses");
+                    totalSteps.Remove("PGAcademicMatters");
+
+                    totalSteps.Remove("CourseSubjectSelection");
+                    totalSteps.Remove("CourseGeneralDetails");
+                    totalSteps.Remove("CourseInfrastructureDetails");
+                    totalSteps.Remove("CourseSummaryDetails");
+                    totalSteps.Remove("CourseAcademicActivities");
+                    totalSteps.Remove("CourseServicesWorkload");
+                    totalSteps.Remove("CourseStaffDetails");
+
+                    totalSteps.Remove("SsCoursesApplied");
+                }
+                else if (courseLevel == "PG")
+                {
+                    totalSteps.Remove("BDSDetails");
+                    totalSteps.Remove("AcademicMatters");
+                    totalSteps.Remove("BedDistribution");
+
+                    totalSteps.Remove("SsCoursesApplied");
+                }
+                else if (courseLevel == "SS")
+                {
+                    totalSteps.Remove("BDSDetails");
+                    totalSteps.Remove("PgCourses");
+                    totalSteps.Remove("AcademicMatters");
+                    totalSteps.Remove("PGAcademicMatters");
+                    totalSteps.Remove("BedDistribution");
+
+                    totalSteps.Remove("CourseSubjectSelection");
+                    totalSteps.Remove("CourseGeneralDetails");
+                    totalSteps.Remove("CourseInfrastructureDetails");
+                    totalSteps.Remove("CourseSummaryDetails");
+                    totalSteps.Remove("CourseAcademicActivities");
+                    totalSteps.Remove("CourseServicesWorkload");
+                    totalSteps.Remove("CourseStaffDetails");
+                }
+
+
+                // -------------------------------------------------
+                // Calculate completed count
+                // -------------------------------------------------
+
+                var completedCount =
+                    totalSteps.Count(step =>
+                        completedSteps.Contains(
+                            step,
+                            StringComparer.OrdinalIgnoreCase));
+
+
+                var totalCount =
+                    totalSteps.Count;
+
+
+                var percentage =
+                    totalCount > 0
+                        ? (int)Math.Round(
+                            (double)completedCount /
+                            totalCount * 100)
+                        : 0;
+
+
+                percentage =
+                    Math.Clamp(percentage, 0, 100);
+
+
+                // -------------------------------------------------
+                // Return response
+                // -------------------------------------------------
+
+                return Json(new
+                {
+                    success = true,
+                    collegeCode = collegeCode,
+                    facultyCode = facultyCode,
+                    affiliationTypeId = affiliationTypeId,
+                    courseLevel = courseLevel,
+                    percentage = percentage,
+                    completedSteps = completedCount,
+                    totalSteps = totalCount
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"GetDentalApplicationReport Error: {ex}");
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while fetching application status."
+                });
+            }
         }
 
         [HttpPost]
