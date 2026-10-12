@@ -219,9 +219,11 @@
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
-            <button type="button" id="dr-export-pdf" class="btn btn-danger">
+            <button type="button"
+                    id="dr-export-pdf"
+                    class="btn dr-export-btn">
                 <i class="bi bi-file-earmark-pdf-fill"></i>
-                Export PDF
+                <span>Export PDF</span>
             </button>
             <div class="dr-page-size">
                 <label for="dr-page-size-select">Show</label>
@@ -373,6 +375,9 @@
 <script src="https://unpkg.com/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
 
 <script>
+    window.dentalReportLogoUrl =
+        '@Url.Content("~/Images/newLogo.jpeg")';
+
     window.dentalSubmissionReportData = @Html.Raw(
         System.Text.Json.JsonSerializer.Serialize(
             Model.Submissions.Select(x => new
@@ -383,6 +388,7 @@
                 AcademicYear = x.AcademicYear,
                 CourseLevel = x.CourseLevel,
                 AffiliationType = x.AffiliationType,
+                PrincipalConsent = x.PrincipalConsent,
                 IsSubmitted = x.IsSubmitted,
                 SubmittedDate = x.SubmittedDate
             })

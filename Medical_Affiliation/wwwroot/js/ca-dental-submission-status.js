@@ -267,133 +267,317 @@ document.addEventListener("DOMContentLoaded", function () {
     // Data from the server-filtered report
     const reportData = window.dentalSubmissionReportData || [];
 
-    exportButton.addEventListener("click", function () {
-        if (!window.jspdf || !window.jspdf.jsPDF) {
-            alert("PDF library could not be loaded. Please try again.");
-            return;
-        }
+    function loadReportLogo(url) {
+        return new Promise((resolve, reject) => {
+            const image = new Image();
 
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({
-            orientation: "landscape",
-            unit: "mm",
-            format: "a4"
+            image.onload = function () {
+                try {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = image.naturalWidth;
+                    canvas.height = image.naturalHeight;
+
+                    const context = canvas.getContext("2d");
+                    context.drawImage(image, 0, 0);
+
+                    resolve(canvas.toDataURL("image/jpeg", 0.95));
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            image.onerror = () => reject(
+                new Error("RGUHS logo could not be loaded.")
+            );
+
+            image.src = url;
         });
+    }
 
-        if (typeof doc.autoTable !== "function") {
-            alert("PDF table library could not be loaded. Please refresh the page.");
+    exportButton.addEventListener("click", async function () {
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+            alert("PDF library could not be loaded. Please refresh the page.");
             return;
         }
 
-        const getSelectedText = (id, fallback) => {
-            const select = document.getElementById(id);
-            return select?.selectedOptions[0]?.text || fallback;
-        };
+        const originalHtml = exportButton.innerHTML;
 
-        const academicYear = getSelectedText(
-            "AcademicYear", "All Academic Years"
-        );
+        exportButton.disabled = true;
+        exportButton.innerHTML =
+            '<span class="spinner-border spinner-border-sm"></span>' +
+            '<span>Generating PDF...</span>';
 
-        const courseLevel = getSelectedText(
-            "CourseLevel", "All Course Levels"
-        );
+        try {
+            const { jsPDF } = window.jspdf;
 
-        const affiliationType = getSelectedText(
-            "AffiliationTypeId", "All Affiliation Types"
-        );
-
-        const formatDate = value => {
-            if (!value) return "---";
-
-            const date = new Date(value);
-
-            if (Number.isNaN(date.getTime())) return "---";
-
-            return date.toLocaleString("en-IN", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true
+            const doc = new jsPDF({
+                orientation: "landscape",
+                unit: "mm",
+                format: "a4"
             });
-        };
 
-        // Report heading
-        doc.setFontSize(18);
-        doc.setFont("helvetica", "bold");
-        doc.text("Dental Final Submission Report", 14, 16);
+            if (typeof doc.autoTable !== "function") {
+                throw new Error("PDF table library could not be loaded.");
+            }
 
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
+            const logoData = await loadReportLogo(
+                window.dentalReportLogoUrl
+            );
 
-        doc.text(`Type of Affiliation: ${affiliationType}`, 14, 25);
-        doc.text(`Course Level: ${courseLevel}`, 14, 31);
-        doc.text(`Academic Year: ${academicYear}`, 14, 37);
-        doc.text(`Generated On: ${formatDate(new Date().toISOString())}`, 14, 43);
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const centerX = pageWidth / 2;
 
-        // Table containing every college in the filtered report
-        const tableRows = reportData.map((item, index) => [
-            index + 1,
-            item.CollegeName || "---",
-            item.CollegeCode || "---",
-            item.ApplicationNumber || "---",
-            item.CourseLevel || "---",
-            item.AffiliationType || "---",
-            item.IsSubmitted ? "Submitted" : "Not Submitted",
-            formatDate(item.SubmittedDate)
-        ]);
+            const getSelectedText = (id, fallback) => {
+                const select = document.getElementById(id);
+                return select?.selectedOptions?.[0]?.text || fallback;
+            };
 
-        doc.autoTable({
-            startY: 49,
-            head: [[
-                "Sl. No.",
-                "College Name",
-                "College Code",
-                "Application Number",
-                "Course Level",
-                "Type of Affiliation",
-                "Submission Status",
-                "Submitted Date"
-            ]],
-            body: tableRows,
-            theme: "grid",
-            margin: { left: 10, right: 10 },
-            styles: {
-                fontSize: 8,
-                cellPadding: 2.5,
-                overflow: "linebreak",
-                valign: "middle"
-            },
-            headStyles: {
-                fillColor: [38, 55, 82],
-                textColor: 255,
-                fontStyle: "bold"
-            },
-            columnStyles: {
-                0: { cellWidth: 13 },
-                1: { cellWidth: 43 },
-                2: { cellWidth: 22 },
-                3: { cellWidth: 32 },
-                4: { cellWidth: 20 },
-                5: { cellWidth: 28 },
-                6: { cellWidth: 25 },
-                7: { cellWidth: 43 }
-            },
-            didDrawPage: function () {
-                const pageCount = doc.internal.getNumberOfPages();
+            const academicYear = getSelectedText(
+                "AcademicYear",
+                "All Academic Years"
+            );
 
+            const courseLevel = getSelectedText(
+                "CourseLevel",
+                "All Course Levels"
+            );
+
+            const affiliationType = getSelectedText(
+                "AffiliationTypeId",
+                "All Affiliation Types"
+            );
+
+            const formatDate = value => {
+                if (!value) return "---";
+
+                const date = new Date(value);
+
+                if (Number.isNaN(date.getTime())) return "---";
+
+                return date.toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true
+                });
+            };
+
+            const generatedOn = formatDate(new Date().toISOString());
+
+            // Use the same RGUHS branding on every PDF page.
+            
+            const drawReportHeader = () => {
+                doc.setFillColor(255, 255, 255);
+                doc.rect(0, 0, pageWidth, 40, "F");
+
+                // University logos
+                doc.addImage(logoData, "JPEG", 12, 7, 19, 19);
+                doc.addImage(
+                    logoData,
+                    "JPEG",
+                    pageWidth - 31,
+                    7,
+                    19,
+                    19
+                );
+
+                // University name
+                doc.setTextColor(13, 27, 42);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(16);
+                doc.text(
+                    "Rajiv Gandhi University of Health Sciences",
+                    centerX,
+                    13,
+                    { align: "center" }
+                );
+
+                // Report title
+                doc.setTextColor(122, 100, 32);
+                doc.setFontSize(12);
+                doc.text(
+                    "Dental Final Submission Report",
+                    centerX,
+                    21,
+                    { align: "center" }
+                );
+
+                // Address
+                doc.setTextColor(55, 65, 81);
+                doc.setFont("helvetica", "normal");
                 doc.setFontSize(8);
                 doc.text(
-                    `Page ${doc.internal.getCurrentPageInfo().pageNumber} of ${pageCount}`,
-                    doc.internal.pageSize.getWidth() - 14,
-                    doc.internal.pageSize.getHeight() - 7,
-                    { align: "right" }
+                    "4th 'T' Block, Jayanagar, Bengaluru - Karnataka, India",
+                    centerX,
+                    27,
+                    { align: "center" }
                 );
-            }
-        });
 
-        const dateStamp = new Date().toISOString().slice(0, 10);
-        doc.save(`Dental_Submission_Report_${dateStamp}.pdf`);
+                // Gold divider
+                doc.setDrawColor(201, 168, 76);
+                doc.setLineWidth(0.8);
+                doc.line(6, 31, pageWidth - 6, 31);
+
+                // Generated date only — no filter details
+                doc.setTextColor(55, 65, 81);
+                doc.setFontSize(8);
+                doc.text(
+                    `Generated On: ${generatedOn}`,
+                    centerX,
+                    37,
+                    { align: "center" }
+                );
+            };
+
+
+            // Match the nine columns in the report table.
+            const tableRows = reportData.map((item, index) => [
+                index + 1,
+                item.CollegeName || "---",
+                item.ApplicationNumber || "---",
+                item.AcademicYear || "---",
+                item.CourseLevel || "---",
+                item.AffiliationType || "---",
+                item.PrincipalConsent === true
+                    ? "Yes"
+                    : item.PrincipalConsent === false
+                        ? "No"
+                        : "---",
+                item.IsSubmitted ? "Submitted" : "Not Submitted",
+                formatDate(item.SubmittedDate)
+            ]);
+
+            doc.autoTable({
+                startY: 43,
+
+                head: [[
+                    "Sl. No.",
+                    "College Name",
+                    "Application Number",
+                    "Academic Year",
+                    "Course Level",
+                    "Affiliation Type",
+                    "Principal Consent",
+                    "Submission Status",
+                    "Submitted Date"
+                ]],
+
+                body: tableRows,
+
+                theme: "grid",
+
+                margin: {
+                    top: 43,
+                    left: 6,
+                    right: 6,
+                    bottom: 15
+                },
+
+                styles: {
+                    font: "helvetica",
+                    fontSize: 7.5,
+                    cellPadding: 2.5,
+                    overflow: "linebreak",
+                    valign: "middle",
+                    textColor: [31, 41, 55],
+                    lineColor: [203, 213, 225],
+                    lineWidth: 0.2
+                },
+
+                headStyles: {
+                    fillColor: [13, 27, 42],
+                    textColor: [255, 255, 255],
+                    fontStyle: "bold",
+                    halign: "center"
+                },
+
+                alternateRowStyles: {
+                    fillColor: [248, 250, 252]
+                },
+
+                columnStyles: {
+                    0: { cellWidth: 12, halign: "center" },
+                    1: { cellWidth: 48 },
+                    2: { cellWidth: 36 },
+                    3: { cellWidth: 24 },
+                    4: { cellWidth: 21 },
+                    5: { cellWidth: 34 },
+                    6: { cellWidth: 27, halign: "center" },
+                    7: { cellWidth: 32 },
+                    8: { cellWidth: 51 }
+                },
+
+                // Draw the university header again on every page.
+                willDrawPage: function () {
+                    drawReportHeader();
+                },
+
+                // Page number and official footer.
+                
+                didDrawPage: function () {
+                    const pageNumber =
+                        doc.internal.getCurrentPageInfo().pageNumber;
+
+                    const totalPages = doc.internal.getNumberOfPages();
+
+                    // Footer separator
+                    doc.setDrawColor(201, 168, 76);
+                    doc.setLineWidth(0.3);
+                    doc.line(
+                        8,
+                        pageHeight - 12,
+                        pageWidth - 8,
+                        pageHeight - 12
+                    );
+
+                    // Footer text
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(7);
+                    doc.setTextColor(90, 100, 110);
+
+                    doc.text(
+                        "Rajiv Gandhi University of Health Sciences - Official Report",
+                        10,
+                        pageHeight - 7
+                    );
+
+                    doc.text(
+                        `Page ${pageNumber} of ${totalPages}`,
+                        pageWidth - 10,
+                        pageHeight - 7,
+                        { align: "right" }
+                    );
+
+                    // Border on every page
+                    doc.setDrawColor(13, 27, 42);
+                    doc.setLineWidth(0.5);
+                    doc.rect(
+                        4,
+                        4,
+                        pageWidth - 8,
+                        pageHeight - 8
+                    );
+                }
+
+            });
+
+            const dateStamp = new Date().toISOString().slice(0, 10);
+
+            doc.save(`Dental_Submission_Report_${dateStamp}.pdf`);
+        } catch (error) {
+            console.error("PDF export failed:", error);
+
+            alert(
+                error.message ||
+                "Unable to generate the PDF. Please try again."
+            );
+        } finally {
+            exportButton.disabled = false;
+            exportButton.innerHTML = originalHtml;
+        }
     });
+
 });
