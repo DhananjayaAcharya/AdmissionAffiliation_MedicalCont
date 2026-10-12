@@ -38,6 +38,8 @@ namespace Medical_Affiliation.Services.Faculty
 
             var affiliationTypeId = _userContext.TypeOfAffiliation;
 
+            var affiliationType = httpContext?.Session.GetString("TypeOfAffiliation");
+
             var courseLevel =
                 httpContext?.Session.GetString("CourseLevel")
                 ?? httpContext?.Session.GetString("SelectedCourseLevel")
@@ -119,7 +121,8 @@ namespace Medical_Affiliation.Services.Faculty
             var model = new DentalFeeStructureViewModel
             {
                 CollegeCode = collegeCode,
-
+                CourseLevel = courseLevel,
+                AffiliationCategory = affiliationType,
                 FacultyCode = facultyCode,
 
                 AffiliationTypeId = affiliationTypeId,

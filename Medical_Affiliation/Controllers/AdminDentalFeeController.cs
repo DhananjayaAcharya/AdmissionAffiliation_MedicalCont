@@ -388,24 +388,12 @@ public class AdminDentalFeeController : Controller
             });
         }
 
-        if (!fee.IsActive)
-        {
-            TempData["ErrorMessage"] = "This fee record is already inactive.";
-            return RedirectToAction(nameof(Index), new
-            {
-                collegeCode,
-                affiliationTypeId,
-                courseLevel
-            });
-        }
-
-        fee.IsActive = false;
-        fee.ModifiedDate = DateTime.UtcNow;
-        fee.ModifiedBy = User.Identity?.Name ?? "Admin";
+        _context.TxnDentalFeeStructures.Remove(fee);
 
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "Fee record deleted successfully.";
+        TempData["SuccessMessage"] =
+            "Fee record deleted successfully.";
 
         return RedirectToAction(nameof(Index), new
         {

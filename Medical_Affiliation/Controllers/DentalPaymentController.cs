@@ -45,12 +45,7 @@ namespace Medical_Affiliation.Controllers
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
             var affTypeId = HttpContext.Session.GetString("TypeOfAffiliationId");
 
-            var affiliationType = await _context.MstDentalAffiliationTypes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(e =>
-                    e.DentalAffiliationTypeId.ToString() == affTypeId &&
-                    e.FacultyCode == _facultyCode
-                );
+            var affiliationType = HttpContext.Session.GetString("TypeOfAffiliation");
 
              if (affiliationType == null) return NotFound("Affiliation Type Not found.");
 
@@ -252,7 +247,9 @@ namespace Medical_Affiliation.Controllers
                 CollegeCode = collegeCode,
                 FacultyCode = _facultyCode,
                 AffiliationTypeId = int.Parse(affTypeId),
-                AffiliationCategory = affiliationType.AffiliationCategory,
+                AffiliationCategory = affiliationType,
+
+                CourseLevel = requiredCourseLevel,
 
                 // =================================================
                 // EXISTING PAYMENT DETAILS
@@ -745,43 +742,60 @@ namespace Medical_Affiliation.Controllers
             try
             {
 
-                // =====================================================
-                // GET SAVED FEE DETAILS
-                // =====================================================
 
-                var feeDetails = await _context.TxnDentalFeeStructures
+                var existingFeeDetails = await _context.TxnDentalFeeStructures
                     .Where(e =>
                         e.CollegeCode == collegecode &&
                         e.FacultyCode == _facultyCode &&
                         e.AffiliationTypeId == model.AffiliationTypeId &&
-                        e.CourseLevel == requiredCourseLevel &&
-                        e.IsActive
-                    )
+                        e.CourseLevel == requiredCourseLevel)
                     .ToListAsync();
 
-                // =====================================================
-                // IF NOT FOUND, GENERATE FEE STRUCTURE
-                // =====================================================
+                // Generate expected fee records
+                var generatedFeeDetails = await GenerateDentalFeeStructure(
+                    collegecode,
+                    model.AffiliationTypeId);
 
+                // Identify fee records that have been permanently deleted
+                var missingFeeDetails = generatedFeeDetails
+                    .Where(generated => !existingFeeDetails.Any(saved =>
+                        saved.FeeTypeId == generated.FeeTypeId &&
+                        saved.DentalFeeStructureId == generated.DentalFeeStructureId &&
+                        saved.CourseCode == generated.CourseCode &&
+                        string.Equals(
+                            saved.CourseName?.Trim(),
+                            generated.CourseName?.Trim(),
+                            StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(
+                            NormalizeCourseLevel(saved.CourseLevel),
+                            NormalizeCourseLevel(generated.CourseLevel),
+                            StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+
+                // Add only missing records
+                if (missingFeeDetails.Any())
+                {
+                    await _context.TxnDentalFeeStructures
+                        .AddRangeAsync(missingFeeDetails);
+                }
+
+                // Use existing active records plus newly generated records
+                var feeDetails = existingFeeDetails
+                    .Where(e => e.IsActive)
+                    .ToList();
+
+                feeDetails.AddRange(missingFeeDetails);
+
+                // Validate fee details
                 if (!feeDetails.Any())
                 {
-                    feeDetails = await GenerateDentalFeeStructure( collegecode, model.AffiliationTypeId );
+                    TempData["ErrorMessage"] =
+                        "No active fee details are available for the selected affiliation.";
 
-                    if (!feeDetails.Any())
-                    {
-                        TempData["ErrorMessage"] =  "Fee Details could not be generated for the selected affiliation.";
-
-                        return RedirectToAction(nameof(Index), new { AffTypeId = model.AffiliationTypeId }
-                        );
-                    }
-
-                    // =================================================
-                    // SAVE GENERATED FEE STRUCTURE
-                    // =================================================
-
-                    await _context.TxnDentalFeeStructures.AddRangeAsync(feeDetails);
-
+                    return RedirectToAction(nameof(Index),
+                        new { AffTypeId = model.AffiliationTypeId });
                 }
+
 
                 // =====================================================
                 // GRAND TOTAL
