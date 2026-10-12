@@ -1084,16 +1084,67 @@ namespace Medical_Affiliation.Controllers
                 }
             }
 
+
             // =====================================================
-            // GET DENTAL FEE TYPES
+            // GET INSTITUTION TYPE
             // =====================================================
+
+            var institution = await _context.AffInstitutionsDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.CollegeCode == collegeCode);
+
+            var isGovernment = string.Equals(
+                institution?.TypeOfInstitution?.Trim(),
+                "11",
+                StringComparison.OrdinalIgnoreCase);
+
+            // =====================================================
+            // GET DENTAL FEE TYPES BASED ON COLLEGE TYPE
+            // AND ACTIVATION DATE
+            // =====================================================
+
+            var currentUtc = DateTime.UtcNow;
 
             var feeTypes = await _context.MstDentalFeeTypes
                 .AsNoTracking()
                 .Where(e =>
                     e.FacultyCode == _facultyCode &&
                     e.AffiliationTypeId == affiliationTypeId &&
-                    e.IsActive
+                    e.IsActive &&
+                    (
+                        // GOVERNMENT COLLEGE:
+                        // Always include Application Fee and
+                        // Course Identification Fee.
+                        // Include Late Submission Fee after activation.
+                        (
+                            isGovernment &&
+                            (
+                                e.FeeType == "Application Fee" ||
+                                e.FeeType == "Course Identification Fee" ||
+                                (
+                                    e.FeeType == "Late Submission Fee" &&
+                                    e.ActivationDate.HasValue &&
+                                    e.ActivationDate.Value <= currentUtc
+                                )
+                            )
+                        )
+
+                        ||
+
+                        // PRIVATE COLLEGE:
+                        // Include all active fees except Late Submission Fee
+                        // until its activation date.
+                        (
+                            !isGovernment &&
+                            (
+                                e.FeeType != "Late Submission Fee" ||
+                                (
+                                    e.ActivationDate.HasValue &&
+                                    e.ActivationDate.Value <= currentUtc
+                                )
+                            )
+                        )
+                    )
                 )
                 .OrderBy(e => e.DisplayOrder)
                 .ToListAsync();
