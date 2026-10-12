@@ -110,12 +110,12 @@ namespace Medical_Affiliation.Services.Handlers.Medical
         }
 
 
-        public async Task<HospitalAffiliationCompositeViewModel> GetDetailsAsync(string collegeCode)
+        public async Task<HospitalAffiliationCompositeViewModel> GetDetailsAsync(string collegeCode, string courseLevel)
         {
             var facultyCode = _userContext.FacultyId;
             var seatSlabId = _userContext.SeatSlabId;
             var typeOfAffiliation = _userContext.TypeOfAffiliation;
-            var courseLevel = _userContext.CourseLevel;
+            //var courseLevel = _userContext.CourseLevel;
 
             var intakeRows = await _context.MstMedicalCollegeCourseIntakes
                 .AsNoTracking()
@@ -429,12 +429,14 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 .ToListAsync();
 
             var existingBeds = await _context.IndoorBedsOccupancies
-                .Where(o =>
-                    o.CollegeCode == collegeCode &&
-                    o.FacultyCode == facultyCode &&
-                    o.SeatSlabId == seatSlabId &&
-                    o.AffiliationTypeId == typeOfAffiliation)
-                .ToListAsync();
+    .AsNoTracking()
+    .Where(o =>
+        o.CollegeCode == collegeCode &&
+        o.FacultyCode == facultyCode &&
+        o.CourseLevel == courseLevel &&
+        o.SeatSlabId == seatSlabId &&
+        o.AffiliationTypeId == typeOfAffiliation)
+    .ToListAsync();
 
 
 

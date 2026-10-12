@@ -24,13 +24,13 @@ namespace Medical_Affiliation.Controllers
         private const decimal GovernmentCollegeFee = 3010m;
 
         // Late fine: Rs. 1,00,000 added automatically to EVERY college (government and
-        // private) and EVERY application type once the cut-off passes.
-        // Cut-off = 13 Oct 2026, 12:00 AM India Standard Time (UTC+05:30), i.e. the fine
-        // applies to anything calculated after the 12 Oct deadline has ended.
+        // private) and EVERY application type once the last date has passed.
+        // Last date = 13 Oct 2026 (the whole day, up to 11:59 PM IST). The fine applies
+        // from 14 Oct 2026, 12:00 AM India Standard Time (UTC+05:30) onwards.
         private const decimal LateFine = 100000m;
-        private const string LateFineFeeHead = "Late fine (applicable from 13 Oct 2026)";
+        private const string LateFineFeeHead = "Late fine (applicable after 13 Oct 2026)";
         private static readonly DateTimeOffset LateFineStart =
-            new DateTimeOffset(2026, 10, 13, 0, 0, 0, TimeSpan.FromHours(5.5));
+            new DateTimeOffset(2026, 10, 14, 0, 0, 0, TimeSpan.FromHours(5.5));
 
         private readonly ApplicationDbContext _context;
         private readonly string _connectionString;
@@ -197,9 +197,10 @@ namespace Medical_Affiliation.Controllers
         // ---------------------------------------------------------------------
         // Late fine
         // Adds Rs. 1,00,000 to the fee lines and the grand total for all colleges
-        // and all application types from 13 Oct 2026 00:00 IST onwards. It is
+        // and all application types from 14 Oct 2026 00:00 IST onwards (13 Oct 2026
+        // is the last date, so nothing is added through 11:59 PM on 13 Oct). It is
         // evaluated every time the calculation runs, so it switches on by itself at
-        // the cut-off with no deployment or manual step. Nothing is added before it.
+        // the cut-off with no deployment or manual step.
         // ---------------------------------------------------------------------
         private static bool IsLateFineActive() => DateTimeOffset.UtcNow >= LateFineStart;
 

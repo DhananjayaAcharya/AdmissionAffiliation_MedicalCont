@@ -4,7 +4,7 @@ namespace Medical_Affiliation.Services.Interfaces
 {
     public interface IHospitalService
     {
-       
-        Task<HospitalAffiliationCompositeViewModel> GetHospitalDetailsAsync(string collegeCode, int facultyCode,string CourseLevel);
+        Task<HospitalAffiliationCompositeViewModel> GetHospitalDetailsAsync(
+            string collegeCode, int facultyCode, string courseLevel);
     }
 }

@@ -34,9 +34,10 @@
         || normalizedAppType.Contains("Intake", StringComparison.OrdinalIgnoreCase)
         || payAffiliationTypeId == "3";
 
-    // Late fine: Rs. 1,00,000 added by PaymentCalculationController from 13 Oct 2026, 12:00 AM IST.
+    // Late fine: Rs. 1,00,000 added by PaymentCalculationController from 14 Oct 2026, 12:00 AM IST.
+    // 13 Oct 2026 is the last date (whole day), so the fine starts right after it ends.
     // Keep this cut-off identical to LateFineStart in the controller.
-    var lateFineStart = new DateTimeOffset(2026, 10, 13, 0, 0, 0, TimeSpan.FromHours(5.5));
+    var lateFineStart = new DateTimeOffset(2026, 10, 14, 0, 0, 0, TimeSpan.FromHours(5.5));
     var lateFineStartMs = lateFineStart.ToUnixTimeMilliseconds();
     var lateFineApplied = Model.FeeLines.Any(f =>
         (f.FeeHeadName ?? string.Empty).StartsWith("Late fine", StringComparison.OrdinalIgnoreCase));
@@ -249,13 +250,13 @@
         @if (lateFineApplied)
         {
             <div class="payment-late-fine" role="alert">
-                <strong>Late fine applied:</strong> The due date (12 Oct 2026) has passed, so a late fine of ₹1,00,000 has been added to the Grand Total below. Please pay the exact Grand Total shown.
+                <strong>Late fine applied:</strong> The last date (13 Oct 2026) has passed, so a late fine of ₹1,00,000 has been added to the Grand Total below. Please pay the exact Grand Total shown.
             </div>
         }
         else if (lateFineNotYetDue)
         {
             <div class="payment-late-fine upcoming" role="note">
-                <strong>Please note:</strong> A late fine of ₹1,00,000 is added automatically from 13 Oct 2026, 12:00 AM. This page refreshes with the new Grand Total at that time, so pay before then to avoid the fine.
+                <strong>Please note:</strong> The last date for payment is 13 Oct 2026. From 14 Oct 2026 a late fine of ₹1,00,000 is added automatically to the Grand Total. Pay on or before 13 Oct 2026 to avoid the fine.
             </div>
         }
 
@@ -478,7 +479,7 @@
     (function () {
         var pageSnapshot = @Html.Raw(Json.Serialize(snapshotData));
 
-        // ---- Late fine cut-off (13 Oct 2026, 12:00 AM IST) ----
+        // ---- Late fine cut-off (14 Oct 2026, 12:00 AM IST; 13 Oct 2026 is the last date) ----
         var lateFineStartMs = @lateFineStartMs;
         var lateFineApplied = @(lateFineApplied ? "true" : "false");
         var lateFineReloadKey = 'paymentLateFineReloaded';

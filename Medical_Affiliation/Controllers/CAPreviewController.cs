@@ -69,6 +69,9 @@ namespace Medical_Affiliation.Controllers
             await ApplyAnnualMbbsIntakeAsync(model);   // AnnualMbbsIntake from Intake_26_27 (UG only)
             await ApplyDesignationIntakeAsync(model);  // Designation & Intake: Available + Seat Slab
 
+            // Section 17 - Vehicle Registration & Documents (RC / Insurance / DL availability)
+            ViewBag.VehicleDocs = await LoadVehicleDocsAsync();
+
             var reuploadPath = await FindSealedSignedReuploadPathAsync(
                 model.FacultyCode ?? CurrentFacultyCode,
                 model.CollegeCode ?? CurrentCollegeCode,
@@ -831,6 +834,50 @@ namespace Medical_Affiliation.Controllers
 
         }
 
+        // ------------------------------------------------------------------
+        // Section 17 - Vehicle Registration & Documents
+        // The vehicle table stores RC / Insurance / Driving Licence as a status
+        // flag: 'A' = Available, 'N' = Not available. No file is involved, so
+        // the preview simply translates the flag.
+        //
+        // >>> RENAME "dbo.CA_VehicleDetails" below to your real table name
+        // >>> (the table that has VehicleRegNo, RcBookStatus, InsuranceStatus ...).
+        // ------------------------------------------------------------------
+        private async Task<List<VehicleDocRow>> LoadVehicleDocsAsync()
+        {
+            var collegeCode = CurrentCollegeCode?.Trim();
+            var facultyCode = CurrentFacultyCode?.Trim();
+            var courseLevel = CurrentCourseLevel;
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCode))
+                return new List<VehicleDocRow>();
+
+            try
+            {
+                return await _context.Database.SqlQuery<VehicleDocRow>($@"
+                    SELECT Id,
+                           CAST(VehicleRegNo AS varchar(100))            AS VehicleRegNo,
+                           CAST(VehicleForCode AS varchar(20))           AS VehicleForCode,
+                           TRY_CAST(SeatingCapacity AS int)              AS SeatingCapacity,
+                           TRY_CAST(ValidityDate AS date)                AS ValidityDate,
+                           CAST(RcBookStatus AS varchar(5))              AS RcBookStatus,
+                           CAST(InsuranceStatus AS varchar(5))           AS InsuranceStatus,
+                           CAST(DrivingLicenseStatus AS varchar(5))      AS DrivingLicenseStatus
+                    FROM dbo.CA_VehicleDetails                                      -- RENAME table
+                    WHERE LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = {collegeCode}
+                      AND LTRIM(RTRIM(CAST(FacultyCode AS varchar(20)))) = {facultyCode}
+                      AND (ISNULL(LTRIM(RTRIM(CAST(CourseLevel AS varchar(50)))), '') = ''
+                           OR UPPER(LTRIM(RTRIM(CAST(CourseLevel AS varchar(50))))) = {courseLevel})
+                    ORDER BY Id").ToListAsync();
+            }
+            catch (SqlException)
+            {
+                // Table name not matched yet: return nothing so the view falls back
+                // to the original VehicleDetailsPreview partial.
+                return new List<VehicleDocRow>();
+            }
+        }
+
         public async Task<IActionResult> TestPdf()
         {
             return RedirectToAction(nameof(Preview));
@@ -1247,5 +1294,37 @@ namespace Medical_Affiliation.Models
         public string? CourseLevel { get; set; }
         public int? Intake_26_27 { get; set; }
         public int? Increased_Intake { get; set; }
+    }
+
+    // ------------------------------------------------------------------
+    // Section 17 - Vehicle Registration & Documents row DTO.
+    // Status columns hold 'A' (Available) or 'N' (Not available).
+    // Has* / VehicleTypeName are get-only (computed), so EF does not read them from SQL.
+    // ------------------------------------------------------------------
+    public class VehicleDocRow
+    {
+        public int Id { get; set; }
+        public string? VehicleRegNo { get; set; }
+        public string? VehicleForCode { get; set; }
+        public int? SeatingCapacity { get; set; }
+        public DateTime? ValidityDate { get; set; }
+        public string? RcBookStatus { get; set; }
+        public string? InsuranceStatus { get; set; }
+        public string? DrivingLicenseStatus { get; set; }
+
+        private static bool IsA(string? s) => string.Equals(s?.Trim(), "A", StringComparison.OrdinalIgnoreCase);
+
+        public bool HasRc => IsA(RcBookStatus);
+        public bool HasInsurance => IsA(InsuranceStatus);
+        public bool HasDl => IsA(DrivingLicenseStatus);
+
+        public string VehicleTypeName => (VehicleForCode ?? string.Empty).Trim().ToUpperInvariant() switch
+        {
+            "STU" => "Student",
+            "INT" => "Institution",
+            "AMB" => "Ambulance",
+            "" => "—",
+            var other => other
+        };
     }
 }

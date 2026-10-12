@@ -173,7 +173,7 @@ namespace Medical_Affiliation.Controllers
                     hospital.HospitalParentSupportingDoc = null;
                 }
 
-                if(facultyId == 2)
+                if (facultyId == 2)
                 {
                     // --------------------------------------------------
                     // 5. KPME Certificate
@@ -255,10 +255,10 @@ namespace Medical_Affiliation.Controllers
                         vm.Form.AnatomyActRegistrationPdfFile.Length > 0)
                     {
                         // Delete old file if required
-                        DeletePhysicalFileIfExists( hospital.AnatomyActRegistrationPdfPath);
+                        DeletePhysicalFileIfExists(hospital.AnatomyActRegistrationPdfPath);
 
                         hospital.AnatomyActRegistrationPdfPath =
-                            await SaveFileAndReturnPath( vm.Form.AnatomyActRegistrationPdfFile, "ClinicalHospitalDocs", "AnatomyActDocument");
+                            await SaveFileAndReturnPath(vm.Form.AnatomyActRegistrationPdfFile, "ClinicalHospitalDocs", "AnatomyActDocument");
                     }
 
                     hospital.HasHospitalTieUp = vm.Form.HasHospitalTieUp;
@@ -536,7 +536,7 @@ namespace Medical_Affiliation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ViewHospitalCertificate(int id,  string type)
+        public async Task<IActionResult> ViewHospitalCertificate(int id, string type)
         {
             var collegeCode = _userContext.CollegeCode;
             var courseLevel = _userContext.CourseLevel;
@@ -1791,7 +1791,8 @@ namespace Medical_Affiliation.Controllers
                 affiliationTypeId: model.AffiliationTypeId,
                 hospitalDetailsId: model.HospitalDetailsId,
                 sectionCode: "13",
-                requirements: model.Requirements
+                requirements: model.Requirements,
+                treatMissingAsNo: true
             );
 
             await _context.SaveChangesAsync();
@@ -1821,7 +1822,8 @@ namespace Medical_Affiliation.Controllers
                 affiliationTypeId: model.AffiliationTypeId,
                 hospitalDetailsId: model.HospitalDetailsId,
                 sectionCode: "15",
-                requirements: model.Requirements
+                requirements: model.Requirements,
+                treatMissingAsNo: true
             );
 
             await _context.SaveChangesAsync();
@@ -1867,9 +1869,11 @@ namespace Medical_Affiliation.Controllers
     int affiliationTypeId,
     int hospitalDetailsId,
     string sectionCode,
-    IEnumerable<RequirementItemBaseVM> requirements)
+    IEnumerable<RequirementItemBaseVM> requirements,
+    bool treatMissingAsNo = false)
         {
             var courselevel = _userContext.CourseLevel;
+            var submittedItems = requirements.ToList();
 
             // Load all existing rows for this college/faculty/hospital/section combo
             var existing = await _context.IndoorInfrastructureRequirementsCompliances
@@ -1882,7 +1886,7 @@ namespace Medical_Affiliation.Controllers
                     r.SectionCode == sectionCode)
                 .ToListAsync();
 
-            foreach (var req in requirements)
+            foreach (var req in submittedItems)
             {
                 var match = existing.FirstOrDefault(e => e.RequirementId == req.RequirementId);
 
@@ -1911,6 +1915,55 @@ namespace Medical_Affiliation.Controllers
                     _context.IndoorInfrastructureRequirementsCompliances.Update(match);
                 }
             }
+
+            // Some sections only post the items answered "Yes" (items answered "No" are
+            // left out of the request). Without this, a "No" never reached the database,
+            // so the old "Yes" stayed saved and was shown again on reload. Every active
+            // requirement of the section that was NOT posted is therefore saved as "No".
+            if (treatMissingAsNo)
+            {
+                var submittedIds = submittedItems
+                    .Select(r => r.RequirementId)
+                    .ToHashSet();
+
+                var masterIds = await _context.MstIndoorInfrastructureRequirementsMasters
+                    .AsNoTracking()
+                    .Where(m =>
+                        m.FacultyCode == facultyCode &&
+                        m.AffiliationTypeId == affiliationTypeId &&
+                        m.SectionCode == sectionCode &&
+                        m.IsActive)
+                    .Select(m => m.Id)
+                    .ToListAsync();
+
+                foreach (var masterId in masterIds.Where(id => !submittedIds.Contains(id)))
+                {
+                    var match = existing.FirstOrDefault(e => e.RequirementId == masterId);
+
+                    if (match == null)
+                    {
+                        _context.IndoorInfrastructureRequirementsCompliances.Add(
+                            new IndoorInfrastructureRequirementsCompliance
+                            {
+                                CollegeCode = collegeCode,
+                                FacultyCode = facultyCode,
+                                CourseLevel = courselevel,
+                                AffiliationTypeId = affiliationTypeId,
+                                HospitalDetailsId = hospitalDetailsId,
+                                RequirementId = masterId,
+                                SectionCode = sectionCode,
+                                IsCompliant = false,
+                                InspectedOn = DateTime.Now,
+                            });
+                    }
+                    else
+                    {
+                        match.IsCompliant = false;
+                        match.InspectedOn = DateTime.Now;
+                        _context.IndoorInfrastructureRequirementsCompliances.Update(match);
+                    }
+                }
+            }
         }
 
         [HttpPost]
@@ -1918,9 +1971,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> SaveIndoorBedsOccupancy([FromForm] IndoorBedsOccupancyPostVM model)
         {
             if (model == null || model.Items == null || !model.Items.Any())
-            {
                 return Json(new { success = false, message = "No Indoor Beds Occupancy data received." });
-            }
 
             var courseLevel = _userContext.CourseLevel;
 
@@ -1936,31 +1987,47 @@ namespace Medical_Affiliation.Controllers
                         o.AffiliationTypeId == model.AffiliationTypeId)
                     .ToListAsync();
 
-                foreach (var item in model.Items)
-                {
-                    var match = existing.FirstOrDefault(o =>
-                        o.DepartmentId == item.DepartmentId &&
-                        o.SeatSlabId == item.SeatSlabId);
+                // Remove pre-existing duplicates (keep the first row per key)
+                var duplicates = existing
+     .GroupBy(o => (o.DepartmentId, o.SeatSlabId))
+     .SelectMany(g => g.Skip(1))
+     .ToList();
 
-                    if (match == null)
+                if (duplicates.Any())
+                {
+                    _context.IndoorBedsOccupancies.RemoveRange(duplicates);
+                    existing = existing.Except(duplicates).ToList();
+                }
+
+                // Collapse duplicate posted rows (last one wins)
+                var incoming = model.Items
+                    .GroupBy(i => (i.DepartmentId, i.SeatSlabId))
+                    .Select(g => g.Last())
+                    .ToList();
+
+                var lookup = existing.ToDictionary(o => (o.DepartmentId, o.SeatSlabId));
+
+                foreach (var item in incoming)
+                {
+                    if (lookup.TryGetValue((item.DepartmentId, item.SeatSlabId), out var match))
                     {
-                        _context.IndoorBedsOccupancies.Add(
-                            new IndoorBedsOccupancy
-                            {
-                                CollegeCode = model.CollegeCode,
-                                FacultyCode = model.FacultyCode,
-                                CourseLevel = courseLevel,
-                                AffiliationTypeId = model.AffiliationTypeId,
-                                DepartmentId = item.DepartmentId,
-                                SeatSlabId = item.SeatSlabId,
-                                Rguhsintake = item.RGUHSintake,
-                                CollegeIntake = item.CollegeIntake
-                            });
+                        match.CollegeIntake = item.CollegeIntake;
                     }
                     else
                     {
-                        match.CollegeIntake = item.CollegeIntake;
-                        _context.IndoorBedsOccupancies.Update(match);
+                        var entity = new IndoorBedsOccupancy
+                        {
+                            CollegeCode = model.CollegeCode,
+                            FacultyCode = model.FacultyCode,
+                            CourseLevel = courseLevel,
+                            AffiliationTypeId = model.AffiliationTypeId,
+                            DepartmentId = item.DepartmentId,
+                            SeatSlabId = item.SeatSlabId,
+                            Rguhsintake = item.RGUHSintake,
+                            CollegeIntake = item.CollegeIntake
+                        };
+                        _context.IndoorBedsOccupancies.Add(entity);
+                        lookup[(item.DepartmentId, item.SeatSlabId)] = entity;
                     }
                 }
 
@@ -1972,11 +2039,9 @@ namespace Medical_Affiliation.Controllers
             catch (DbUpdateException dbEx)
             {
                 await tx.RollbackAsync();
-
                 var innerMost = dbEx.InnerException;
                 while (innerMost?.InnerException != null)
                     innerMost = innerMost.InnerException;
-
                 return Json(new { success = false, message = innerMost?.Message ?? dbEx.Message });
             }
             catch (Exception ex)

@@ -7,19 +7,19 @@ namespace Medical_Affiliation.Services.Faculty
     public class FacultyHospitalService : IHospitalService
     {
         private readonly IEnumerable<IFacultyHospitalHandler> _handlers;
+
         public FacultyHospitalService(IEnumerable<IFacultyHospitalHandler> handlers)
         {
             _handlers = handlers;
         }
 
-        public Task<HospitalAffiliationCompositeViewModel> GetHospitalDetailsAsync(string collegeCode, int facultyCode, string CourseLevel)
+        public Task<HospitalAffiliationCompositeViewModel> GetHospitalDetailsAsync(
+            string collegeCode, int facultyCode, string courseLevel)
         {
-            var handler = _handlers.FirstOrDefault(h => h.FacultyId == facultyCode);
+            var handler = _handlers.FirstOrDefault(h => h.FacultyId == facultyCode)
+                ?? throw new NotImplementedException($"Faculty {facultyCode} not implemented");
 
-            if (handler == null)
-                throw new NotImplementedException($"Faculty {facultyCode} not implemented");
-
-            return handler.GetDetailsAsync(collegeCode);
+            return handler.GetDetailsAsync(collegeCode, courseLevel);
         }
     }
 }

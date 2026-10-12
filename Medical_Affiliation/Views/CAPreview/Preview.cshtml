@@ -88,6 +88,9 @@
             ORDER BY AssociatedCollegeCode, CourseName").ToListAsync();
     }
 
+    // ---- Section 17: Vehicle Registration & Documents (loaded in CAPreviewController.LoadVehicleDocsAsync) ----
+    var vehicleDocs = ViewBag.VehicleDocs as List<VehicleDocRow> ?? new List<VehicleDocRow>();
+
     string Yn(bool? v) => v.HasValue ? (v.Value ? "Yes" : "No") : "—";
     string Num(int? v) => v.HasValue ? v.Value.ToString() : "—";
     string Dec(decimal? v) => v.HasValue ? v.Value.ToString("N2") : "—";
@@ -97,12 +100,12 @@
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
     /* ==========================================================
-                   Palette shared with the continuous-affiliation shell:
-                   gradient  #173d56 -> #176b87 -> #25859a
-                   accent    #dcae3f -> #f1d27a -> #dcae3f
-                   body bg   #eef3f8
-                   fonts     EB Garamond (display) / DM Sans (body)
-                   ========================================================== */
+                       Palette shared with the continuous-affiliation shell:
+                       gradient  #173d56 -> #176b87 -> #25859a
+                       accent    #dcae3f -> #f1d27a -> #dcae3f
+                       body bg   #eef3f8
+                       fonts     EB Garamond (display) / DM Sans (body)
+                       ========================================================== */
     :root {
         --ink: #1d2b3a;
         --navy-deep: #173d56;
@@ -499,11 +502,11 @@
         }
 
     /* After submission: hide only the Edit links and the Submit button.
-           The Principal Seal & Signature re-upload block is NOT affected and
-           stays visible and enabled at all times. */
+               The Principal Seal & Signature re-upload block is NOT affected and
+               stays visible and enabled at all times. */
     /* After submission: hide only the Edit links and the main Submit button.
-           The Principal Seal & Signature re-upload block is NOT affected and
-           stays visible and enabled at all times. */
+               The Principal Seal & Signature re-upload block is NOT affected and
+               stays visible and enabled at all times. */
     .application-readonly .preview-report-edit,
     .application-readonly .preview-tab-row a,
     .application-readonly .submit-application-btn {
@@ -511,7 +514,7 @@
     }
 
     /* Principal Seal & Signature Re-upload: always visible and always enabled,
-           before AND after the application is submitted. */
+               before AND after the application is submitted. */
     #SealReupload {
         display: block !important;
         visibility: visible !important;
@@ -655,6 +658,37 @@
         font-size: 0.98rem;
         font-weight: 600;
         margin-bottom: 0.6rem;
+    }
+
+    /* Section 17 - document availability badges */
+    .doc-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        padding: 0.18rem 0.7rem;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .doc-badge-yes {
+        background: #e6f4ea;
+        border: 1px solid #b7dfc2;
+        color: #1e6b3a;
+    }
+
+        .doc-badge-yes:hover {
+            background: #1e6b3a;
+            color: #fff;
+            text-decoration: none;
+        }
+
+    .doc-badge-no {
+        background: #f3f5f7;
+        border: 1px solid var(--border);
+        color: var(--muted);
     }
 
     /* ========================= */
@@ -1646,11 +1680,89 @@
                     <div class="preview-report-body"><partial name="AdminTeachAndHostel/_HostelDetails" model="Model.AdminTeachAndHostelVM.HostelDetailsVM" /></div>
                 </div>
             }
-            @if (Model.VehicleDetailsVM != null)
+
+            <!-- ============================================================ -->
+            <!-- 17 · VEHICLE REGISTRATION & DOCUMENTS                         -->
+            <!-- RC / Insurance / DL: status 'A' = Available, 'N' = Not available. -->
+            <!-- Falls back to the original partial if the query returns none. -->
+            <!-- ============================================================ -->
+            @if (vehicleDocs.Any() || Model.VehicleDetailsVM != null)
             {
                 <div id="VehicleDetails" class="preview-report-section">
                     <h2 class="preview-report-heading"><span>17 · Vehicle Registration &amp; Documents</span><a class="preview-report-edit" href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">@await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehicleDetailsVM)</div>
+                    <div class="preview-report-body">
+                        @if (vehicleDocs.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm data-table align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Vehicle Reg. No</th>
+                                            <th>Vehicle For</th>
+                                            <th class="text-center">Seating Capacity</th>
+                                            <th>Validity Date</th>
+                                            <th class="text-center">RC Book</th>
+                                            <th class="text-center">Insurance</th>
+                                            <th class="text-center">Driving Licence</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var vSno = 0;
+                                        }
+                                        @foreach (var veh in vehicleDocs)
+                                        {
+                                            <tr>
+                                                <td>@(++vSno)</td>
+                                                <td>@(string.IsNullOrWhiteSpace(veh.VehicleRegNo) ? "—" : veh.VehicleRegNo.Trim())</td>
+                                                <td>@veh.VehicleTypeName</td>
+                                                <td class="text-center">@(veh.SeatingCapacity?.ToString() ?? "—")</td>
+                                                <td>@(veh.ValidityDate.HasValue ? veh.ValidityDate.Value.ToString("dd-MM-yyyy") : "—")</td>
+                                                <td class="text-center">
+                                                    @if (veh.HasRc)
+                                                    {
+                                                        <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span class="doc-badge doc-badge-no">Not available</span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (veh.HasInsurance)
+                                                    {
+                                                        <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span class="doc-badge doc-badge-no">Not available</span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (veh.HasDl)
+                                                    {
+                                                        <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span class="doc-badge doc-badge-no">Not available</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            @await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehicleDetailsVM)
+                        }
+                    </div>
                 </div>
             }
 
@@ -1927,11 +2039,11 @@
 
         @if (TempData["PreviewError"] != null)
         {
-                            <text>
-                                        if (consentModal) {
-                                            consentModal.show();
-                                        }
-                            </text>
+                                <text>
+                                                if (consentModal) {
+                                                    consentModal.show();
+                                                }
+                                </text>
         }
 
         const tabPreviewModalElement = document.getElementById('tabPreviewModal');
