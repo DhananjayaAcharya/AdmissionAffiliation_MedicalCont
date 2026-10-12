@@ -372,6 +372,64 @@ namespace Medical_Affiliation.Controllers
 
                 }
 
+                // ============================================================
+                // DENTAL CERTIFICATES - FACULTY CODE 2 ONLY
+                // ============================================================
+
+                if (facultyId == 2)
+                {
+                    var institution = await _context.InstitutionBasicDetails
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyId.ToString());
+
+                    if (institution != null)
+                    {
+                        // 1. DCI Certification
+                        if (vm.Form.DciCertificationFile != null &&
+                            vm.Form.DciCertificationFile.Length > 0)
+                        {
+                            DeletePhysicalFileIfExists(
+                                institution.DcicertificateFilePath);
+
+                            institution.DcicertificateFilePath =
+                                await SaveFileAndReturnPath(
+                                    vm.Form.DciCertificationFile,
+                                    "InstitutionCertificates",
+                                    "DCICertificate");
+                        }
+
+                        // 2. KSDC Certification
+                        if (vm.Form.KsdcCertificationFile != null &&
+                            vm.Form.KsdcCertificationFile.Length > 0)
+                        {
+                            DeletePhysicalFileIfExists(
+                                institution.KsdccertificateFilePath);
+
+                            institution.KsdccertificateFilePath =
+                                await SaveFileAndReturnPath(
+                                    vm.Form.KsdcCertificationFile,
+                                    "InstitutionCertificates",
+                                    "KSDCCertificate");
+                        }
+
+                        // 3. Continuous Affiliation Certification
+                        if (vm.Form.ContinuousAffiliationFile != null &&
+                            vm.Form.ContinuousAffiliationFile.Length > 0)
+                        {
+                            DeletePhysicalFileIfExists(
+                                institution.ContinuationAffiliationFilePath);
+
+                            institution.ContinuationAffiliationFilePath =
+                                await SaveFileAndReturnPath(
+                                    vm.Form.ContinuousAffiliationFile,
+                                    "InstitutionCertificates",
+                                    "ContinuousAffiliation");
+                        }
+                    }
+                }
+
+
                 await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Basic Hospital details and clinical facilities saved successfully" });
@@ -390,6 +448,59 @@ namespace Medical_Affiliation.Controllers
             {
                 System.IO.File.Delete(filePath);
             }
+        }
+
+        // =====================================================
+        // VIEW DENTAL CERTIFICATES
+        // FacultyCode = 2 only
+        // =====================================================
+
+        [HttpGet]
+        public async Task<IActionResult> ViewDentalCertificate(int id, string type)
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyId = _userContext.FacultyId;
+
+            // Dental faculty only
+            if (facultyId != 2)
+                return Forbid();
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return Unauthorized();
+
+            var institution = await _context.InstitutionBasicDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyId.ToString());
+
+            if (institution == null)
+                return NotFound("Institution details not found.");
+
+            string? filePath = type?.Trim().ToLowerInvariant() switch
+            {
+                "dci" =>
+                    institution.DcicertificateFilePath,
+
+                "ksdc" =>
+                    institution.KsdccertificateFilePath,
+
+                "continuous" =>
+                    institution.ContinuationAffiliationFilePath,
+
+                _ => null
+            };
+
+            if (string.IsNullOrWhiteSpace(filePath))
+                return NotFound("Certificate not found.");
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound("Physical file not found.");
+
+            return PhysicalFile(
+                filePath,
+                "application/pdf",
+                enableRangeProcessing: true);
         }
 
         [HttpPost]

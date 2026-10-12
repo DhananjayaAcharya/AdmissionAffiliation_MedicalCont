@@ -2307,13 +2307,13 @@ public class PreviewReportDentalPdf : IDocument
                         : "Not Uploaded"
                 );
 
-                AddTextRow(
-                    table,
-                    "First Affiliation Notification",
-                    trust.HasFirstAffiliationNotifFile
-                        ? "Uploaded"
-                        : "Not Uploaded"
-                );
+                //AddTextRow(
+                //    table,
+                //    "First Affiliation Notification",
+                //    trust.HasFirstAffiliationNotifFile
+                //        ? "Uploaded"
+                //        : "Not Uploaded"
+                //);
 
                 AddTextRow(
                     table,
@@ -2323,13 +2323,13 @@ public class PreviewReportDentalPdf : IDocument
                         : "Not Uploaded"
                 );
 
-                AddTextRow(
-                    table,
-                    "KNC Certificate",
-                    trust.HasKncCertificateFile
-                        ? "Uploaded"
-                        : "Not Uploaded"
-                );
+                //AddTextRow(
+                //    table,
+                //    "KNC Certificate",
+                //    trust.HasKncCertificateFile
+                //        ? "Uploaded"
+                //        : "Not Uploaded"
+                //);
 
                 AddTextRow(
                     table,

@@ -21,13 +21,27 @@ namespace Medical_Affiliation.Services.Faculty
             var facultyId = _userContext.FacultyId;
             var collegeCode = _userContext.CollegeCode;
             var courseLevel = _userContext.CourseLevel;
-            var academicRows = await _context.CaAcademicPerformances
+            var affTypeId = _userContext.TypeOfAffiliation;
+
+            var query = _context.CaAcademicPerformances
                 .AsNoTracking()
-                .Where(x => x.FacultyId == facultyId && x.CollegeCode == collegeCode && x.CourseLevel == courseLevel)
+                .Where(x =>
+                    x.FacultyId == facultyId &&
+                    x.CollegeCode == collegeCode &&
+                    x.CourseLevel == courseLevel);
+
+            if (facultyId == 2)
+            {
+                query = query.Where(x => x.AffiliationType == affTypeId);
+            }
+
+            var academicRows = await query
                 .Select(x => new AcademicPerformanceViewModel
                 {
                     YearOfStudyId = x.YearOfStudyId,
-                    YearName = x.YearOfStudy != null ? x.YearOfStudy.YearName : string.Empty,
+                    YearName = x.YearOfStudy != null
+                        ? x.YearOfStudy.YearName
+                        : string.Empty,
                     RegularStudents = x.RegularStudents,
                     RepeaterStudents = x.RepeaterStudents,
                     NumberOfStudentsPassed = x.NumberOfStudentsPassed,

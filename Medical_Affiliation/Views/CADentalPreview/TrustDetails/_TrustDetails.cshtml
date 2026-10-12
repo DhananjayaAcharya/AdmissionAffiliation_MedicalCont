@@ -318,9 +318,7 @@
                 Model.HasAadhaarFile ||
                 Model.HasGovAutonomousCertFile ||
                 Model.HasGovCouncilMembershipFile ||
-                Model.HasFirstAffiliationNotifFile ||
                 Model.HasContinuationAffiliationFile ||
-                Model.HasKncCertificateFile ||
                 Model.HasDCIFile ||
                 Model.HasKSDCFile
             )
@@ -509,3 +507,28 @@
     </div>
 
 </div>
+
+                        
+<script>
+    function openDocumentViewer(url, title) {
+        // Create the document viewer modal if it exists
+        const modalElement = document.getElementById('documentViewerModal');
+        const iframe = document.getElementById('documentViewerFrame');
+        const titleElement = document.getElementById('documentViewerTitle');
+
+        if (!modalElement || !iframe) {
+            // Fallback: open the document in a new tab
+            window.open(url, '_blank');
+            return;
+        }
+
+        iframe.src = url;
+
+        if (titleElement) {
+            titleElement.textContent = title;
+        }
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+    }
+</script>

@@ -315,6 +315,24 @@ namespace Medical_Affiliation.Models
 
         public string? DrugFreeCampusCertificationPath { get; set; }
 
+        // DCI Certification
+
+        public IFormFile? DciCertificationFile { get; set; }
+
+        public string? DciCertificationPath { get; set; }
+
+        // KSDC Certification
+
+        public IFormFile? KsdcCertificationFile { get; set; }
+
+        public string? KsdcCertificationPath { get; set; }
+
+        // Continuous Affiliation Certification
+
+        public IFormFile? ContinuousAffiliationFile { get; set; }
+
+        public string? ContinuousAffiliationPath { get; set; }
+
 
         // Proposed Plans for Future Developments
 

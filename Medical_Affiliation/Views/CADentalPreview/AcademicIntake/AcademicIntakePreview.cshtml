@@ -1,4 +1,9 @@
 ﻿@model AcademicIntakePreviewViewModel
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var courseLevel = HttpContextAccessor.HttpContext?.Session.GetString("CourseLevel");
+}
 
 <link rel="stylesheet" href="~/css/preview.css" asp-append-version="true" />
 
@@ -16,7 +21,7 @@
     <div class="general-body">
 
         <!-- UG -->
-        @if (Model.UgCourses?.Any() == true)
+        @if (Model.UgCourses?.Any() == true && courseLevel.ToLower() == "ug")
         {
             @await Html.PartialAsync(
                 "AcademicIntake/_CourseLevelSection",
@@ -24,7 +29,7 @@
         }
 
         <!-- PG -->
-        @if (Model.PgCourses?.Any() == true)
+        @if (Model.PgCourses?.Any() == true && courseLevel.ToLower() == "pg")
         {
             @await Html.PartialAsync(
                 "AcademicIntake/_CourseLevelSection",
@@ -45,19 +50,19 @@
                 Model.UgCourseDetails)
         } *@
 
-        @if (Model.PgCourseDetails != null)
+        @if (Model.PgCourseDetails != null && courseLevel.ToLower() == "pg")
         {
             @await Html.PartialAsync(
                 "AcademicIntake/_PgCourseDetails",
                 Model.PgCourseDetails)
         }
 
-        @if (Model.TeachingFacultyDetails?.Any() == true)
+        @* @if (Model.TeachingFacultyDetails?.Any() == true)
         {
             @await Html.PartialAsync(
                 "AcademicIntake/_TeachingFacultyDetails",
                 Model.TeachingFacultyDetails)
-        }
+        } *@
     </div>
 
 </div>
