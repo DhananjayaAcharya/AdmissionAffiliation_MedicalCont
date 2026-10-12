@@ -263,8 +263,30 @@ public class PreviewReportPdf : IDocument
 
     private void AddPreviewMetadataHeader(ColumnDescriptor col)
     {
-        var firstMatchedCourse = _model.PaymentCalculation?.MatchedCourses.FirstOrDefault();
-        var presentIntake = firstMatchedCourse?.Intake_26_27;
+        var affiliationType = string.IsNullOrWhiteSpace(_model.ApplicationType)
+            ? "Affiliation"
+            : _model.ApplicationType.Trim();
+
+        var isContinuation = string.Equals(
+            affiliationType,
+            "Continuation of Affiliation",
+            StringComparison.OrdinalIgnoreCase);
+
+        var isIncreaseInIntake = affiliationType.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
+            || affiliationType.Contains("Increase", StringComparison.OrdinalIgnoreCase);
+
+        // Prefer the MBBS row, otherwise the first matched row
+        var matchedCourses = _model.PaymentCalculation?.MatchedCourses;
+        var firstMatchedCourse =
+            matchedCourses?.FirstOrDefault(c => string.Equals(c.course?.Trim(), "MBBS", StringComparison.OrdinalIgnoreCase))
+            ?? matchedCourses?.FirstOrDefault();
+
+        // Fallback: Mst_MedicalCollegeCourseIntake rows already loaded as SeatSlabs
+        var slabRows = _model.SeatSlabs ?? new List<SeatSlabRow>();
+        var slabRow = slabRows.FirstOrDefault(r => string.Equals(r.Course?.Trim(), "MBBS", StringComparison.OrdinalIgnoreCase))
+                      ?? slabRows.FirstOrDefault();
+
+        var presentIntake = firstMatchedCourse?.Intake_26_27 ?? slabRow?.Intake_26_27;
         var additionalSeatsRequested = firstMatchedCourse?.IncreasedIntake;
 
         var additionalSeatCount = 0;
@@ -274,18 +296,16 @@ public class PreviewReportPdf : IDocument
             additionalSeatCount = parsedAdditionalSeatsRequested;
         }
 
-        var totalSeats = (presentIntake ?? 0) + additionalSeatCount;
+        // Continuation of Affiliation -> Intake_26_27 only
+        // Increase in Intake / others  -> Intake_26_27 + Increased_Intake
+        var totalSeats = isContinuation
+            ? (presentIntake ?? 0)
+            : (presentIntake ?? 0) + additionalSeatCount;
 
         col.Item().PaddingTop(4).PaddingBottom(9).Column(section =>
         {
             section.Item().PaddingTop(10).AlignCenter().Text(_model.CollegeName ?? "College Affiliation Application")
                 .FontSize(14).Bold().FontColor("#123A63");
-
-            var affiliationType = string.IsNullOrWhiteSpace(_model.ApplicationType)
-                ? "Affiliation"
-                : _model.ApplicationType.Trim();
-            var isIncreaseInIntake = affiliationType.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
-                || affiliationType.Contains("Increase", StringComparison.OrdinalIgnoreCase);
 
             section.Item().PaddingTop(4).AlignCenter().Text(text =>
             {
