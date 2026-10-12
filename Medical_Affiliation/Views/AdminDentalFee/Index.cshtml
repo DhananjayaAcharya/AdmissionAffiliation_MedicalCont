@@ -974,13 +974,16 @@
                                     <td data-value="@(string.IsNullOrWhiteSpace(payment.TransactionReceiptPath) ? "Unavailable" : "Available")">
                                         @if (!string.IsNullOrWhiteSpace(payment.TransactionReceiptPath))
                                         {
-                                            <a href="@payment.TransactionReceiptPath"
+                                            <a 
+                                               asp-action="ViewReceipt"
+                                               asp-route-paymentId="@payment.Id"
+                                               class="receipt-view-btn"
                                                target="_blank"
-                                               rel="noopener noreferrer"
-                                               class="adf-btn adf-btn-outline"
-                                               style="min-height:30px;padding:5px 9px">
-                                                <i class="bi bi-file-earmark-pdf"></i>
-                                                View
+                                               rel="noopener noreferrer">
+
+                                                <i class="bi bi-eye me-1"></i>
+                                                View Receipt
+
                                             </a>
                                         }
                                         else
