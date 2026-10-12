@@ -73,6 +73,11 @@ public class PreviewReportDentalPdf : IDocument
                 // ═══════════════════════════════════════
                 AddAffiliationInfoBanner(col);
 
+                if (!string.IsNullOrWhiteSpace(_model.FinalSubmissionVM?.ApplicationNumber))
+                {
+                    AddApplicationSubmissionInfo(col);
+                }
+
                 //--- Institution Basic details - TrustMemberDetails ---
                 AddInstitutionBasicDetailsSection(col);
 
@@ -381,6 +386,52 @@ public class PreviewReportDentalPdf : IDocument
                     AddStyledLabelValueRow(
                         table, "Institution Name", _model?.CollegeName ?? "—");
                 });
+            });
+    }
+
+    private void AddApplicationSubmissionInfo(ColumnDescriptor col)
+    {
+        col.Item()
+            .PaddingVertical(6)
+            .Background(AccentColor)
+            .Padding(10)
+            .Border(1)
+            .BorderColor(SecondaryColor)
+            .Column(section =>
+            {
+                section.Item()
+                    .AlignCenter()
+                    .Text("Application Submission Details")
+                    .FontSize(12)
+                    .Bold()
+                    .FontColor(PrimaryColor);
+
+                section.Item()
+                    .PaddingTop(6)
+                    .Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(4);
+                        });
+
+                        AddStyledLabelValueRow(
+                            table,
+                            "Application Number",
+                            string.IsNullOrWhiteSpace(
+                                _model.FinalSubmissionVM?.ApplicationNumber)
+                                ? "—"
+                                : _model.FinalSubmissionVM.ApplicationNumber);  
+
+                        AddStyledLabelValueRow(
+                            table,
+                            "Attested by Principal",
+                            string.IsNullOrWhiteSpace(
+                                _model.FinalSubmissionVM?.PrincipalName)
+                                ? "—"
+                                : _model.FinalSubmissionVM.PrincipalName);
+                    });
             });
     }
 

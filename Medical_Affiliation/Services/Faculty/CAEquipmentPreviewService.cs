@@ -49,12 +49,16 @@ namespace Medical_Affiliation.Services.Faculty
             }
 
             // =========================================================
-            // GET EQUIPMENT
+            // GET DEPARTMENT CODES
             // =========================================================
 
             var departmentCodes = departments
                 .Select(d => d.DepartmentCode)
                 .ToList();
+
+            // =========================================================
+            // GET MASTER EQUIPMENT
+            // =========================================================
 
             var equipment = await _context.MstEquipmentDeptWises
                 .AsNoTracking()
@@ -69,26 +73,46 @@ namespace Medical_Affiliation.Services.Faculty
                     Row = new EquipmentRowVM
                     {
                         EquipmentId = e.Id,
-
                         EquipmentName = e.EquipmentName,
-
                         Specification = e.Specification,
-
                         OneUnitReq = e.OneUnitRequirement,
-
                         TwoUnitReq = e.TwoUnitRequirement,
-
-                        // Existing quantities will come
-                        // from availability/details table
                         OneUnitExisting = null,
-
                         TwoUnitExisting = null
                     }
                 })
                 .ToListAsync();
 
             // =========================================================
-            // MAP EQUIPMENT TO DEPARTMENTS
+            // GET SAVED COLLEGE EQUIPMENT DETAILS
+            // =========================================================
+
+            var savedEquipment = await _context.DentalCollegeEquipmentDetails
+                .AsNoTracking()
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.IsActive &&
+                    departmentCodes.Contains(x.DepartmentCode))
+                .ToListAsync();
+
+            // =========================================================
+            // CREATE SAVED EQUIPMENT LOOKUP
+            // =========================================================
+
+            var savedEquipmentLookup = savedEquipment
+                .GroupBy(x => new
+                {
+                    x.DepartmentCode,
+                    x.EquipmentId
+                })
+                .ToDictionary(
+                    g => (g.Key.DepartmentCode, g.Key.EquipmentId),
+                    g => g.First()
+                );
+
+            // =========================================================
+            // MAP EQUIPMENT AND SAVED DATA TO DEPARTMENTS
             // =========================================================
 
             foreach (var department in departments)
@@ -96,7 +120,37 @@ namespace Medical_Affiliation.Services.Faculty
                 department.Equipments = equipment
                     .Where(e =>
                         e.DepartmentCode == department.DepartmentCode)
-                    .Select(e => e.Row)
+                    .Select(e =>
+                    {
+                        savedEquipmentLookup.TryGetValue(
+                            (
+                                e.DepartmentCode,
+                                e.Row.EquipmentId
+                            ),
+                            out var saved);
+
+                        return new EquipmentRowVM
+                        {
+                            EquipmentId = e.Row.EquipmentId,
+
+                            EquipmentName = e.Row.EquipmentName,
+
+                            Specification = e.Row.Specification,
+
+                            // Use saved requirements when available;
+                            // otherwise, use master requirements.
+                            OneUnitReq = saved?.OneUnitRequirement
+                                ?? e.Row.OneUnitReq,
+
+                            TwoUnitReq = saved?.TwoUnitRequirement
+                                ?? e.Row.TwoUnitReq,
+
+                            // Display saved existing quantities.
+                            OneUnitExisting = saved?.OneUnitExisting,
+
+                            TwoUnitExisting = saved?.TwoUnitExisting
+                        };
+                    })
                     .ToList();
             }
 

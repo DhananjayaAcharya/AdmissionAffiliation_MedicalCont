@@ -231,11 +231,10 @@ namespace Medical_Affiliation.Services.Faculty
 
             if (affiliationTypeId <= 0 || string.IsNullOrWhiteSpace(courseLevel) || string.IsNullOrWhiteSpace(academicYear))
             {
-                throw new InvalidOperationException(
-                    "Invalid affiliation application details.");
+                throw new InvalidOperationException("Invalid affiliation application details.");
             }
 
-            if (academicYear.Length != 6 || !academicYear.All(char.IsDigit))
+            if (string.IsNullOrWhiteSpace(academicYear) || !System.Text.RegularExpressions.Regex.IsMatch(academicYear, @"^\d{4}-\d{2}$"))
             {
                 throw new InvalidOperationException("Invalid academic year.");
             }
@@ -347,9 +346,11 @@ namespace Medical_Affiliation.Services.Faculty
             int affiliationTypeId,
             string academicYear)
         {
+            string formattedAcademicYear = academicYear.Replace("-", "");
+
             // Example prefix: 2026270202
             string prefix =
-                $"{academicYear}{facultyCode:D2}{affiliationTypeId:D2}";
+                $"{formattedAcademicYear}{facultyCode:D2}{affiliationTypeId:D2}";
 
             // Must execute inside the Serializable transaction
             // opened by FinalSubmitAsync.

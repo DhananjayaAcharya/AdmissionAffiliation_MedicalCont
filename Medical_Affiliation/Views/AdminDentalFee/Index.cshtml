@@ -1,0 +1,1290 @@
+﻿
+@model Medical_Affiliation.Models.AdminDentalFeeViewModel
+
+@{
+    ViewData["Title"] = "Admin Dental Fee";
+
+    var hasSelection =
+        !string.IsNullOrWhiteSpace(Model.CollegeCode) &&
+        Model.AffiliationTypeId.HasValue;
+
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("en-IN");
+}
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+
+    .page-wrapper {
+    padding-top: 0;
+}
+
+.page-wrapper:has(.adf-page) .page-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 1.25rem 2rem;
+}
+
+.page-wrapper:has(.adf-page) .portal-sidebar-shell {
+    display: none;
+}
+
+.page-wrapper:has(.adf-page) .page-content,
+.page-wrapper:has(.adf-page) .portal-main-card {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin-left: 0;
+}
+    .adf-page {
+        --adf-primary: #234a83;
+        --adf-border: #e2e8f0;
+        --adf-muted: #64748b;
+        color: #1e293b;
+        padding-bottom: 30px;
+    }
+
+    .adf-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .adf-title {
+        margin: 0;
+        font-size: 25px;
+        font-weight: 750;
+        color: #172554;
+    }
+
+    .adf-subtitle {
+        margin-top: 5px;
+        margin-bottom: 0;
+        color: var(--adf-muted);
+        font-size: 13px;
+    }
+
+    .adf-card {
+        background: #fff;
+        border: 1px solid var(--adf-border);
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, .035);
+        overflow: hidden;
+    }
+
+    .adf-card-header {
+        padding: 17px 20px;
+        border-bottom: 1px solid var(--adf-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .adf-card-header h5 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .adf-card-body {
+        padding: 20px;
+    }
+
+    .adf-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 7px;
+    }
+
+    .adf-control {
+        width: 100%;
+        min-height: 41px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        padding: 8px 11px;
+        font-size: 13px;
+        background-color: #fff;
+    }
+
+    .adf-control:focus {
+        outline: none;
+        border-color: #537db5;
+        box-shadow: 0 0 0 3px rgba(35, 74, 131, .10);
+    }
+
+    .adf-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 9px 15px;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid transparent;
+        min-height: 39px;
+    }
+
+    .adf-btn-primary {
+        background: var(--adf-primary);
+        color: #fff;
+    }
+
+    .adf-btn-primary:hover {
+        background: #183967;
+        color: #fff;
+    }
+
+    .adf-btn-outline {
+        background: #fff;
+        color: #334155;
+        border-color: #cbd5e1;
+    }
+
+    .adf-btn-outline:hover {
+        background: #f8fafc;
+        color: #172554;
+    }
+
+    .adf-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .adf-summary {
+        padding: 19px;
+        border-radius: 11px;
+        background: #fff;
+        border: 1px solid var(--adf-border);
+    }
+
+    .adf-summary-label {
+        font-size: 12px;
+        color: var(--adf-muted);
+        font-weight: 650;
+        margin-bottom: 10px;
+    }
+
+    .adf-summary-value {
+        font-size: 23px;
+        font-weight: 750;
+        color: #172554;
+        overflow-wrap: anywhere;
+    }
+
+    .adf-summary-note {
+        font-size: 11px;
+        color: var(--adf-muted);
+        margin-top: 6px;
+    }
+
+    .adf-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 22px;
+        padding: 14px 18px;
+        background: #f8fafc;
+        border-bottom: 1px solid var(--adf-border);
+        font-size: 12px;
+    }
+
+    .adf-info strong {
+        color: #334155;
+        margin-right: 5px;
+    }
+
+    .adf-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .adf-badge-success {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .adf-badge-warning {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .adf-badge-muted {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .adf-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .adf-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 12px;
+        min-width: 1050px;
+    }
+
+    .adf-table th {
+        padding: 12px 13px;
+        background: #f8fafc;
+        color: #475569;
+        text-align: left;
+        font-weight: 750;
+        border-bottom: 1px solid var(--adf-border);
+        white-space: nowrap;
+    }
+
+    .adf-table th[data-sort] {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .adf-table th[data-sort]:hover {
+        background: #eef2f7;
+        color: var(--adf-primary);
+    }
+
+    .adf-table td {
+        padding: 13px;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+    }
+
+    .adf-table tbody tr:hover {
+        background: #f8fbff;
+    }
+
+    .adf-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .adf-money {
+        text-align: right !important;
+        white-space: nowrap;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .adf-table-footer {
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-top: 1px solid var(--adf-border);
+    }
+
+    .adf-page-size {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--adf-muted);
+    }
+
+    .adf-page-size select {
+        width: 75px;
+        min-height: 34px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 4px 7px;
+        background: #fff;
+    }
+
+    .adf-pagination {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .adf-pagination button {
+        min-width: 33px;
+        height: 33px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        background: #fff;
+        color: #334155;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .adf-pagination button.active {
+        color: #fff;
+        background: var(--adf-primary);
+        border-color: var(--adf-primary);
+    }
+
+    .adf-pagination button:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+    .adf-pagination button:focus-visible,
+    .adf-btn:focus-visible {
+        outline: 2px solid #537db5;
+        outline-offset: 2px;
+    }
+
+    .adf-empty {
+        text-align: center;
+        padding: 35px 15px !important;
+        color: var(--adf-muted);
+    }
+
+    .adf-empty i {
+        display: block;
+        font-size: 26px;
+        margin-bottom: 8px;
+    }
+
+    .adf-section-count {
+        font-size: 12px;
+        color: var(--adf-muted);
+    }
+
+    .adf-alert {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+        font-size: 13px;
+    }
+
+    .adf-filter-actions {
+        display: flex;
+        align-items: end;
+        gap: 8px;
+        height: 100%;
+    }
+
+    .adf-filter-actions .adf-btn {
+        flex: 1;
+    }
+
+    
+    .payment-amount-cell {
+        min-width: 145px;
+    }
+
+    .payment-amount-input {
+        min-width: 130px;
+        text-align: right;
+        font-weight: 600;
+        border: 1px dashed #adb5bd;
+        background-color: #fff;
+    }
+
+    .payment-amount-input:focus {
+        border: 1px solid #0d6efd;
+        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.12);
+    }
+
+
+    @@media (max-width: 768px) {
+        .adf-summary-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .adf-summary {
+            padding: 15px;
+        }
+
+        .adf-summary-value {
+            font-size: 21px;
+        }
+
+        .adf-card-body {
+            padding: 15px;
+        }
+
+        .adf-header {
+            align-items: flex-start;
+        }
+
+        .adf-title {
+            font-size: 21px;
+        }
+
+        .adf-table-footer {
+            align-items: flex-start;
+        }
+    }
+</style>
+
+
+<div class="adf-page">
+
+    <!-- PAGE HEADER -->
+    <div class="adf-header">
+        <div>
+            <h2 class="adf-title">
+                <i class="bi bi-receipt-cutoff me-2"></i>
+                Admin Dental Fee
+            </h2>
+            <p class="adf-subtitle">
+                Review college fee structures and payment records.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="AdminDashboard"
+           class="adf-btn adf-btn-outline">
+            <i class="bi bi-arrow-left"></i>
+            Back to Dashboard
+        </a>
+    </div>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SuccessMessage"]
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["ErrorMessage"]
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-warning adf-alert">
+            <div asp-validation-summary="All"></div>
+        </div>
+    }
+
+    <!-- SEARCH / FILTER -->
+    <div class="adf-card">
+        <div class="adf-card-header">
+            <h5>
+                <i class="bi bi-funnel me-2"></i>
+                Search Dental Fee Records
+            </h5>
+        </div>
+
+        <div class="adf-card-body">
+            <form asp-controller="AdminDentalFee"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="row g-3">
+
+                    <div class="col-lg-4 col-md-6">
+                        <label asp-for="CollegeCode" class="adf-label">
+                            College
+                        </label>
+
+                        <select asp-for="CollegeCode"
+                                asp-items="Model.Colleges"
+                                class="adf-control">
+                            <option value="">-- Select College --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <label asp-for="AffiliationTypeId"
+                               class="adf-label">
+                            Affiliation Type
+                        </label>
+
+                        <select asp-for="AffiliationTypeId"
+                                asp-items="Model.AffiliationTypes"
+                                class="adf-control">
+                            <option value="">-- Select Affiliation Type --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-6">
+                        <label asp-for="CourseLevel" class="adf-label">
+                            Course Level
+                        </label>
+
+                        <select asp-for="CourseLevel"
+                                asp-items="Model.CourseLevels"
+                                class="adf-control">
+                            <option value="">-- Auto / All --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-6">
+                        <div class="adf-filter-actions">
+                            <button type="submit"
+                                    class="adf-btn adf-btn-primary">
+                                <i class="bi bi-search"></i>
+                                Search
+                            </button>
+
+                            <a asp-controller="AdminDentalFee"
+                               asp-action="Index"
+                               class="adf-btn adf-btn-outline"
+                               title="Clear filters">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (hasSelection)
+    {
+        <!-- COLLEGE INFORMATION -->
+        <div class="adf-card">
+            <div class="adf-info">
+                <span>
+                    <strong>College Code:</strong>
+                    @Model.CollegeCode
+                </span>
+
+                <span>
+                    <strong>Institution Type:</strong>
+
+                    @if (Model.IsGovernment)
+                    {
+                        <span class="adf-badge adf-badge-success">
+                            Government
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="adf-badge adf-badge-muted">
+                            Private / Other
+                        </span>
+                    }
+                </span>
+
+                <span>
+                    <strong>Course Level:</strong>
+                    @(Model.CourseLevel ?? "All")
+                </span>
+
+                <span>
+                    <strong>Affiliation ID:</strong>
+                    @Model.AffiliationTypeId
+                </span>
+            </div>
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div class="adf-summary-grid">
+
+            <div class="adf-summary">
+                <div class="adf-summary-label">
+                    <i class="bi bi-calculator me-1"></i>
+                    Total Applicable Fee
+                </div>
+
+                <div class="adf-summary-value">
+                    @Model.TotalApplicableFee.ToString("C2", culture)
+                </div>
+
+                <div class="adf-summary-note">
+                    Active fee records currently eligible under the rules
+                </div>
+            </div>
+
+            <div class="adf-summary">
+                <div class="adf-summary-label">
+                    <i class="bi bi-wallet2 me-1"></i>
+                    Total Amount Paid
+                </div>
+
+                <div class="adf-summary-value">
+                    @Model.TotalAmountPaid.ToString("C2", culture)
+                </div>
+
+                <div class="adf-summary-note">
+                    Sum of active recorded payment amounts
+                </div>
+            </div>
+
+            <div class="adf-summary">
+                <div class="adf-summary-label">
+                    <i class="bi bi-arrow-left-right me-1"></i>
+                    Difference
+                </div>
+
+                <div class="adf-summary-value">
+                    @Model.BalanceAmount.ToString("C2", culture)
+                </div>
+
+                <div class="adf-summary-note">
+                    Applicable fee minus amount paid; positive means outstanding
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FEE STRUCTURE TABLE -->
+        <div class="adf-card">
+
+            <div class="adf-card-header">
+                <h5>
+                    <i class="bi bi-list-check me-2"></i>
+                    Fee Structure Details
+                </h5>
+
+                <span class="adf-section-count">
+                    @Model.FeeItems.Count record(s)
+                </span>
+            </div>
+
+            <div class="adf-table-wrap">
+                <table class="adf-table" id="feeTable">
+
+                    <thead>
+                        <tr>
+                            <th data-sort="number">#</th>
+                            <th data-sort="number">Record ID</th>
+                            <th data-sort="text">Fee Type</th>
+                            <th data-sort="text">Course</th>
+                            <th data-sort="text">Level</th>
+                            <th data-sort="text">Calculation Type</th>
+                            <th data-sort="number" class="adf-money">
+                                Intake
+                            </th>
+                            <th data-sort="number" class="adf-money">
+                                Amount To Be Paid
+                            </th>
+                            <th data-sort="number" class="adf-money">
+                                Calculated Amount
+                            </th>
+                            <th data-sort="text">Eligibility</th>
+                            <th data-sort="text">Record Status</th>
+                            <th data-sort="none">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.FeeItems.Any())
+                        {
+                            var rowNumber = 0;
+
+                            foreach (var fee in Model.FeeItems)
+                            {
+                                rowNumber++;
+
+                                <tr>
+                                    <td data-value="@rowNumber">
+                                        @rowNumber
+                                    </td>
+
+                                    <td data-value="@(fee.Id ?? 0)">
+                                        @(fee.Id?.ToString() ?? "Not created")
+                                    </td>
+
+                                    <td data-value="@fee.FeeTypeName">
+                                        <strong>@fee.FeeTypeName</strong>
+                                    </td>
+
+                                    <td data-value="@fee.CourseName">
+                                        @(fee.CourseName ?? "-")
+                                    </td>
+
+                                    <td data-value="@fee.CourseLevel">
+                                        @(fee.CourseLevel ?? "-")
+                                    </td>
+
+                                    <td data-value="@fee.CalculationType">
+                                        @(fee.CalculationType ?? "-")
+                                    </td>
+
+                                    <td class="adf-money"
+                                        data-value="@(fee.AcademicIntake2026 ?? 0)">
+                                        @(fee.AcademicIntake2026?.ToString() ?? "-")
+                                    </td>
+
+                                    <td class="adf-money"
+                                        data-value="@fee.AmountToBePaid">
+                                        @fee.AmountToBePaid.ToString("C2", culture)
+                                    </td>
+
+                                    <td class="adf-money"
+                                        data-value="@fee.CalculatedAmount">
+                                        @fee.CalculatedAmount.ToString("C2", culture)
+                                    </td>
+
+                                    <td data-value="@(fee.IsApplicable ? "Applicable" : "Excluded")">
+                                        @if (fee.IsApplicable)
+                                        {
+                                            <span class="adf-badge adf-badge-success">
+                                                Applicable
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="adf-badge adf-badge-warning"
+                                                  title="@fee.ApplicabilityReason">
+                                                Excluded
+                                            </span>
+                                        }
+
+                                        @if (fee.ActivationDate.HasValue)
+                                        {
+                                            <div class="text-muted mt-1"
+                                                 style="font-size:10px">
+                                                Activation:
+                                                @fee.ActivationDate.Value.ToString("dd-MMM-yyyy")
+                                            </div>
+                                        }
+                                    </td>
+
+                                    <td data-value="@(fee.IsActive ? "Active" : "Inactive")">
+                                        @if (fee.IsActive)
+                                        {
+                                            <span class="adf-badge adf-badge-success">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="adf-badge adf-badge-muted">
+                                                Inactive
+                                            </span>
+                                        }
+                                    </td>
+                                    
+                                    
+                                    <td data-sort="none">
+                                        <div class="d-flex gap-2">
+
+                                            @if (fee.Id.HasValue)
+                                            {
+                                                
+                                                <form asp-controller="AdminDentalFee"
+                                                      asp-action="ToggleFeeStatus"
+                                                      method="post"
+                                                      onsubmit="return confirm('Are you sure you want to change this fee record status?');">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden" name="id" value="@fee.Id.Value" />
+                                                    <input type="hidden" name="collegeCode" value="@Model.CollegeCode" />
+                                                    <input type="hidden" name="affiliationTypeId" value="@Model.AffiliationTypeId" />
+                                                    <input type="hidden" name="courseLevel" value="@Model.CourseLevel" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm @(fee.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                                                        <i class="bi @(fee.IsActive ? "bi-pause-circle" : "bi-check-circle")"></i>
+                                                        @(fee.IsActive ? "Deactivate" : "Activate")
+                                                    </button>
+                                                </form>
+
+                                                <form asp-controller="AdminDentalFee"
+                                                      asp-action="DeleteFee"
+                                                      method="post"
+                                                      onsubmit="return confirm('Are you sure you want to permanently delete this fee record?');">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden" name="id" value="@fee.Id.Value" />
+                                                    <input type="hidden" name="collegeCode" value="@Model.CollegeCode" />
+                                                    <input type="hidden" name="affiliationTypeId" value="@Model.AffiliationTypeId" />
+                                                    <input type="hidden" name="courseLevel" value="@Model.CourseLevel" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+
+                                        </div>
+                                    </td>
+
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="11" class="adf-empty">
+                                    <i class="bi bi-inbox"></i>
+                                    No saved fee transaction records found
+                                    for the selected filters.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div class="adf-table-footer">
+                <div class="adf-page-size">
+                    Show
+                    <select id="feePageSize" aria-label="Fee table page size">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    entries
+                    <span id="feeTableInfo"></span>
+                </div>
+
+                <div class="adf-pagination" id="feePagination"></div>
+            </div>
+        </div>
+
+        <!-- PAYMENT TABLE -->
+        <div class="adf-card">
+
+            <div class="adf-card-header">
+                <h5>
+                    <i class="bi bi-credit-card me-2"></i>
+                    Payment Details
+                </h5>
+
+                <span class="adf-section-count">
+                    @Model.Payments.Count record(s)
+                </span>
+            </div>
+
+            <div class="adf-table-wrap">
+                <table class="adf-table" id="paymentTable">
+
+                    <thead>
+                        <tr>
+                            <th data-sort="number">#</th>
+                            <th data-sort="number">Payment ID</th>
+                            <th data-sort="text">Transaction ID</th>
+                            <th data-sort="text">Course Level</th>
+                            <th data-sort="number" class="adf-money">
+                                Amount Paid
+                            </th>
+                            <th data-sort="text">Payment Status</th>
+                            <th data-sort="text">Receipt</th>
+                            <th data-sort="text">Created By</th>
+                            <th data-sort="date">Created Date</th>
+                            <th data-sort="text">Modified By</th>
+                            <th data-sort="date">Modified Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Payments.Any())
+                        {
+                            var paymentNumber = 0;
+
+                            foreach (var payment in Model.Payments)
+                            {
+                                paymentNumber++;
+
+                                <tr>
+                                    <td data-value="@paymentNumber">
+                                        @paymentNumber
+                                    </td>
+
+                                    <td data-value="@payment.Id">
+                                        @payment.Id
+                                    </td>
+
+                                    <td data-value="@payment.TransactionId">
+                                        @(payment.TransactionId ?? "-")
+                                    </td>
+
+                                    <td data-value="@payment.CourseLevel">
+                                        @(payment.CourseLevel ?? "-")
+                                    </td>
+
+                                    <td class="adf-money payment-amount-cell"
+                                        data-value="@payment.AmountPaid">
+
+                                        <form asp-controller="AdminDentalFee"
+                                              asp-action="UpdatePaymentAmount"
+                                              method="post"
+                                              class="payment-amount-form">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="id" value="@payment.Id" />
+                                            <input type="hidden" name="collegeCode" value="@Model.CollegeCode" />
+                                            <input type="hidden" name="affiliationTypeId" value="@Model.AffiliationTypeId" />
+                                            <input type="hidden" name="courseLevel" value="@Model.CourseLevel" />
+
+                                            <input type="number"
+                                                   name="amountPaid"
+                                                   value="@payment.AmountPaid.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)"
+                                                   class="form-control form-control-sm payment-amount-input"
+                                                   min="0"
+                                                   max="999999999999"
+                                                   step="0.01"
+                                                   required
+                                                   title="Edit amount and press Enter or click outside to save" />
+                                        </form>
+                                    </td>
+
+                                    <td data-value="@(payment.IsActive ? "Active" : "Inactive")">
+                                        @if (payment.IsActive)
+                                        {
+                                            <span class="adf-badge adf-badge-success">
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="adf-badge adf-badge-muted">
+                                                Inactive
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td data-value="@(string.IsNullOrWhiteSpace(payment.TransactionReceiptPath) ? "Unavailable" : "Available")">
+                                        @if (!string.IsNullOrWhiteSpace(payment.TransactionReceiptPath))
+                                        {
+                                            <a href="@payment.TransactionReceiptPath"
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               class="adf-btn adf-btn-outline"
+                                               style="min-height:30px;padding:5px 9px">
+                                                <i class="bi bi-file-earmark-pdf"></i>
+                                                View
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+
+                                    <td data-value="@payment.CreatedBy">
+                                        @(payment.CreatedBy ?? "-")
+                                    </td>
+
+                                    <td data-value="@payment.CreatedDate.ToString("O")">
+                                        @payment.CreatedDate.ToString("dd-MMM-yyyy HH:mm")
+                                    </td>
+
+                                    <td data-value="@payment.ModifiedBy">
+                                        @(payment.ModifiedBy ?? "-")
+                                    </td>
+
+                                    <td data-value="@(payment.ModifiedDate?.ToString("O") ?? "")">
+                                        @(payment.ModifiedDate?.ToString("dd-MMM-yyyy HH:mm") ?? "-")
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="11" class="adf-empty">
+                                    <i class="bi bi-credit-card-2-front"></i>
+                                    No payment records found for the selected filters.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div class="adf-table-footer">
+                <div class="adf-page-size">
+                    Show
+                    <select id="paymentPageSize"
+                            aria-label="Payment table page size">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    entries
+                    <span id="paymentTableInfo"></span>
+                </div>
+
+                <div class="adf-pagination"
+                     id="paymentPagination"></div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="adf-card">
+            <div class="adf-empty">
+                <i class="bi bi-search"></i>
+                <strong>Select a college and affiliation type.</strong>
+                <div class="mt-2">
+                    Click Search to view the dental fee and payment records.
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        function initializeTable(tableId, pageSizeId, infoId, paginationId) {
+            const table = document.getElementById(tableId);
+            const pageSizeSelect = document.getElementById(pageSizeId);
+            const infoElement = document.getElementById(infoId);
+            const paginationElement = document.getElementById(paginationId);
+
+            if (!table || !pageSizeSelect || !infoElement || !paginationElement) {
+                return;
+            }
+
+            const tbody = table.querySelector("tbody");
+            const headers = Array.from(table.querySelectorAll("thead th[data-sort]"));
+
+            const originalRows = Array.from(tbody.querySelectorAll("tr"))
+                .filter(row => !row.querySelector(".adf-empty"));
+
+            let rows = [...originalRows];
+            let currentPage = 1;
+            let pageSize = parseInt(pageSizeSelect.value, 10) || 10;
+            let sortColumn = -1;
+            let sortDirection = 1;
+
+            function getCellValue(row, index, type) {
+                const cell = row.cells[index];
+
+                if (!cell) return "";
+
+                const rawValue = cell.dataset.value ?? cell.textContent.trim();
+
+                if (type === "number") {
+                    const number = Number(rawValue);
+                    return Number.isFinite(number) ? number : 0;
+                }
+
+                if (type === "date") {
+                    const date = Date.parse(rawValue);
+                    return Number.isNaN(date) ? 0 : date;
+                }
+
+                return String(rawValue).toLocaleLowerCase();
+            }
+
+            function renderPagination(totalPages) {
+                paginationElement.replaceChildren();
+
+                function addButton(label, page, disabled, active) {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.textContent = label;
+                    button.disabled = disabled;
+
+                    if (active) {
+                        button.classList.add("active");
+                        button.setAttribute("aria-current", "page");
+                    }
+
+                    button.addEventListener("click", function () {
+                        currentPage = page;
+                        render();
+                    });
+
+                    paginationElement.appendChild(button);
+                }
+
+                addButton("‹", Math.max(1, currentPage - 1),
+                    currentPage === 1, false);
+
+                let start = Math.max(1, currentPage - 2);
+                let end = Math.min(totalPages, currentPage + 2);
+
+                if (end - start < 4) {
+                    start = Math.max(1, end - 4);
+                    end = Math.min(totalPages, start + 4);
+                }
+
+                for (let page = start; page <= end; page++) {
+                    addButton(String(page), page, false,
+                        page === currentPage);
+                }
+
+                addButton("›", Math.min(totalPages, currentPage + 1),
+                    currentPage === totalPages, false);
+            }
+
+            function render() {
+                pageSize = parseInt(pageSizeSelect.value, 10) || 10;
+
+                const total = rows.length;
+                const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+                currentPage = Math.min(currentPage, totalPages);
+
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = Math.min(startIndex + pageSize, total);
+
+                const fragment = document.createDocumentFragment();
+
+                rows.forEach(function (row, index) {
+                    row.style.display =
+                        index >= startIndex && index < endIndex ? "" : "none";
+
+                    fragment.appendChild(row);
+                });
+
+                // Keep the original empty-state row if there are no data rows.
+                const emptyRow = Array.from(tbody.querySelectorAll("tr"))
+                    .find(row => row.querySelector(".adf-empty"));
+
+                if (total === 0 && emptyRow) {
+                    emptyRow.style.display = "";
+                    fragment.appendChild(emptyRow);
+                }
+
+                tbody.appendChild(fragment);
+
+                infoElement.textContent = total === 0
+                    ? "(0 entries)"
+                    : `(${startIndex + 1}–${endIndex} of ${total})`;
+
+                renderPagination(totalPages);
+            }
+
+            headers.forEach(function (header, index) {
+                header.setAttribute("aria-sort", "none");
+                header.title = "Click to sort";
+
+                header.addEventListener("click", function () {
+                    if (sortColumn === index) {
+                        sortDirection *= -1;
+                    } else {
+                        sortColumn = index;
+                        sortDirection = 1;
+                    }
+
+                    const type = header.dataset.sort;
+
+                    rows.sort(function (a, b) {
+                        const first = getCellValue(a, index, type);
+                        const second = getCellValue(b, index, type);
+
+                        let result;
+
+                        if (typeof first === "number" &&
+                            typeof second === "number") {
+                            result = first - second;
+                        } else {
+                            result = String(first).localeCompare(
+                                String(second),
+                                undefined,
+                                { numeric: true, sensitivity: "base" }
+                            );
+                        }
+
+                        return result * sortDirection;
+                    });
+
+                    headers.forEach(function (item) {
+                        item.setAttribute("aria-sort", "none");
+
+                        const oldArrow = item.querySelector(".adf-sort-arrow");
+                        if (oldArrow) oldArrow.remove();
+                    });
+
+                    header.setAttribute(
+                        "aria-sort",
+                        sortDirection === 1 ? "ascending" : "descending"
+                    );
+
+                    const arrow = document.createElement("span");
+                    arrow.className = "adf-sort-arrow";
+                    arrow.textContent = sortDirection === 1 ? " ▲" : " ▼";
+                    header.appendChild(arrow);
+
+                    currentPage = 1;
+                    render();
+                });
+            });
+
+            pageSizeSelect.addEventListener("change", function () {
+                currentPage = 1;
+                render();
+            });
+
+            render();
+        }
+
+        initializeTable(
+            "feeTable",
+            "feePageSize",
+            "feeTableInfo",
+            "feePagination"
+        );
+
+        initializeTable(
+            "paymentTable",
+            "paymentPageSize",
+            "paymentTableInfo",
+            "paymentPagination"
+        );
+    });
+
+    document.querySelectorAll(".payment-amount-input").forEach(function (input) {
+        input.dataset.originalValue = input.value;
+
+        input.addEventListener("change", function () {
+            const newValue = Number(input.value);
+            const oldValue = Number(input.dataset.originalValue);
+
+            if (input.value.trim() === "" ||
+                !Number.isFinite(newValue) ||
+                newValue < 0 ||
+                newValue > 999999999999) {
+                alert("Please enter a valid payment amount.");
+                input.value = input.dataset.originalValue;
+                return;
+            }
+
+            if (newValue === oldValue) {
+                return;
+            }
+
+            if (confirm("Save the updated payment amount?")) {
+                input.form.requestSubmit();
+            } else {
+                input.value = input.dataset.originalValue;
+            }
+        });
+    });
+
+</script>

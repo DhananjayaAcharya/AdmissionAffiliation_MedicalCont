@@ -293,6 +293,170 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+        private async Task<List<(string Key, string Label)>> GetRequiredDentalSectionsAsync(  string collegeCode, string facultyCode,  string courseLevel,  string? typeOfAffiliation)
+        {
+            var sections = new List<(string Key, string Label)>
+            {
+                ("Institution", "Institution Details"),
+                ("IntakeDetails", "Course-wise Intake Details"),
+                ("DeanDetails", "Dean / Director Details"),
+                ("PrincipalDetails", "Principal Details"),
+
+                ("ClinicalFacilities", "Clinical Facilities"),
+                ("LandBuilding", "Land & Building"),
+                ("DentalSkillsLab", "Classroom & Laboratory"),
+                ("ChairDistribution", "Chair Distribution"),
+                ("BedDistribution", "Bed Distribution"),
+                ("Hostel", "Hostel Details"),
+                ("DepartmentUnits", "Department / Clinics / Labs"),
+                ("DentalEquipmentDetails", "Equipment List"),
+                ("Vehicle", "Vehicle Details"),
+                ("WorkshopDetails", "Workshop Details"),
+                ("AnimalHouseDetails", "Animal House Details"),
+                ("DentalFieldPracticeArea", "Field Practice Area"),
+
+                //("AcademicMatters", "UG Academic Performance"),
+                //("PGAcademicMatters", "PG Academic Performance"),
+                //("AdditionalInformationInAcademicActivities", "Additional Information"),
+                ("Finance", "Financial Details"),
+                ("StaffDetails", "Staff Particular Details"),
+
+                ("LibraryServices", "Library Services"),
+                ("Research", "Research & Publications"),
+                ("Library", "Library Details"),
+                ("DentalLibrary", "Library Expenditure & Services"),
+                ("DentalLibraryStaff", "Library Staff"),
+                ("DentalLibraryUser", "Library User Details"),
+
+                ("FacultyDetails", "Faculty Details"),
+                ("TeachingStaff", "Teaching Staff Dept Wise"),
+                ("NonTeachingStaff", "Non-Teaching Staff Dept Wise"),
+
+                ("PaymentDetails", "Payment Calculation"),
+                ("ActionTakenReport", "Action Taken Report")
+            };
+
+            // Determine whether Trust tabs appear in the sidebar.
+            var institution = await _context.AffInstitutionsDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel);
+
+            if (institution == null)
+            {
+                institution = await _context.AffInstitutionsDetails
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode);
+            }
+
+            if (institution != null &&
+                int.TryParse(institution.TypeOfInstitution, out int typeId))
+            {
+                var organizationCategory = await _context.MstInstitutionTypes
+                    .AsNoTracking()
+                    .Where(x => x.InstitutionTypeId == typeId)
+                    .Select(x => x.OrganizationCategory)
+                    .FirstOrDefaultAsync();
+
+                if (string.Equals(
+                    organizationCategory?.Trim(),
+                    "P",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    sections.Add(("TrustDetails", "Trust Details"));
+                    sections.Add(("TrustMemberDetails", "Trust Member Details"));
+                }
+            }
+
+            // Course-level-specific tabs.
+            // Course-level-specific tabs.
+            if (string.Equals(courseLevel, "UG", StringComparison.OrdinalIgnoreCase))
+            {
+                sections.Add(("AcademicMatters", "UG Academic Performance"));
+                sections.Add(("BDSDetails", "UG Course Details"));
+            }
+            else if (string.Equals(courseLevel, "PG", StringComparison.OrdinalIgnoreCase))
+            {
+                sections.Add(("PGAcademicMatters", "PG Academic Performance"));
+
+                // Additional Information is required only for PG.
+                sections.Add((
+                    "AdditionalInformationInAcademicActivities",
+                    "Additional Information"));
+
+                sections.Add(("PgCourses", "PG Course Details"));
+
+                var selectedCourseCode =
+                    HttpContext.Session.GetString("CourseCode");
+
+                if (!string.IsNullOrWhiteSpace(selectedCourseCode))
+                {
+                    sections.Add(("CourseGeneralDetails", "Course General Details"));
+                    sections.Add(("CourseInfrastructureDetails", "Infrastructure Details"));
+                    sections.Add(("CourseSummaryDetails", "Course Summary Details"));
+                    sections.Add(("CourseAcademicActivities", "Academic Activities"));
+                    sections.Add(("CourseServicesWorkload", "Services & Workload"));
+                    sections.Add(("CourseStaffDetails", "Staff Details"));
+                }
+            }
+            else if (string.Equals(courseLevel, "SS", StringComparison.OrdinalIgnoreCase))
+            {
+                sections.Add(("SsCoursesApplied", "SS Course Details"));
+            }
+
+            // Additional Courses tab appears only for the relevant affiliation type.
+            if (!string.IsNullOrWhiteSpace(typeOfAffiliation) &&
+                typeOfAffiliation.Contains(
+                    "Additional",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                sections.Add(("AdditionalCourses", "Additional Courses"));
+            }
+
+            // Return unique section keys.
+            return sections
+                .GroupBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(g => g.First())
+                .ToList();
+        }
+
+        private async Task<List<string>> ValidateRequiredSectionsAsync( string collegeCode, string courseLevel)
+        {
+
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            var typeOfAffiliation = HttpContext.Session.GetString("TypeOfAffiliation");
+            // Get only the sections required for the current application.
+
+            var requiredSections = await GetRequiredDentalSectionsAsync( collegeCode, courseLevel, facultyCode, typeOfAffiliation);
+
+            // Get completed sections for the current college and course level.
+            var completedSections = await _context.CaProgresses
+                .Where(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.CourseLevel == courseLevel &&
+                    x.IsCompleted == true)
+                .Select(x => x.StepKey)
+                .Where(x => x != null)
+                .ToListAsync();
+
+            // Identify required sections that are not completed.
+            var completedKeys = new HashSet<string>(
+                completedSections!,
+                StringComparer.OrdinalIgnoreCase);
+
+            var missingSections = requiredSections
+                .Where(section => !completedKeys.Contains(section.Key))
+                .Select(section => section.Label)
+                .ToList();
+
+            return missingSections;
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FinalSubmit( DentalFinalSubmissionViewModel model)
@@ -311,8 +475,33 @@ namespace Medical_Affiliation.Controllers
 
             try
             {
-                string applicationNumber =
-                    await _caDentalPreviewService.FinalSubmitAsync(model);
+
+                var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+                var courseLevel = HttpContext.Session.GetString("CourseLevel") ?? HttpContext.Session.GetString("SelectedCourseLevel");
+
+                var sessionCheckresult = await SessionOutAsync();
+
+                if (sessionCheckresult != null)
+                    return sessionCheckresult;
+
+
+                // Validate all required sidebar sections before submission.
+                var missingSections = await ValidateRequiredSectionsAsync(
+                    collegeCode,
+                    courseLevel);
+
+                if (missingSections.Any())
+                {
+                    TempData["IncompleteSections"] =
+                        System.Text.Json.JsonSerializer.Serialize(
+                            missingSections);
+
+                    return RedirectToAction( nameof(Preview), new { typeOfAffiliation });
+                }
+
+
+                string applicationNumber =   await _caDentalPreviewService.FinalSubmitAsync(model);
 
                 // This value is read by the partial after redirect.
                 TempData["SubmittedApplicationNumber"] = applicationNumber;
