@@ -3227,14 +3227,16 @@ public class PreviewReportDentalPdf : IDocument
                             staffDetails.ProvidentFundPdfName)
                             ? "Uploaded"
                             : "—");
-
-                    AddTextRow(
-                        table,
-                        "ESI",
-                        !string.IsNullOrWhiteSpace(
-                            staffDetails.ESIPdfName)
-                            ? "Uploaded"
-                            : "—");
+                    if (_courseLevel == "ug")
+                    {
+                        AddTextRow(
+                            table,
+                            "ESI",
+                            !string.IsNullOrWhiteSpace(
+                                staffDetails.ESIPdfName)
+                                ? "Uploaded"
+                                : "—");
+                    }
                 });
         }
     }

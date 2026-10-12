@@ -22,6 +22,11 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> Preview(string? typeOfAffiliation)
         {
 
+            var sessionCheckresult = await SessionOutAsync();
+
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
             var model = await _caDentalPreviewService.GetDentalPreviewAsync();
             return View(model);
         }
