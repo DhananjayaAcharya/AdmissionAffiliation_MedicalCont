@@ -158,13 +158,12 @@ namespace Medical_Affiliation.Controllers
             //    .OrderBy(e => e.DisplayOrder)
             //    .ToListAsync();
 
-
-            //========================================
-            // HARD CODED to OCT 13 2026 , 11:59:59 PM
-            //========================================
+            //=======================================================
+            // UPDATED HARD CODED to OCT 23 2026, 11:59:59 PM IST
+            //=======================================================
 
             var feeActivationDate = new DateTime(
-                2026, 10, 13, 18, 29, 59,
+                2026, 10, 23, 18, 29, 59,
                 DateTimeKind.Utc
             );
 
