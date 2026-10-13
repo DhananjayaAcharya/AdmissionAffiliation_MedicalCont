@@ -33,6 +33,8 @@ public partial class FinalDentalSubmission
 
     public string? ModifiedBy { get; set; }
 
+    public bool IsLocked { get; set; }
+
     public virtual TypeOfAffiliation AffiliationType { get; set; } = null!;
 
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;

@@ -63,51 +63,13 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
         //        .Distinct()
         //        .ToList();
 
-        var rawLevels = http.Session.GetString("ExistingCourseLevels");
+
         List<string> levels = new List<string>();
 
-        if (!string.IsNullOrEmpty(rawLevels))
+        if (!string.IsNullOrWhiteSpace(courseLevel))
         {
-            try
-            {
-                // Attempt to deserialize as JSON
-                if (rawLevels.Trim().StartsWith("["))
-                {
-                    levels = JsonSerializer.Deserialize<List<string>>(rawLevels) ?? new List<string>();
-                }
-                else
-                {
-                    // Fallback: If it's just a comma-separated string, split it manually
-                    levels = rawLevels.Split(',').ToList();
-                }
-            }
-            catch
-            {
-                // If both fail, just leave as empty list so the page doesn't crash
-                levels = new List<string>();
-            }
+            levels.Add(courseLevel.Trim().ToUpperInvariant());
         }
-
-        // Fallback → get from AcademicIntake + MstCourses
-        if (!levels.Any())
-        {
-            levels = await (
-                from ai in _db.AcademicIntakes
-                join cm in _db.MstCourses
-                    on ai.Courses equals cm.CourseCode.ToString()
-                where ai.CollegeCode == collegeCode
-                      && !string.IsNullOrEmpty(ai.Courses)
-                select cm.CourseLevel
-            )
-            .Distinct()
-            .ToListAsync();
-        }
-
-        // Final cleanup
-        levels = levels
-            .Select(l => l.Trim().ToUpper())
-            .Distinct()
-            .ToList();
 
 
         if (string.IsNullOrEmpty(collegeCode) || levels.Count == 0)

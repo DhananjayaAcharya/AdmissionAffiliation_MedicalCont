@@ -2,6 +2,8 @@
 
 @{
     var isSubmitted = Model.IsSubmitted && Model.IsActive;
+    var isLocked = Model.IsActive && Model.IsLocked;
+    var canSubmit = Model.IsActive && !Model.IsLocked;
 }
 
 <style>
@@ -276,6 +278,7 @@
     }
 </style>
 
+```razor
 <div class="final-submission-card my-4">
 
     <!-- Header -->
@@ -287,9 +290,13 @@
         <div>
             <h4>Final Application Submission</h4>
             <p>
-                @(isSubmitted
-                    ? "Your application submission status."
-                    : "Review the declaration carefully before proceeding.")
+                @(isSubmitted && isLocked
+                    ? "Your application has been submitted and is locked."
+                    : isSubmitted && canSubmit
+                        ? "Your application has been reopened for resubmission."
+                        : isLocked
+                            ? "Your application is currently locked."
+                            : "Review the declaration carefully before proceeding.")
             </p>
         </div>
     </div>
@@ -312,24 +319,28 @@
             </div>
         </div>
 
-        @if (isSubmitted)
+        @if (!Model.IsActive)
         {
-            <!-- SUCCESS STATE -->
+            <div class="alert alert-secondary mt-4">
+                <i class="bi bi-exclamation-circle me-2"></i>
+                This application is inactive. Please contact the administrator.
+            </div>
+        }
+        else if (isLocked && isSubmitted)
+        {
+            <!-- Previously Submitted and Currently Locked -->
             <div class="submission-completed mt-4" role="status">
                 <div class="submission-success-icon">
                     <i class="bi bi-check-lg"></i>
                 </div>
 
                 <div class="submission-completed-content">
-                    <strong>
-                        Final Submission Completed Successfully!
-                    </strong>
+                    <strong>Final Submission Completed Successfully!</strong>
 
                     <p>
                         Your application has been submitted successfully.
-                        All application details are now locked. You cannot
-                        edit or submit this application again unless it is
-                        reopened by an authorized administrator.
+                        It is currently locked. You can edit or resubmit
+                        it only after an authorized administrator unlocks it.
                     </p>
 
                     <div class="submission-meta">
@@ -337,9 +348,7 @@
                             <i class="bi bi-file-earmark-text"></i>
                             <div>
                                 <span>Application Number</span>
-                                <strong>
-                                    @Model.ApplicationNumber
-                                </strong>
+                                <strong>@Model.ApplicationNumber</strong>
                             </div>
                         </div>
 
@@ -358,6 +367,18 @@
                 </div>
             </div>
         }
+        else if (isLocked)
+        {
+            <!-- Not Yet Submitted and Locked -->
+            <div class="alert alert-warning mt-4" role="alert">
+                <i class="bi bi-lock-fill me-2"></i>
+                <strong>Application Locked</strong>
+                <p class="mb-0 mt-2">
+                    Your application is locked by the administrator.
+                    You cannot submit it until the administrator unlocks it.
+                </p>
+            </div>
+        }
         else if (string.IsNullOrWhiteSpace(Model.PrincipalName))
         {
             <div class="submission-error mt-3">
@@ -368,7 +389,7 @@
         }
         else
         {
-            <!-- SUBMISSION FORM -->
+            <!-- Initial Submission or Admin-Authorized Resubmission -->
             <form asp-controller="CADentalPreview"
                   asp-action="FinalSubmit"
                   method="post"
@@ -381,25 +402,30 @@
                 <input type="hidden" asp-for="AffiliationTypeId" />
                 <input type="hidden" asp-for="CourseLevel" />
                 <input type="hidden" asp-for="AcademicYear" />
-                <input type="hidden"
-                       asp-for="AffiliationTypeDescription" />
+                <input type="hidden" asp-for="AffiliationTypeDescription" />
+
+                @if (isSubmitted)
+                {
+                    <div class="alert alert-info mt-4">
+                        <i class="bi bi-arrow-repeat me-2"></i>
+                        <strong>Resubmission Allowed</strong>
+                        <p class="mb-0 mt-2">
+                            The administrator has reopened this application.
+                            Review your details and documents before resubmitting.
+                        </p>
+                    </div>
+                }
 
                 <div class="submission-warning mt-4">
                     <div class="warning-heading">
                         <i class="bi bi-exclamation-triangle-fill"></i>
-                        Important: Irreversible Submission
+                        Important: Final Submission
                     </div>
 
                     <p>
-                        Once you submit this application, it will be
-                        completely frozen for the college. You will no
-                        longer be able to add, edit, or delete application
-                        details or documents through the college portal.
-                    </p>
-
-                    <p class="mb-0">
-                        Please verify all details and uploaded documents
-                        before proceeding.
+                        Please verify all application details and uploaded
+                        documents before proceeding. After successful
+                        submission, the application will be locked again.
                     </p>
                 </div>
 
@@ -408,21 +434,21 @@
                            asp-for="PrincipalConsent"
                            id="PrincipalConsent" />
 
-                    <label class="form-check-label"
-                           for="PrincipalConsent">
+                    <label class="form-check-label" for="PrincipalConsent">
                         I, <strong>@Model.PrincipalName</strong>, as the
                         Principal of this institution, confirm that all
                         information and documents submitted are correct
                         and complete. I consent to final submission and
-                        understand that the application will be frozen.
+                        understand that the application will be locked
+                        after submission.
                     </label>
                 </div>
 
                 <button type="button"
                         id="finalSubmitButton"
                         class="btn btn-danger final-submit-btn mt-4">
-                    <i class="bi bi-lock-fill"></i>
-                    Final Submit
+                    <i class="bi bi-lock-fill me-1"></i>
+                    @(isSubmitted ? "Resubmit Application" : "Final Submit")
                 </button>
 
                 <p class="submission-footer-note mt-3">
@@ -434,7 +460,7 @@
     </div>
 </div>
 
-@if (!isSubmitted && !string.IsNullOrWhiteSpace(Model.PrincipalName))
+@if (canSubmit && !string.IsNullOrWhiteSpace(Model.PrincipalName))
 {
     <div class="modal fade"
          id="finalSubmitConfirmModal"
@@ -447,7 +473,9 @@
 
                 <div class="modal-header">
                     <h5 class="modal-title" id="finalSubmitConfirmTitle">
-                        Confirm Final Submission
+                        @(isSubmitted
+                            ? "Confirm Application Resubmission"
+                            : "Confirm Final Submission")
                     </h5>
 
                     <button type="button"
@@ -458,15 +486,17 @@
 
                 <div class="modal-body">
                     <p>
-                        Are you sure you want to submit this application
-                        on behalf of <strong>@Model.CollegeName</strong>?
+                        Are you sure you want to
+                        @(isSubmitted ? "resubmit" : "submit")
+                        this application on behalf of
+                        <strong>@Model.CollegeName</strong>?
                     </p>
 
                     <div class="confirm-warning">
                         <i class="bi bi-lock-fill"></i>
                         <span>
-                            This action is irreversible. The application
-                            will be locked after successful submission.
+                            After successful submission, the application
+                            will be locked again.
                         </span>
                     </div>
                 </div>
@@ -481,8 +511,8 @@
                     <button type="button"
                             class="btn btn-danger"
                             id="confirmFinalSubmitButton">
-                        <i class="bi bi-check-circle"></i>
-                        Yes, Submit Application
+                        <i class="bi bi-check-circle me-1"></i>
+                        @(isSubmitted ? "Yes, Resubmit" : "Yes, Submit Application")
                     </button>
                 </div>
 

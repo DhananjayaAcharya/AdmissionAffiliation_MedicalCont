@@ -466,12 +466,26 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FinalSubmit( DentalFinalSubmissionViewModel model)
         {
-            var typeOfAffiliation = HttpContext.Session.GetString("TypeOfAffiliation");
+            var sessionCheckresult = await SessionOutAsync();
 
-            if (!model.PrincipalConsent)
+            if (sessionCheckresult != null)
+                return sessionCheckresult;
+
+            var typeOfAffiliation =
+                HttpContext.Session.GetString("TypeOfAffiliation");
+
+            var collegeCode =
+                HttpContext.Session.GetString("CollegeCode");
+
+            var courseLevel =
+                HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel");
+
+            if (string.IsNullOrWhiteSpace(collegeCode) ||
+                string.IsNullOrWhiteSpace(courseLevel))
             {
                 TempData["Error"] =
-                    "Please provide principal consent before submitting.";
+                    "Your session has expired or the application details are missing.";
 
                 return RedirectToAction(
                     nameof(Preview),
@@ -480,18 +494,78 @@ namespace Medical_Affiliation.Controllers
 
             try
             {
+                if (!model.PrincipalConsent)
+                {
+                    TempData["Error"] =
+                        "Please provide principal consent before submitting.";
 
-                var collegeCode = HttpContext.Session.GetString("CollegeCode");
+                    return RedirectToAction(
+                        nameof(Preview),
+                        new { typeOfAffiliation });
+                }
 
-                var courseLevel = HttpContext.Session.GetString("CourseLevel") ?? HttpContext.Session.GetString("SelectedCourseLevel");
+                // Get the affiliation type from the server-side session.
+                var affiliationTypeId =
+                    HttpContext.Session.GetInt32("AffiliationType");
 
-                var sessionCheckresult = await SessionOutAsync();
+                if (!affiliationTypeId.HasValue)
+                {
+                    TempData["Error"] =
+                        "Affiliation type is missing. Please reload the application.";
 
-                if (sessionCheckresult != null)
-                    return sessionCheckresult;
+                    return RedirectToAction(
+                        nameof(Preview),
+                        new { typeOfAffiliation });
+                }
 
+                // Use server-side values rather than trusting hidden form fields.
+                model.CollegeCode = collegeCode;
+                model.FacultyCode = 2;
+                model.CourseLevel = courseLevel;
+                model.AffiliationTypeId = affiliationTypeId.Value;
 
-                // Validate all required sidebar sections before submission.
+                // Keep this consistent with the academic year used by your
+                // preview and existing submission service.
+                const string academicYear = "2026-27";
+                model.AcademicYear = academicYear;
+
+                // Check the existing submission before allowing submission
+                // or resubmission.
+                var existingSubmission =
+                    await _context.FinalDentalSubmissions
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == 2 &&
+                            x.AffiliationTypeId == affiliationTypeId.Value &&
+                            x.CourseLevel == courseLevel &&
+                            x.AcademicYear == academicYear);
+
+                if (existingSubmission != null)
+                {
+                    if (!existingSubmission.IsActive)
+                    {
+                        TempData["Error"] =
+                            "This application is inactive. Please contact the administrator.";
+
+                        return RedirectToAction(
+                            nameof(Preview),
+                            new { typeOfAffiliation });
+                    }
+
+                    if (existingSubmission.IsLocked)
+                    {
+                        TempData["Error"] =
+                            "This application is locked. Please contact the administrator " +
+                            "to unlock it before submitting or resubmitting.";
+
+                        return RedirectToAction(
+                            nameof(Preview),
+                            new { typeOfAffiliation });
+                    }
+                }
+
+                // Validate all required sidebar sections.
                 var missingSections = await ValidateRequiredSectionsAsync(
                     collegeCode,
                     courseLevel);
@@ -502,14 +576,19 @@ namespace Medical_Affiliation.Controllers
                         System.Text.Json.JsonSerializer.Serialize(
                             missingSections);
 
-                    return RedirectToAction( nameof(Preview), new { typeOfAffiliation });
+                    return RedirectToAction(
+                        nameof(Preview),
+                        new { typeOfAffiliation });
                 }
 
+                // The service must update the existing record when resubmitting
+                // and insert only when no matching record exists.
+                string applicationNumber =
+                    await _caDentalPreviewService.FinalSubmitAsync(model);
 
-                string applicationNumber =   await _caDentalPreviewService.FinalSubmitAsync(model);
-
-                // This value is read by the partial after redirect.
                 TempData["SubmittedApplicationNumber"] = applicationNumber;
+                TempData["Success"] =
+                    "Dental application submitted successfully.";
 
                 return RedirectToAction(
                     nameof(Preview),
@@ -534,6 +613,5 @@ namespace Medical_Affiliation.Controllers
                     new { typeOfAffiliation });
             }
         }
-
     }
 }

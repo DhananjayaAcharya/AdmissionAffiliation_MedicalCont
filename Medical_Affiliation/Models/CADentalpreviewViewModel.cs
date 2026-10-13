@@ -2112,6 +2112,7 @@ namespace Medical_Affiliation.Models
         public string? CreatedBy { get; set; }
 
         public string? ModifiedBy { get; set; }
+        public bool IsLocked { get; set; }
     }
 
 

@@ -1,0 +1,625 @@
+﻿
+@model Medical_Affiliation.Models.DentalSubmissionStatusAdminViewModel
+
+@{
+    ViewData["Title"] = "Dental Submission Status Admin";
+}
+
+<style>
+
+    .page-wrapper {
+        padding-top: 0;
+    }
+
+    .page-wrapper:has(.dental-admin-page) .page-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0 1.25rem 2rem;
+    }
+
+    .page-wrapper:has(.dental-admin-page) .portal-sidebar-shell {
+        display: none;
+    }
+
+    .page-wrapper:has(.dental-admin-page) .page-content,
+    .page-wrapper:has(.dental-admin-page) .portal-main-card {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin-left: 0;
+    }
+    .dental-admin-page {
+        padding: 24px 0;
+        color: #212529;
+    }
+
+    .dental-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .dental-page-title {
+        font-size: 25px;
+        font-weight: 700;
+        margin: 0 0 6px;
+        color: #212529;
+    }
+
+    .dental-page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .dental-admin-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .dental-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #dee2e6;
+        background: #f8f9fa;
+    }
+
+    .dental-card-header h5 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .dental-card-body {
+        padding: 20px;
+    }
+
+    .dental-admin-page .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .dental-admin-page .form-select {
+        min-height: 43px;
+        border-color: #ced4da;
+        border-radius: 7px;
+        font-size: 14px;
+    }
+
+    .dental-admin-page .form-select:focus {
+        border-color: #6c757d;
+        box-shadow: 0 0 0 0.15rem rgba(33, 37, 41, .12);
+    }
+
+    .dental-summary-card {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 18px;
+        height: 100%;
+        background: #fff;
+    }
+
+    .dental-summary-label {
+        font-size: 12px;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+    .dental-summary-value {
+        font-size: 27px;
+        font-weight: 700;
+        margin-top: 8px;
+        color: #212529;
+    }
+
+    .dental-table {
+        margin-bottom: 0;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .dental-table thead th {
+        background: #f1f3f5;
+        color: #343a40;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 14px 12px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .dental-table tbody td {
+        padding: 13px 12px;
+        vertical-align: middle;
+    }
+
+    .dental-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .dental-college-name {
+        font-weight: 600;
+        color: #212529;
+        white-space: normal;
+        min-width: 180px;
+    }
+
+    .dental-college-code {
+        display: block;
+        color: #6c757d;
+        font-size: 11px;
+        margin-top: 4px;
+    }
+
+    .dental-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .dental-status-locked {
+        background: #f8f9fa;
+        color: #212529;
+        border-color: #adb5bd;
+    }
+
+    .dental-status-unlocked {
+        background: #fff;
+        color: #495057;
+        border-color: #ced4da;
+    }
+
+    .dental-btn {
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 7px 12px;
+    }
+
+    .dental-table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 14px 20px;
+        border-top: 1px solid #dee2e6;
+        background: #fff;
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .dental-empty-state {
+        text-align: center;
+        padding: 48px 16px !important;
+        color: #6c757d;
+        white-space: normal;
+    }
+
+    .dental-empty-state .empty-title {
+        font-size: 15px;
+        color: #343a40;
+        font-weight: 700;
+        margin: 12px 0 5px;
+    }
+
+    .dental-filter-actions {
+        display: flex;
+        align-items: end;
+        gap: 8px;
+    }
+
+    .unlock-datetime {
+        min-width: 190px;
+    }
+
+    .calendar-picker-btn {
+        min-width: 42px;
+    }
+
+    .calendar-picker-btn:hover {
+        background-color: #212529;
+        color: #fff;
+    }
+
+    .dental-lock-form {
+        min-width: 210px;
+    }
+
+    @@media (max-width: 767px) {
+        .dental-admin-page {
+            padding: 16px 0;
+        }
+
+        .dental-page-title {
+            font-size: 21px;
+        }
+
+        .dental-card-body {
+            padding: 15px;
+        }
+
+        .dental-summary-value {
+            font-size: 23px;
+        }
+    }
+</style>
+
+<div class="container-fluid dental-admin-page">
+
+    <!-- Page Header -->
+    <div class="dental-page-header">
+        <div>
+            <h2 class="dental-page-title">
+                Dental Submission Status
+            </h2>
+            <p class="dental-page-subtitle">
+                Admin panel for managing Dental final submissions and lock status.
+            </p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a asp-controller="Admin"
+               asp-action="AdminDashboard"
+               class="btn btn-outline-secondary dental-back-btn">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Dashboard
+            </a>
+
+            <span class="badge text-bg-dark px-3 py-2">
+                Faculty Code: 2
+            </span>
+        </div>
+    </div>
+
+    <!-- Success / Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dental-summary-card">
+                <div class="dental-summary-label">Total Submissions</div>
+                <div class="dental-summary-value">
+                    @Model.Submissions.Count
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dental-summary-card">
+                <div class="dental-summary-label">Locked Submissions</div>
+                <div class="dental-summary-value">
+                    @Model.Submissions.Count(x => x.IsLocked)
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dental-summary-card">
+                <div class="dental-summary-label">Unlocked Submissions</div>
+                <div class="dental-summary-value">
+                    @Model.Submissions.Count(x => !x.IsLocked)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="dental-admin-card">
+        <div class="dental-card-header">
+            <h5>Filter Submissions</h5>
+        </div>
+
+        <div class="dental-card-body">
+            <form asp-controller="DentalSubmissionStatusAdmin"
+                  asp-action="Index"
+                  method="get"
+                  id="dentalFilterForm">
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="courseLevel" class="form-label">
+                            Course Level
+                        </label>
+                        <select id="courseLevel"
+                                name="courseLevel"
+                                class="form-select">
+                            <option value="">All Course Levels</option>
+                            @foreach (var level in Model.CourseLevels)
+                            {
+                                <option value="@level.Value"
+                                        selected="@(Model.SelectedCourseLevel == level.Value)">
+                                    @level.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-5">
+                        <label for="collegeCode" class="form-label">
+                            Dental College
+                        </label>
+                        <select id="collegeCode"
+                                name="collegeCode"
+                                class="form-select">
+                            <option value="">All Dental Colleges</option>
+                            @foreach (var college in Model.Colleges)
+                            {
+                                <option value="@college.Value"
+                                        selected="@(Model.SelectedCollegeCode == college.Value)">
+                                    @college.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit"
+                                class="btn btn-dark dental-btn">
+                            Apply Filters
+                        </button>
+
+                        <a asp-controller="DentalSubmissionStatusAdmin"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary dental-btn">
+                            Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Submission Table -->
+    <div class="dental-admin-card">
+
+        <div class="dental-card-header d-flex justify-content-between
+                    align-items-center flex-wrap gap-2">
+            <h5>Final Submission Records</h5>
+
+            <span class="text-secondary small">
+                Showing @Model.Submissions.Count record(s)
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover dental-table"
+                   id="dentalSubmissionTable">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>College Details</th>
+                        <th>Course Level</th>
+                        <th>Academic Year</th>
+                        <th>Affiliation Type</th>
+                        <th>Application Number</th>
+                        <th>Submitted Date</th>
+                        <th>Lock Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.Submissions.Any())
+                    {
+                        var serialNumber = 0;
+
+                        @foreach (var item in Model.Submissions)
+                        {
+                            serialNumber++;
+
+                            <tr>
+                                <td>@serialNumber</td>
+
+                                <td>
+                                    <div class="dental-college-name">
+                                        @(item.CollegeName ?? "College name unavailable")
+                                    </div>
+                                    <span class="dental-college-code">
+                                        Code: @item.CollegeCode
+                                    </span>
+                                </td>
+
+                                <td>@item.CourseLevel</td>
+
+                                <td>@item.AcademicYear</td>
+
+                                <td>@item.AffiliationTypeId</td>
+
+                                <td>@item.ApplicationNumber</td>
+
+                                <td>
+                                    @if (item.SubmittedDate.HasValue)
+                                    {
+                                        @item.SubmittedDate.Value.ToString("dd-MM-yyyy hh:mm tt")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-secondary">
+                                            Not submitted
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (item.IsLocked)
+                                    {
+                                        <span class="dental-status-badge dental-status-locked">
+                                            Locked
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="dental-status-badge dental-status-unlocked">
+                                            Unlocked
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <form asp-controller="DentalSubmissionStatusAdmin"
+                                          asp-action="ToggleLock"
+                                          method="post">
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="courseLevel"
+                                               value="@Model.SelectedCourseLevel" />
+                                        <input type="hidden" name="collegeCode"
+                                               value="@Model.SelectedCollegeCode" />
+
+                                        @if (!item.IsActive)
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                        else if (item.IsLocked)
+                                        {
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-success"
+                                                    onclick="return confirm('Unlock this Dental submission?');">
+                                                <i class="bi bi-unlock-fill me-1"></i>
+                                                Unlock
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Lock this Dental submission?');">
+                                                <i class="bi bi-lock-fill me-1"></i>
+                                                Lock
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="dental-empty-state">
+                                <div>
+                                    <div class="empty-title">
+                                        No submissions found
+                                    </div>
+                                    <div>
+                                        Try changing the course level or college filter.
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="dental-table-footer">
+            <span>
+                Faculty: Dental (2)
+            </span>
+            <span>
+                Total records: @Model.Submissions.Count
+            </span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Clear college selection when course level changes.
+            const courseLevel = document.getElementById("courseLevel");
+            const collegeCode = document.getElementById("collegeCode");
+            const filterForm = document.getElementById("dentalFilterForm");
+
+            if (courseLevel && collegeCode && filterForm) {
+                courseLevel.addEventListener("change", function () {
+                    collegeCode.value = "";
+                    filterForm.submit();
+                });
+            }
+
+            // Confirm before locking or unlocking a submission.
+            document.querySelectorAll(".dental-lock-form")
+                .forEach(function (form) {
+                    form.addEventListener("submit", function (event) {
+                        const button = form.querySelector(
+                            'button[type="submit"]'
+                        );
+
+                        const action = button &&
+                            button.textContent.trim().toLowerCase() === "unlock"
+                            ? "unlock"
+                            : "lock";
+
+                        const confirmed = window.confirm(
+                            "Are you sure you want to " + action +
+                            " this Dental submission?"
+                        );
+
+                        if (!confirmed) {
+                            event.preventDefault();
+                        }
+                    });
+                });
+
+            document.querySelectorAll(".calendar-picker-btn").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const input = document.getElementById(button.dataset.target);
+
+                    if (!input) return;
+
+                    if (typeof input.showPicker === "function") {
+                        input.showPicker();
+                    } else {
+                        input.focus();
+                        input.click();
+                    }
+                });
+            });
+        });
+    </script>
+}

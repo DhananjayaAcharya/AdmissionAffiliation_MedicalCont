@@ -194,6 +194,7 @@ namespace Medical_Affiliation.Services.Faculty
                 IsActive = finalSubmissionStatus?.IsActive ?? true,
                 CreatedDate = finalSubmissionStatus?.CreatedDate ?? DateTime.MinValue,
                 ModifiedDate = finalSubmissionStatus?.ModifiedDate,
+                IsLocked = finalSubmissionStatus?.IsLocked ?? true,
             };
 
             return vm;
@@ -204,13 +205,16 @@ namespace Medical_Affiliation.Services.Faculty
         public async Task<string> FinalSubmitAsync(DentalFinalSubmissionViewModel model)
         {
             // 1. Get authenticated college and faculty from session.
-
             var httpContext = _httpContextAccessor.HttpContext;
-            string? collegeCode = httpContext?.Session.GetString("CollegeCode");
 
-            string? facultyCode =  httpContext?.Session.GetString("FacultyCode");
+            string? collegeCode =
+                httpContext?.Session.GetString("CollegeCode");
 
-            if (string.IsNullOrWhiteSpace(collegeCode) || facultyCode != "2")
+            string? facultyCode =
+                httpContext?.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrWhiteSpace(collegeCode) ||
+                facultyCode != "2")
             {
                 throw new InvalidOperationException(
                     "Invalid college session. Please log in again.");
@@ -219,35 +223,40 @@ namespace Medical_Affiliation.Services.Faculty
             // 2. Validate principal consent.
             if (!model.PrincipalConsent)
             {
-                throw new InvalidOperationException( "Principal consent is required.");
+                throw new InvalidOperationException(
+                    "Principal consent is required.");
             }
 
-            // 3. Validate the application context.
-            // These values must be checked against your server-side
-            // affiliation/application context before accepting submission.
+            // 3. Validate application context.
             int affiliationTypeId = model.AffiliationTypeId;
             string courseLevel = model.CourseLevel?.Trim() ?? "";
             string academicYear = model.AcademicYear?.Trim() ?? "";
 
-            if (affiliationTypeId <= 0 || string.IsNullOrWhiteSpace(courseLevel) || string.IsNullOrWhiteSpace(academicYear))
+            if (affiliationTypeId <= 0 ||
+                string.IsNullOrWhiteSpace(courseLevel) ||
+                string.IsNullOrWhiteSpace(academicYear))
             {
-                throw new InvalidOperationException("Invalid affiliation application details.");
+                throw new InvalidOperationException(
+                    "Invalid affiliation application details.");
             }
 
-            if (string.IsNullOrWhiteSpace(academicYear) || !System.Text.RegularExpressions.Regex.IsMatch(academicYear, @"^\d{4}-\d{2}$"))
+            if (!System.Text.RegularExpressions.Regex.IsMatch(
+                    academicYear, @"^\d{4}-\d{2}$"))
             {
-                throw new InvalidOperationException("Invalid academic year.");
+                throw new InvalidOperationException(
+                    "Invalid academic year.");
             }
-
 
             DateTime currentDate = DateTime.Now;
 
-            // 4. Start a serializable transaction to protect serial generation.
-            await using var transaction = await _context.Database.BeginTransactionAsync( IsolationLevel.Serializable);
+            // 4. Begin a serializable transaction.
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable);
 
             try
             {
-                // 5. Verify the institution and principal details.
+                // 5. Verify institution and principal details.
                 var institution = await _context.AffInstitutionsDetails
                     .FirstOrDefaultAsync(x =>
                         x.CollegeCode == collegeCode &&
@@ -261,28 +270,50 @@ namespace Medical_Affiliation.Services.Faculty
                         "Please update institution details before submission.");
                 }
 
+                // 6. Find the existing submission.
                 var submission = await _context.FinalDentalSubmissions
-                   .FirstOrDefaultAsync(x =>
-                       x.CollegeCode == collegeCode &&
-                       x.FacultyCode == 2 &&
-                       x.AffiliationTypeId == affiliationTypeId &&
-                       x.CourseLevel == courseLevel &&
-                       x.AcademicYear == academicYear);
-
-                if (submission != null && submission.IsActive)
-                {
-                    throw new InvalidOperationException(
-                        $"Final submission has already been completed. " +
-                        $"Application Number: {submission.ApplicationNumber}. " +
-                        "The application is locked. Please contact the authorized " +
-                        "administrator if further changes are required.");
-                }
+                    .FirstOrDefaultAsync(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == 2 &&
+                        x.AffiliationTypeId == affiliationTypeId &&
+                        x.CourseLevel == courseLevel &&
+                        x.AcademicYear == academicYear);
 
                 bool isNewSubmission = submission == null;
 
-                if (isNewSubmission)
+                if (submission != null)
                 {
-                    // 7. Generate an application number only for new records.
+                    // Inactive submissions cannot be submitted or resubmitted.
+                    if (!submission.IsActive)
+                    {
+                        throw new InvalidOperationException(
+                            "This application is inactive. " +
+                            "Please contact the administrator.");
+                    }
+
+                    // An active submission can be resubmitted only after
+                    // the administrator explicitly unlocks it.
+                    if (submission.IsLocked)
+                    {
+                        throw new InvalidOperationException(
+                            $"Application {submission.ApplicationNumber} is locked. " +
+                            "Please contact the administrator to unlock it " +
+                            "before resubmitting.");
+                    }
+
+                    // 7. Update the existing submission.
+                    // Preserve Id, ApplicationNumber, CreatedDate and CreatedBy.
+                    submission.PrincipalConsent = true;
+                    submission.SubmittedDate = currentDate;
+                    submission.ModifiedDate = currentDate;
+                    submission.ModifiedBy = institution.PrincipalName;
+
+                    // Lock again after successful resubmission.
+                    submission.IsLocked = true;
+                }
+                else
+                {
+                    // 8. Create a new submission only if no matching record exists.
                     string applicationNumber =
                         await GenerateDentalApplicationNumberAsync(
                             2,
@@ -302,36 +333,22 @@ namespace Medical_Affiliation.Services.Faculty
                         PrincipalConsent = true,
                         IsActive = true,
 
+                        // Lock after initial successful submission.
+                        IsLocked = true,
+
                         CreatedDate = currentDate,
                         CreatedBy = institution.PrincipalName,
-
                         SubmittedDate = currentDate
                     };
 
                     _context.FinalDentalSubmissions.Add(submission);
                 }
-                else
-                {
-                    // 8. Update the existing submission.
-                    // Preserve its ID, application number and creation audit fields.
 
-                    submission!.PrincipalConsent = true;
-                    submission.IsActive = true;
-
-                    submission.ModifiedDate = currentDate;
-                    submission.ModifiedBy = institution.PrincipalName;
-
-                    // Refresh the submission timestamp on successful resubmission.
-                    //submission.SubmittedDate = currentDate;
-                }
-
-                // 9. Save all changes.
+                // 9. Save and commit.
                 await _context.SaveChangesAsync();
-
-                // 9. Commit only after the record is saved successfully.
                 await transaction.CommitAsync();
 
-                return submission!.ApplicationNumber;
+                return submission.ApplicationNumber;
             }
             catch
             {
@@ -339,7 +356,6 @@ namespace Medical_Affiliation.Services.Faculty
                 throw;
             }
         }
-
 
         private async Task<string> GenerateDentalApplicationNumberAsync(
             int facultyCode,

@@ -140,6 +140,43 @@
     bool hasSelectedCourse =
         !string.IsNullOrWhiteSpace(selectedCourseCode);
 
+
+    // ============================================================
+    // DENTAL FINAL SUBMISSION LOCK STATUS
+    // ============================================================
+
+    bool isSidebarLocked = false;
+
+    if (isDental && !string.IsNullOrWhiteSpace(collegeCode))
+    {
+        int? affiliationTypeId =
+            Context.Session.GetInt32("AffiliationType");
+
+        if (!affiliationTypeId.HasValue)
+        {
+            var typeIdString =
+                Context.Session.GetString("TypeOfAffiliationId")
+                ?? Context.Request.Cookies["AffiliationTypeId"];
+
+            if (int.TryParse(typeIdString, out var parsedTypeId))
+                affiliationTypeId = parsedTypeId;
+        }
+
+        if (affiliationTypeId.HasValue &&
+            !string.IsNullOrWhiteSpace(activeLevel))
+        {
+            isSidebarLocked = await _context.FinalDentalSubmissions
+                .AsNoTracking()
+                .AnyAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == 2 &&
+                    x.CourseLevel == activeLevel &&
+                    x.AffiliationTypeId == affiliationTypeId.Value &&
+                    x.IsActive &&
+                    x.IsLocked);
+        }
+    }
+
     // ============================================================
     // TRUST / ORGANIZATION TYPE
     // ============================================================
@@ -1726,6 +1763,53 @@
             outline-offset: 2px;
         }
 
+        /* Locked sidebar items */
+        .ca-sb-link.is-locked {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            margin: 3px 0;
+            color: #64748b;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: not-allowed;
+            opacity: 0.85;
+            text-decoration: none;
+            pointer-events: none;
+            transition: background 0.2s ease;
+        }
+
+        /* Keep the label readable */
+        .ca-sb-link.is-locked .ca-sb-label {
+            flex: 1;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Lock icon */
+        .ca-sb-link.is-locked .bi-lock-fill {
+            color: #dc2626;
+            font-size: 13px;
+            background: #fee2e2;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        /* Locked status dot */
+        .ca-sb-link.is-locked .ca-dot {
+            opacity: 0.5;
+        }
+
+        /* Disabled accordion headers */
+        .accordion-header:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            background: #f1f5f9;
+        }
+
+
     @@media (max-width: 991px) {
         .ca-sb {
             width: 100%;
@@ -1794,14 +1878,17 @@
 
             <div class="accordion-item">
                 <button type="button"
-                        class="accordion-header tab-header"
+                        class="accordion-header tab-header @(isSidebarLocked && group.Key == "Final Preview" ? "active-tab" : "")"
                         id="header-@groupId"
                         data-tab="@groupId"
-                        aria-expanded="false"
+                        aria-expanded="@(isSidebarLocked && group.Key == "Final Preview" ? "true" : "false")"
                         aria-controls="content-@groupId"
+                        disabled="@(isSidebarLocked && group.Key != "Final Preview")"
                         onclick="toggleAccordion('@groupId')">
+
                     <span>@group.Key</span>
                     <span class="accordion-group-badge">@groupDone/@groupTotal</span>
+
                     <i class="bi bi-chevron-down toggle-icon" aria-hidden="true"></i>
                 </button>
 
@@ -1809,7 +1896,11 @@
                      id="content-@groupId"
                      role="region"
                      aria-labelledby="header-@groupId"
-                     data-tab-content="@groupId">
+                     data-tab-content="@groupId"
+                     style="@(isSidebarLocked && group.Key == "Final Preview"
+                                    ? "max-height: 1000px;"
+                                    : null)">
+
                     <ul class="ca-sb-nav-list">
                         @foreach (var step in group)
                         {
@@ -1837,21 +1928,43 @@
                                     if (!string.IsNullOrEmpty(currentCourseCode)) routeValues["courseCode"] = currentCourseCode;
                                     if (!string.IsNullOrEmpty(currentTypeOfAffiliation)) routeValues["typeOfAffiliation"] = currentTypeOfAffiliation;
                                 }
-                                <a href="@Url.Action(step.Act, step.Ctrl, routeValues)"
-                                   class="@linkCls"
-                                   aria-current="@(isActive ? "page" : null)">
-                                    <span class="@dotCls" aria-hidden="true">
-                                        @if (isDone)
-                                        {
-                                            <text>&#10003;</text>
-                                        }
+                                @if (isSidebarLocked && step.Key != "PreviewMode")
+                                {
+                                    <span class="ca-sb-link is-locked"
+                                          aria-disabled="true"
+                                          title="This application is locked after final submission">
+                                        <span class="@dotCls" aria-hidden="true">
+                                            @if (isDone)
+                                            {
+                                                <text>&#10003;</text>
+                                            }
+                                        </span>
+                                        <span class="ca-sb-label">@step.Label</span>
+                                        <i class="bi bi-lock-fill ms-1" aria-hidden="true"></i>
                                     </span>
-                                    <span class="ca-sb-label">@step.Label</span>
-                                    @if (isDone && (!isActive || step.Key == "WorkshopDetails" || step.Key == "AnimalHouseDetails" || step.Key == "DentalFieldPracticeArea" || step.Key == "ActionTakenReport"))
-                                    {
-                                        <span class="ca-sb-check" aria-hidden="true">&#10003;</span>
-                                    }
-                                </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action(step.Act, step.Ctrl, routeValues)"
+                                       class="@linkCls"
+                                       aria-current="@(isActive ? "page" : null)">
+                                        <span class="@dotCls" aria-hidden="true">
+                                            @if (isDone)
+                                            {
+                                                <text>&#10003;</text>
+                                            }
+                                        </span>
+                                        <span class="ca-sb-label">@step.Label</span>
+                                        @if (isDone && (!isActive ||
+                                            step.Key == "WorkshopDetails" ||
+                                            step.Key == "AnimalHouseDetails" ||
+                                            step.Key == "DentalFieldPracticeArea" ||
+                                            step.Key == "ActionTakenReport"))
+                                        {
+                                            <span class="ca-sb-check" aria-hidden="true">&#10003;</span>
+                                        }
+                                    </a>
+                                }
                             </li>
                         }
                     </ul>

@@ -93,9 +93,11 @@ namespace Medical_Affiliation.Services.Faculty
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.DistrictId == institution.District);
 
-            var clgStatus = await _context.AffInstitutionStatusMasters
-                .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.StatusCode == institution.StatusOfCollege);
+            var clgStatus = (byte.TryParse(institution.StatusOfCollege, out byte statusId))
+                ? await _context.AffInstitutionStatusMasters
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(e => e.InstitutionStatusId == statusId)
+                : null;
 
             return new InstitutionViewModel
             {
@@ -108,8 +110,8 @@ namespace Medical_Affiliation.Services.Faculty
 
                 Address = institution.Address,
                 VillageTownCity = institution.VillageTownCity,
-                Taluk = talukData.TalukName,
-                District = districtData.DistrictName,
+                Taluk = talukData?.TalukName ?? string.Empty,
+                District = districtData?.DistrictName ?? string.Empty,
                 PinCode = institution.PinCode,
 
                 MobileNumber = institution.MobileNumber,
@@ -133,7 +135,7 @@ namespace Medical_Affiliation.Services.Faculty
                 HeadAddress = institution.HeadAddress,
 
                 FinancingAuthority = institution.FinancingAuthority,
-                StatusOfCollege = institution.StatusOfCollege,
+                StatusOfCollege = clgStatus.StatusName,
                 CourseApplied = institution.CourseApplied,
 
                 DocumentName = institution.DocumentName,
@@ -213,6 +215,13 @@ namespace Medical_Affiliation.Services.Faculty
                 Items = members,
                 
             };
+        }
+
+        static string ResolveName(string? value, IReadOnlyDictionary<string, string> names)
+        {
+            return !string.IsNullOrWhiteSpace(value) && names.TryGetValue(value.Trim(), out var name)
+                ? name
+                : value ?? string.Empty;
         }
 
         public async Task<AffSanctionedIntakeForCourseListDisplayViewModel> GetSanctionedIntakeDetails()

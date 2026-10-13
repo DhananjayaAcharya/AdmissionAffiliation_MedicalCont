@@ -1644,18 +1644,33 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const applicationNumber = @Html.Raw(
-                System.Text.Json.JsonSerializer.Serialize(submittedApplicationNumber));
+                System.Text.Json.JsonSerializer.Serialize(
+                    submittedApplicationNumber));
+
+            const isResubmission =
+                @Html.Raw(
+                    System.Text.Json.JsonSerializer.Serialize(
+                        TempData["IsResubmission"] as bool? ?? false));
+
+            const title = isResubmission
+                ? "Application Resubmitted Successfully!"
+                : "Application Submitted Successfully!";
+
+            const actionText = isResubmission
+                ? "has been resubmitted successfully."
+                : "has been submitted successfully.";
 
             Swal.fire({
                 icon: "success",
-                title: "Application Submitted Successfully!",
+                title: title,
                 html: `
                     <p>
                         The Dental Affiliation application for
                         <strong>@Model.CollegeName</strong>,
                         <strong>@Model.FinalSubmissionVM.CourseLevel</strong> course,
-                        under <strong>@Model.FinalSubmissionVM.AffiliationTypeDescription</strong>,
-                        has been submitted successfully.
+                        under
+                        <strong>@Model.FinalSubmissionVM.AffiliationTypeDescription</strong>,
+                        ${actionText}
                     </p>
 
                     <div style="
@@ -1678,8 +1693,10 @@
                     </div>
 
                     <p style="margin: 0; font-size: 13px; color: #805000;">
-                        <strong>Important:</strong> Save this number for future reference.
-                        Your application is now frozen for the college.
+                        <strong>Important:</strong>
+                        Save this number for future reference.
+                        Your application is locked again after successful submission.
+                        Contact the administrator if you need to make further changes.
                     </p>
                 `,
                 showCancelButton: true,
