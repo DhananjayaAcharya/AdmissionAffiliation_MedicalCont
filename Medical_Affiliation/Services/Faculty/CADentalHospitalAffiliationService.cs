@@ -23,6 +23,7 @@ namespace Medical_Affiliation.Services.Faculty
             int facultyId = _userContext.FacultyId;
             // 1️⃣ Fetch hospital details
             var hospitals = await _context.HospitalDetailsForAffiliations.AsNoTracking().Where(h => h.CollegeCode == collegeCode).ToListAsync();
+            var dentalDocuments = await _context.InstitutionBasicDetails.AsNoTracking().Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyId.ToString()).FirstOrDefaultAsync();
 
             var firstHospital = hospitals.FirstOrDefault();
 
@@ -242,6 +243,22 @@ namespace Medical_Affiliation.Services.Faculty
                     IsProposedPlansForFutureDevelopmentsExists =!string.IsNullOrWhiteSpace(firstHospital.ProposedPlansForFutureDevelopmentsPdfPath),
 
                     ProposedPlansForFutureDevelopmentsPath =  firstHospital.ProposedPlansForFutureDevelopmentsPdfPath,
+
+                    // DCI
+                    IsDciCertificationExists =!string.IsNullOrWhiteSpace(dentalDocuments.DcicertificateFilePath),
+
+                    DciCertificationPath = dentalDocuments.DcicertificateFilePath,
+
+                    // KSDC
+                    IsKsdcCertificationExists =!string.IsNullOrWhiteSpace(dentalDocuments.KsdccertificateFilePath),
+
+                    KsdcCertificationPath = dentalDocuments.KsdccertificateFilePath,
+
+                    // CONTINUATION AFFILIATION
+                    IsContinuousAffiliationExists =!string.IsNullOrWhiteSpace(dentalDocuments.ContinuationAffiliationFilePath),
+
+                    ContinuousAffiliationPath = dentalDocuments.ContinuationAffiliationFilePath,
+
                     IsRegisteredUnderAnatomyAct = !string.IsNullOrWhiteSpace(firstHospital.AnatomyActRegistrationPdfPath),
                     AnatomyActRegistrationCertificatePath = firstHospital.AnatomyActRegistrationPdfPath,
                     AnatomyActRegistrationDetails = firstHospital.AnatomyActRegistrationDetails,

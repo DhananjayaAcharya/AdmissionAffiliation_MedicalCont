@@ -3,6 +3,7 @@
     ViewData["Title"] = "12. Staff Pay Scale Details";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var facultyCode = Context.Session.GetString("FacultyCode");
+    var courseLevel = Context.Session.GetString("CourseLevel");
 }
 
 <style>
@@ -584,7 +585,7 @@
                         <!-- Separate UG Specific Section -->
                         <!-- ===================================================== -->
 
-                        @if (Model.ExistingCourseLevels.Contains("UG"))
+                        @if (string.Equals(courseLevel, "UG", StringComparison.OrdinalIgnoreCase))
                         {
                         
                         <div class="section-block">

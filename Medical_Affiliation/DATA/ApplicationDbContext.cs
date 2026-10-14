@@ -4790,6 +4790,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsLocked).HasDefaultValue(false);
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.SubmittedDate).HasColumnType("datetime");

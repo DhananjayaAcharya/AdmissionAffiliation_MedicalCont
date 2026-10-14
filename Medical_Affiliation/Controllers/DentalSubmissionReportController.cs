@@ -15,10 +15,18 @@ public class DentalSubmissionReportController : Controller
 
     public async Task<IActionResult> Index(  string? academicYear,  string? courseLevel, int? affiliationTypeId)
     {
+
+        var excludedCollegeCodes = new List<string>
+        {
+            //"D038",
+            "D039",
+            "D040"
+        };
+
         // Base query for Dental submissions
         var collegesQuery = _context.AffiliationCollegeMasters
             .AsNoTracking()
-            .Where(c => c.FacultyCode == "2");
+            .Where(c => c.FacultyCode == "2" && !excludedCollegeCodes.Contains(c.CollegeCode));
 
         var submissionQuery = _context.FinalDentalSubmissions
             .AsNoTracking()

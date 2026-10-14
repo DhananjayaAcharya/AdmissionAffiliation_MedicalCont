@@ -3,6 +3,7 @@
 @{
     var FacultyCode = Context.Session.GetString("FacultyCode");
     var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+    var courseLevel = Context?.Session.GetString("CourseLevel");
 }
 
 <link rel="stylesheet" href="~/css/preview-section-header.css" />
@@ -73,7 +74,7 @@
         <!-- PG COURSE DETAILS -->
         <!-- ========================= -->
 
-        @if (Model?.PgCourseDetails != null)
+        @if (Model?.PgCourseDetails != null && courseLevel.ToLower() == "pg")
         {
             <div id="pg-course-details">
 

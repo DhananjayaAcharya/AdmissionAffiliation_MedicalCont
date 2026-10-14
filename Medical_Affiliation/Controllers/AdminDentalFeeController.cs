@@ -33,102 +33,107 @@ public class AdminDentalFeeController : Controller
             CurrentUtc = currentUtc
         };
 
-        // 1. Load colleges from institution details.
-        // Display CollegeCode until the actual college-name
-        // property is confirmed.
+        // 1. Load colleges
+        model.Colleges = await GetDentalCollegesAsync();
 
-        var collegeList = await (
-                from inst in _context.AffInstitutionsDetails.AsNoTracking()
-                join college in _context.AffiliationCollegeMasters.AsNoTracking()
-                    on inst.CollegeCode equals college.CollegeCode
-                where inst.CollegeCode != null && inst.FacultyCode == "2"
-                select new SelectListItem
-                {
-                    Value = inst.CollegeCode,
-                    Text = college.CollegeName,
-                })
-                .Distinct()
-                .OrderBy(e => e.Text)
-                .ToListAsync();
-
-        model.Colleges = collegeList;
-
-        // 2. Load dental affiliation types.
-        var affiliationTypes = await _context.MstDentalAffiliationTypes
+        // 2. Load active dental affiliation types.
+        // Use MstDentalAffiliationTypes because it contains
+        // DentalAffiliationTypeId and CourseLevelGroup.
+        var dentalAffiliationTypes = await _context.MstDentalAffiliationTypes
             .AsNoTracking()
-            .Where(e => e.FacultyCode == FacultyCode && e.IsActive)
-            .OrderBy(e => e.AffiliationCategory)
+            .Where(x =>
+                x.FacultyCode == FacultyCode &&
+                x.IsActive)
+            .OrderBy(x => x.AffiliationCategory)
             .ToListAsync();
 
-        model.AffiliationTypes = affiliationTypes
-            .Select(e => new SelectListItem
+        model.AffiliationTypes = dentalAffiliationTypes
+            .Select(x => new SelectListItem
             {
-                Value = e.DentalAffiliationTypeId.ToString(),
-                Text = $"{e.AffiliationCategory} - {e.CourseLevelGroup}",
-                Selected = e.DentalAffiliationTypeId == affiliationTypeId
+                Value = x.TypeId.ToString(),
+                Text = $"{x.AffiliationCategory} - {x.CourseLevelGroup}",
+                Selected = x.TypeId == affiliationTypeId
             })
             .ToList();
 
-        // 3. Course-level filter.
+        // 3. Course-level dropdown
         model.CourseLevels = new List<SelectListItem>
         {
             new() { Value = "UG", Text = "Undergraduate (UG)" },
             new() { Value = "PG", Text = "Postgraduate (PG)" }
         };
 
-        // Do not load financial records until a college
-        // and affiliation type have been selected.
+        // 4. Do not load financial records until filters are selected.
         if (string.IsNullOrWhiteSpace(collegeCode) ||
             !affiliationTypeId.HasValue)
         {
             return View(model);
         }
 
-        // 4. Verify the selected college exists.
+        // 5. Validate college
         var institution = await _context.AffInstitutionsDetails
             .AsNoTracking()
-            .Where(e=> e.FacultyCode == FacultyCode.ToString())
-            .FirstOrDefaultAsync(e => e.CollegeCode == collegeCode);
+            .FirstOrDefaultAsync(x =>
+                x.FacultyCode == FacultyCode.ToString() &&
+                x.CollegeCode == collegeCode);
 
         if (institution == null)
         {
             return NotFound("College not found.");
         }
 
-        var isGovernment = string.Equals(
+        // 6. Validate the selected dental affiliation type.
+        var affiliationType = dentalAffiliationTypes
+            .FirstOrDefault(x =>
+                x.TypeId == affiliationTypeId.Value && x.CourseLevelGroup == courseLevel);
+
+        if (affiliationType == null)
+        {
+            ModelState.AddModelError(
+                nameof(model.AffiliationTypeId),
+                "Invalid or inactive dental affiliation type.");
+
+            return View(model);
+        }
+
+        // 7. Resolve UG/PG from the selected dental affiliation type.
+        var resolvedCourseLevel =
+            affiliationType.CourseLevelGroup?.Trim().ToUpperInvariant();
+
+        if (resolvedCourseLevel is not ("UG" or "PG"))
+        {
+            ModelState.AddModelError(
+                nameof(model.CourseLevel),
+                "Invalid course level configured for this affiliation type.");
+
+            return View(model);
+        }
+
+        // Reject a course level that conflicts with the affiliation type.
+        if (!string.IsNullOrWhiteSpace(courseLevel) &&
+            !string.Equals(
+                courseLevel.Trim(),
+                resolvedCourseLevel,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(
+                nameof(model.CourseLevel),
+                "Course level does not match the selected affiliation type.");
+
+            return View(model);
+        }
+
+        model.CourseLevel = resolvedCourseLevel;
+
+        // 8. Determine government/private institution.
+        model.TypeOfInstitution = institution.TypeOfInstitution;
+
+        model.IsGovernment = string.Equals(
             institution.TypeOfInstitution?.Trim(),
             "11",
             StringComparison.OrdinalIgnoreCase);
 
-        model.TypeOfInstitution = institution.TypeOfInstitution;
-        model.IsGovernment = isGovernment;
-
-        // 5. Verify affiliation type.
-        var affiliationType = affiliationTypes.FirstOrDefault(
-            e => e.DentalAffiliationTypeId == affiliationTypeId.Value);
-
-        if (affiliationType == null)
-        {
-            ModelState.AddModelError( nameof(model.AffiliationTypeId), "Invalid or inactive dental affiliation type.");
-
-            return View(model);
-        }
-
-        // Prevent mismatched UG/PG selections.
-        if (!string.IsNullOrWhiteSpace(courseLevel) &&
-            !string.Equals(
-                courseLevel,
-                affiliationType.CourseLevelGroup?.Trim(),
-                StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError( nameof(model.CourseLevel), "Course level does not match the selected affiliation type.");
-
-            return View(model);
-        }
-
-        model.CourseLevel = affiliationType.CourseLevelGroup;
-
-        // 6. Load fee types using the existing eligibility rules.
+        // 9. Load applicable fee types.
         var feeTypes = await _context.MstDentalFeeTypes
             .AsNoTracking()
             .Where(e =>
@@ -137,7 +142,7 @@ public class AdminDentalFeeController : Controller
                 e.IsActive &&
                 (
                     (
-                        isGovernment &&
+                        model.IsGovernment &&
                         (
                             e.FeeType == "Application Fee" ||
                             e.FeeType == "Course Identification Fee" ||
@@ -150,7 +155,7 @@ public class AdminDentalFeeController : Controller
                     )
                     ||
                     (
-                        !isGovernment &&
+                        !model.IsGovernment &&
                         (
                             e.FeeType != "Late Submission Fee" ||
                             (
@@ -165,47 +170,36 @@ public class AdminDentalFeeController : Controller
 
         var applicableFeeTypes = feeTypes.ToDictionary(e => e.Id);
 
-        // 7. Load existing fee transaction rows.
-        // Include inactive rows so administrators can inspect
-        // historical records too.
-        var feeQuery = _context.TxnDentalFeeStructures
-            .AsNoTracking()
-            .Where(e =>
-                e.CollegeCode == collegeCode &&
-                e.FacultyCode == FacultyCode &&
-                e.AffiliationTypeId == affiliationTypeId.Value);
+        // 10. Load saved fee transactions for the selected UG/PG level.
+        var savedFees = await GetDentalFeeTransactionsAsync(
+            collegeCode,
+            affiliationTypeId.Value,
+            resolvedCourseLevel);
 
-        if (!string.IsNullOrWhiteSpace(courseLevel))
-        {
-            feeQuery = feeQuery.Where(e => e.CourseLevel == courseLevel);
-        }
-
-        var savedFees = await feeQuery
-            .OrderBy(e => e.FeeTypeId)
-            .ThenBy(e => e.CourseName)
-            .ThenBy(e => e.Id)
-            .ToListAsync();
-
-        // Load all master fee-type names so historical or
-        // currently inapplicable records remain identifiable.
+        // 11. Load all fee-type names, including inactive fee types.
         var allFeeTypes = await _context.MstDentalFeeTypes
             .AsNoTracking()
             .Where(e =>
                 e.FacultyCode == FacultyCode &&
+                e.CourseLevel == courseLevel &&
                 e.AffiliationTypeId == affiliationTypeId.Value)
             .ToDictionaryAsync(e => e.Id);
 
+        // 12. Map saved fees to the view model.
         model.FeeItems = savedFees.Select(fee =>
         {
             allFeeTypes.TryGetValue(fee.FeeTypeId, out var masterFee);
 
-            var isApplicable = applicableFeeTypes.ContainsKey( fee.FeeTypeId);
+            var isApplicable =
+                applicableFeeTypes.ContainsKey(fee.FeeTypeId);
 
             return new AdminDentalFeeItemViewModel
             {
                 Id = fee.Id,
                 FeeTypeId = fee.FeeTypeId,
-                FeeTypeName = masterFee?.FeeType ?? $"Fee Type #{fee.FeeTypeId}",
+                FeeTypeName = masterFee?.FeeType
+                    ?? $"Fee Type #{fee.FeeTypeId}",
+
                 DisplayOrder = masterFee?.DisplayOrder ?? 0,
                 ActivationDate = masterFee?.ActivationDate,
 
@@ -226,24 +220,11 @@ public class AdminDentalFeeController : Controller
             };
         }).ToList();
 
-        // 8. Load payment records for this college and affiliation.
-        var paymentQuery = _context.TxnDentalPayments
-            .AsNoTracking()
-            .Where(e =>
-                e.CollegeCode == collegeCode &&
-                e.FacultyCode == FacultyCode &&
-                e.AffiliationTypeId == affiliationTypeId.Value);
-
-        if (!string.IsNullOrWhiteSpace(courseLevel))
-        {
-            paymentQuery = paymentQuery.Where(e =>
-                e.CourseLevel == courseLevel);
-        }
-
-        var payments = await paymentQuery
-            .OrderByDescending(e => e.CreatedDate)
-            .ThenByDescending(e => e.Id)
-            .ToListAsync();
+        // 13. Load payment records for the selected UG/PG level.
+        var payments = await GetDentalPaymentsAsync(
+            collegeCode,
+            affiliationTypeId.Value,
+            resolvedCourseLevel);
 
         model.Payments = payments.Select(payment =>
             new AdminDentalPaymentViewModel
@@ -254,8 +235,7 @@ public class AdminDentalFeeController : Controller
                 AffiliationTypeId = payment.AffiliationTypeId,
                 CourseLevel = payment.CourseLevel,
                 TransactionId = payment.TransactionId,
-                TransactionReceiptPath =
-                    payment.TransactionReceiptPath,
+                TransactionReceiptPath = payment.TransactionReceiptPath,
                 AmountPaid = payment.AmountPaid,
                 IsActive = payment.IsActive,
                 CreatedDate = payment.CreatedDate,
@@ -264,23 +244,79 @@ public class AdminDentalFeeController : Controller
                 ModifiedBy = payment.ModifiedBy
             }).ToList();
 
-        // 9. Calculate totals from the currently applicable,
-        // active fee transaction rows only.
+        // 14. Calculate total applicable fees.
         model.TotalApplicableFee = model.FeeItems
-            .Where(e => e.IsApplicable && e.IsActive)
-            .Sum(e => e.CalculatedAmount);
+            .Where(x => x.IsApplicable && x.IsActive)
+            .Sum(x => x.CalculatedAmount);
 
-        // Sum active payments only. This is a recorded-payment
-        // total, not a guarantee that every record is unique.
+        // 15. Calculate total active payments.
         model.TotalAmountPaid = model.Payments
-            .Where(e => e.IsActive)
-            .Sum(e => e.AmountPaid);
+            .Where(x => x.IsActive)
+            .Sum(x => x.AmountPaid);
 
         return View(model);
     }
+    private async Task<List<SelectListItem>> GetDentalCollegesAsync()
+    {
+        return await (
+            from inst in _context.AffInstitutionsDetails.AsNoTracking()
+            join college in _context.AffiliationCollegeMasters.AsNoTracking()
+                on inst.CollegeCode equals college.CollegeCode
+            where inst.CollegeCode != null
+                  && inst.FacultyCode == FacultyCode.ToString()
+            select new SelectListItem
+            {
+                Value = inst.CollegeCode,
+                Text = college.CollegeName
+            })
+            .Distinct()
+            .OrderBy(x => x.Text)
+            .ToListAsync();
+    }
+
+    private async Task<List<TypeOfAffiliation>> GetDentalAffiliationTypesAsync()
+    {
+        return await _context.TypeOfAffiliations
+            .AsNoTracking()
+            .OrderBy(x => x.TypeDescription)
+            .ToListAsync();
+    }
 
 
+    private async Task<List<TxnDentalFeeStructure>> GetDentalFeeTransactionsAsync( string collegeCode, int affiliationTypeId, string courseLevel)
+    {
+        courseLevel = courseLevel.Trim().ToUpperInvariant();
 
+        return await _context.TxnDentalFeeStructures
+            .AsNoTracking()
+            .Where(x =>
+                x.CollegeCode == collegeCode &&
+                x.FacultyCode == FacultyCode &&
+                x.AffiliationTypeId == affiliationTypeId &&
+                x.CourseLevel != null &&
+                x.CourseLevel.Trim().ToUpper() == courseLevel)
+            .OrderBy(x => x.FeeTypeId)
+            .ThenBy(x => x.CourseName)
+            .ThenBy(x => x.Id)
+            .ToListAsync();
+    }
+
+    private async Task<List<TxnDentalPayment>> GetDentalPaymentsAsync(string collegeCode, int affiliationTypeId, string courseLevel)
+    {
+        courseLevel = courseLevel.Trim().ToUpperInvariant();
+
+        return await _context.TxnDentalPayments
+            .AsNoTracking()
+            .Where(x =>
+                x.CollegeCode == collegeCode &&
+                x.FacultyCode == FacultyCode &&
+                x.AffiliationTypeId == affiliationTypeId &&
+                x.CourseLevel != null &&
+                x.CourseLevel.Trim().ToUpper() == courseLevel)
+            .OrderByDescending(x => x.CreatedDate)
+            .ThenByDescending(x => x.Id)
+            .ToListAsync();
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -402,5 +438,36 @@ public class AdminDentalFeeController : Controller
             courseLevel = fee.CourseLevel
         });
     }
+
+    [HttpGet]
+    public async Task<IActionResult> ViewReceipt(int paymentId)
+    {
+        var payment = await _context.TxnDentalPayments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e =>
+                e.Id == paymentId &&
+                e.FacultyCode == 2 &&
+                e.IsActive);
+
+        if (payment == null)
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(payment.TransactionReceiptPath))
+            return NotFound("Receipt not found.");
+
+        if (!System.IO.File.Exists(payment.TransactionReceiptPath))
+            return NotFound("Receipt file not found.");
+
+        var extension = Path.GetExtension(payment.TransactionReceiptPath);
+
+        if (!string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase))
+            return BadRequest("The receipt is not a PDF file.");
+
+        return PhysicalFile(
+            payment.TransactionReceiptPath,
+            "application/pdf",
+            enableRangeProcessing: true);
+    }
+
 
 }

@@ -22,6 +22,7 @@ namespace Medical_Affiliation.Services.Faculty
         {
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
+            var courseLevel = _userContext.CourseLevel;
 
             var academicIntake = await _context.AcademicIntakes
                 .FirstOrDefaultAsync(x =>
@@ -45,6 +46,7 @@ namespace Medical_Affiliation.Services.Faculty
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel &&
                     x.SeatSlab == seatSlab)
                 .OrderBy(x => x.Requirement.SlNo)
                 .Select(x => new DentalInfrastructureVM

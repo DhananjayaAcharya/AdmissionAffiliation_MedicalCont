@@ -1069,6 +1069,118 @@
 
             </div>
 
+            <div class="row g-3">
+
+                <!-- 1. DCI (NDC) Certification -->
+                <div class="col-md-6">
+                    <div class="hospital-certificate-card">
+                        <label class="form-label">
+                            DCI (NDC) Certification
+                        </label>
+
+                        <input asp-for="Form.DciCertificationFile"
+                                type="file"
+                                class="form-control"
+                                accept=".pdf,application/pdf" />
+
+                        <small class="text-muted">
+                            Upload DCI (NDC) Certification PDF
+                        </small>
+
+                        @if (!string.IsNullOrEmpty(Model.Form.DciCertificationPath))
+                        {
+                            <div class="mt-2">
+                                <a href="@Url.Action(
+                                    "ViewDentalCertificate",
+                                    "ContinuationAffiliationClinicalFacilities",
+                                    new {
+                                        id = Model.Form.HospitalDetailsId,
+                                        type = "dci"
+                                    })"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-file-pdf"></i>
+                                    View Existing Certification
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- 2. KSDC Certification -->
+                <div class="col-md-6">
+                    <div class="hospital-certificate-card">
+                        <label class="form-label">
+                            KSDC Certification
+                        </label>
+
+                        <input asp-for="Form.KsdcCertificationFile"
+                                type="file"
+                                class="form-control"
+                                accept=".pdf,application/pdf" />
+
+                        <small class="text-muted">
+                            Upload KSDC Certification PDF
+                        </small>
+
+                        @if (!string.IsNullOrEmpty(Model.Form.KsdcCertificationPath))
+                        {
+                            <div class="mt-2">
+                                <a href="@Url.Action(
+                                    "ViewDentalCertificate",
+                                    "ContinuationAffiliationClinicalFacilities",
+                                    new {
+                                        id = Model.Form.HospitalDetailsId,
+                                        type = "ksdc"
+                                    })"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-file-pdf"></i>
+                                    View Existing Certification
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- 3. Continuous Affiliation Certification -->
+                <div class="col-md-6">
+                    <div class="hospital-certificate-card">
+                        <label class="form-label">
+                            Continuous Affiliation Certification
+                        </label>
+
+                        <input asp-for="Form.ContinuousAffiliationFile"
+                                type="file"
+                                class="form-control"
+                                accept=".pdf,application/pdf" />
+
+                        <small class="text-muted">
+                            Upload Continuous Affiliation Certification PDF
+                        </small>
+
+                        @if (!string.IsNullOrEmpty(Model.Form.ContinuousAffiliationPath))
+                        {
+                            <div class="mt-2">
+                                <a href="@Url.Action(
+                                    "ViewDentalCertificate",
+                                    "ContinuationAffiliationClinicalFacilities",
+                                    new {
+                                        id = Model.Form.HospitalDetailsId,
+                                        type = "continuous"
+                                    })"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-file-pdf"></i>
+                                    View Existing Certification
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
             
             @* ============================================================
                 ANATOMY ACT, 1969 REGISTRATION

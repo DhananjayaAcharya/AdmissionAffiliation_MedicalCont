@@ -376,6 +376,29 @@ namespace Medical_Affiliation.Models
 
         public string? ProposedPlansForFutureDevelopmentsPath { get; set; }
 
+        // --------------------------------------------------
+        // DCI (NDC) Certification
+        // --------------------------------------------------
+
+        public bool IsDciCertificationExists { get; set; }
+        public string? DciCertificationPath { get; set; }
+
+
+        // --------------------------------------------------
+        // KSDC Certification
+        // --------------------------------------------------
+
+        public bool IsKsdcCertificationExists { get; set; }
+        public string? KsdcCertificationPath { get; set; }
+
+
+        // --------------------------------------------------
+        // Continuous Affiliation Certification
+        // --------------------------------------------------
+
+        public bool IsContinuousAffiliationExists { get; set; }
+        public string? ContinuousAffiliationPath { get; set; }
+
         public bool IsRegisteredUnderAnatomyAct { get; set; }
 
         public string? AnatomyActRegistrationDetails { get; set; }
@@ -2089,6 +2112,7 @@ namespace Medical_Affiliation.Models
         public string? CreatedBy { get; set; }
 
         public string? ModifiedBy { get; set; }
+        public bool IsLocked { get; set; }
     }
 
 

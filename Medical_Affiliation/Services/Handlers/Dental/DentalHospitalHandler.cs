@@ -147,6 +147,9 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                 .FirstOrDefaultAsync(h => h.CollegeCode == collegeCode && h.CourseLevel == courseLevel);
 
             var hospitalDetailsId = hospital?.HospitalDetailsId ?? 0;
+            var dentalDocuments = await _context.InstitutionBasicDetails
+                .Where(e => e.CollegeCode == collegeCode && e.FacultyCode == facultyCode.ToString()).FirstOrDefaultAsync();
+
 
             // ---------------- Tie-ups ----------------
             var hospitalTieUps = new List<HospitalTieUpDetailVM>();
@@ -212,6 +215,11 @@ namespace Medical_Affiliation.Services.Handlers.Medical
                     ProposedPlansForFutureDevelopmentsPath = hospital.ProposedPlansForFutureDevelopmentsPdfPath,
                     PollutionControlBoardCertificatePath = hospital.PollutionControlBoardCertificatePdfPath,
                     BioMedicalCertificatePath = hospital.BioMedicalCertificatePdfPath,
+
+                    DciCertificationPath = dentalDocuments.DcicertificateFilePath,
+                    ContinuousAffiliationPath = dentalDocuments.ContinuationAffiliationFilePath,
+                    KsdcCertificationPath = dentalDocuments.KsdccertificateFilePath,
+
                     HasAnatomyActRegistration = hospital.HasAnatomyActRegistration,
                     AnatomyActRegistrationDetails = hospital.AnatomyActRegistrationDetails,
                     AnatomyActRegistrationPdfPath = hospital.AnatomyActRegistrationPdfPath,
