@@ -23,7 +23,7 @@ namespace Medical_Affiliation.Models
         public IFormFile? AEBASInspectionDayPdf { get; set; }
         public IFormFile? ProvidentFundPdf { get; set; }
         public IFormFile? ESIPdf { get; set; }
-
+        public IFormFile? TeachersUpdatedEmsPdf { get; set; }
         public List<string> ExistingCourseLevels { get; set; } = new();
 
     }
@@ -41,7 +41,7 @@ namespace Medical_Affiliation.Models
     public class CA_Med_StaffParticularsOtherVM
     {
         public int Id { get; set; }
-
+        public string? TeachersUpdatedEmsPdfName { get; set; }
         public string? CourseLevel { get; set; }
         public string? FacultyCode { get; set; }
         public string? CollegeCode { get; set; }

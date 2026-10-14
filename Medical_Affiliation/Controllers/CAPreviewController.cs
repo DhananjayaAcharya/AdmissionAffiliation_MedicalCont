@@ -72,6 +72,9 @@ namespace Medical_Affiliation.Controllers
             // Section 17 - Vehicle Registration & Documents (RC / Insurance / DL availability)
             ViewBag.VehicleDocs = await LoadVehicleDocsAsync();
 
+            // Section 13B - Outpatient Area (IndoorInfrastructureRequirementsCompliance, SectionCode = 15)
+            ViewBag.OutpatientArea = await LoadOutpatientAreaAsync();
+
             var reuploadPath = await FindSealedSignedReuploadPathAsync(
                 model.FacultyCode ?? CurrentFacultyCode,
                 model.CollegeCode ?? CurrentCollegeCode,
@@ -94,6 +97,7 @@ namespace Medical_Affiliation.Controllers
                 .Select(g => g.OrderByDescending(x => x.Id).First())
                 .ToList();
         }
+
         [HttpGet]
         public async Task<IActionResult> ViewSignedReupload()
         {
@@ -878,6 +882,63 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
+        // ------------------------------------------------------------------
+        // Section 13B - Outpatient Area
+        // Source: [Admission_Affiliation].[dbo].[IndoorInfrastructureRequirementsCompliance]
+        //         WHERE SectionCode = 15
+        // Keeps only the newest row per (HospitalDetailsId, RequirementId) so a
+        // re-saved requirement is not listed twice.
+        //
+        // If rows do not show up, the usual cause is the AffiliationTypeId or
+        // CourseLevel filter not matching what is stored. Remove that filter
+        // line to test.
+        //
+        // >>> OPTIONAL: to show the requirement NAME instead of its Id, replace
+        // >>> CAST(NULL AS varchar(500)) AS RequirementName with a LEFT JOIN to
+        // >>> your requirement master table.
+        // ------------------------------------------------------------------
+        private async Task<List<OutpatientAreaRow>> LoadOutpatientAreaAsync()
+        {
+            var collegeCode = CurrentCollegeCode?.Trim();
+            var facultyCode = CurrentFacultyCode?.Trim();
+            var courseLevel = CurrentCourseLevel;
+            var affiliationTypeId = CurrentAffiliationType;
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCode))
+                return new List<OutpatientAreaRow>();
+
+            try
+            {
+                return await _context.Database.SqlQuery<OutpatientAreaRow>($@"
+                    SELECT Id,
+                           HospitalDetailsId,
+                           RequirementId,
+                           CAST(NULL AS varchar(500))               AS RequirementName,
+                           CAST(IsCompliant AS varchar(20))         AS IsCompliantRaw,
+                           CAST(Remarks AS varchar(1000))           AS Remarks,
+                           TRY_CAST(InspectedOn AS datetime)        AS InspectedOn
+                    FROM (
+                        SELECT *,
+                               ROW_NUMBER() OVER (
+                                   PARTITION BY HospitalDetailsId, RequirementId
+                                   ORDER BY Id DESC) AS rn
+                        FROM [Admission_Affiliation].[dbo].[IndoorInfrastructureRequirementsCompliance]
+                        WHERE SectionCode = 15
+                          AND LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = {collegeCode}
+                          AND LTRIM(RTRIM(CAST(FacultyCode AS varchar(20)))) = {facultyCode}
+                          AND AffiliationTypeId = {affiliationTypeId}
+                          AND (ISNULL(LTRIM(RTRIM(CAST(CourseLevel AS varchar(50)))), '') = ''
+                               OR UPPER(LTRIM(RTRIM(CAST(CourseLevel AS varchar(50))))) = {courseLevel})
+                    ) x
+                    WHERE rn = 1
+                    ORDER BY HospitalDetailsId, RequirementId").ToListAsync();
+            }
+            catch (SqlException)
+            {
+                return new List<OutpatientAreaRow>();
+            }
+        }
+
         public async Task<IActionResult> TestPdf()
         {
             return RedirectToAction(nameof(Preview));
@@ -1326,5 +1387,40 @@ namespace Medical_Affiliation.Models
             "" => "—",
             var other => other
         };
+    }
+
+    // ------------------------------------------------------------------
+    // Section 13B - Outpatient Area row DTO.
+    // Source: IndoorInfrastructureRequirementsCompliance (SectionCode = 15).
+    // Only PUBLIC settable properties matching the SQL aliases are read by EF.
+    // If a column type differs, change the property type to match.
+    // ------------------------------------------------------------------
+    public class OutpatientAreaRow
+    {
+        public int Id { get; set; }
+        public int? HospitalDetailsId { get; set; }
+        public int? RequirementId { get; set; }
+        public string? RequirementName { get; set; }
+
+        // Raw stored value (works whether the column is bit, int or varchar).
+        public string? IsCompliantRaw { get; set; }
+
+        // Computed (get-only, so EF does not read it from SQL).
+        // 1 / true / yes / y / a  => true ;  0 / false / no / n => false ; anything else => null
+        public bool? IsCompliant
+        {
+            get
+            {
+                var v = (IsCompliantRaw ?? string.Empty).Trim().ToLowerInvariant();
+                return v switch
+                {
+                    "1" or "true" or "yes" or "y" or "a" or "available" or "compliant" => true,
+                    "0" or "false" or "no" or "n" or "not available" => false,
+                    _ => null
+                };
+            }
+        }
+        public string? Remarks { get; set; }
+        public DateTime? InspectedOn { get; set; }
     }
 }

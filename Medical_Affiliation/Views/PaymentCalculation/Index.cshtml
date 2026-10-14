@@ -34,11 +34,33 @@
         || normalizedAppType.Contains("Intake", StringComparison.OrdinalIgnoreCase)
         || payAffiliationTypeId == "3";
 
-    // Late fine: Rs. 1,00,000 added by PaymentCalculationController from 14 Oct 2026, 12:00 AM IST.
-    // 13 Oct 2026 is the last date (whole day), so the fine starts right after it ends.
-    // Keep this cut-off identical to LateFineStart in the controller.
-    var lateFineStart = new DateTimeOffset(2026, 10, 14, 0, 0, 0, TimeSpan.FromHours(5.5));
+    // ---------------------------------------------------------------------
+    // Late fine / payment window (keep identical to PaymentCalculationController
+    // and PaymentDocumentController.SavePaymentDocument).
+    //
+    // UG (Revised Notification-1, RGUHS/MEDICAL/AFF/81180/2026-27):
+    //   - no fine up to 22 Oct 2026
+    //   - Rs. 1,00,000 fine from 23 Oct 2026 to 31 Oct 2026
+    //   - payment closed from 1 Nov 2026, 12:00 AM IST
+    // Non-UG (PG / SS): fine from 14 Oct 2026, 12:00 AM IST (13 Oct is last date).
+    // ---------------------------------------------------------------------
+    var levelSource = (Model.CourseLevelGroup ?? payCourseLevel ?? string.Empty).Trim();
+    var isUgLevel = levelSource.Equals("UG", StringComparison.OrdinalIgnoreCase)
+        || levelSource.Contains("Undergraduate", StringComparison.OrdinalIgnoreCase);
+
+    var istOffset = TimeSpan.FromHours(5.5);
+    var lateFineStart = isUgLevel
+        ? new DateTimeOffset(2026, 10, 23, 0, 0, 0, istOffset)
+        : new DateTimeOffset(2026, 10, 14, 0, 0, 0, istOffset);
     var lateFineStartMs = lateFineStart.ToUnixTimeMilliseconds();
+
+    var ugPaymentClosed = new DateTimeOffset(2026, 11, 1, 0, 0, 0, istOffset);
+    var ugPaymentClosedMs = ugPaymentClosed.ToUnixTimeMilliseconds();
+    var paymentClosed = isUgLevel && DateTimeOffset.UtcNow >= ugPaymentClosed;
+
+    var lastDateText = isUgLevel ? "22 Oct 2026" : "13 Oct 2026";
+    var fineStartText = isUgLevel ? "23 Oct 2026" : "14 Oct 2026";
+
     var lateFineApplied = Model.FeeLines.Any(f =>
         (f.FeeHeadName ?? string.Empty).StartsWith("Late fine", StringComparison.OrdinalIgnoreCase));
     var lateFineNotYetDue = !lateFineApplied && DateTimeOffset.UtcNow < lateFineStart;
@@ -157,6 +179,17 @@
         <h1><i class="bi bi-cash-coin me-2" aria-hidden="true"></i>Payment Calculation</h1>
         <p>Calculate the applicable affiliation fee for the selected college and course details.</p>
     </div>
+
+    @if (isUgLevel)
+    {
+        <div class="payment-late-fine upcoming" role="note">
+            <strong>Caution:</strong> Dates are revised as per the RGUHS Revised Notification-1.
+            Payment without fine: on or before <strong>22 Oct 2026</strong>.
+            With a late fine of ₹1,00,000: <strong>23 Oct 2026 to 31 Oct 2026</strong>.
+            <strong>Payment will not work after 31 Oct 2026.</strong>
+        </div>
+    }
+
     @{
         var snapshotData = new
         {
@@ -250,13 +283,13 @@
         @if (lateFineApplied)
         {
             <div class="payment-late-fine" role="alert">
-                <strong>Late fine applied:</strong> The last date (13 Oct 2026) has passed, so a late fine of ₹1,00,000 has been added to the Grand Total below. Please pay the exact Grand Total shown.
+                <strong>Late fine applied:</strong> The last date (@lastDateText) has passed, so a late fine of ₹1,00,000 has been added to the Grand Total below. Please pay the exact Grand Total shown.
             </div>
         }
         else if (lateFineNotYetDue)
         {
             <div class="payment-late-fine upcoming" role="note">
-                <strong>Please note:</strong> The last date for payment is 13 Oct 2026. From 14 Oct 2026 a late fine of ₹1,00,000 is added automatically to the Grand Total. Pay on or before 13 Oct 2026 to avoid the fine.
+                <strong>Please note:</strong> The last date for payment is @lastDateText. From @fineStartText a late fine of ₹1,00,000 is added automatically to the Grand Total. Pay on or before @lastDateText to avoid the fine.
             </div>
         }
 
@@ -479,8 +512,12 @@
     (function () {
         var pageSnapshot = @Html.Raw(Json.Serialize(snapshotData));
 
-        // ---- Late fine cut-off (14 Oct 2026, 12:00 AM IST; 13 Oct 2026 is the last date) ----
+        // ---- Cut-offs (IST). Must match PaymentCalculationController ----
+        // UG    : fine from 23 Oct 2026 00:00 IST; payment closed from 1 Nov 2026 00:00 IST
+        // Non-UG: fine from 14 Oct 2026 00:00 IST
+        var isUgLevel = @(isUgLevel ? "true" : "false");
         var lateFineStartMs = @lateFineStartMs;
+        var ugPaymentClosedMs = @ugPaymentClosedMs;
         var lateFineApplied = @(lateFineApplied ? "true" : "false");
         var lateFineReloadKey = 'paymentLateFineReloaded';
 
@@ -500,6 +537,14 @@
             }
         } else {
             try { sessionStorage.removeItem(lateFineReloadKey); } catch (e) { }
+        }
+
+        // UG: a page left open past 31 Oct reloads so the server shows the "payment closed" message.
+        if (isUgLevel) {
+            var msToClose = ugPaymentClosedMs - Date.now();
+            if (msToClose > 0 && msToClose < 2147483647) {
+                setTimeout(function () { window.location.reload(); }, msToClose + 1500);
+            }
         }
 
         // Falls back to a plain alert if SweetAlert2 (Swal) isn't loaded on this
@@ -587,6 +632,13 @@
 
             if (!token) {
                 showAlert({ icon: "error", title: "Security token missing", text: "Please refresh the page and try again." });
+                return;
+            }
+
+            // UG: payment window closed after 31 Oct 2026.
+            if (isUgLevel && Date.now() >= ugPaymentClosedMs) {
+                showAlert({ icon: "error", title: "Payment closed", text: "The last date for UG affiliation payment (31 Oct 2026) has passed. Payment is no longer accepted." })
+                    .then(function () { window.location.reload(); });
                 return;
             }
 

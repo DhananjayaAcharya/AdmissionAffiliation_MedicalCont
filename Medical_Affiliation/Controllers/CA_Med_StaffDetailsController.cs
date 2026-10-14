@@ -13,10 +13,14 @@ namespace Medical_Affiliation.Controllers
         {
             _context = context;
         }
+
+        // ---------------------------------------------------------------
+        // File helpers
+        // ---------------------------------------------------------------
         private async Task<string?> SaveStaffFileAsync(
-    IFormFile? file,
-    string folder,
-    string facultyCode)
+            IFormFile? file,
+            string folder,
+            string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
@@ -27,25 +31,20 @@ namespace Medical_Affiliation.Controllers
                 : BaseMedicalPath;
 
             // StaffDetails folder
-            string basePath =
-                Path.Combine(rootPath, "StaffDetails");
+            string basePath = Path.Combine(rootPath, "StaffDetails");
 
             // Dynamic subfolder
-            string fullFolder =
-                Path.Combine(basePath, folder);
+            string fullFolder = Path.Combine(basePath, folder);
 
             // Create folder if not exists
             if (!Directory.Exists(fullFolder))
                 Directory.CreateDirectory(fullFolder);
 
             // Generate unique file name
-            string fileName =
-                Guid.NewGuid().ToString() +
-                Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
 
             // Full file path
-            string fullPath =
-                Path.Combine(fullFolder, fileName);
+            string fullPath = Path.Combine(fullFolder, fileName);
 
             // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -56,7 +55,21 @@ namespace Medical_Affiliation.Controllers
             return fullPath;
         }
 
-        // ✅ GET
+        // Block "b" (Teachers updated in EMS) document is stored at a fixed path
+        // per college, so no database column is needed.
+        private string GetTeachersEmsFilePath(string facultyCode, string collegeCode)
+        {
+            var root = facultyCode == "2" ? BaseDentalPath : BaseMedicalPath;
+
+            var invalid = Path.GetInvalidFileNameChars();
+            var safeCode = string.Concat(collegeCode.Select(c => invalid.Contains(c) ? '_' : c));
+
+            return Path.Combine(root, "StaffDetails", "TeachersEMSDocs", $"{safeCode}.pdf");
+        }
+
+        // ---------------------------------------------------------------
+        // GET
+        // ---------------------------------------------------------------
         [HttpGet]
         public async Task<IActionResult> CA_Med_StaffDetails()
         {
@@ -72,6 +85,9 @@ namespace Medical_Affiliation.Controllers
             return View(vm);
         }
 
+        // ---------------------------------------------------------------
+        // Save Pay Scale
+        // ---------------------------------------------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SavePayScale(StaffDetailsCombinedViewModel model)
@@ -81,6 +97,7 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove("StaffOther.ServiceRegisterMaintained");
             ModelState.Remove("StaffOther.AcquittanceRegisterMaintained");
 
+            ModelState.Remove("TeachersUpdatedEmsPdf");
             ModelState.Remove("ExaminerDetailsPdf");
             ModelState.Remove("AEBASLastThreeMonthsPdf");
             ModelState.Remove("AEBASInspectionDayPdf");
@@ -100,15 +117,8 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction(nameof(CA_Med_StaffDetails));
 
-            /*
-            OLD:
-            var levels = new[]{"UG","PG","SS"};
-            */
-
             // Changes by Ram on 23/04/2026
-
             var levels = await GetSortedCourseLevels();
-
 
             foreach (var item in model.StaffPayScaleList)
             {
@@ -153,55 +163,47 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction(nameof(CA_Med_StaffDetails));
         }
 
+        // ---------------------------------------------------------------
+        // Save Staff Particulars (Other)
+        // ---------------------------------------------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveStaffOther(StaffDetailsCombinedViewModel model)
         {
             var staffOther = model.StaffOther;
 
-            var ExaminerDetailsPdf = model.ExaminerDetailsPdf;
+            var TeachersUpdatedEmsPdf = model.TeachersUpdatedEmsPdf;   // block b
+            var ExaminerDetailsPdf = model.ExaminerDetailsPdf;         // block c
             var AEBASLastThreeMonthsPdf = model.AEBASLastThreeMonthsPdf;
             var AEBASInspectionDayPdf = model.AEBASInspectionDayPdf;
             var ProvidentFundPdf = model.ProvidentFundPdf;
             var ESIPdf = model.ESIPdf;
 
-            var collegeCode =
-                HttpContext.Session.GetString("CollegeCode");
-
-            var facultyCode =
-                HttpContext.Session.GetString("FacultyCode");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             if (string.IsNullOrEmpty(collegeCode) ||
-               string.IsNullOrEmpty(facultyCode))
+                string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction(nameof(CA_Med_StaffDetails));
 
-
-            /*
-            OLD:
-            var levels = new[]{"UG","PG","SS"};
-            */
-
             // Changes by Ram on 23/04/2026
-
             var levels = await GetSortedCourseLevels();
 
             // Changes by Ram on 24/04/26
             // Validate only if file not newly uploaded AND no old file exists
-
             var existingUG =
-            await _context.CaMedStaffParticularsOthers
-            .FirstOrDefaultAsync(x =>
-                x.CollegeCode == collegeCode &&
-                x.FacultyCode == facultyCode &&
-                x.CourseLevel == "UG");
+                await _context.CaMedStaffParticularsOthers
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == "UG");
 
             if ((AEBASLastThreeMonthsPdf == null || AEBASLastThreeMonthsPdf.Length == 0)
                 && string.IsNullOrEmpty(existingUG?.AebaslastThreeMonthsPdfPath))
             {
                 ModelState.AddModelError(
                     "AEBASLastThreeMonthsPdf",
-                    "AEBAS last three months document is compulsory."
-                );
+                    "AEBAS last three months document is compulsory.");
             }
 
             if ((AEBASInspectionDayPdf == null || AEBASInspectionDayPdf.Length == 0)
@@ -209,8 +211,7 @@ namespace Medical_Affiliation.Controllers
             {
                 ModelState.AddModelError(
                     "AEBASInspectionDayPdf",
-                    "AEBAS inspection day document is compulsory."
-                );
+                    "AEBAS inspection day document is compulsory.");
             }
 
             if ((ProvidentFundPdf == null || ProvidentFundPdf.Length == 0)
@@ -218,8 +219,7 @@ namespace Medical_Affiliation.Controllers
             {
                 ModelState.AddModelError(
                     "ProvidentFundPdf",
-                    "Provident Fund document is compulsory."
-                );
+                    "Provident Fund document is compulsory.");
             }
 
             if (!ModelState.IsValid)
@@ -227,10 +227,19 @@ namespace Medical_Affiliation.Controllers
                 var vm = await LoadStaffViewModel();
                 vm.StaffOther = model.StaffOther;
 
-                return View(
-                    "CA_Med_StaffDetails",
-                    vm
-                );
+                return View("CA_Med_StaffDetails", vm);
+            }
+
+            // ---- Block b: save its own document once (not per level) ----
+            if (TeachersUpdatedEmsPdf != null && TeachersUpdatedEmsPdf.Length > 0)
+            {
+                var emsPath = GetTeachersEmsFilePath(facultyCode, collegeCode);
+                Directory.CreateDirectory(Path.GetDirectoryName(emsPath)!);
+
+                using (var stream = new FileStream(emsPath, FileMode.Create))
+                {
+                    await TeachersUpdatedEmsPdf.CopyToAsync(stream);
+                }
             }
 
             foreach (var level in levels)
@@ -254,139 +263,93 @@ namespace Medical_Affiliation.Controllers
                     _context.CaMedStaffParticularsOthers.Add(entity);
                 }
 
-
                 // common b-g
+                entity.TeachersUpdatedInEms = staffOther.TeachersUpdatedInEMS;
+                entity.ExaminerDetailsAttached = staffOther.ExaminerDetailsAttached;
+                entity.ServiceRegisterMaintained = staffOther.ServiceRegisterMaintained;
+                entity.AcquittanceRegisterMaintained = staffOther.AcquittanceRegisterMaintained;
 
-                entity.TeachersUpdatedInEms =
-                    staffOther.TeachersUpdatedInEMS;
-
-                entity.ExaminerDetailsAttached =
-                    staffOther.ExaminerDetailsAttached;
-
-                entity.ServiceRegisterMaintained =
-                    staffOther.ServiceRegisterMaintained;
-
-                entity.AcquittanceRegisterMaintained =
-                    staffOther.AcquittanceRegisterMaintained;
-
-
+                // c - Examiner details
                 if (ExaminerDetailsPdf != null)
                 {
-                    var path =
-                     await SaveStaffFileAsync(
-                        ExaminerDetailsPdf,
-                        "ExaminerDocs", FacultyCode);
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf, "ExaminerDocs", facultyCode);
 
                     entity.ExaminerDetailsPdfPath = path;
-                    entity.ExaminerDetailsPdfName =
-                        ExaminerDetailsPdf.FileName;
+                    entity.ExaminerDetailsPdfName = ExaminerDetailsPdf.FileName;
                 }
 
-
+                // d - AEBAS last three months
                 if (AEBASLastThreeMonthsPdf != null)
                 {
-                    var path =
-                     await SaveStaffFileAsync(
-                        AEBASLastThreeMonthsPdf,
-                        "AEBAS3Months", FacultyCode);
+                    var path = await SaveStaffFileAsync(
+                        AEBASLastThreeMonthsPdf, "AEBAS3Months", facultyCode);
 
                     entity.AebaslastThreeMonthsPdfPath = path;
-                    entity.AebaslastThreeMonthsPdfName =
-                        AEBASLastThreeMonthsPdf.FileName;
+                    entity.AebaslastThreeMonthsPdfName = AEBASLastThreeMonthsPdf.FileName;
                 }
 
-
+                // e - AEBAS inspection day
                 if (AEBASInspectionDayPdf != null)
                 {
-                    var path =
-                     await SaveStaffFileAsync(
-                        AEBASInspectionDayPdf,
-                        "AEBASInspection", facultyCode);
+                    var path = await SaveStaffFileAsync(
+                        AEBASInspectionDayPdf, "AEBASInspection", facultyCode);
 
                     entity.AebasinspectionDayPdfPath = path;
-                    entity.AebasinspectionDayPdfName =
-                        AEBASInspectionDayPdf.FileName;
+                    entity.AebasinspectionDayPdfName = AEBASInspectionDayPdf.FileName;
                 }
 
-
+                // g - Provident fund
                 if (ProvidentFundPdf != null)
                 {
-                    var path =
-                     await SaveStaffFileAsync(
-                        ProvidentFundPdf,
-                        "PFDocs",
-                        FacultyCode);
+                    var path = await SaveStaffFileAsync(
+                        ProvidentFundPdf, "PFDocs", facultyCode);
 
                     entity.ProvidentFundPdfPath = path;
-                    entity.ProvidentFundPdfName =
-                        ProvidentFundPdf.FileName;
+                    entity.ProvidentFundPdfName = ProvidentFundPdf.FileName;
                 }
 
-               
-
-
-
-                // UG ONLY
+                // h - ESI (UG ONLY)
                 if (level == "UG" && ESIPdf != null)
                 {
-                    var path =
-                      await SaveStaffFileAsync(
-                        ESIPdf,
-                        "ESIDocs",
-                        FacultyCode);
+                    var path = await SaveStaffFileAsync(
+                        ESIPdf, "ESIDocs", facultyCode);
 
                     entity.EsipdfPath = path;
                     entity.EsipdfName = ESIPdf.FileName;
                 }
-
             }
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] =
-              "Staff particulars saved successfully";
+            TempData["Success"] = "Staff particulars saved successfully";
 
             return RedirectToAction(nameof(CA_Med_StaffDetails));
         }
 
-
-
-
-
-
-
-        // ✅ View PDF files
-        [HttpGet]
-        // ✅ View PDF files (Main first, else Temp during partial stage)
-
-        private async Task<StaffDetailsCombinedViewModel>  LoadStaffViewModel()
+        // ---------------------------------------------------------------
+        // Load view model
+        // ---------------------------------------------------------------
+        private async Task<StaffDetailsCombinedViewModel> LoadStaffViewModel()
         {
-            var collegeCode =
-              HttpContext.Session.GetString("CollegeCode");
-
-            var facultyCode =
-              HttpContext.Session.GetString("FacultyCode");
-
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
 
             if (string.IsNullOrEmpty(collegeCode) ||
-               string.IsNullOrEmpty(facultyCode))
+                string.IsNullOrEmpty(facultyCode))
                 return new StaffDetailsCombinedViewModel();
 
-
             // Changes by Ram on 23/04/2026
-
-            var raw =
-               HttpContext.Session.GetString("ExistingCourseLevels");
+            var raw = HttpContext.Session.GetString("ExistingCourseLevels");
 
             var levels =
-               string.IsNullOrEmpty(raw)
-               ? new List<string> { "UG" }
-               : System.Text.Json.JsonSerializer
-                  .Deserialize<List<string>>(raw)
-                  .Select(x => x.Trim().ToUpper())
-                  .Distinct()
-                  .ToList();
-
+                string.IsNullOrEmpty(raw)
+                ? new List<string> { "UG" }
+                : System.Text.Json.JsonSerializer
+                    .Deserialize<List<string>>(raw)!
+                    .Select(x => x.Trim().ToUpper())
+                    .Distinct()
+                    .ToList();
 
             string commonLevel =
                 levels.Contains("UG")
@@ -399,74 +362,55 @@ namespace Medical_Affiliation.Controllers
                     .OrderBy(x => x.SlNo)
                     .ToListAsync();
 
-
             var savedPayScales =
-              await _context.MedCaStaffParticulars
-                .Where(x =>
-                   x.CollegeCode == collegeCode &&
-                   x.FacultyCode == facultyCode &&
-                   x.CourseLevel == commonLevel)
-                .ToListAsync();
-
+                await _context.MedCaStaffParticulars
+                    .Where(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode &&
+                        x.CourseLevel == commonLevel)
+                    .ToListAsync();
 
             var payScaleList =
-              designations.Select(d =>
-              {
-                  var saved =
-                     savedPayScales
-                     .FirstOrDefault(
-                        x => x.DesignationSlNo == d.SlNo);
+                designations.Select(d =>
+                {
+                    var saved = savedPayScales
+                        .FirstOrDefault(x => x.DesignationSlNo == d.SlNo);
 
-                  return new Med_CA_StaffParticularsVM
-                  {
-                      DesignationSlNo = d.SlNo,
-                      Designation = d.Designation,
-                      PayScale = saved?.PayScale
-                  };
-
-              }).ToList();
-
+                    return new Med_CA_StaffParticularsVM
+                    {
+                        DesignationSlNo = d.SlNo,
+                        Designation = d.Designation,
+                        PayScale = saved?.PayScale
+                    };
+                }).ToList();
 
             var commonEntity =
-              await _context.CaMedStaffParticularsOthers
-               .FirstOrDefaultAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
-                    x.CourseLevel == commonLevel);
+                await _context.CaMedStaffParticularsOthers
+                    .FirstOrDefaultAsync(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyCode == facultyCode &&
+                        x.CourseLevel == commonLevel);
 
-
-            var staffOther =
-              new CA_Med_StaffParticularsOtherVM();
+            var staffOther = new CA_Med_StaffParticularsOtherVM();
 
             if (commonEntity != null)
             {
-                staffOther.TeachersUpdatedInEMS =
-                    commonEntity.TeachersUpdatedInEms;
+                staffOther.TeachersUpdatedInEMS = commonEntity.TeachersUpdatedInEms;
+                staffOther.ExaminerDetailsAttached = commonEntity.ExaminerDetailsAttached;
+                staffOther.ServiceRegisterMaintained = commonEntity.ServiceRegisterMaintained;
+                staffOther.AcquittanceRegisterMaintained = commonEntity.AcquittanceRegisterMaintained;
 
-                staffOther.ExaminerDetailsAttached =
-                    commonEntity.ExaminerDetailsAttached;
-
-                staffOther.ServiceRegisterMaintained =
-                    commonEntity.ServiceRegisterMaintained;
-
-                staffOther.AcquittanceRegisterMaintained =
-                    commonEntity.AcquittanceRegisterMaintained;
-
-                staffOther.ExaminerDetailsPdfName =
-                    commonEntity.ExaminerDetailsPdfName;
-
-                staffOther.AEBASLastThreeMonthsPdfName =
-                    commonEntity.AebaslastThreeMonthsPdfName;
-
-                staffOther.AEBASInspectionDayPdfName =
-                    commonEntity.AebasinspectionDayPdfName;
-
-                staffOther.ProvidentFundPdfName =
-                    commonEntity.ProvidentFundPdfName;
-
-                staffOther.ESIPdfName =
-                    commonEntity.EsipdfName;
+                staffOther.ExaminerDetailsPdfName = commonEntity.ExaminerDetailsPdfName;
+                staffOther.AEBASLastThreeMonthsPdfName = commonEntity.AebaslastThreeMonthsPdfName;
+                staffOther.AEBASInspectionDayPdfName = commonEntity.AebasinspectionDayPdfName;
+                staffOther.ProvidentFundPdfName = commonEntity.ProvidentFundPdfName;
+                staffOther.ESIPdfName = commonEntity.EsipdfName;
             }
+
+            // Block b document (stored on disk, no DB column)
+            var emsFile = GetTeachersEmsFilePath(facultyCode, collegeCode);
+            staffOther.TeachersUpdatedEmsPdfName =
+                System.IO.File.Exists(emsFile) ? "EMS_Teachers_Document.pdf" : null;
 
             return new StaffDetailsCombinedViewModel
             {
@@ -478,8 +422,10 @@ namespace Medical_Affiliation.Controllers
             };
         }
 
-        //code added by ram on 23/04/26 
-
+        // ---------------------------------------------------------------
+        // View / download PDF
+        // code added by ram on 23/04/26
+        // ---------------------------------------------------------------
         [HttpGet]
         public async Task<IActionResult> ViewStaffOtherPdf(string type, string mode = "view")
         {
@@ -489,15 +435,30 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
                 return NotFound();
 
-            // Changes by Ram on 23/04/2026
-            // Common records are loaded from UG master
-            var courseLevel = "UG";
+            // Do not let the browser reuse a cached copy of a different document
+            Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
 
+            // Block b - stored on disk at a fixed path
+            if (type == "TeachersEms")
+            {
+                var emsPath = GetTeachersEmsFilePath(facultyCode, collegeCode);
+                if (!System.IO.File.Exists(emsPath))
+                    return NotFound("File not found");
+
+                if (mode == "download")
+                    return PhysicalFile(emsPath, "application/pdf", "EMS_Teachers_Document.pdf");
+
+                Response.Headers["Content-Disposition"] = "inline; filename=\"EMS_Teachers_Document.pdf\"";
+                return PhysicalFile(emsPath, "application/pdf");
+            }
+
+            // Other documents - prefer the UG record, otherwise any level
             var record = await _context.CaMedStaffParticularsOthers
-                .FirstOrDefaultAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
-                    x.CourseLevel == courseLevel);
+                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode)
+                .OrderBy(x => x.CourseLevel == "UG" ? 0 : 1)
+                .FirstOrDefaultAsync();
 
             if (record == null)
                 return NotFound();
@@ -544,30 +505,21 @@ namespace Medical_Affiliation.Controllers
                 ? Path.GetFileName(filePath)
                 : fileName;
 
-            var provider =
-               new Microsoft.AspNetCore.StaticFiles
-                  .FileExtensionContentTypeProvider();
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
 
-            if (!provider.TryGetContentType(
-                filePath,
-                out string contentType))
+            if (!provider.TryGetContentType(filePath, out string? contentType))
             {
                 contentType = "application/octet-stream";
             }
 
             if (mode == "download")
             {
-                return PhysicalFile(
-                    filePath,
-                    contentType,
-                    finalName);
+                return PhysicalFile(filePath, contentType, finalName);
             }
 
-            Response.Headers["Content-Disposition"] =
-              $"inline; filename=\"{finalName}\"";
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{finalName}\"";
 
             return PhysicalFile(filePath, contentType);
         }
-
     }
 }

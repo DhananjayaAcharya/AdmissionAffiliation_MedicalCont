@@ -23,14 +23,33 @@ namespace Medical_Affiliation.Controllers
         // Government colleges pay this flat amount for every application type.
         private const decimal GovernmentCollegeFee = 3010m;
 
-        // Late fine: Rs. 1,00,000 added automatically to EVERY college (government and
-        // private) and EVERY application type once the last date has passed.
-        // Last date = 13 Oct 2026 (the whole day, up to 11:59 PM IST). The fine applies
-        // from 14 Oct 2026, 12:00 AM India Standard Time (UTC+05:30) onwards.
+        // ---------------------------------------------------------------------
+        // Late fine: Rs. 1,00,000 added automatically once the last date has passed.
+        //
+        // Non-UG (PG / SS): unchanged. Last date = 13 Oct 2026 (whole day, up to
+        //   11:59 PM IST). Fine applies from 14 Oct 2026, 12:00 AM IST onwards.
+        //
+        // UG, per Revised Notification-1 (RGUHS/MEDICAL/AFF/81180/2026-27):
+        //   - Without fine : up to 22 Oct 2026 (whole day, 11:59 PM IST)
+        //   - With fine    : 23 Oct 2026 to 31 Oct 2026
+        //   - After 31 Oct 2026 (from 1 Nov 2026, 12:00 AM IST) payment is closed.
+        //
+        // Keep these cut-offs identical in the view (PaymentCalculation/Index.cshtml)
+        // and in PaymentDocumentController.SavePaymentDocument.
+        // ---------------------------------------------------------------------
         private const decimal LateFine = 100000m;
-        private const string LateFineFeeHead = "Late fine (applicable after 13 Oct 2026)";
+        private const string LateFineFeeHeadPrefix = "Late fine";
+        private static readonly TimeSpan Ist = TimeSpan.FromHours(5.5);
+
+        // Non-UG
         private static readonly DateTimeOffset LateFineStart =
-            new DateTimeOffset(2026, 10, 14, 0, 0, 0, TimeSpan.FromHours(5.5));
+            new DateTimeOffset(2026, 10, 14, 0, 0, 0, Ist);
+
+        // UG
+        private static readonly DateTimeOffset UgLateFineStart =
+            new DateTimeOffset(2026, 10, 23, 0, 0, 0, Ist);
+        private static readonly DateTimeOffset UgPaymentClosed =
+            new DateTimeOffset(2026, 11, 1, 0, 0, 0, Ist);
 
         private readonly ApplicationDbContext _context;
         private readonly string _connectionString;
@@ -170,6 +189,14 @@ namespace Medical_Affiliation.Controllers
                 return;
             }
 
+            // UG only: payment window is closed after 31 Oct 2026 (Revised Notification-1).
+            if (IsPaymentClosed(vm))
+            {
+                vm.ErrorMessage = "The last date for UG affiliation payment (31 Oct 2026) has passed. Payment is no longer accepted.";
+                vm.HasResult = false;
+                return;
+            }
+
             try
             {
                 if (await IsGovernmentCollegeAsync(vm.CollegeCode))
@@ -195,25 +222,39 @@ namespace Medical_Affiliation.Controllers
         }
 
         // ---------------------------------------------------------------------
-        // Late fine
+        // Late fine / payment window
         // Adds Rs. 1,00,000 to the fee lines and the grand total for all colleges
-        // and all application types from 14 Oct 2026 00:00 IST onwards (13 Oct 2026
-        // is the last date, so nothing is added through 11:59 PM on 13 Oct). It is
-        // evaluated every time the calculation runs, so it switches on by itself at
-        // the cut-off with no deployment or manual step.
+        // and all application types once the applicable cut-off passes:
+        //   UG     : from 23 Oct 2026 00:00 IST (22 Oct is the last date without fine)
+        //   Non-UG : from 14 Oct 2026 00:00 IST (13 Oct is the last date without fine)
+        // For UG, payment is closed from 1 Nov 2026 00:00 IST.
+        // It is evaluated every time the calculation runs, so it switches on by
+        // itself at the cut-off with no deployment or manual step.
         // ---------------------------------------------------------------------
-        private static bool IsLateFineActive() => DateTimeOffset.UtcNow >= LateFineStart;
+        private static bool IsUg(PaymentCalculationViewModel vm) =>
+            NormalizeCourseLevel(vm.CourseLevelGroup ?? vm.CourseLevel) == "UG";
+
+        private static bool IsPaymentClosed(PaymentCalculationViewModel vm) =>
+            IsUg(vm) && DateTimeOffset.UtcNow >= UgPaymentClosed;
+
+        private static bool IsLateFineActive(PaymentCalculationViewModel vm) =>
+            DateTimeOffset.UtcNow >= (IsUg(vm) ? UgLateFineStart : LateFineStart);
 
         private static void ApplyLateFine(PaymentCalculationViewModel vm)
         {
-            if (!IsLateFineActive())
+            if (!IsLateFineActive(vm))
             {
                 return;
             }
 
+            var feeHead = IsUg(vm)
+                ? "Late fine (applicable after 22 Oct 2026)"
+                : "Late fine (applicable after 13 Oct 2026)";
+
             // Never add it twice if the view model already carries the line.
-            vm.FeeLines.RemoveAll(f => string.Equals(f.FeeHeadName, LateFineFeeHead, StringComparison.Ordinal));
-            vm.FeeLines.Add(FixedFee(LateFineFeeHead, LateFine));
+            vm.FeeLines.RemoveAll(f => (f.FeeHeadName ?? string.Empty)
+                .StartsWith(LateFineFeeHeadPrefix, StringComparison.OrdinalIgnoreCase));
+            vm.FeeLines.Add(FixedFee(feeHead, LateFine));
 
             if (vm.Summary != null)
             {

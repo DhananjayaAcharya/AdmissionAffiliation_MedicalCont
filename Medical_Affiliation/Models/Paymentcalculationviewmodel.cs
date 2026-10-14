@@ -30,6 +30,7 @@ namespace Medical_Affiliation.Models
         public List<MatchedCourseVM> MatchedCourses { get; set; } = new List<MatchedCourseVM>();
         public List<FeeLineVM> FeeLines { get; set; } = new List<FeeLineVM>();
         public PaymentSummaryVM Summary { get; set; }
+
     }
 
     public class AffiliationTypeOption
