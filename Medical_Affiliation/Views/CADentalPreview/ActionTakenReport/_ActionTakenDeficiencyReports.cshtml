@@ -3,6 +3,7 @@
 @{
     var FacultyCode = Context.Session.GetString("FacultyCode");
     var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+    bool isLocked = Context.Session.GetInt32("DentalLock") == 1;
 }
 
 <link rel="stylesheet"
@@ -20,19 +21,23 @@
                 Action Taken Deficiency Report
             </h4>
 
-            <a class="preview-section-edit"
-               href="@Url.Action(
+            @if (!isLocked)
+            {
+                <a class="preview-section-edit"
+                    href="@Url.Action(
                     "Index",
                     "ActiontakenDeficiencyReport",
                     new
                     {
                         typeOfAffiliation = @AffiliationType
-                    })">
+                    })
+                    ">
 
-                <i class="bi bi-pencil-square"></i>
-                <span>Edit section</span>
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
 
-            </a>
+                </a>
+            }
 
         </div>
 

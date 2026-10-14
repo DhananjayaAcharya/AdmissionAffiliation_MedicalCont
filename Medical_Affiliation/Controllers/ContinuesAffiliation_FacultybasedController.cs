@@ -90,6 +90,35 @@ namespace Medical_Affiliation.Controllers
             Response.Cookies.Append("SelectedLevel", level, cookieOptions);
             Response.Cookies.Append("FacultyCode", facultyCode, cookieOptions);
 
+            bool isLocked = false;
+
+            if (facultyCode == "2")
+            {
+                var academicYear = "2027-28";
+
+                var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+                var finalSubmissionStatus = await _context.FinalDentalSubmissions
+                    .FirstOrDefaultAsync(e =>
+                        e.CollegeCode == collegeCode &&
+                        e.FacultyCode == 2 &&
+                        e.AffiliationTypeId == affiliationTypeId &&
+                        e.CourseLevel == level.ToUpperInvariant() 
+                        //&&
+                        //e.AcademicYear == academicYear
+                        );
+
+                isLocked = finalSubmissionStatus?.IsLocked ?? false;
+            }
+
+            // Available outside the if block
+            HttpContext.Session.SetInt32("DentalLock", isLocked ? 1 : 0);
+
+            if(facultyCode == "2" && isLocked)
+            {
+                return RedirectToAction("Preview", "CADentalPreview", new { level });
+            }
+
             // NEW: redirect to the correct destination page based on affiliationTypeId
             // (mirrors affiliationBaseUrlMap in the sidebar JS)
             switch (affiliationTypeId)

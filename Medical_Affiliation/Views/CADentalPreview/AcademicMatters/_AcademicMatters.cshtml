@@ -1,5 +1,7 @@
 ﻿@model CA_Aff_AcademicMattersViewModel
-
+@{
+    bool isLocked = Context.Session.GetInt32("DentalLock") == 1;
+}
 <style>
     .academic-section {
         background: linear-gradient(135deg, #e8f4f8 0%, #f0f7fb 100%);
@@ -343,12 +345,14 @@
                 <div>
                     <h2 class="academic-title academic-badge">Academic Matters</h2>
                 </div>
-
-                <a class="edit-button"
-                   href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode, facultyId = Model.FacultyId })">
-                    <i class="bi bi-pencil-square"></i>
-                    <span>Edit section</span>
-                </a>
+                @if (!isLocked)
+                {
+                    <a class="edit-button"
+                    href="@Url.Action("EditAcademic", "CollegeAffiliation", new { collegeCode = Model.CollegeCode, facultyId = Model.FacultyId })">
+                        <i class="bi bi-pencil-square"></i>
+                        <span>Edit section</span>
+                    </a>
+                }
             </div>
         </div>
     </div>

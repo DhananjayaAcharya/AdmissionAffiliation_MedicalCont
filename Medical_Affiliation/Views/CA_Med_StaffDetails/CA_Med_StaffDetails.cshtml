@@ -387,14 +387,14 @@
 
                             <!-- Changes by Ram on 23/04/2026 -->
                             <!-- show file exactly like c -->
-
-                            <div id="TeachersUpdatedFileDiv"
-                                 style="display:@(
-                                 Model.StaffOther.TeachersUpdatedInEMS == "Y"
-                                 ? "block"
-                                 : "none"
-                                          );
-         margin-top:16px;">
+                            @if (facultyCode == "1")
+                            {
+                                <div id="TeachersUpdatedFileDiv"
+                                     style="display:@(
+                                     Model.StaffOther.TeachersUpdatedInEMS == "Y"
+                                         ? "block"
+                                         : "none"
+                                         ); margin-top:16px;">
 
                                 <div class="file-upload-area">
                                     <input asp-for="TeachersUpdatedEmsPdf"
@@ -416,44 +416,213 @@
                                    target="_blank"
                                    class="view-btn">
 
-                                        <i class="fas fa-eye"></i>
-                                        View EMS / Examiner Document
-
-                                    </a>
-                                                                }
-
-                            </div>
-
-                        </div>
-
-                        <!-- c -->
-                        <div class="form-item">
-                            <label class="long-label">
-                                c. Department wise Examiner's details ... (Enclose form-16 of all the teachers)
-                            </label>
-                            <label><b>Is the Document Attached?</b></label>
-                            <select asp-for="StaffOther.ExaminerDetailsAttached" class="form-select" id="ExaminerDetailsAttachedDropdown">
-                                <option value="">-- Select --</option>
-                                <option value="Y" selected="@(Model.StaffOther.ExaminerDetailsAttached == "Y")">Yes</option>
-                                <option value="N" selected="@(Model.StaffOther.ExaminerDetailsAttached == "N")">No</option>
-                            </select>
-                            <span asp-validation-for="StaffOther.ExaminerDetailsAttached" class="text-danger"></span>
-
-                            <div id="ExaminerFileDiv" style="display: @(Model.StaffOther.ExaminerDetailsAttached == "Y" ? "block" : "none"); margin-top: 16px;">
-                                <div class="file-upload-area">
-                                    <input asp-for="ExaminerDetailsPdf" type="file" class="file-validate" accept="application/pdf" />
+                                            <i class="fas fa-eye"></i>
+                                            View EMS / Examiner Document
+                                        </a>
+                                    }
                                 </div>
-                                <span asp-validation-for="ExaminerDetailsPdf" class="text-danger"></span>
+                            }
+                            else if (facultyCode == "2")
+                            {
+                                <div id="TeachersUpdatedFileDiv"
+                                     style="display:@(
+                                     Model.StaffOther.TeachersUpdatedInEMS == "Y"
+                                         ? "block"
+                                         : "none"
+                                    ); margin-top:16px;">
 
-                                @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName))
-                                {
-                                    <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner" })"
-                                       target="_blank" class="view-btn">
-                                        <i class="fas fa-eye"></i> View Examiner Details Document
-                                    </a>
-                                }
-                            </div>
+                                    <div class="file-upload-area">
+                                        <input asp-for="TeachersUpdatedPdf"
+                                               type="file"
+                                               class="file-validate"
+                                               accept="application/pdf" />
+                                    </div>
+
+                                    <span asp-validation-for="TeachersUpdatedPdf"
+                                          class="text-danger"></span>
+
+                                    @if (!string.IsNullOrEmpty(
+                                        Model.StaffOther.TeachersUpdatedPdfName))
+                                    {
+                                        <a href="@Url.Action(
+                                                "ViewDentalStaffOtherPdf",
+                                                "CA_Med_StaffDetails",
+                                                new { type = "Ems" })"
+                                           target="_blank"
+                                           class="view-btn">
+
+                                            <i class="fas fa-eye"></i>
+                                            View EMS Document
+                                        </a>
+                                    }
+                                </div>
+                            }
+
                         </div>
+
+                        @if(facultyCode == "1"){
+                            <!-- c -->
+                            <div class="form-item">
+                                <label class="long-label">
+                                    c. Department wise Examiner's details ... (Enclose form-16 of all the teachers)
+                                </label>
+                                <label><b>Is the Document Attached?</b></label>
+                                <select asp-for="StaffOther.ExaminerDetailsAttached" class="form-select" id="ExaminerDetailsAttachedDropdown">
+                                    <option value="">-- Select --</option>
+                                    <option value="Y" selected="@(Model.StaffOther.ExaminerDetailsAttached == "Y")">Yes</option>
+                                    <option value="N" selected="@(Model.StaffOther.ExaminerDetailsAttached == "N")">No</option>
+                                </select>
+                                <span asp-validation-for="StaffOther.ExaminerDetailsAttached" class="text-danger"></span>
+
+                                <div id="ExaminerFileDiv" style="display: @(Model.StaffOther.ExaminerDetailsAttached == "Y" ? "block" : "none"); margin-top: 16px;">
+                                    <div class="file-upload-area">
+                                        <input asp-for="ExaminerDetailsPdf" type="file" class="file-validate" accept="application/pdf" />
+                                    </div>
+                                    <span asp-validation-for="ExaminerDetailsPdf" class="text-danger"></span>
+
+                                    @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName))
+                                    {
+                                        <a href="@Url.Action("ViewStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner" })"
+                                           target="_blank" class="view-btn">
+                                            <i class="fas fa-eye"></i> View Examiner Details Document
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else if(facultyCode == "2")
+                        {
+                            <!-- c -->
+                            <div class="form-item">
+                                <label class="long-label">
+                                    c. Department wise Examiner's details ... (Enclose form-16 of all the teachers)
+                                </label>
+                                <label><b>Is the Document Attached?</b></label>
+                                <select asp-for="StaffOther.ExaminerDetailsAttached" class="form-select" id="ExaminerDetailsAttachedDropdown">
+                                    <option value="">-- Select --</option>
+                                    <option value="Y" selected="@(Model.StaffOther.ExaminerDetailsAttached == "Y")">Yes</option>
+                                    <option value="N" selected="@(Model.StaffOther.ExaminerDetailsAttached == "N")">No</option>
+                                </select>
+                                <span asp-validation-for="StaffOther.ExaminerDetailsAttached" class="text-danger"></span>
+
+                                <div id="ExaminerFileDiv"
+                                     style="display: @(Model.StaffOther.ExaminerDetailsAttached == "Y" ? "block" : "none");
+                                    margin-top: 16px;">
+
+                                    <div class="alert alert-info mb-3">
+                                        <strong>Instructions:</strong>
+                                        <ul style="margin-bottom:0;padding-left:18px;">
+                                            <li>Upload Form-16 documents in batches.</li>
+                                            <li>Maximum 20 MB per PDF.</li>
+                                            <li>Use Upload 1 for the first set of teachers.</li>
+                                            <li>Use Upload 2–5 only if additional files are required.</li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Upload 1 -->
+                                    <div class="file-upload-area">
+                                        <label><b>Form-16 Upload 1</b></label> <br />
+                                        @* <small class="d-block text-muted">
+                                        Teachers 1 - 10 (or first batch)
+                                    </small> *@
+                                        <input asp-for="ExaminerDetailsPdf"
+                                               type="file"
+                                               class="file-validate-form16"
+                                               accept="application/pdf" />
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName))
+                                    {
+                                        <a href="@Url.Action("ViewDentalStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner" })"
+                                           target="_blank" class="view-btn">
+                                            <i class="fas fa-eye"></i> View Upload 1
+                                        </a>
+                                    }
+
+                                    <!-- Upload 2 -->
+                                    <div class="file-upload-area">
+                                        <label><b>Form-16 Upload 2</b></label>
+                                        <small class="d-block text-muted">
+                                            Additional teachers if Upload 1 is not sufficient
+                                        </small>
+                                        <input asp-for="ExaminerDetailsPdf2"
+                                               type="file"
+                                               class="file-validate-form16"
+                                               accept="application/pdf" />
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName2))
+                                    {
+                                        <a href="@Url.Action("ViewDentalStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner2" })"
+                                           target="_blank" class="view-btn">
+                                            <i class="fas fa-eye"></i> View Upload 2
+                                        </a>
+                                    }
+
+                                    <!-- Upload 3 -->
+                                    <div class="file-upload-area">
+                                        <label><b>Form-16 Upload 3</b></label>
+                                        <small class="d-block text-muted">
+                                            Additional teachers
+                                        </small>
+                                        <input asp-for="ExaminerDetailsPdf3"
+                                               type="file"
+                                               class="file-validate-form16"
+                                               accept="application/pdf" />
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName3))
+                                    {
+                                        <a href="@Url.Action("ViewDentalStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner3" })"
+                                           target="_blank" class="view-btn">
+                                            <i class="fas fa-eye"></i> View Upload 3
+                                        </a>
+                                    }
+
+                                    <!-- Upload 4 -->
+                                    <div class="file-upload-area">
+                                        <label><b>Form-16 Upload 4</b></label>
+                                        <small class="d-block text-muted">
+                                            Additional teachers
+                                        </small>
+                                        <input asp-for="ExaminerDetailsPdf4"
+                                               type="file"
+                                               class="file-validate-form16"
+                                               accept="application/pdf" />
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName4))
+                                    {
+                                        <a href="@Url.Action("ViewDentalStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner4" })"
+                                           target="_blank" class="view-btn">
+                                            <i class="fas fa-eye"></i> View Upload 4
+                                        </a>
+                                    }
+
+                                    <!-- Upload 5 -->
+                                    <div class="file-upload-area">
+                                        <label><b>Form-16 Upload 5</b></label>
+                                        <small class="d-block text-muted">
+                                            Final batch of teachers
+                                        </small>
+                                        <input asp-for="ExaminerDetailsPdf5"
+                                               type="file"
+                                               class="file-validate-form16"
+                                               accept="application/pdf" />
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.StaffOther.ExaminerDetailsPdfName5))
+                                    {
+                                        <a href="@Url.Action("ViewDentalStaffOtherPdf", "CA_Med_StaffDetails", new { type = "Examiner5" })"
+                                           target="_blank" class="view-btn">
+                                            <i class="fas fa-eye"></i> View Upload 5
+                                        </a>
+                                    }
+
+                                </div>
+                            </div>
+                        }
+
 
                         <!-- d -->
                         <div class="form-item">
@@ -792,6 +961,39 @@
                         }
                     }
                 }
+
+
+                if (e.target.classList.contains("file-validate-form16")) {
+
+                    const file = e.target.files[0];
+                    const maxSize = 20 * 1024 * 1024; // 20MB
+
+                    if (file) {
+
+                        if (file.size > maxSize) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "File too large",
+                                text: "Maximum allowed size is 20MB"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+
+                        const ext = file.name.split('.').pop().toLowerCase();
+
+                        if (ext !== "pdf") {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Invalid file",
+                                text: "Only PDF files are allowed"
+                            });
+
+                            e.target.value = "";
+                            return;
+                        }
+                    }
 
             });
         });

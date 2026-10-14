@@ -6,6 +6,7 @@
 @{
     var FacultyCode = Context.Session.GetString("FacultyCode");
     var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+    bool isLocked = Context.Session.GetInt32("DentalLock") == 1;
 
 }
 <link rel="stylesheet" href="~/css/preview-section-header.css" asp-append-version="true" />
@@ -27,6 +28,8 @@
 
             </div>
 
+            @if (!isLocked)
+            {
             <a class="preview-section-edit"
                href="@Url.Action(
                     "ClinicalFacilities",
@@ -41,6 +44,7 @@
                 <span>Edit section</span>
 
             </a>
+            }
 
         </div>
 

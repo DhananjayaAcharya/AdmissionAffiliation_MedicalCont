@@ -163,7 +163,7 @@ namespace Medical_Affiliation.Services.Faculty
                     x.CollegeCode == collegeCode &&
                     x.FacultyCode == facultyCode.ToString());
 
-            string academicYear = "2026-27";
+            string academicYear = "2027-28";
 
             int affiliationTypeId = Convert.ToInt32(_httpContextAccessor.HttpContext.Session.GetInt32("AffiliationType"));
 
@@ -172,10 +172,14 @@ namespace Medical_Affiliation.Services.Faculty
                     e.CollegeCode == collegeCode &&
                     e.FacultyCode == 2 &&
                     e.AffiliationTypeId == affiliationTypeId &&
-                    e.CourseLevel == courseLevel &&
-                    e.AcademicYear == academicYear);
+                    e.CourseLevel == courseLevel 
+                    //&&
+                    //e.AcademicYear == academicYear
+                    );
 
             string? typeOfAffiliation = _httpContextAccessor.HttpContext?.Session.GetString("TypeOfAffiliation");
+
+            _httpContextAccessor.HttpContext?.Session.SetInt32("DentalLock", finalSubmissionStatus.IsLocked ? 1 : 0);
 
 
             vm.FinalSubmissionVM = new DentalFinalSubmissionViewModel
@@ -276,8 +280,10 @@ namespace Medical_Affiliation.Services.Faculty
                         x.CollegeCode == collegeCode &&
                         x.FacultyCode == 2 &&
                         x.AffiliationTypeId == affiliationTypeId &&
-                        x.CourseLevel == courseLevel &&
-                        x.AcademicYear == academicYear);
+                        x.CourseLevel == courseLevel 
+                        //&&
+                        //x.AcademicYear == academicYear
+                        );
 
                 bool isNewSubmission = submission == null;
 

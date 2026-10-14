@@ -9,7 +9,7 @@ namespace Medical_Affiliation.Controllers
 {
     public class DentalPaymentController : BaseController
     {
-        private const string PaymentAcademicYear = "2025-26";
+        private const string PaymentAcademicYear = "2026-27";
         //private readonly ApplicationDbContext _context;
         private readonly string _connectionString;
         private const int _facultyCode = 2;

@@ -4,6 +4,7 @@
     var FacultyCode = Context.Session.GetString("FacultyCode");
     var courseLevel = Context.Session.GetString("CourseLevel");
     var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+    bool isLocked = Context.Session.GetInt32("DentalLock") == 1;
 
 }
 
@@ -19,6 +20,8 @@
         Staff Particular Details
     </h2>
 
+    @if (!isLocked)
+    {
     <a class="preview-section-edit"
         href="@Url.Action(
             "CA_Med_StaffDetails",
@@ -32,6 +35,7 @@
         <span>Edit section</span>
 
     </a>
+    }
 
 </div>
 
