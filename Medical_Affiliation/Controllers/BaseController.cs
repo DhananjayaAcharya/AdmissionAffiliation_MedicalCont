@@ -80,6 +80,18 @@ namespace Medical_Affiliation.Controllers
             }
         }
 
+        //below 1 code added by ram for ayurveda faculty
+        protected string BaseAyurvedaPath
+        {
+            get
+            {
+                return Directory.Exists(@"E:\")
+                    ? @"E:\Affiliation_Ayurveda"
+                    : @"D:\Affiliation_Ayurveda";
+            }
+        }
+
+
         protected string CourseLevel
         {
             get
@@ -172,9 +184,12 @@ namespace Medical_Affiliation.Controllers
             if (file == null || file.Length == 0)
                 return null;
 
-            string basePath = FacultyCode == "2"
-                ? BaseDentalPath
-                : BaseMedicalPath;
+            string basePath = FacultyCode switch
+            {
+                "2" => BaseDentalPath,
+                "4" => BaseAyurvedaPath,
+                _ => BaseMedicalPath
+            };
 
             // Creates:
             // E:\Affiliation_Medical\DepartmentWisePublications\

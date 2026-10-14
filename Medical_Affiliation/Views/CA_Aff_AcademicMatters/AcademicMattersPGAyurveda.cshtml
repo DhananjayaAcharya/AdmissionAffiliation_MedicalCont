@@ -3,7 +3,7 @@
 @using Medical_Affiliation.Models
 
 @{
-    ViewData["Title"] = "Ayurveda PG Academic Matters";
+    ViewData["Title"] = "Academic Matters PG";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var yearList = ViewBag.YearList as List<CaMstYearOfStudy> ?? new List<CaMstYearOfStudy>();
 }
@@ -12,32 +12,33 @@
 <link rel="stylesheet" href="~/css/common-form.css" />
 <style>
     /* .page-header {
-        background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
-        padding: 28px 40px 24px;
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        border-bottom: 3px solid var(--gold);
-    } */
+            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+            padding: 28px 40px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 3px solid var(--gold);
+        } */
 
-    .page-header{
+    .page-header {
         top: 0;
-    }   
-    .page-header .emblem {
-        width: 54px;
-        height: 54px;
-        border: 2px solid var(--gold);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
-    .page-header .emblem svg {
-        width: 28px;
-        height: 28px;
-        fill: var(--gold);
-    }
+        .page-header .emblem {
+            width: 54px;
+            height: 54px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .page-header .emblem svg {
+                width: 28px;
+                height: 28px;
+                fill: var(--gold);
+            }
 
     .page-header-text h1 {
         font-family: 'Playfair Display', serif;
@@ -74,27 +75,18 @@
         margin: 0px auto;
         padding: 0 0px 1rem;
     }
-    .section-card{
+
+    .section-card {
         margin: 6rem auto 0;
     }
 
-    .section-card-clone{
+    .section-card-clone {
         margin: 2rem auto;
     }
 
 </style>
 <div class="form-wrap">
-   <form asp-controller="CA_Aff_AcademicMatters"
-      asp-action="AcademicMattersPGAyurveda"
-      method="post">
-    @Html.AntiForgeryToken()
-    @if (Model.Subjects == null || !Model.Subjects.Any())
-{
-    <div class="alert alert-warning">
-        No Ayurveda PG subjects were found for this college.
-        Please verify the Ayurveda PG intake and course master records.
-    </div>
-}
+    <form asp-action="AcademicMattersPG" method="post">
         <div id="sectionsContainer" class="mt-2">
             @for (int s = 0; s < Model.Sections.Count; s++)
             {
@@ -260,7 +252,7 @@
     let sectionIndex = @Model.Sections.Count;
 
     // ➕ ADD NEW SECTION (CLONE FIRST ONE)
-    document.getElementById("addSection").addEventListener("click", function () {
+    document.getElementById("addSection").addEventListener("click", function() {
 
         let firstSection = document.querySelector(".section-card");
         let newSection = firstSection.cloneNode(true);
@@ -309,7 +301,7 @@
 
 
     // 🧹 CLEAR ENTIRE SECTION
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click", function(e) {
         if (e.target.classList.contains("clearSection")) {
 
             let section = e.target.closest(".section-card");
@@ -320,7 +312,7 @@
             if (select) select.selectedIndex = 0;
         }
     });
-    document.addEventListener("change", function (e) {
+    document.addEventListener("change", function(e) {
         if (e.target.matches("select[name*='Sections']")) {
 
             let values = Array.from(document.querySelectorAll("select[name*='Sections']"))
@@ -334,45 +326,106 @@
         }
     });
 
-    document.addEventListener("input", function (e) {
+    // UPDATED FOR PG-YEAR-WISE PERCENTAGE(%) CALCULATION
+    document.addEventListener("input", function(e) {
 
         if (
-            e.target.name.includes("RegularStudents") ||
-            e.target.name.includes("RepeaterStudents") ||
-            e.target.name.includes("NumberOfStudentsPassed")
+            !e.target.name.includes("RegularStudents") &&
+            !e.target.name.includes("RepeaterStudents") &&
+            !e.target.name.includes("NumberOfStudentsPassed")
         ) {
-            let td = e.target.closest("td");
-            let table = td.closest("table");
+            return;
+        }
 
-            let colIndex = td.cellIndex;
+        const inputName = e.target.name;
 
-            let getVal = (rowName) => {
-                let row = Array.from(table.rows).find(r => r.cells[0].innerText.includes(rowName));
-                return parseInt(row?.cells[colIndex]?.querySelector("input")?.value) || 0;
-            };
+        // Example:
+        // Sections[0].YearData[0].RegularStudents
+        // Sections[0].YearData[1].RegularStudents
+        // Sections[0].YearData[2].RegularStudents
 
-            let regular = getVal("Regular");
-            let repeater = getVal("Repeater");
-            let passed = getVal("Passed");
+        const match = inputName.match(
+            /Sections\[(\d+)\]\.YearData\[(\d+)\]/
+        );
 
-            let total = regular + repeater;
-            let percent = total > 0 ? (passed / total) * 100 : 0;
+        if (!match) {
+            return;
+        }
 
-            let percentRow = Array.from(table.rows).find(r => r.cells[0].innerText.includes("Pass %"));
+        const sectionIndex = parseInt(match[1], 10);
+        const yearIndex = parseInt(match[2], 10);
 
-            if (percentRow) {
-                let input = percentRow.cells[colIndex].querySelector("input");
-                input.value = percent.toFixed(2);
+        // PG only supports 3 years
+        if (yearIndex > 2) {
+            return;
+        }
+
+        // Find the section containing the changed input
+        const section = e.target.closest(".section-card");
+
+        if (!section) {
+            return;
+        }
+
+        // ---------------------------------------------------------
+        // Find the input for the SAME section + SAME YEAR
+        // ---------------------------------------------------------
+
+        function getValue(propertyName) {
+
+            const input = section.querySelector(
+                `[name="Sections[${sectionIndex}].YearData[${yearIndex}].${propertyName}"]`
+            );
+
+            if (!input) {
+                return 0;
             }
+
+            const value = parseInt(input.value, 10);
+
+            return isNaN(value) ? 0 : value;
+        }
+
+        const regular = getValue("RegularStudents");
+        const repeater = getValue("RepeaterStudents");
+        const passed = getValue("NumberOfStudentsPassed");
+
+        // ---------------------------------------------------------
+        // TOTAL STUDENTS APPEARED
+        // ---------------------------------------------------------
+
+        const totalAppeared = regular + repeater;
+
+        // ---------------------------------------------------------
+        // PASS %
+        //
+        // Passed / (Regular + Repeater) × 100
+        // ---------------------------------------------------------
+
+        const percentage =
+            totalAppeared > 0
+                ? (passed / totalAppeared) * 100
+                : 0;
+
+        // ---------------------------------------------------------
+        // Find PassPercentage input for SAME section + SAME YEAR
+        // ---------------------------------------------------------
+
+        const percentageInput = section.querySelector(
+            `[name="Sections[${sectionIndex}].YearData[${yearIndex}].PassPercentage"]`
+        );
+
+        if (percentageInput) {
+            percentageInput.value = percentage.toFixed(2);
         }
     });
 
-    document.getElementById("clearAllSections").addEventListener("click", function () {
+    document.getElementById("clearAllSections").addEventListener("click", function() {
         document.querySelectorAll("#sectionsContainer input").forEach(i => i.value = "");
         document.querySelectorAll("#sectionsContainer select").forEach(s => s.selectedIndex = 0);
     });
 
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click", function(e) {
         if (e.target.classList.contains("removeSection")) {
             let section = e.target.closest(".section-card");
             section.remove();

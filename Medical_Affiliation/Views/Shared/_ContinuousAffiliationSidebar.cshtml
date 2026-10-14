@@ -213,7 +213,7 @@
 
         // ================= ACADEMIC & ADMIN =================v v  v
         new StepItem{ Key="AcademicMatters", Label="UG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMatters", Levels = new List<string>{ "UG" } },
-        new StepItem{ Key="PGAcademicMatters", Label="PG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act="AcademicMattersPG", Levels = new List<string>{ "PG" } },
+        new StepItem{ Key="PGAcademicMatters", Label="PG Academic Performance", Group="Academic & Admin", Ctrl="CA_Aff_AcademicMatters", Act=(facultyCode?.Trim() == "4" ? "AcademicMattersPGAyurveda" : "AcademicMattersPG"), Levels = new List<string>{ "PG" } },
         new StepItem{ Key="Finance", Label="Financial Details", Group="Academic & Admin", Ctrl="Aff_CA_Med_FinanceDetails", Act="Med_CA_AccountAndFeeDetails" },
         new StepItem{ Key="StaffDetails", Label="Staff Particular Details", Group="Academic & Admin", Ctrl="CA_Med_StaffDetails", Act="CA_Med_StaffDetails" },
 

@@ -1280,30 +1280,60 @@
                   if (facultyCode === "2" || facultyCode === "4") {
                     levels = ["ug", "pg"];
                 }
-                else if (facultyCode === "1" ) {
+                else if (facultyCode === "1") {
                     fetch(getCourseLevelsUrl)
-                    .then(res => res.json())
-                    .then(data => {
-                        data.forEach(level => {
-                            const normalizedLevel = level.trim().toLowerCase();
-                            const levelItem = document.createElement(normalizedLevel === "ug" ? "a" : "span");
-                            levelItem.className = `affiliation-subitem${normalizedLevel === "ug" ? "" : " readonly"}`;
-                            levelItem.textContent = level.toUpperCase();
-
-                            if (normalizedLevel === "ug") {
-                                levelItem.href = "#";
-                                levelItem.dataset.level = normalizedLevel;
-                                levelItem.addEventListener("click", navigateToLevel);
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error("Failed to fetch course levels");
                             }
+                            return res.json();
+                        })
+                        .then(data => {
+                            data.forEach(level => {
+                                const normalizedLevel = String(level)
+                                    .trim()
+                                    .toLowerCase();
 
-                            subMenu.appendChild(levelItem);
+                                // Medical: Enable both UG and PG.
+                                // Keep other levels read-only.
+                                const isClickable =
+                                    normalizedLevel === "ug" ||
+                                    normalizedLevel === "pg";
+
+                                const levelItem = document.createElement(
+                                    isClickable ? "a" : "span"
+                                );
+
+                                levelItem.className = isClickable
+                                    ? "affiliation-subitem"
+                                    : "affiliation-subitem readonly";
+
+                                levelItem.textContent = normalizedLevel.toUpperCase();
+
+                                if (isClickable) {
+                                    levelItem.href = "#";
+                                    levelItem.dataset.level = normalizedLevel;
+                                    levelItem.addEventListener(
+                                        "click",
+                                        navigateToLevel
+                                    );
+                                }
+
+                                subMenu.appendChild(levelItem);
+                            });
+                        })
+                        .catch(err => {
+                            console.error(
+                                "Failed to load Medical course levels:",
+                                err
+                            );
+                            subMenu.textContent = "Unable to load course levels.";
                         });
-                    });
 
                     panel.appendChild(subMenu);
                     return;
-
                 }
+
                 levels.forEach(level => {
     const normalizedLevel = level.trim().toLowerCase();
 

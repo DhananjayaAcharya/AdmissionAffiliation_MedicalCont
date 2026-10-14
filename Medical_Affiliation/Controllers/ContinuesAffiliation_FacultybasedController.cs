@@ -1248,9 +1248,14 @@ namespace Medical_Affiliation.Controllers
                         x.FacultyCode == facultyCode &&
                         x.CollegeCode == collegeCode);
 
-                string rootPath = facultyCode == "2"
-                    ? BaseDentalPath
-                    : BaseMedicalPath;
+              
+                string rootPath = facultyCode switch
+                        {
+                            "2" => BaseDentalPath,
+                            "4" => BaseAyurvedaPath,
+                            _ => BaseMedicalPath
+                        };
+
 
                 string folderPath = Path.Combine(
                     rootPath,
@@ -2965,30 +2970,94 @@ namespace Medical_Affiliation.Controllers
 
             return Json(new { success = true, data = data });
         }
-        public IActionResult ViewDocument(string id)
-        {
-            var doc = _context.AffInstitutionsDetails
-                .FirstOrDefault(x => x.CollegeCode == id);
+        //public IActionResult ViewDocument(string id)
+        //{
+        //    var doc = _context.AffInstitutionsDetails
+        //        .FirstOrDefault(x => x.CollegeCode == id);
 
-            if (doc == null ||
-                string.IsNullOrEmpty(doc.DocumentDataPath) ||
-                !System.IO.File.Exists(doc.DocumentDataPath))
-                return NotFound("File not found");
+        //    if (doc == null ||
+        //        string.IsNullOrEmpty(doc.DocumentDataPath) ||
+        //        !System.IO.File.Exists(doc.DocumentDataPath))
+        //        return NotFound("File not found");
+
+        //    var fileName = Path.GetFileName(doc.DocumentDataPath);
+
+        //    // 🔥 Detect content type
+        //    var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+        //    if (!provider.TryGetContentType(doc.DocumentDataPath, out string contentType))
+        //    {
+        //        contentType = "application/octet-stream";
+        //    }
+
+        //    // 👀 IMPORTANT: INLINE VIEW (NOT DOWNLOAD)
+        //    Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+        //    return PhysicalFile(doc.DocumentDataPath, contentType);
+        //}
+
+        
+       [HttpGet]
+        public async Task<IActionResult> ViewDocument(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest("College code is required.");
+
+            var facultyCode = FacultyCode;
+            var courseLevel = CourseLevel;
+
+            if (string.IsNullOrWhiteSpace(facultyCode) ||
+                string.IsNullOrWhiteSpace(CollegeCode))
+            {
+                return Unauthorized();
+            }
+
+            // Ensure the requested college belongs to the logged-in user.
+            if (!string.Equals(
+                id.Trim(),
+                CollegeCode.Trim(),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return Forbid();
+            }
+
+            var doc = await _context.AffInstitutionsDetails
+                .Where(x =>
+                    x.CollegeCode == id &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel)
+                .FirstOrDefaultAsync();
+
+            if (doc == null)
+                return NotFound(
+                    $"Institution details not found for {courseLevel}.");
+
+            if (string.IsNullOrWhiteSpace(doc.DocumentDataPath))
+                return NotFound(
+                    $"No institution document is saved for {courseLevel}.");
+
+            if (!System.IO.File.Exists(doc.DocumentDataPath))
+                return NotFound(
+                    $"File not found for {courseLevel}: {doc.DocumentDataPath}");
 
             var fileName = Path.GetFileName(doc.DocumentDataPath);
 
-            // 🔥 Detect content type
-            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
-            if (!provider.TryGetContentType(doc.DocumentDataPath, out string contentType))
+            var provider =
+                new Microsoft.AspNetCore.StaticFiles
+                    .FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType(
+                doc.DocumentDataPath, out var contentType))
             {
                 contentType = "application/octet-stream";
             }
 
-            // 👀 IMPORTANT: INLINE VIEW (NOT DOWNLOAD)
-            Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+            Response.Headers["Content-Disposition"] =
+                $"inline; filename=\"{fileName}\"";
 
             return PhysicalFile(doc.DocumentDataPath, contentType);
         }
+
+
 
 
 
@@ -3014,11 +3083,13 @@ namespace Medical_Affiliation.Controllers
         {
             // 1. Persist selected course level from query string into session
             SetCourseLevelFromRequest();
-            var courseLevel = HttpContext.Session.GetString("CourseLevel");
+            //var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             // 2. Resolve session values
             var facultyCode = User.FindFirst("FacultyCode")?.Value;
             var collegeCode = User.FindFirst("CollegeCode")?.Value;
+
+            var courseLevel = this.CourseLevel;
 
             //if (string.IsNullOrWhiteSpace(courseLevel))
             //    return RedirectToAction("Dashboard", "Collegelogin");
@@ -3026,12 +3097,25 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return BadRequest("Session expired. FacultyCode / CollegeCode not found. Please login again.");
 
-            // 2. Try to load existing record
+            // Existing record lookup
+            
+// Resolve the active course level (UG / PG / SS)
+            
+
+            // Load the record for the current faculty, college and course level
             var entity = _context.AffInstitutionsDetails
                 .FirstOrDefault(x =>
-                    (x.FacultyCode ?? "").Trim().ToLower() == (facultyCode ?? "").Trim().ToLower()
+                    (x.FacultyCode ?? "").Trim().ToLower() ==
+                        facultyCode.Trim().ToLower()
                     &&
-                    (x.CollegeCode ?? "").Trim().ToLower() == (collegeCode ?? "").Trim().ToLower());
+                    (x.CollegeCode ?? "").Trim().ToLower() ==
+                        collegeCode.Trim().ToLower()
+                    &&
+                    (x.CourseLevel ?? "").Trim().ToUpper() ==
+                        courseLevel.Trim().ToUpper());
+
+
+
             var GetCollegeName = _context.AffiliationCollegeMasters.Where(e => e.CollegeCode == collegeCode).FirstOrDefault();
             HttpContext.Session.SetString("CollegeName", GetCollegeName.CollegeName);
 
@@ -3163,10 +3247,13 @@ namespace Medical_Affiliation.Controllers
 
             // 5. Handle document upload
             if (documentFile != null && documentFile.Length > 0)
-            {       
-                string rootPath = entity.FacultyCode == "2"
-                    ? BaseDentalPath
-                    : BaseMedicalPath;
+            {
+                string rootPath = entity.FacultyCode switch
+                {
+                    "2" => BaseDentalPath,
+                    "4" => BaseAyurvedaPath,
+                    _ => BaseMedicalPath
+                };
 
                 string basePath = Path.Combine(rootPath, "InstitutionDetails");
 
@@ -3197,9 +3284,12 @@ namespace Medical_Affiliation.Controllers
             // ================================
             if (GovAutonomousCertFile != null && GovAutonomousCertFile.Length > 0)
             {
-                string rootPath = entity.FacultyCode == "2"
-                    ? BaseDentalPath
-                    : BaseMedicalPath;
+                string rootPath = entity.FacultyCode switch
+                {
+                    "2" => BaseDentalPath,
+                    "4" => BaseAyurvedaPath,
+                    _ => BaseMedicalPath
+                };
 
                 string basePath = Path.Combine(rootPath, "InstitutionDetails", "GovAutonomous");
 
@@ -3470,14 +3560,46 @@ namespace Medical_Affiliation.Controllers
             };
         }
 
-        [HttpGet]
-        public Task<IActionResult> DownloadGovAutonomousCert(int id)
+        //[HttpGet]
+        //public Task<IActionResult> DownloadGovAutonomousCert(int id)
+        //{
+        //    return ServeInstitutionFileFromPath(
+        //        id,
+        //        FacultyCode,
+        //        e => e.GovAutonomousCertPath);
+        //}
+
+       
+    [HttpGet]
+    public async Task<IActionResult> DownloadGovAutonomousCert(int id)
         {
-            return ServeInstitutionFileFromPath(
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
+            var courseLevel = CourseLevel;
+
+            if (string.IsNullOrWhiteSpace(facultyCode) ||
+                string.IsNullOrWhiteSpace(collegeCode))
+            {
+                return Unauthorized();
+            }
+
+            var entity = await _context.AffInstitutionsDetails
+                .FirstOrDefaultAsync(x =>
+                    x.InstitutionId == id &&
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel);
+
+            if (entity == null)
+                return NotFound(
+                    $"Institution details not found for {courseLevel}.");
+
+            return await ServeInstitutionFileFromPath(
                 id,
-                FacultyCode,
+                facultyCode,
                 e => e.GovAutonomousCertPath);
         }
+
 
         // GET: Load existing data
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]

@@ -27,7 +27,7 @@
     if (currentCourseLevel == "PG")
     {
         previousController = "AffiliationPgCourse";
-        previousAction = "PgCourses";
+        previousAction = facultyCode?.Trim() == "4" ? "PgCoursesAyurveda" : "PgCourses";
     }
     else if (currentCourseLevel == "UG")
     {
@@ -47,7 +47,7 @@
     else if (selectedLevels.Contains("PG"))
     {
         previousController = "AffiliationPgCourse";
-        previousAction = "PgCourses";
+        previousAction = facultyCode?.Trim() == "4" ? "PgCoursesAyurveda" : "PgCourses";
     }
     else if (selectedLevels.Contains("UG"))
     {

@@ -483,145 +483,80 @@
 
     <div class="section-card">
 
-        <form asp-action="SaveAyurvedaPgCourseParticulars"
-      method="post">
+        <form asp-action="SaveAyurvedaPgCourseParticulars" method="post">
 
-            <input type="hidden"
-                   name="CollegeCode"
-                   value="@Model.CollegeCode" />
-
-            <input type="hidden"
-               name="CourseLevel"
-               value="PG" />
-
-        <input type="hidden"
-       name="TypeOfAffiliation"
-       value="@Context.Session.GetString("TypeOfAffiliation")" />
+            <input type="hidden" name="CollegeCode" value="@Model.CollegeCode" />
+            <input type="hidden" name="TypeOfAffiliation" value="@Context.Session.GetString("TypeOfAffiliation")" />
 
             <div class="section-header">
-
-                <div class="icon-wrap"
-                     style="background:#e8edf7;">
-
-                    <i class="bi bi-journal-check"
-                       style="font-size:1.3rem;color:#1a4c8b;">
-                    </i>
-
+                <div class="icon-wrap" style="background:#e8edf7;">
+                    <i class="bi bi-journal-check" style="font-size:1.3rem;color:#1a4c8b;"></i>
                 </div>
-
-                <h2>
-                    Ayurveda PG Course Particulars
-                </h2>
-
+                <h2>Ayurveda PG Course Particulars</h2>
             </div>
-
 
             <div class="section-body">
-
-                <div class="scrollable-table-container"
-                     style="max-height:380px;">
-
+                <div class="scrollable-table-container" style="max-height:380px;">
                     <table class="custom-table">
-
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    Course
-                                </th>
-
-                                <th>
-                                    Date of LOP
-                                </th>
-
+                                <th>Course</th>
+                                <th>Date of LOP</th>
                             </tr>
-
                         </thead>
 
-
                         <tbody>
-
-                        @{
-                            var index = 0;
-                        }
-
-                        @if (Model.AllCourses != null)
-                        {
-                            foreach (var course in Model.AllCourses)
-                            {
-
-                                <tr>
-
-                                    <td>
-                                        @course.CourseName
-                                    </td>
-
-
-                                    <td>
-
-                                        <input type="date"
-                                               class="form-control"
-                                               name="Courses[@index].DateofLOP"
-                                               value="@(course.DateofLOP?.ToString("yyyy-MM-dd") ?? "")" />
-
-                                    </td>
-
-
-                                    <input type="hidden"
-                                           name="Courses[@index].CourseCode"
-                                           value="@course.CourseCode" />
-
-                                    <input type="hidden"
-                                           name="Courses[@index].CourseName"
-                                           value="@course.CourseName" />
-
-                                    <input type="hidden"
-                                           name="Courses[@index].CourseLevel"
-                                           value="@course.CourseLevel" />
-
-                                    <input type="hidden"
-                                           name="Courses[@index].CoursePrefix"
-                                           value="@course.CoursePrefix" />
-
-                                    <input type="hidden"
-                                           name="Courses[@index].CollegeCode"
-                                           value="@Model.CollegeCode" />
-
-                                    <input type="hidden"
-                                           name="Courses[@index].CollegeIntake"
-                                           value="@course.CollegeIntake" />
-
-                                    <input type="hidden"
-                                           name="Courses[@index].RguhsIntake"
-                                           value="@course.RguhsIntake" />
-
-                                </tr>
-
-                                index++;
+                            @{
+                                var index = 0;
                             }
-                        }
 
+                            @if (Model.AllCourses != null && Model.AllCourses.Any())
+                            {
+                                foreach (var course in Model.AllCourses)
+                                {
+                                    <tr>
+                                        <td>
+                                            @course.CourseName
+
+                                            @* Hidden fields live inside a <td> (valid HTML).
+                                           Names use AllCourses[...] to match the action's model. *@
+                                            <input type="hidden" name="AllCourses[@index].CourseCode" value="@course.CourseCode" />
+                                            <input type="hidden" name="AllCourses[@index].CourseName" value="@course.CourseName" />
+                                            <input type="hidden" name="AllCourses[@index].CourseLevel" value="@course.CourseLevel" />
+                                            <input type="hidden" name="AllCourses[@index].CoursePrefix" value="@course.CoursePrefix" />
+                                            <input type="hidden" name="AllCourses[@index].CollegeIntake" value="@course.CollegeIntake" />
+                                            <input type="hidden" name="AllCourses[@index].RguhsIntake" value="@course.RguhsIntake" />
+                                        </td>
+
+                                        <td>
+                                            <input type="date"
+                                                   class="form-control"
+                                                   name="AllCourses[@index].DateofLOP"
+                                                   value="@(course.DateofLOP?.ToString("yyyy-MM-dd") ?? "")" />
+                                        </td>
+                                    </tr>
+
+                                    index++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2" class="text-center py-4 text-muted">
+                                        No Ayurveda PG courses available
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
 
-
             <div style="padding:20px 24px;border-top:1px solid var(--border);text-align:center;">
-
-                <button type="submit"
-                        class="btn btn-primary">
-
+                <button type="submit" class="btn btn-primary">
                     <i class="bi bi-cloud-arrow-up me-2"></i>
-
                     Save Course Particulars
-
                 </button>
-
             </div>
 
         </form>

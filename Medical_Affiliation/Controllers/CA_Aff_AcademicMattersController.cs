@@ -263,8 +263,10 @@ namespace Medical_Affiliation.Controllers
 
 
             // 🔹 YEAR MASTER
+            // 🔹 YEAR MASTER
             var yearMaster = await _context.CaMstYearOfStudies
                 .OrderBy(y => y.YearOfStudyId)
+                .Take(3)
                 .ToListAsync();
 
 
@@ -871,7 +873,7 @@ namespace Medical_Affiliation.Controllers
 
 
         private bool IsAyurvedaSession() =>
-    HttpContext.Session.GetString("FacultyCode")?.Trim() == "4";
+        HttpContext.Session.GetString("FacultyCode")?.Trim() == "4";
 
         [HttpGet]
         public async Task<IActionResult> AcademicMattersPGAyurveda(string? subjectCode = null)

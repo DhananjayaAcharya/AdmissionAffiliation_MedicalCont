@@ -24,6 +24,13 @@ namespace Medical_Affiliation.Controllers
         }
         public async Task<IActionResult> PgCourses()
         {
+            if (_userContext.FacultyId == 4)
+                return RedirectToAction(nameof(PgCoursesAyurveda), new
+                {
+                    typeOfAffiliation = _userContext.TypeOfAffiliation,
+                    courseLevel = "PG"
+                });
+
             var collegeCode = _userContext.CollegeCode;
 
             var degreeCourses = await GetDegreeCourses();
@@ -528,105 +535,7 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction(nameof(PgCourses));
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveAyurvedaPgCourseParticulars(
-    PgCourseParticularsPostVm model,
-    string? CourseLevel,
-    string? TypeOfAffiliation)
-        {
-            const int ayurvedaFacultyCode = 4;
-
-            var collegeCode = _userContext.CollegeCode;
-
-            foreach (var course in model.Courses)
-            {
-                if (string.IsNullOrWhiteSpace(course.CourseCode))
-                    continue;
-
-                // For Ayurveda, only Date of LOP is applicable here.
-                // Ignore completely empty rows.
-                if (course.DateofLOP == null)
-                    continue;
-
-                var existing = await _context.AffiliationPgSsCourseDetails
-                    .FirstOrDefaultAsync(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.CourseCode == course.CourseCode &&
-                        x.FacultyCode == ayurvedaFacultyCode.ToString());
-
-                if (existing == null)
-                {
-                    var entity = new AffiliationPgSsCourseDetail
-                    {
-                        CollegeCode = collegeCode,
-
-                        CourseCode = course.CourseCode,
-
-                        FacultyCode = ayurvedaFacultyCode.ToString(),
-
-                        TypeOfAffiliation =
-                            _userContext.TypeOfAffiliation.ToString(),
-
-                        CourseName = course.CourseName,
-
-                        CoursePrefix = course.CourseCode,
-
-                        CourseLevel = course.CourseLevel,
-
-                        PresentIntake = course.CollegeIntake,
-
-                        RguhsIntake = course.RguhsIntake,
-
-                        Lopdate = course.DateofLOP,
-
-                        DateofRecognitionByNmc = null,
-
-                        DateofRecognitionByDci = null
-                    };
-
-                    _context.AffiliationPgSsCourseDetails.Add(entity);
-                }
-                else
-                {
-                    existing.Lopdate = course.DateofLOP;
-                    existing.PresentIntake = course.CollegeIntake;
-                    existing.RguhsIntake = course.RguhsIntake;
-                    existing.CourseName = course.CourseName;
-                    existing.CourseLevel = course.CourseLevel;
-                }
-            }
-
-            await _context.SaveChangesAsync();
-
-            // Make sure the PG context remains available.
-            HttpContext.Session.SetString(
-                "CourseLevel",
-                string.IsNullOrWhiteSpace(CourseLevel)
-                    ? "PG"
-                    : CourseLevel.ToUpperInvariant()
-            );
-
-            if (!string.IsNullOrWhiteSpace(TypeOfAffiliation))
-            {
-                HttpContext.Session.SetString(
-                    "TypeOfAffiliation",
-                    TypeOfAffiliation
-                );
-            }
-
-            TempData["pgparticulars"] =
-                "Ayurveda PG Course Particulars saved successfully.";
-
-            return RedirectToAction(
-                nameof(PgCoursesAyurveda),
-                new
-                {
-                    typeOfAffiliation = TypeOfAffiliation,
-                    courseLevel = "PG"
-                }
-            );
-        }
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SavePgCoursesForGOK(AffiliationPgCourseViewModel model)
@@ -1551,6 +1460,73 @@ namespace Medical_Affiliation.Controllers
                     courseLevel = "PG"
                 }
             );
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveAyurvedaPgCourseParticulars(AffiliationPgCourseViewModel model)
+        {
+            const int ayurvedaFacultyCode = 4;
+
+            var collegeCode = _userContext.CollegeCode;
+            var affiliationType = _userContext.TypeOfAffiliation;
+
+            if (model?.AllCourses == null || model.AllCourses.Count == 0)
+            {
+                TempData["Error"] = "No course data was submitted.";
+                return RedirectToAction(nameof(PgCoursesAyurveda),
+                    new { typeOfAffiliation = affiliationType.ToString(), courseLevel = "PG" });
+            }
+
+            // Only accept courses that belong to this Ayurveda college
+            var validCodes = (await _context.MstMedicalCollegeCourseIntakes
+                    .Where(ci => ci.CollCode == collegeCode
+                              && ci.Facultycode == ayurvedaFacultyCode
+                              && ci.UgPg == "PG")
+                    .Select(ci => ci.CourseCode.ToString())
+                    .ToListAsync())
+                .ToHashSet();
+
+            var existing = await _context.AffiliationPgSsCourseDetails
+                .Where(e => e.CollegeCode == collegeCode
+                         && e.FacultyCode == ayurvedaFacultyCode.ToString())
+                .ToListAsync();
+
+            foreach (var course in model.AllCourses)
+            {
+                if (string.IsNullOrWhiteSpace(course.CourseCode) || !validCodes.Contains(course.CourseCode))
+                    continue;
+
+                var row = existing.FirstOrDefault(e => e.CourseCode == course.CourseCode);
+
+                if (row == null)
+                {
+                    if (!course.DateofLOP.HasValue)
+                        continue; // nothing to save for this course
+
+                    row = new AffiliationPgSsCourseDetail   // use your actual entity class name
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyCode = ayurvedaFacultyCode.ToString(),
+                        CourseCode = course.CourseCode,
+                        CourseName = course.CourseName,
+                        CourseLevel = course.CourseLevel,
+                        CoursePrefix = course.CoursePrefix,
+                        TypeOfAffiliation = affiliationType.ToString()
+                    };
+                    _context.AffiliationPgSsCourseDetails.Add(row);
+                    existing.Add(row);
+                }
+
+                row.Lopdate = course.DateofLOP;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["pgparticulars"] = "Ayurveda PG course particulars saved successfully.";
+
+            return RedirectToAction(nameof(PgCoursesAyurveda),
+                new { typeOfAffiliation = affiliationType.ToString(), courseLevel = "PG" });
         }
 
 
