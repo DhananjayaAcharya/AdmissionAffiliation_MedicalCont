@@ -2283,9 +2283,10 @@ public class PreviewReportDentalPdf : IDocument
                         : "Not Uploaded"
                 );
 
+            
                 AddTextRow(
                     table,
-                    "Aadhaar File",
+                    "Aadhaar File (For Private/Trust College)",
                     trust.HasAadhaarFile
                         ? "Uploaded"
                         : "Not Uploaded"
@@ -2293,7 +2294,7 @@ public class PreviewReportDentalPdf : IDocument
 
                 AddTextRow(
                     table,
-                    "Gov Autonomous Certificate",
+                    "Gov Autonomous Certificate (For Govt Colleges Only)",
                     trust.HasGovAutonomousCertFile
                         ? "Uploaded"
                         : "Not Uploaded"
@@ -2301,7 +2302,7 @@ public class PreviewReportDentalPdf : IDocument
 
                 AddTextRow(
                     table,
-                    "Gov Council Membership",
+                    "Governing Council Membership",
                     trust.HasGovCouncilMembershipFile
                         ? "Uploaded"
                         : "Not Uploaded"

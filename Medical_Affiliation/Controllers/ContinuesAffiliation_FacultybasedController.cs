@@ -968,6 +968,80 @@ namespace Medical_Affiliation.Controllers
             };
         }
 
+        public async Task<IActionResult> DownloadDentalTrustAdhar()
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrWhiteSpace(collegeCode) ||
+                string.IsNullOrWhiteSpace(facultyCode))
+            {
+                return Unauthorized();
+            }
+
+            var entity = await _context.InstitutionBasicDetails
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode);
+
+            // Check whether institution details exist
+            if (entity == null)
+                return NotFound("Institution details not found.");
+
+            // Get Aadhaar file path
+            var rawPath = entity.AadhaarFilePath;
+
+            if (string.IsNullOrWhiteSpace(rawPath))
+                return NotFound("No Aadhaar file uploaded.");
+
+            string absolutePath;
+
+            if (Path.IsPathRooted(rawPath.Trim()))
+            {
+                // Support existing absolute file paths
+                absolutePath = rawPath.Trim();
+            }
+            else
+            {
+                // Select root path based on faculty
+                string rootPath = facultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
+
+                var normalized = rawPath.Trim()
+                    .Replace("/", Path.DirectorySeparatorChar.ToString());
+
+                absolutePath = Path.Combine(rootPath, normalized);
+            }
+
+            // Check whether file exists
+            if (!System.IO.File.Exists(absolutePath))
+                return NotFound("Aadhaar file not found.");
+
+            // Detect content type
+            var ext = Path.GetExtension(absolutePath).ToLowerInvariant();
+
+            var contentType = ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".pdf" => "application/pdf",
+                _ => "application/octet-stream"
+            };
+
+            // Display file in browser
+            var stream = new FileStream(
+                absolutePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read);
+
+            return new FileStreamResult(stream, contentType)
+            {
+                FileDownloadName = null
+            };
+        }
+
         // ── Individual download endpoints ────────────────────────────────────────────
         //[HttpGet]
         //public Task<IActionResult> DownloadGovAutonomousCert(int id)   => ServeFileFromPath(id,FacultyCode, e => e.GovAutonomousCertFilePath);
@@ -3125,7 +3199,7 @@ namespace Medical_Affiliation.Controllers
         // ─────────────────────────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
-        public IActionResult Institution_Details()
+        public async Task<IActionResult> Institution_Details()
         {
             // 1. Persist selected course level from query string into session
             SetCourseLevelFromRequest();
@@ -3257,6 +3331,18 @@ namespace Medical_Affiliation.Controllers
                 "ExistingCourseLevels",
                 JsonSerializer.Serialize(existingLevels)
             );
+
+
+            var existingTrustDetails = await _context.InstitutionBasicDetails
+                    .Where(x => (x.FacultyCode ?? "").Trim().ToLower() == (facultyCode ?? "").Trim().ToLower()
+                    &&
+                    (x.CollegeCode ?? "").Trim().ToLower() == (collegeCode ?? "").Trim().ToLower()).FirstOrDefaultAsync();
+
+            if(existingTrustDetails != null && facultyCode == "2")
+            {
+                vm.hasAadhaarFile = !string.IsNullOrWhiteSpace(existingTrustDetails.AadhaarFilePath);
+            }
+
             return View(vm);
         }
 
@@ -3267,7 +3353,7 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueCountLimit = 100000)]
-        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile, IFormFile? GovAutonomousCertFile, IFormFile? MembersOfGoverningBodyOrCouncilFile)
+        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile, IFormFile? GovAutonomousCertFile, IFormFile? MembersOfGoverningBodyOrCouncilFile, IFormFile? AadhaarFile)
         {
             // 1. Re-apply session codes (never trust hidden fields for security)
             var courseLevel = CourseLevel;
@@ -3411,6 +3497,42 @@ namespace Medical_Affiliation.Controllers
                 }
 
                 entity.GovAutonomousCertPath = fullPath;
+            }
+
+            var existingTrustDetails = await _context.InstitutionBasicDetails
+                    .Where(x => (x.FacultyCode ?? "").Trim().ToLower() == (vm.FacultyCode ?? "").Trim().ToLower()
+                    &&
+                    (x.CollegeCode ?? "").Trim().ToLower() == (vm.CollegeCode ?? "").Trim().ToLower()).FirstOrDefaultAsync();
+
+            // ================================
+            // Gov Autonomous Certificate Upload
+            // ================================
+            if (existingTrustDetails != null && AadhaarFile != null && AadhaarFile.Length > 0)
+            {
+                string rootPath = existingTrustDetails.FacultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
+
+                string basePath = Path.Combine(rootPath, "InstitutionDetails", "TrustAadhar");
+
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+
+                if (!string.IsNullOrWhiteSpace(existingTrustDetails.AadhaarFilePath) &&
+                    System.IO.File.Exists(existingTrustDetails.AadhaarFilePath))
+                {
+                    System.IO.File.Delete(existingTrustDetails.AadhaarFilePath);
+                }
+
+                string fileName = Guid.NewGuid() + Path.GetExtension(AadhaarFile.FileName);
+                string fullPath = Path.Combine(basePath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await AadhaarFile.CopyToAsync(stream);
+                }
+
+                existingTrustDetails.AadhaarFilePath = fullPath;
             }
 
             // ================================

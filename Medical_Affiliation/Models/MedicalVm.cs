@@ -92,6 +92,8 @@ namespace Medical_Affiliation.Models
             public IFormFile? GovAutonomousCertFile { get; set; }
         public bool hasGovAutoCertFile { get; set; }
             public IFormFile? GovCouncilMembershipFile { get; set; }
+        public bool hasAadhaarFile { get; set; }
+            public IFormFile? AadhaarFile { get; set; }
         public bool? hasGovCouncilMembershipFile { get; set; }
             public IFormFile? GokOrderExistingCoursesFile { get; set; }
         public bool? hasGokOrderExistingCoursesFile { get; set; }

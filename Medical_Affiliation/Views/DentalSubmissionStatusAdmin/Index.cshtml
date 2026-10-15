@@ -259,6 +259,326 @@
             font-size: 23px;
         }
     }
+
+    
+/* ================================
+   RESPONSIVE DENTAL ADMIN PAGE
+================================ */
+
+.dental-admin-page,
+.dental-admin-page * {
+    box-sizing: border-box;
+}
+
+.dental-admin-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 24px 16px;
+    overflow-x: clip;
+}
+
+.dental-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.dental-page-header > div {
+    min-width: 0;
+}
+
+.dental-page-title {
+    font-size: clamp(20px, 2vw, 25px);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.dental-page-subtitle {
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.dental-admin-card {
+    width: 100%;
+    min-width: 0;
+    border-radius: 12px;
+}
+
+.dental-card-header {
+    padding: 16px 20px;
+}
+
+.dental-card-body {
+    padding: 20px;
+}
+
+.dental-summary-card {
+    height: 100%;
+    min-width: 0;
+    padding: 18px;
+    overflow-wrap: anywhere;
+}
+
+.dental-summary-value {
+    font-size: clamp(22px, 3vw, 27px);
+}
+
+/* Filter form */
+
+#dentalFilterForm,
+#dentalFilterForm .row,
+#dentalFilterForm .col-md-4,
+#dentalFilterForm .col-md-5,
+#dentalFilterForm .col-md-3 {
+    min-width: 0;
+}
+
+#dentalFilterForm .form-select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+}
+
+.dental-filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#dentalFilterForm .btn {
+    min-height: 40px;
+    white-space: normal;
+}
+
+/* Responsive submission table */
+
+.dental-admin-card .table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dental-table {
+    width: 100%;
+    min-width: 1050px;
+    margin-bottom: 0;
+    font-size: 13px;
+}
+
+.dental-table th,
+.dental-table td {
+    vertical-align: middle;
+}
+
+.dental-table thead th {
+    white-space: nowrap;
+}
+
+.dental-table tbody td {
+    overflow-wrap: anywhere;
+}
+
+.dental-college-name {
+    min-width: 150px;
+    max-width: 260px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.dental-college-code {
+    overflow-wrap: anywhere;
+}
+
+.dental-table td form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dental-table td .btn {
+    white-space: nowrap;
+}
+
+/* Table footer */
+
+.dental-table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 20px;
+}
+
+/* ================================
+   TABLETS
+================================ */
+
+@@media (max-width: 991.98px) {
+    .dental-admin-page {
+        padding: 20px 12px;
+    }
+
+    .dental-page-header {
+        align-items: flex-start;
+    }
+
+    .dental-page-header > div:first-child {
+        flex: 1 1 100%;
+    }
+
+    .dental-card-body {
+        padding: 16px;
+    }
+
+    .dental-table {
+        min-width: 1000px;
+    }
+}
+
+/* ================================
+   MOBILE
+================================ */
+
+@@media (max-width: 767.98px) {
+    .dental-admin-page {
+        padding: 14px 8px;
+    }
+
+    .dental-page-header {
+        align-items: stretch;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .dental-page-header > div:first-child {
+        flex-basis: 100%;
+    }
+
+    .dental-page-header > .d-flex {
+        width: 100%;
+        align-items: stretch !important;
+    }
+
+    .dental-back-btn {
+        flex: 1 1 auto;
+        text-align: center;
+    }
+
+    .dental-page-title {
+        font-size: 21px;
+    }
+
+    .dental-page-subtitle {
+        font-size: 13px;
+    }
+
+    .dental-admin-card {
+        margin-bottom: 16px;
+        border-radius: 9px;
+    }
+
+    .dental-card-header {
+        padding: 14px;
+    }
+
+    .dental-card-header h5 {
+        font-size: 15px;
+    }
+
+    .dental-card-body {
+        padding: 14px;
+    }
+
+    .dental-summary-card {
+        padding: 15px;
+    }
+
+    .dental-summary-label {
+        font-size: 11px;
+    }
+
+    .dental-summary-value {
+        font-size: 23px;
+    }
+
+    #dentalFilterForm .row {
+        row-gap: 14px;
+    }
+
+    #dentalFilterForm .col-md-3 {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    #dentalFilterForm .col-md-3 .btn {
+        flex: 1 1 120px;
+        margin: 0;
+    }
+
+    .dental-admin-card > .d-flex {
+        align-items: flex-start !important;
+    }
+
+    .dental-table-footer {
+        padding: 13px 14px;
+        font-size: 12px;
+    }
+
+    .dental-empty-state {
+        padding: 35px 12px !important;
+    }
+}
+
+/* ================================
+   SMALL MOBILE
+================================ */
+
+@@media (max-width: 400px) {
+    .dental-admin-page {
+        padding-right: 6px;
+        padding-left: 6px;
+    }
+
+    .dental-page-title {
+        font-size: 19px;
+    }
+
+    .dental-page-header > .d-flex {
+        gap: 6px !important;
+    }
+
+    .dental-back-btn {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .dental-page-header .badge {
+        font-size: 10px;
+        padding: 8px !important;
+    }
+
+    .dental-summary-card {
+        padding: 12px;
+    }
+
+    .dental-card-body {
+        padding: 12px;
+    }
+
+    #dentalFilterForm .col-md-3 .btn {
+        flex-basis: 100%;
+        width: 100%;
+    }
+}
+
 </style>
 
 <div class="container-fluid dental-admin-page">

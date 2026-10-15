@@ -560,6 +560,10 @@ public class InstitutionViewModel
     public bool hasGovAutoCertFile { get; set; }
     public bool hasGoverningBodyFile { get; set; }
 
+    public IFormFile? AadhaarFile { get; set; }
+    public bool hasAadhaarFile { get; set; }
+
+
 
     [StringLength(250)]
     public string? NameOfAdministrativeAuthority { get; set; }

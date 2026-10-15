@@ -1085,6 +1085,8 @@
                             <div class="field-wrap">
                                 <label>Gov Autonomous Cert Number</label>
                                 <input asp-for="GovAutonomousCertNumber" maxlength="100" placeholder="Enter Certificate Number" />
+
+                                <span asp-validation-for="GovAutonomousCertNumber" class="text-danger"></span>
                             </div>
                             <div class="field-wrap">
                                 <label><i class="fas fa-file-shield"></i> Gov Autonomous Certificate</label>
@@ -1103,6 +1105,41 @@
                                 @if (Model.hasGovAutoCertFile)
                                 {
                                     <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aadhaar Card Section -->
+                    <div id="aadhaarSection" style="margin-top:16px; display:none;">
+                        <div class="field-grid col-2">
+                            <div class="field-wrap">
+                                <label>
+                                    <i class="fas fa-id-card"></i> Aadhaar Card
+                                </label>
+
+                                <div class="file-row">
+                                    <input id="AadhaarFile"
+                                            name="AadhaarFile"
+                                            type="file"
+                                            accept=".pdf" />
+                                </div>
+
+                                @if (Model.hasAadhaarFile)
+                                {
+                                    <div style="margin-top:8px;">
+                                        <a asp-action="DownloadDentalTrustAdhar"
+                                            asp-controller="ContinuesAffiliation_Facultybased"
+                                            class="btn-view"
+                                            target="_blank">
+                                            <i class="fas fa-eye"></i> View Aadhaar
+                                        </a>
+
+                                        <span class="file-badge">
+                                            <i class="fas fa-circle-check"></i>
+                                            File already uploaded
+                                        </span>
+                                    </div>
                                 }
                             </div>
                         </div>
@@ -2503,13 +2540,32 @@
             </script>
 
         <script>
-            $(document).ready(function () {
-                function toggleGovAutoSection() {
-                    var id = $("#typeOfInstitutionDropdown").val();
-                    (id === "1" || id === "11") ? $("#govAutoSection").show() : $("#govAutoSection").hide();
+            var facultyCode = '@facultyCode';
+
+            function toggleGovAutoSection() {
+                var id = $("#typeOfInstitutionDropdown").val();
+
+                // Aadhaar section: only for Faculty Code 2
+                if (facultyCode === "2" && id !== "1" && id !== "11") {
+                    $("#aadhaarSection").show();
+                } else {
+                    $("#aadhaarSection").hide();
                 }
+
+                // Government Autonomous section
+                if (id === "1" || id === "11") {
+                    $("#govAutoSection").show();
+                } else {
+                    $("#govAutoSection").hide();
+                }
+            }
+
+            $(document).ready(function () {
                 toggleGovAutoSection();
-                $("#typeOfInstitutionDropdown").on("change", toggleGovAutoSection);
+
+                $("#typeOfInstitutionDropdown").on("change", function () {
+                    toggleGovAutoSection();
+                });
             });
         </script>
     }
