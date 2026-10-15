@@ -3199,7 +3199,7 @@ namespace Medical_Affiliation.Controllers
         // ─────────────────────────────────────────────────────────────────────────────
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpGet]
-        public async Task<IActionResult> Institution_Details()
+        public IActionResult Institution_Details()
         {
             // 1. Persist selected course level from query string into session
             SetCourseLevelFromRequest();
@@ -3333,10 +3333,10 @@ namespace Medical_Affiliation.Controllers
             );
 
 
-            var existingTrustDetails = await _context.InstitutionBasicDetails
+            var existingTrustDetails = _context.InstitutionBasicDetails
                     .Where(x => (x.FacultyCode ?? "").Trim().ToLower() == (facultyCode ?? "").Trim().ToLower()
                     &&
-                    (x.CollegeCode ?? "").Trim().ToLower() == (collegeCode ?? "").Trim().ToLower()).FirstOrDefaultAsync();
+                    (x.CollegeCode ?? "").Trim().ToLower() == (collegeCode ?? "").Trim().ToLower()).FirstOrDefault();
 
             if(existingTrustDetails != null && facultyCode == "2")
             {
