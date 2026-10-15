@@ -153,23 +153,6 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // --------------------------------------------------------
-            // Get FacultyId
-            // --------------------------------------------------------
-            //var facultyId = await _context.Faculties
-            //    .Where(f =>
-            //        f.Status == "Active" &&
-            //        _context.AffiliationCollegeMasters.Any(c =>
-            //            c.CollegeCode == collegeCode &&
-            //            c.FacultyCode == facultyCode))
-            //    .Select(f => (int?)f.FacultyId)
-            //    .FirstOrDefaultAsync();
-
-            //if (!facultyId.HasValue)
-            //{
-            //    TempData["ErrorMessage"] = "Faculty information not found.";
-            //    return RedirectToAction(nameof(Index));
-            //}
 
             // --------------------------------------------------------
             // Validate Affiliation Type
@@ -186,21 +169,21 @@ namespace Medical_Affiliation.Controllers
             // --------------------------------------------------------
             // Duplicate Check
             // --------------------------------------------------------
-            var duplicateExists = await _context.WorkShopDetails
-                .AnyAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.FacultyId == int.Parse(facultyCode) &&
-                    x.TypeId == typeId.Value &&
-                    x.CourseLevel == courseLevel &&
-                    x.IsActive);
+            //var duplicateExists = await _context.WorkShopDetails
+            //    .AnyAsync(x =>
+            //        x.CollegeCode == collegeCode &&
+            //        x.FacultyId == int.Parse(facultyCode) &&
+            //        x.TypeId == typeId.Value &&
+            //        x.CourseLevel == courseLevel &&
+            //        x.IsActive);
 
-            if (duplicateExists)
-            {
-                TempData["ErrorMessage"] =
-                    "Workshop details already exist for the selected session.";
+            //if (duplicateExists)
+            //{
+            //    TempData["ErrorMessage"] =
+            //        "Workshop details already exist for the selected session.";
 
-                return RedirectToAction(nameof(Index));
-            }
+            //    return RedirectToAction(nameof(Index));
+            //}
 
             // --------------------------------------------------------
             // Create Entity

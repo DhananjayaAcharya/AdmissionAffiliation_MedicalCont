@@ -179,7 +179,9 @@ namespace Medical_Affiliation.Services.Faculty
 
             string? typeOfAffiliation = _httpContextAccessor.HttpContext?.Session.GetString("TypeOfAffiliation");
 
-            _httpContextAccessor.HttpContext?.Session.SetInt32("DentalLock", finalSubmissionStatus.IsLocked ? 1 : 0);
+            bool isLocked = finalSubmissionStatus?.IsLocked ?? false;
+
+            _httpContextAccessor.HttpContext?.Session.SetInt32("DentalLock", isLocked ? 1 : 0);
 
 
             vm.FinalSubmissionVM = new DentalFinalSubmissionViewModel
