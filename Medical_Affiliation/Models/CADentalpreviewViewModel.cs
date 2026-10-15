@@ -2074,6 +2074,8 @@ namespace Medical_Affiliation.Models
         public InstitutionViewModel PrincipalDetailDisplayVM { get; set; }
 
         public InstitutionViewModel InstitutionDetails { get; set; }
+        public InstitutionViewModel AdministrativeAuthorityVM { get; set; }
+
     }
 
     

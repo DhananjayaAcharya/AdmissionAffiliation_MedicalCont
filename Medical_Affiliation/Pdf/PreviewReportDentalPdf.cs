@@ -1,4 +1,5 @@
-﻿using Medical_Affiliation.Models;
+﻿using DocumentFormat.OpenXml.Presentation;
+using Medical_Affiliation.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -93,6 +94,10 @@ public class PreviewReportDentalPdf : IDocument
 
                 // --- NODAL OFFICER DETAILS ---
                 AddNodalOfficerSection(col);
+
+                AddAdministrativeAuthoritySection(col);
+
+                AddOtherHealthScienceCollegesSection(col);
 
                 // --- TRUST / MANAGEMENT DETAILS ---
                 AddTrustManagementSection(col);
@@ -644,6 +649,178 @@ public class PreviewReportDentalPdf : IDocument
             AddStyledLabelValueRow(table, "Nodal Officer Mobile", institution.NodalOfficer_Mob_Number ?? "—");
             AddStyledLabelValueRow(table, "Nodal Officer Email", institution.NodalOfficer_Email ?? "—");
         });
+    }
+
+    private void AddAdministrativeAuthoritySection(ColumnDescriptor col)
+    {
+        var institution = _model?.InstitutionBasicVM?.AdministrativeAuthorityVM;
+        if (institution == null) return;
+
+        if (string.IsNullOrWhiteSpace(institution.NameOfAdministrativeAuthority) &&
+            string.IsNullOrWhiteSpace(institution.AddressOfAdministrativeAuthority))
+            return;
+
+        AddSubHeading(col, "Administrative Authority");
+
+        col.Item().PaddingTop(5).Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.RelativeColumn(3);
+                columns.RelativeColumn(4);
+            });
+
+            AddStyledLabelValueRow(table, "Administrative Authority", institution.NameOfAdministrativeAuthority ?? "—");
+            AddStyledLabelValueRow(table, "Address of Administrative Authority", institution.AddressOfAdministrativeAuthority ?? "—");
+            AddStyledLabelValueRow(table, "Document with Govt Body/Council Members", (institution.hasMembersOfGoverningBodyOrCouncilDocument ? "Available" : "Not Available"));
+        });
+    }
+
+    private void AddOtherHealthScienceCollegesSection(ColumnDescriptor col)
+    {
+        var colleges = _model?
+            .InstitutionBasicVM?
+            .InstitutionDetails?
+            .OtherHealthScienceColleges;
+
+        AddSubHeading(col, "Other Health Science Colleges");
+
+        col.Item()
+            .PaddingTop(5)
+            .Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(1); // Sl. No.
+                    columns.RelativeColumn(2); // Faculty
+                    columns.RelativeColumn(4); // College
+                    columns.RelativeColumn(2); // Course
+                });
+
+                // -------------------------------------------------
+                // Header
+                // -------------------------------------------------
+                table.Header(header =>
+                {
+                    header.Cell()
+                        .Border(1)
+                        .BorderColor(SecondaryColor)
+                        .Background(SecondaryColor)
+                        .PaddingVertical(4)
+                        .PaddingHorizontal(6)
+                        .AlignMiddle()
+                        .Text("Sl. No.")
+                        .Bold()
+                        .FontSize(10)
+                        .FontColor(HeaderFgColor);
+
+                    header.Cell()
+                        .Border(1)
+                        .BorderColor(SecondaryColor)
+                        .Background(SecondaryColor)
+                        .PaddingVertical(4)
+                        .PaddingHorizontal(6)
+                        .AlignMiddle()
+                        .Text("Faculty")
+                        .Bold()
+                        .FontSize(10)
+                        .FontColor(HeaderFgColor);
+
+                    header.Cell()
+                        .Border(1)
+                        .BorderColor(SecondaryColor)
+                        .Background(SecondaryColor)
+                        .PaddingVertical(4)
+                        .PaddingHorizontal(6)
+                        .AlignMiddle()
+                        .Text("Other Health Science College")
+                        .Bold()
+                        .FontSize(10)
+                        .FontColor(HeaderFgColor);
+
+                    header.Cell()
+                        .Border(1)
+                        .BorderColor(SecondaryColor)
+                        .Background(SecondaryColor)
+                        .PaddingVertical(4)
+                        .PaddingHorizontal(6)
+                        .AlignMiddle()
+                        .Text("Course")
+                        .Bold()
+                        .FontSize(10)
+                        .FontColor(HeaderFgColor);
+                });
+
+                // -------------------------------------------------
+                // No data
+                // -------------------------------------------------
+                if (colleges == null || !colleges.Any())
+                {
+                    table.Cell()
+                        .ColumnSpan(4)
+                        .Border(1)
+                        .BorderColor(SecondaryColor)
+                        .PaddingVertical(6)
+                        .PaddingHorizontal(6)
+                        .AlignCenter()
+                        .Text("Not Available")
+                        .FontSize(9);
+                }
+                else
+                {
+                    // -------------------------------------------------
+                    // Data rows
+                    // -------------------------------------------------
+                    int i = 1;
+
+                    foreach (var college in colleges)
+                    {
+                        table.Cell()
+                            .Border(1)
+                            .BorderColor(SecondaryColor)
+                            .PaddingVertical(4)
+                            .PaddingHorizontal(6)
+                            .AlignMiddle()
+                            .Text(i.ToString())
+                            .FontSize(9);
+
+                        table.Cell()
+                            .Border(1)
+                            .BorderColor(SecondaryColor)
+                            .PaddingVertical(4)
+                            .PaddingHorizontal(6)
+                            .AlignMiddle()
+                            .Text(string.IsNullOrWhiteSpace(college.FacultyName)
+                                ? "Not Available"
+                                : college.FacultyName)
+                            .FontSize(9);
+
+                        table.Cell()
+                            .Border(1)
+                            .BorderColor(SecondaryColor)
+                            .PaddingVertical(4)
+                            .PaddingHorizontal(6)
+                            .AlignMiddle()
+                            .Text(string.IsNullOrWhiteSpace(college.OtherCollegeName)
+                                ? "Not Available"
+                                : college.OtherCollegeName)
+                            .FontSize(9);
+
+                        table.Cell()
+                            .Border(1)
+                            .BorderColor(SecondaryColor)
+                            .PaddingVertical(4)
+                            .PaddingHorizontal(6)
+                            .AlignMiddle()
+                            .Text(string.IsNullOrWhiteSpace(college.CourseName)
+                                ? "Not Available"
+                                : college.CourseName)
+                            .FontSize(9);
+
+                        i++;
+                    }
+                }
+            });
     }
 
     private void AddTrustMembersSection(ColumnDescriptor col)
@@ -2300,13 +2477,13 @@ public class PreviewReportDentalPdf : IDocument
                         : "Not Uploaded"
                 );
 
-                AddTextRow(
-                    table,
-                    "Governing Council Membership",
-                    trust.HasGovCouncilMembershipFile
-                        ? "Uploaded"
-                        : "Not Uploaded"
-                );
+                //AddTextRow(
+                //    table,
+                //    "Governing Council Membership",
+                //    trust.HasGovCouncilMembershipFile
+                //        ? "Uploaded"
+                //        : "Not Uploaded"
+                //);
 
                 //AddTextRow(
                 //    table,

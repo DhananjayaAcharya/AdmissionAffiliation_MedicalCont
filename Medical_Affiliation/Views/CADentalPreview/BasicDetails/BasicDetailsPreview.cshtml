@@ -120,4 +120,24 @@
         </div>
     }
 
+    <!-- ADMINSTRATIVE AUTHORITY -->
+    @if (Model != null)
+    {
+        <div id="administrative-details">
+            @await Html.PartialAsync(
+                "BasicDetails/_AdministrativeAuthority",
+                Model)
+        </div>
+    }
+
+    <!-- OTHER HEALTH SCIENCE COLLEGES -->
+    @if (Model != null)
+    {
+        <div id="administrative-details">
+            @await Html.PartialAsync(
+                "BasicDetails/_OtherHealthScienceColleges",
+                Model)
+        </div>
+    }
+
 </div>

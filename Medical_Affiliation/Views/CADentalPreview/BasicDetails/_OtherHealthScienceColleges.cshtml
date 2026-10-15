@@ -1,0 +1,89 @@
+﻿@model DentalInstitutionBasicDetailsDisplayVM
+
+<div class="general-body">
+    <div class="section-block">
+
+        <div class="section-header-block mb-3">
+            <div class="section-title-text department-badge">
+                <i class="bi bi-building"></i>
+                Other Health Sciences Colleges
+            </div>
+        </div>
+
+        @if (Model?.InstitutionDetails?.HasOtherHealthScienceColleges == true && 
+             Model?.InstitutionDetails?.OtherHealthScienceColleges != null &&
+             Model.InstitutionDetails.OtherHealthScienceColleges.Any())
+        {
+            <div class="data-table-wrapper">
+                <table class="table data-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Sl. No.</th>
+                            <th>Faculty</th>
+                            <th>Other Health Science College</th>
+                            <th>Course</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var serialNo = 1;
+                        }
+
+                        @foreach (var item in Model.InstitutionDetails.OtherHealthScienceColleges)
+                        {
+                            <tr>
+                                <td>
+                                    @serialNo
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.FacultyName))
+                                    {
+                                        @item.FacultyName
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not Available</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.OtherCollegeName))
+                                    {
+                                        @item.OtherCollegeName
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not Available</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.CourseName))
+                                    {
+                                        @item.CourseName
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not Available</span>
+                                    }
+                                </td>
+                            </tr>
+
+                            serialNo++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No Other Health Sciences Colleges details available.</p>
+            </div>
+        }
+
+    </div>
+</div>

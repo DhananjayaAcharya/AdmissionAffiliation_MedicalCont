@@ -569,6 +569,7 @@ public class InstitutionViewModel
     public string? NameOfAdministrativeAuthority { get; set; }
 
     public string? AddressOfAdministrativeAuthority { get; set; }
+    public bool hasMembersOfGoverningBodyOrCouncilDocument { get; set; }
 
     [StringLength(500)]
     public string? MembersOfGoverningBodyOrCouncilFilePath { get; set; }
@@ -593,11 +594,15 @@ public class OtherHealthScienceCollegeVM
     // Faculty selected from Faculty master
     public int? OtherFacultyId { get; set; }
 
+    public string FacultyName { get; set; }
+
     // Other Health Science College
     public string? OtherCollegeCode { get; set; }
+    public string OtherCollegeName { get; set; }
 
     // Course selected from MstCourse
     public int? OtherCourseCode { get; set; }
+    public string CourseName { get; set; }
 
     // Dropdown data
     public List<SelectListItem> FacultyList { get; set; }
