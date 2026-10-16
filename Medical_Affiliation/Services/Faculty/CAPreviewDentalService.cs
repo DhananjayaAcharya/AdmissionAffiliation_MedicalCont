@@ -200,7 +200,7 @@ namespace Medical_Affiliation.Services.Faculty
                 IsActive = finalSubmissionStatus?.IsActive ?? true,
                 CreatedDate = finalSubmissionStatus?.CreatedDate ?? DateTime.MinValue,
                 ModifiedDate = finalSubmissionStatus?.ModifiedDate,
-                IsLocked = finalSubmissionStatus?.IsLocked ?? true,
+                IsLocked = finalSubmissionStatus?.IsLocked ?? false,
             };
 
             return vm;
