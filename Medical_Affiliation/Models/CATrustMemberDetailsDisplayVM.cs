@@ -5,6 +5,7 @@
         public List<CATrustMemberDisplayRowVM> Members { get; set; } = new();
 
         public bool HasRegisteredTrustMemberDetails { get; set; }
+        public bool HasRegisteredDentalTrustMemeberDetails { get; set; }
     }
 
     public class CATrustMemberDisplayRowVM

@@ -2455,7 +2455,7 @@ public class PreviewReportDentalPdf : IDocument
                 AddTextRow(
                     table,
                     "Registered Trust Member Details",
-                    trust.HasRegisteredTrustMemberDetails
+                    trust.HasRegisteredDentalTrustMemberDetails
                         ? "Uploaded"
                         : "Not Uploaded"
                 );
@@ -3507,11 +3507,11 @@ public class PreviewReportDentalPdf : IDocument
                         h.IsOwnerAmemberOfTrust ? "Yes" : "No"
                     );
 
-                    AddTextRow(
-                        table,
-                        "Supporting Documents Uploaded",
-                        h.IsSupportingDocExists ? "Yes" : "No"
-                    );
+                    //AddTextRow(
+                    //    table,
+                    //    "Supporting Documents Uploaded",
+                    //    h.IsSupportingDocExists ? "Yes" : "No"
+                    //);
 
 
                     // --------------------------------------------------

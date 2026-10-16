@@ -54,7 +54,9 @@ namespace Medical_Affiliation.Services.Faculty
                 HasRegisteredTrustMemberDetails =
                     institution != null &&
                     !string.IsNullOrWhiteSpace(
-                        institution.RegisteredTrustMemberDetailsPath)
+                        institution.RegisteredTrustMemberDetailsPath),
+
+                HasRegisteredDentalTrustMemeberDetails = institution != null && !string.IsNullOrWhiteSpace(institution.RegistrationCertificateFilePath)
             };
         }
     }

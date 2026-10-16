@@ -10,6 +10,24 @@
 <link rel="stylesheet"
       href="~/css/preview-section-header.css" />
 
+<style>
+    .data-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.data-table-wrapper .table-responsive {
+    overflow-x: auto;
+}
+
+.data-table-wrapper table {
+    min-width: 1000px;
+    white-space: nowrap;
+}
+</style>
+
 <div class="preview-section" id="trust-member-details">
 
     <!-- ========================= -->
@@ -166,7 +184,7 @@
         <!-- REGISTERED TRUST MEMBER DOCUMENT -->
         <!-- ========================= -->
 
-        @if (Model?.HasRegisteredTrustMemberDetails == true)
+        @if (Model?.HasRegisteredTrustMemberDetails == true || Model?.HasRegisteredDentalTrustMemeberDetails == true)
         {
             <div class="section-block mt-4">
 
