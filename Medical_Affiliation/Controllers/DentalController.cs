@@ -407,12 +407,47 @@ namespace Medical_Affiliation.Controllers
             int.TryParse(facultyCode, out int facultyCodeInt);
 
             // ── Designation headers ──────────────────────────────────────────────
-            var designationMasters = await _context.DesignationMasters
-                .Where(x =>
-                    x.FacultyCode == facultyCodeInt &&
-                    x.DesignationOrder != 0)
-                .OrderBy(x => x.DesignationOrder)
+            var designationMastersQuery =
+                from d in _context.DesignationMasters
+                join f in _context.Faculties
+                    on d.FacultyCode equals f.FacultyId
+                where d.DesignationOrder != 0
+                select new
+                {
+                    d.DesignationCode,
+                    d.DesignationName,
+                    d.DesignationOrder,
+                    d.FacultyCode,
+                    FacultyName = f.FacultyName
+                };
+
+            if (facultyCode == "2")
+            {
+                designationMastersQuery = designationMastersQuery
+                    .Where(x => x.FacultyCode == 1 || x.FacultyCode == 2);
+            }
+            else
+            {
+                designationMastersQuery = designationMastersQuery
+                    .Where(x => x.FacultyCode == facultyCodeInt);
+            }
+
+            var designationMasters = await designationMastersQuery
+                .OrderBy(x => x.FacultyCode)
+                .ThenBy(x => x.DesignationOrder)
                 .ToListAsync();
+
+            var designations = designationMasters
+                .OrderBy(x => x.FacultyName)
+                .ThenBy(x => x.DesignationName)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.DesignationCode,
+                    Text = facultyCode == "2"
+                        ? $"{x.DesignationName} - {x.FacultyName}"
+                        : x.DesignationName
+                })
+                .ToList();
 
 
             var otherColleges =
@@ -425,6 +460,34 @@ namespace Medical_Affiliation.Controllers
                     })
                     .ToListAsync();
 
+            IQueryable<MstCourse> departmentsQuery = _context.MstCourses;
+
+            if (facultyCode == "2")
+            {
+                departmentsQuery = departmentsQuery.Where(x =>
+                    (x.FacultyCode == 1 || x.FacultyCode == 2) &&
+                    x.CourseLevel != "SS");
+            }
+            else
+            {
+                departmentsQuery = departmentsQuery.Where(x =>
+                    x.FacultyCode == facultyCodeInt);
+            }
+
+            var departments = await departmentsQuery
+                .OrderBy(x => x.FacultyCode)
+                .ThenBy(x => x.SubjectName)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.CourseCode.ToString(),
+                    Text = x.CourseName,
+                    Group = new SelectListGroup
+                    {
+                        Name = x.CourseLevel
+                    }
+                })
+                .ToListAsync();
+
             // ── Build base ViewModel ─────────────────────────────────────────────
             var vm = new DentalTeachingStaffVm
             {
@@ -432,7 +495,7 @@ namespace Medical_Affiliation.Controllers
                 FacultyCode = facultyCode,
 
                 Colleges = await _context.AffiliationCollegeMasters
-                    .Where(c => c.FacultyCode.ToString() == facultyCode)
+                    .Where(c => c.FacultyCode.ToString() == "2" || c.FacultyCode.ToString() == "1")
                     .OrderBy(c => c.CollegeName)
                     .Select(c => new SelectListItem
                     {
@@ -442,50 +505,72 @@ namespace Medical_Affiliation.Controllers
                     .Distinct()
                     .ToListAsync(),
 
-                Departments = await _context.MstCourses
-                    .Where(x => x.FacultyCode == facultyCodeInt)
-                    .OrderBy(x => x.CourseName)
-                    .Select(x => new SelectListItem
-                    {
-                        Value = x.CourseCode.ToString(),
-                        Text = x.CourseName,
-                        Group = new SelectListGroup { Name = x.CourseLevel }
-                    })
-                    .ToListAsync(),
+                Departments = departments,
 
             };
 
-            vm.Designations = designationMasters
-                .Select(x => new SelectListItem
-                {
-                    Text = x.DesignationName,
-                    Value = x.DesignationCode
-                }).ToList();
+            vm.Designations = designations;
 
-            vm.Colleges = vm.Colleges
-                    .Concat(otherColleges)
-                    .GroupBy(x => x.Value)
-                    .Select(g => g.First())
-                    .OrderBy(x => x.Text)
-                    .ToList();
+            //vm.Colleges = vm.Colleges
+            //        .Concat(otherColleges)
+            //        .GroupBy(x => x.Value)
+            //        .Select(g => g.First())
+            //        .OrderBy(x => x.Text)
+            //        .ToList();
 
             // ── Faculty raw list (LEFT JOIN in memory) ───────────────────────────
-            var facultyRaw = await _context.FacultyDetails
+            var facultyRawQuery = _context.FacultyDetails
                 .Where(f =>
                     f.CollegeCode == collegeCode &&
-                    f.FacultyCode == facultyCode &&
-                    f.IsRemoved != true)
+                    f.IsRemoved != true);
+
+            if (facultyCode == "2")
+            {
+                facultyRawQuery = facultyRawQuery
+                    .Where(f => f.FacultyCode == "1" || f.FacultyCode == "2");
+            }
+            else
+            {
+                facultyRawQuery = facultyRawQuery
+                    .Where(f => f.FacultyCode == facultyCode);
+            }
+
+            var facultyRaw = await facultyRawQuery.ToListAsync();
+
+            IQueryable<MstCourse> mstCoursesList = _context.MstCourses;
+
+            if (facultyCode == "2")
+            {
+                mstCoursesList = mstCoursesList.Where(e =>
+                    (e.FacultyCode == 1 || e.FacultyCode == 2) &&
+                    e.CourseLevel != "SS");
+            }
+            else
+            {
+                mstCoursesList = mstCoursesList.Where(e =>
+                    e.FacultyCode == facultyCodeInt);
+            }
+
+            var mstCourses = await mstCoursesList.ToListAsync();
+
+            IQueryable<DesignationMaster> designationLookupQuery = _context.DesignationMasters.Where(x => x.DesignationOrder != 0);
+
+            if (facultyCode == "2")
+            {
+                designationLookupQuery = designationLookupQuery
+                    .Where(x => x.FacultyCode == 1 || x.FacultyCode == 2);
+            }
+            else
+            {
+                designationLookupQuery = designationLookupQuery
+                    .Where(x => x.FacultyCode == facultyCodeInt);
+            }
+
+            var designationLookup = await designationLookupQuery
                 .ToListAsync();
 
-            var mstCourses = await _context.MstCourses
-                .Where(x => x.FacultyCode == facultyCodeInt)
-                .ToListAsync();
+            // ── Faculty raw list ─────────────────────────────────────────────────
 
-            var designationLookup = await _context.DesignationMasters
-                .Where(x =>
-                    x.FacultyCode == facultyCodeInt &&
-                    x.DesignationOrder != 0)
-                .ToListAsync();
 
             var facultyList = facultyRaw
                 .Where(f => !string.IsNullOrWhiteSpace(f.NameOfFaculty))
@@ -1004,14 +1089,14 @@ namespace Medical_Affiliation.Controllers
             var records = await _context.TeachingStaffDepartmentWiseDetails
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
+                    (x.FacultyCode == "1" || x.FacultyCode == "2") &&
                     x.NameOfFaculty == facultyName)
                 .ToListAsync();
 
             var facultyInfo = await _context.FacultyDetails
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode &&
+                    (x.FacultyCode == "1" || x.FacultyCode == "2") &&
                     x.NameOfFaculty == facultyName)
                 .FirstOrDefaultAsync();
 
@@ -1177,7 +1262,7 @@ namespace Medical_Affiliation.Controllers
                 entity.NameOfFaculty = vm.NameOfFaculty;
                 entity.DepartmentCode = vm.DepartmentCode;
                 entity.DesignationCode = exp.DesignationCode;
-                entity.DesignationName = exp.DesignationName;
+                entity.DesignationName = exp.DesignationName?.Split('-')[0].Trim();
                 entity.CourseLevel = exp.CourseLevel;
 
                 entity.UgcollegeCode = null;

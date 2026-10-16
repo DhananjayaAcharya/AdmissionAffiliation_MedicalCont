@@ -20,10 +20,7 @@ namespace Medical_Affiliation.Controllers
 
         //  HELPER — shared dropdown population (DRY)
         // ──────────────────────────────────────────────────────────
-        private (List<SelectListItem> subjects,
-                 List<SelectListItem> designations,
-                 List<SelectListItem> departments)
-            GetDropdowns(string facultyCode)
+        private (List<SelectListItem> subjects, List<SelectListItem> designations, List<SelectListItem> departments) GetDropdowns(string facultyCode)
         {
             var subjects = _context.MstCourses
                 .Where(c => c.FacultyCode.ToString() == facultyCode)
@@ -44,30 +41,34 @@ namespace Medical_Affiliation.Controllers
                 })
                 .ToList();
 
-            //var departments = _context.MstCourses
-            //    .Where(e => e.FacultyCode.ToString() == facultyCode)
-            //    .Select(d => new SelectListItem
-            //    {
-            //        Value = d.CourseCode.ToString(),
-            //        Text = (d.CoursePrefix ?? "") + " " + (d.SubjectName ?? "")
-            //    })
-            //    .ToList();
+            var query = from c in _context.MstCourses
+                        join f in _context.Faculties
+                            on c.FacultyCode equals f.FacultyId
+                        where c.SubjectName != null
+                        select new
+                        {
+                            c.CourseCode,
+                            c.SubjectName,
+                            c.CourseLevel,
+                            c.FacultyCode,
+                            FacultyName = f.FacultyName
+                        };
 
-            //var departments = _context.MstCourses
-            //    .Where(e => e.FacultyCode.ToString() == facultyCode)
-            //    .Select(d => new SelectListItem
-            //    {
-            //        Value = d.CourseCode.ToString(),   // or SubjectCode if available
-            //        Text = d.SubjectName ?? ""
-            //    })
-            //    .Where(x => !string.IsNullOrEmpty(x.Text)) // optional: remove empty subjects
-            //    .Distinct()
-            //    .ToList();
-            var data = _context.MstCourses
-                        .Where(e => e.FacultyCode.ToString() == facultyCode && e.SubjectName != null)
-                        .AsEnumerable()
-                        .GroupBy(d => new { d.SubjectName, d.CourseLevel })
-                        .ToList();
+
+            if(facultyCode == "2")
+            {
+                query = query.Where(e => 
+                            (e.FacultyCode == 1 || e.FacultyCode == 2) &&
+                            e.SubjectName != null &&
+                            e.CourseLevel != "SS");
+            }
+            else
+            {
+                query = query.Where(e =>  e.FacultyCode.ToString() == facultyCode && e.SubjectName != null );
+            }
+
+            var data = query.AsEnumerable().GroupBy(d => new { d.SubjectName, d.CourseLevel, d.FacultyCode, d.FacultyName }).ToList();
+
 
             // Create groups
             var groupUG = new SelectListGroup { Name = "UG" };
@@ -75,19 +76,24 @@ namespace Medical_Affiliation.Controllers
             var groupSS = new SelectListGroup { Name = "SS" };
 
             var departments = data
-                .OrderBy(g => g.Key.CourseLevel == "UG" ? 1 :
-                              g.Key.CourseLevel == "PG" ? 2 :
-                              g.Key.CourseLevel == "SS" ? 3 : 4)
-                .ThenBy(g => g.Key.SubjectName)
-                .Select(g => new SelectListItem
-                {
-                    Value = g.First().CourseCode.ToString(),
-                    Text = g.Key.SubjectName,
-                    Group = g.Key.CourseLevel == "UG" ? groupUG :
-                            g.Key.CourseLevel == "PG" ? groupPG :
-                            g.Key.CourseLevel == "SS" ? groupSS : null
-                })
-                .ToList();
+            .OrderBy(g => g.Key.CourseLevel == "UG" ? 1 :
+                          g.Key.CourseLevel == "PG" ? 2 :
+                          g.Key.CourseLevel == "SS" ? 3 : 4)
+            .ThenBy(g => g.Key.SubjectName)
+            .Select(g => new SelectListItem
+            {
+                Value = g.First().CourseCode.ToString(),
+
+                Text = facultyCode == "2"
+                    ? $"{g.Key.SubjectName} - {g.Key.FacultyName}"
+                    : g.Key.SubjectName,
+
+                Group = g.Key.CourseLevel == "UG" ? groupUG :
+                        g.Key.CourseLevel == "PG" ? groupPG :
+                        g.Key.CourseLevel == "SS" ? groupSS :
+                        null
+            })
+            .ToList();
 
             return (subjects, designations, departments);
         }
