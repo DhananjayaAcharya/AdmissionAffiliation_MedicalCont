@@ -3553,26 +3553,179 @@ public class PreviewReportDentalPdf : IDocument
                     // Anatomy Act
                     // --------------------------------------------------
 
-                    AddTextRow(
-                        table,
-                        "Registered Under Anatomy Act",
-                        h.IsRegisteredUnderAnatomyAct ? "Yes" : "No");
-
-                    AddTextRow(
-                        table,
-                        "Anatomy Act Registration Details",
-                        h.AnatomyActRegistrationDetails ?? "—");
-
+                    
 
                     // --------------------------------------------------
                     // Tie-Up
                     // --------------------------------------------------
 
-                    AddTextRow(
-                        table,
-                        "Hospital Tie-Up",
-                        h.hasTieUp ? "Yes" : "No");
+                    //AddTextRow(
+                    //    table,
+                    //    "Hospital Tie-Up",
+                    //    h.hasTieUp ? "Yes" : "No");
                 });
+        }
+
+        // =========================================================
+        // 2. ANATOMY ACT REGISTRATION DETAILS
+        // =========================================================
+        if(hospital.ClinicalDentalHospitalDetails != null)
+        {
+            var h = hospital.ClinicalDentalHospitalDetails;
+
+            AddSubHeading(col, "Anatomy Act Registration Details");
+
+            col.Item()
+                .PaddingTop(8)
+                .Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(3);
+                        columns.RelativeColumn(4);
+                    });
+
+                    AddTextRow(table, "Registered Under Anatomy Act", h.IsRegisteredUnderAnatomyAct ? "Yes" : "No");
+                    AddTextRow(table, "Anatomy Act Registration Details", h.AnatomyActRegistrationDetails ?? "-");
+                    AddTextRow(table, "Anatomy Registration Document", !string.IsNullOrWhiteSpace(h.AnatomyActRegistrationCertificatePath) ? "Available" : "Not Available");
+                });
+
+        }
+
+        if (hospital.ClinicalDentalHospitalDetails != null)
+        {
+            var tieUps = hospital.ClinicalDentalHospitalDetails.HospitalTieUps;
+
+            AddSubHeading(col, "Hospital Tie Up Details");
+
+            if (!hospital.ClinicalDentalHospitalDetails.hasTieUp)
+            {
+                col.Item()
+                    .PaddingTop(8)
+                    .Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(4);
+                        });
+
+                        AddTextRow(table, "Hospital Tie-Up", "No");
+                    });
+            }
+            else if(tieUps?.Any() == true)
+            {
+                col.Item()
+                    .PaddingTop(8)
+                    .Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.ConstantColumn(40);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(2);
+                        });
+
+                        // ======= HEADER =========
+
+                        AddTableHeader(
+                            table,
+                            "Sl. No",
+                            "Tie-Up Type",
+                            "Hospital Name",
+                            "Hospital Address",
+                            "Tie-Up Details",
+                            "Supporting Document"
+                        );
+
+                        int slNo = 1;
+
+                        foreach (var tieUp in tieUps)
+                        {
+                            var bg = RowBg(slNo - 1);
+
+                            table.Cell()
+                                .Border(1)
+                                .BorderColor(BorderColor)
+                                .Background(bg)
+                                .Padding(5)
+                                .AlignCenter()
+                                .Text(slNo.ToString())
+                                .FontSize(9);
+
+                            table.Cell()
+                                .Border(1)
+                                .BorderColor(BorderColor)
+                                .Background(bg)
+                                .Padding(5)
+                                .Text(tieUp.TieUpType ?? "—")
+                                .FontSize(9)
+                                .FontColor(PrimaryColor);
+
+                            table.Cell()
+                                .Border(1)
+                                .BorderColor(BorderColor)
+                                .Background(bg)
+                                .Padding(5)
+                                .Text(tieUp.HospitalName ?? "—")
+                                .FontSize(9);
+
+                            table.Cell()
+                                .Border(1)
+                                .BorderColor(BorderColor)
+                                .Background(bg)
+                                .Padding(5)
+                                .Text(tieUp.HospitalAddress ?? "—")
+                                .FontSize(9);
+
+                            table.Cell()
+                                .Border(1)
+                                .BorderColor(BorderColor)
+                                .Background(bg)
+                                .Padding(5)
+                                .Text(tieUp.TieUpDetails ?? "—")
+                                .FontSize(9);
+
+                            table.Cell()
+                                .Border(1)
+                                .BorderColor(BorderColor)
+                                .Background(bg)
+                                .Padding(5)
+                                .Text(!string.IsNullOrWhiteSpace(tieUp.SupportingDocumentName) ? "Available" : "Not Available")
+                                .FontSize(9);
+
+                            slNo++;
+                        }
+
+                    });
+            }
+            else
+            {
+                // Tie-up is selected as Yes, but no records are available
+                col.Item()
+                    .PaddingTop(8)
+                    .Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(3);
+                            columns.RelativeColumn(4);
+                        });
+
+                        AddTextRow(
+                            table,
+                            "Hospital Tie-Up",
+                            "Yes");
+
+                        AddTextRow(
+                            table,
+                            "Tie-Up Details",
+                            "No tie-up details available");
+                    });
+            }
         }
 
 
