@@ -425,13 +425,13 @@ namespace Admission_Affiliation.Controllers
                 var totalSteps = new HashSet<string>(
                     new[]
                     {
+                "IntakeDetails",
                 "Institution",
                 "TrustDetails",
                 "TrustMemberDetails",
                 "DeanDetails",
                 "PrincipalDetails",
 
-                "IntakeDetails",
                 "BDSDetails",
                 "PgCourses",
                 "SsCoursesApplied",
@@ -446,29 +446,38 @@ namespace Admission_Affiliation.Controllers
                 "CourseStaffDetails",
 
                 "ClinicalFacilities",
-                "LandBuilding",
-                "DentalSkillsLab",
                 "ChairDistribution",
                 "BedDistribution",
-                "DepartmentUnits",
+                "FacultyDetails",
+                "LandBuilding",
                 "Hostel",
+                "DepartmentUnits",
+                "DentalSkillsLab",
                 "DentalEquipmentDetails",
-                "Vehicle",
+                "NonTeachingStaff",
+                "TeachingStaff",
 
                 "AcademicMatters",
-                "PGAcademicMatters",
                 "Finance",
-                "StaffDetails",
+                "PGAcademicMatters",
 
                 "LibraryServices",
-                "Research",
                 "Library",
+                "DentalLibrary",
+                "DentalLibraryStaff",
+                "DentalLibraryUser",
 
-                "FacultyDetails",
-                "NonTeachingStaff",
+                "Vehicle",
+                "StaffDetails",
 
-                "PaymentCalculation",
-                "GeoPhoto"
+                "Research",
+                "WorkshopDetails",
+                "AnimalHouseDetails",
+                "DentalFieldPracticeArea",
+
+                "AdditionalInformationInAcademicActivities",
+                "PaymentDetails",
+                "ActionTakenReport",
                     },
                     StringComparer.OrdinalIgnoreCase);
 
@@ -491,6 +500,7 @@ namespace Admission_Affiliation.Controllers
                     totalSteps.Remove("CourseStaffDetails");
 
                     totalSteps.Remove("SsCoursesApplied");
+                    totalSteps.Remove("AdditionalInformationInAcademicActivities");
                 }
                 else if (courseLevel == "PG")
                 {
@@ -499,15 +509,6 @@ namespace Admission_Affiliation.Controllers
                     totalSteps.Remove("BedDistribution");
 
                     totalSteps.Remove("SsCoursesApplied");
-                }
-                else if (courseLevel == "SS")
-                {
-                    totalSteps.Remove("BDSDetails");
-                    totalSteps.Remove("PgCourses");
-                    totalSteps.Remove("AcademicMatters");
-                    totalSteps.Remove("PGAcademicMatters");
-                    totalSteps.Remove("BedDistribution");
-
                     totalSteps.Remove("CourseSubjectSelection");
                     totalSteps.Remove("CourseGeneralDetails");
                     totalSteps.Remove("CourseInfrastructureDetails");
