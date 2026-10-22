@@ -249,6 +249,7 @@ namespace Admission_Affiliation.Controllers
                     return RedirectToAction("MultiLogin", "MainDashboard");
                 }
 
+                model.LateSubmissionFees = GetDentalLateSubmissionFees(facultyCode);
                 // Session exists → load affiliation types
                 var affiliationTypes = _context.TypeOfAffiliations
                     .AsNoTracking()
@@ -281,6 +282,26 @@ namespace Admission_Affiliation.Controllers
             ViewBag.ShowAffiliationNotification = true;
 
             return View(model);
+        }
+
+
+        private List<DashboardLateSubmissionFeeViewModel> GetDentalLateSubmissionFees(string facultyCode)
+        {
+            return _context.MstDentalFeeTypes
+                .AsNoTracking()
+                .Where(x =>
+                    x.FacultyCode.ToString() == facultyCode &&
+                    x.FeeType == "Late Submission Fee")
+                .OrderBy(x => x.CourseLevel)
+                .Select(x => new DashboardLateSubmissionFeeViewModel
+                {
+                    Id = x.Id,
+                    AffiliationTypeId = x.AffiliationTypeId,
+                    CourseLevel = x.CourseLevel,
+                    ActivationDate = x.ActivationDate,
+                    IsActive = x.IsActive
+                })
+                .ToList();
         }
 
         [Authorize(AuthenticationSchemes = "CollegeAuth")]

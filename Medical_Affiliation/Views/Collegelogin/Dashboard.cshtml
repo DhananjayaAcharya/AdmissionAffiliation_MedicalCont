@@ -2041,6 +2041,11 @@
     @* Faculty 2 (Dental): UG uses the revised dates; PG keeps the previous dates *@
     @if (facultyCode == "2" && ((TempData["ShowAffiliationNotification"] != null && (bool)TempData["ShowAffiliationNotification"]) || ViewBag.ShowAffiliationNotification == true))
     {
+
+        var ugLateFee = Model.LateSubmissionFees.FirstOrDefault(x => string.Equals(x.CourseLevel,"UG", StringComparison.OrdinalIgnoreCase));
+
+        var pgLateFee = Model.LateSubmissionFees.FirstOrDefault(x => string.Equals(x.CourseLevel,"PG",StringComparison.OrdinalIgnoreCase));
+
         <div class="modal fade" id="affiliationNotificationModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
@@ -2068,20 +2073,20 @@
                                 <tbody>
                                     <tr>
                                         <td rowspan="2"><strong>UG</strong></td>
-                                        <td><strong>21/09/2026 to 23/10/2026</strong></td>
+                                        <td><strong>21/09/2026 to @(ugLateFee.ActivationDate.HasValue ? ugLateFee.ActivationDate.Value.ToString("dd/MM/yyyy"): "-")</strong></td>
                                         <td><span class="badge bg-success">Without fine</span></td>
                                     </tr>
                                     <tr>
-                                        <td><strong>24/10/2026 to 30/10/2026</strong></td>
+                                        <td><strong>@(ugLateFee.ActivationDate.HasValue ? ugLateFee.ActivationDate.Value.AddDays(1).ToString("dd/MM/yyyy"): "-") to 30/10/2026</strong></td>
                                         <td><span class="badge bg-danger">With a fine of Rs. 1,00,000/-</span></td>
                                     </tr>
                                     <tr>
                                         <td rowspan="2"><strong>PG</strong></td>
-                                        <td><strong>21/09/2026 to 23/10/2026</strong></td>
+                                        <td><strong>21/09/2026 to @(pgLateFee.ActivationDate.HasValue ? pgLateFee.ActivationDate.Value.ToString("dd/MM/yyyy"): "-")</strong></td>
                                         <td><span class="badge bg-success">Without fine</span></td>
                                     </tr>
                                     <tr>
-                                        <td><strong>24/10/2026 to 30/10/2026</strong></td>
+                                        <td><strong>@(pgLateFee.ActivationDate.HasValue ? pgLateFee.ActivationDate.Value.AddDays(1).ToString("dd/MM/yyyy"): "-") to 30/10/2026</strong></td>
                                         <td><span class="badge bg-danger">With a fine of Rs. 1,00,000/-</span></td>
                                     </tr>
                                 </tbody>

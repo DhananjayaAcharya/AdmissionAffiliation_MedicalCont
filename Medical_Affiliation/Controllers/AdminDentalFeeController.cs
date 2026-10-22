@@ -19,6 +19,30 @@ public class AdminDentalFeeController : Controller
         _context = context;
     }
 
+    private static TimeZoneInfo GetIndiaTimeZone()
+    {
+        return TimeZoneInfo.FindSystemTimeZoneById(
+            OperatingSystem.IsWindows()
+                ? "India Standard Time"
+                : "Asia/Kolkata");
+    }
+
+    private static DateTime? ConvertUtcToIndia(DateTime? utcDate)
+    {
+        if (!utcDate.HasValue)
+            return null;
+        var utc = DateTime.SpecifyKind(utcDate.Value, DateTimeKind.Utc);
+        return TimeZoneInfo.ConvertTimeFromUtc( utc,  GetIndiaTimeZone());
+    }
+
+    private static DateTime? ConvertIndiaToUtc(DateTime? indiaDate)
+    {
+        if (!indiaDate.HasValue)
+            return null;
+        var india = DateTime.SpecifyKind(indiaDate.Value, DateTimeKind.Unspecified);
+        return TimeZoneInfo.ConvertTimeToUtc(india, GetIndiaTimeZone());
+    }
+
     [HttpGet]
     public async Task<IActionResult> Index( string? collegeCode, int? affiliationTypeId, string? courseLevel)
     {
@@ -108,6 +132,35 @@ public class AdminDentalFeeController : Controller
 
             return View(model);
         }
+
+
+
+        var masterFeeTypes = await _context.MstDentalFeeTypes
+            .AsNoTracking()
+            .Where(e =>
+                e.FacultyCode == FacultyCode &&
+                e.AffiliationTypeId == affiliationTypeId.Value &&
+                e.CourseLevel == courseLevel)
+            .OrderBy(e => e.DisplayOrder)
+            .ToListAsync();
+
+
+        model.DentalFeeTypes = masterFeeTypes
+            .Select(e =>
+            {
+                return new AdminDentalFeeTypeViewModel
+                {
+                    Id = e.Id,
+                    FacultyCode = e.FacultyCode,
+                    FeeType = e.FeeType,
+                    CourseLevel = e.CourseLevel,
+                    DisplayOrder = e.DisplayOrder,
+                    IsActive = e.IsActive,
+                    AffiliationTypeId = e.AffiliationTypeId,
+                    ActivationDate = ConvertUtcToIndia(e.ActivationDate)
+
+                };
+            }).ToList();
 
         // Reject a course level that conflicts with the affiliation type.
         if (!string.IsNullOrWhiteSpace(courseLevel) &&
@@ -272,6 +325,118 @@ public class AdminDentalFeeController : Controller
             .Distinct()
             .OrderBy(x => x.Text)
             .ToListAsync();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateDentalLateSubmissionFee(UpdateDentalLateSubmissionFeeViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(
+                nameof(Index),
+                new
+                {
+                    collegeCode = model.CollegeCode,
+                    courseLevel = model.CourseLevel,
+                    affiliationTypeId = model.AffiliationTypeId
+                }
+            );
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var feeType = await _context.MstDentalFeeTypes
+                .FirstOrDefaultAsync(e =>
+                    e.Id == model.Id &&
+                    e.FacultyCode == model.FacultyCode &&
+                    e.FeeType == "Late Submission Fee"
+                );
+
+            if(feeType == null)
+            {
+                return NotFound("late Submission Fee configuration not found.");
+            }
+
+            if (feeType.AffiliationTypeId != model.AffiliationTypeId ||
+            !string.Equals(
+                feeType.CourseLevel?.Trim(),
+                model.CourseLevel?.Trim(),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("Invalid Late Submission Fee configuration.");
+            }
+
+            var wasInactive = !feeType.IsActive;
+            var willBeActive = model.IsActive;
+
+
+            // 3. Update master fee type
+            feeType.ActivationDate = ConvertIndiaToUtc(model.ActivationDate);
+
+            feeType.IsActive = model.IsActive;
+            feeType.ModifiedBy = User.Identity?.Name ?? "Admin";
+            feeType.ModifiedDate = DateTime.UtcNow;
+
+            // 4. If activating the master fee type,
+            //    activate the corresponding college transaction records.
+            if (wasInactive && willBeActive)
+            {
+                var transactionFees = await _context.TxnDentalFeeStructures
+                    .Where(x =>
+                        x.CollegeCode == model.CollegeCode &&
+                        x.FacultyCode == FacultyCode &&
+                        x.AffiliationTypeId == model.AffiliationTypeId &&
+                        x.FeeTypeId == feeType.Id &&
+                        x.CourseLevel == model.CourseLevel &&
+                        !x.IsActive)
+                    .ToListAsync();
+
+                foreach (var transactionFee in transactionFees)
+                {
+                    transactionFee.IsActive = true;
+                    transactionFee.ModifiedBy =
+                        User.Identity?.Name ?? "Admin";
+                    transactionFee.ModifiedDate = DateTime.UtcNow;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            TempData["SuccessMessage"] = "Late Submission Fee configuration updated successfully.";
+
+            return RedirectToAction(
+                nameof(Index),
+                new
+                {
+                    collegeCode = model.CollegeCode,
+                    affiliationTypeId = model.AffiliationTypeId,
+                    courseLevel = model.CourseLevel
+                });
+
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+
+            TempData["ErrorMessage"] = "Unable to update late Submission Fee Configuration.";
+
+            return RedirectToAction(
+                nameof(Index),
+                new
+                {
+                    collegeCode = model.CollegeCode,
+                    affiliationTypeId = model.AffiliationTypeId,
+                    courseLevel = model.CourseLevel
+                });
+        }
+
+
+        
     }
 
     private async Task<List<TypeOfAffiliation>> GetDentalAffiliationTypesAsync()

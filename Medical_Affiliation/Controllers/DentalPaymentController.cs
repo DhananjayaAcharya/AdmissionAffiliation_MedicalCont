@@ -138,68 +138,68 @@ namespace Medical_Affiliation.Controllers
             //==================================
 
 
-            //var feeTypes = await _context.MstDentalFeeTypes
-            //    .AsNoTracking()
-            //    .Where(e =>
-            //        e.FacultyCode == _facultyCode &&
-            //        e.AffiliationTypeId.ToString() == affTypeId &&
-            //        e.IsActive &&
-
-            //        (
-            //            e.ActivationDate == null || e.ActivationDate <= DateTime.UtcNow
-            //        )
-            //        &&
-            //        (
-            //            !isGovernment ||
-            //            e.FeeType == "Application Fee" ||
-            //            e.FeeType == "Course Identification Fee"
-            //        )
-            //    )
-            //    .OrderBy(e => e.DisplayOrder)
-            //    .ToListAsync();
-
-            //=======================================================
-            // UPDATED HARD CODED to OCT 23 2026, 11:59:59 PM IST
-            //=======================================================
-
-            var feeActivationDate = new DateTime(
-                2026, 10, 23, 18, 29, 59,
-                DateTimeKind.Utc
-            );
-
-            var isAfterActivation = DateTime.UtcNow >= feeActivationDate;
-
             var feeTypes = await _context.MstDentalFeeTypes
                 .AsNoTracking()
                 .Where(e =>
                     e.FacultyCode == _facultyCode &&
                     e.AffiliationTypeId.ToString() == affTypeId &&
                     e.IsActive &&
+
                     (
-                        // Government college
-                        (
-                            isGovernment &&
-                            (
-                                e.FeeType == "Application Fee" ||
-                                e.FeeType == "Course Identification Fee" ||
-                                (isAfterActivation && e.FeeType == "Late Submission Fee")
-                            )
-                        )
-
-                        ||
-
-                        // Private college
-                        (
-                            !isGovernment &&
-                            (
-                                isAfterActivation ||
-                                e.FeeType != "Late Submission Fee"
-                            )
-                        )
+                        e.ActivationDate == null || e.ActivationDate <= DateTime.UtcNow
+                    )
+                    &&
+                    (
+                        !isGovernment ||
+                        e.FeeType == "Application Fee" ||
+                        e.FeeType == "Course Identification Fee"
                     )
                 )
                 .OrderBy(e => e.DisplayOrder)
                 .ToListAsync();
+
+            //=======================================================
+            // UPDATED HARD CODED to OCT 23 2026, 11:59:59 PM IST
+            //=======================================================
+
+            //var feeActivationDate = new DateTime(
+            //    2026, 10, 23, 18, 29, 59,
+            //    DateTimeKind.Utc
+            //);
+
+            //var isAfterActivation = DateTime.UtcNow >= feeActivationDate;
+
+            //var feeTypes = await _context.MstDentalFeeTypes
+            //    .AsNoTracking()
+            //    .Where(e =>
+            //        e.FacultyCode == _facultyCode &&
+            //        e.AffiliationTypeId.ToString() == affTypeId &&
+            //        e.IsActive &&
+            //        (
+            //            // Government college
+            //            (
+            //                isGovernment &&
+            //                (
+            //                    e.FeeType == "Application Fee" ||
+            //                    e.FeeType == "Course Identification Fee" ||
+            //                    (isAfterActivation && e.FeeType == "Late Submission Fee")
+            //                )
+            //            )
+
+            //            ||
+
+            //            // Private college
+            //            (
+            //                !isGovernment &&
+            //                (
+            //                    isAfterActivation ||
+            //                    e.FeeType != "Late Submission Fee"
+            //                )
+            //            )
+            //        )
+            //    )
+            //    .OrderBy(e => e.DisplayOrder)
+            //    .ToListAsync();
 
             // =========================================================
             // Get Dental Master Fee Structure

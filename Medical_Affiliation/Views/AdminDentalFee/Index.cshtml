@@ -10,433 +10,14 @@
         Model.AffiliationTypeId.HasValue;
 
     var culture = System.Globalization.CultureInfo.GetCultureInfo("en-IN");
+
+    var lateSubmissionFee = Model.DentalFeeTypes.FirstOrDefault(e => string.Equals(e.FeeType, "Late Submission Fee", StringComparison.OrdinalIgnoreCase));
 }
 
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<style>
-
-    .page-wrapper {
-    padding-top: 0;
-}
-
-.page-wrapper:has(.adf-page) .page-shell {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 0 1.25rem 2rem;
-}
-
-.page-wrapper:has(.adf-page) .portal-sidebar-shell {
-    display: none;
-}
-
-.page-wrapper:has(.adf-page) .page-content,
-.page-wrapper:has(.adf-page) .portal-main-card {
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    margin-left: 0;
-}
-    .adf-page {
-        --adf-primary: #234a83;
-        --adf-border: #e2e8f0;
-        --adf-muted: #64748b;
-        color: #1e293b;
-        padding-bottom: 30px;
-    }
-
-    .adf-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 14px;
-        margin-bottom: 22px;
-    }
-
-    .adf-title {
-        margin: 0;
-        font-size: 25px;
-        font-weight: 750;
-        color: #172554;
-    }
-
-    .adf-subtitle {
-        margin-top: 5px;
-        margin-bottom: 0;
-        color: var(--adf-muted);
-        font-size: 13px;
-    }
-
-    .adf-card {
-        background: #fff;
-        border: 1px solid var(--adf-border);
-        border-radius: 12px;
-        margin-bottom: 20px;
-        box-shadow: 0 3px 12px rgba(15, 23, 42, .035);
-        overflow: hidden;
-    }
-
-    .adf-card-header {
-        padding: 17px 20px;
-        border-bottom: 1px solid var(--adf-border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .adf-card-header h5 {
-        font-size: 16px;
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .adf-card-body {
-        padding: 20px;
-    }
-
-    .adf-label {
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        color: #475569;
-        margin-bottom: 7px;
-    }
-
-    .adf-control {
-        width: 100%;
-        min-height: 41px;
-        border: 1px solid #cbd5e1;
-        border-radius: 7px;
-        padding: 8px 11px;
-        font-size: 13px;
-        background-color: #fff;
-    }
-
-    .adf-control:focus {
-        outline: none;
-        border-color: #537db5;
-        box-shadow: 0 0 0 3px rgba(35, 74, 131, .10);
-    }
-
-    .adf-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 7px;
-        padding: 9px 15px;
-        border-radius: 7px;
-        font-size: 13px;
-        font-weight: 650;
-        text-decoration: none;
-        cursor: pointer;
-        border: 1px solid transparent;
-        min-height: 39px;
-    }
-
-    .adf-btn-primary {
-        background: var(--adf-primary);
-        color: #fff;
-    }
-
-    .adf-btn-primary:hover {
-        background: #183967;
-        color: #fff;
-    }
-
-    .adf-btn-outline {
-        background: #fff;
-        color: #334155;
-        border-color: #cbd5e1;
-    }
-
-    .adf-btn-outline:hover {
-        background: #f8fafc;
-        color: #172554;
-    }
-
-    .adf-summary-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 20px;
-    }
-
-    .adf-summary {
-        padding: 19px;
-        border-radius: 11px;
-        background: #fff;
-        border: 1px solid var(--adf-border);
-    }
-
-    .adf-summary-label {
-        font-size: 12px;
-        color: var(--adf-muted);
-        font-weight: 650;
-        margin-bottom: 10px;
-    }
-
-    .adf-summary-value {
-        font-size: 23px;
-        font-weight: 750;
-        color: #172554;
-        overflow-wrap: anywhere;
-    }
-
-    .adf-summary-note {
-        font-size: 11px;
-        color: var(--adf-muted);
-        margin-top: 6px;
-    }
-
-    .adf-info {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px 22px;
-        padding: 14px 18px;
-        background: #f8fafc;
-        border-bottom: 1px solid var(--adf-border);
-        font-size: 12px;
-    }
-
-    .adf-info strong {
-        color: #334155;
-        margin-right: 5px;
-    }
-
-    .adf-badge {
-        display: inline-block;
-        padding: 5px 9px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-    .adf-badge-success {
-        color: #166534;
-        background: #dcfce7;
-    }
-
-    .adf-badge-warning {
-        color: #92400e;
-        background: #fef3c7;
-    }
-
-    .adf-badge-muted {
-        color: #475569;
-        background: #e2e8f0;
-    }
-
-    .adf-table-wrap {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .adf-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        font-size: 12px;
-        min-width: 1050px;
-    }
-
-    .adf-table th {
-        padding: 12px 13px;
-        background: #f8fafc;
-        color: #475569;
-        text-align: left;
-        font-weight: 750;
-        border-bottom: 1px solid var(--adf-border);
-        white-space: nowrap;
-    }
-
-    .adf-table th[data-sort] {
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .adf-table th[data-sort]:hover {
-        background: #eef2f7;
-        color: var(--adf-primary);
-    }
-
-    .adf-table td {
-        padding: 13px;
-        border-bottom: 1px solid #edf2f7;
-        vertical-align: middle;
-    }
-
-    .adf-table tbody tr:hover {
-        background: #f8fbff;
-    }
-
-    .adf-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    .adf-money {
-        text-align: right !important;
-        white-space: nowrap;
-        font-weight: 650;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .adf-table-footer {
-        padding: 14px 18px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-        border-top: 1px solid var(--adf-border);
-    }
-
-    .adf-page-size {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 12px;
-        color: var(--adf-muted);
-    }
-
-    .adf-page-size select {
-        width: 75px;
-        min-height: 34px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        padding: 4px 7px;
-        background: #fff;
-    }
-
-    .adf-pagination {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        flex-wrap: wrap;
-    }
-
-    .adf-pagination button {
-        min-width: 33px;
-        height: 33px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        background: #fff;
-        color: #334155;
-        font-size: 12px;
-        cursor: pointer;
-    }
-
-    .adf-pagination button.active {
-        color: #fff;
-        background: var(--adf-primary);
-        border-color: var(--adf-primary);
-    }
-
-    .adf-pagination button:disabled {
-        opacity: .4;
-        cursor: not-allowed;
-    }
-
-    .adf-pagination button:focus-visible,
-    .adf-btn:focus-visible {
-        outline: 2px solid #537db5;
-        outline-offset: 2px;
-    }
-
-    .adf-empty {
-        text-align: center;
-        padding: 35px 15px !important;
-        color: var(--adf-muted);
-    }
-
-    .adf-empty i {
-        display: block;
-        font-size: 26px;
-        margin-bottom: 8px;
-    }
-
-    .adf-section-count {
-        font-size: 12px;
-        color: var(--adf-muted);
-    }
-
-    .adf-alert {
-        padding: 12px 15px;
-        border-radius: 8px;
-        margin-bottom: 18px;
-        font-size: 13px;
-    }
-
-    .adf-filter-actions {
-        display: flex;
-        align-items: end;
-        gap: 8px;
-        height: 100%;
-    }
-
-    .adf-filter-actions .adf-btn {
-        flex: 1;
-    }
-
-    
-    .payment-amount-cell {
-        min-width: 145px;
-    }
-
-    .payment-amount-input {
-        min-width: 130px;
-        text-align: right;
-        font-weight: 600;
-        border: 1px dashed #adb5bd;
-        background-color: #fff;
-    }
-
-    .payment-amount-input:focus {
-        border: 1px solid #0d6efd;
-        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.12);
-    }
-
-
-    @@media (max-width: 768px) {
-        .adf-summary-grid {
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        .adf-summary {
-            padding: 15px;
-        }
-
-        .adf-summary-value {
-            font-size: 21px;
-        }
-
-        .adf-card-body {
-            padding: 15px;
-        }
-
-        .adf-header {
-            align-items: flex-start;
-        }
-
-        .adf-title {
-            font-size: 21px;
-        }
-
-        .adf-table-footer {
-            align-items: flex-start;
-        }
-    }
-</style>
-
+<link rel="stylesheet" href="~/css/admin-dental-fee.css"/>
 
 <div class="adf-page">
 
@@ -485,6 +66,76 @@
     {
         <div class="alert alert-warning adf-alert">
             <div asp-validation-summary="All"></div>
+        </div>
+    }
+
+    @if (lateSubmissionFee != null)
+    {
+        <div class="card my-3">
+            <div class="card-header">
+                <strong>Late Submission Fee</strong>
+            </div>
+
+            <div class="card-body">
+                <div class="row align-items-center">
+
+                    <div class="col-md-4">
+                        <strong>Course Level</strong>
+                        <div>
+                            @lateSubmissionFee.CourseLevel
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <strong>Activation Date</strong>
+                        <div>
+                            @if (lateSubmissionFee.ActivationDate.HasValue)
+                            {
+                                @lateSubmissionFee.ActivationDate.Value.ToString("dd-MM-yyyy HH:mm")
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not configured
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <strong>Status</strong>
+                        <div>
+                            @if (lateSubmissionFee.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactive
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-end">
+                        <button type="button"
+                                class="btn btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#updateLateSubmissionFeeModal"
+                                data-id="@lateSubmissionFee.Id"
+                                data-course-level="@lateSubmissionFee.CourseLevel"
+                                data-activation-date="@(lateSubmissionFee.ActivationDate?.ToString("yyyy-MM-ddTHH:mm"))"
+                                data-is-active="@lateSubmissionFee.IsActive">
+
+                            Update
+                        </button>
+                    </div>
+
+                </div>
+            </div>
         </div>
     }
 
@@ -1059,236 +710,113 @@
 
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+<div class="modal fade"
+     id="updateLateSubmissionFeeModal"
+     tabindex="-1"
+     aria-labelledby="updateLateSubmissionFeeModalLabel"
+     aria-hidden="true">
 
-        function initializeTable(tableId, pageSizeId, infoId, paginationId) {
-            const table = document.getElementById(tableId);
-            const pageSizeSelect = document.getElementById(pageSizeId);
-            const infoElement = document.getElementById(infoId);
-            const paginationElement = document.getElementById(paginationId);
+    <div class="modal-dialog">
 
-            if (!table || !pageSizeSelect || !infoElement || !paginationElement) {
-                return;
-            }
+        <div class="modal-content">
 
-            const tbody = table.querySelector("tbody");
-            const headers = Array.from(table.querySelectorAll("thead th[data-sort]"));
+            <form asp-action="UpdateDentalLateSubmissionFee"
+                  asp-controller="AdminDentalFee"
+                  method="post">
 
-            const originalRows = Array.from(tbody.querySelectorAll("tr"))
-                .filter(row => !row.querySelector(".adf-empty"));
+                @Html.AntiForgeryToken()
 
-            let rows = [...originalRows];
-            let currentPage = 1;
-            let pageSize = parseInt(pageSizeSelect.value, 10) || 10;
-            let sortColumn = -1;
-            let sortDirection = 1;
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="updateLateSubmissionFeeModalLabel">
+                        Update Late Submission Fee
+                    </h5>
 
-            function getCellValue(row, index, type) {
-                const cell = row.cells[index];
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
 
-                if (!cell) return "";
+                <div class="modal-body">
 
-                const rawValue = cell.dataset.value ?? cell.textContent.trim();
+                    <input type="hidden"
+                           id="LateFeeId"
+                           name="Id" />
 
-                if (type === "number") {
-                    const number = Number(rawValue);
-                    return Number.isFinite(number) ? number : 0;
-                }
+                    <input type="hidden"
+                           id="LateFeeFacultyCode"
+                           name="FacultyCode"
+                           value="@Model.FacultyCode" />
 
-                if (type === "date") {
-                    const date = Date.parse(rawValue);
-                    return Number.isNaN(date) ? 0 : date;
-                }
+                    <input type="hidden"
+                           id="LateFeeAffiliationTypeId"
+                           name="AffiliationTypeId"
+                           value="@Model.AffiliationTypeId" />
 
-                return String(rawValue).toLocaleLowerCase();
-            }
+                    <input type="hidden"
+                           id="LateFeeCourseLevel"
+                           name="CourseLevel" />
 
-            function renderPagination(totalPages) {
-                paginationElement.replaceChildren();
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Course Level
+                        </label>
 
-                function addButton(label, page, disabled, active) {
-                    const button = document.createElement("button");
-                    button.type = "button";
-                    button.textContent = label;
-                    button.disabled = disabled;
+                        <input type="text"
+                               class="form-control"
+                               id="LateFeeCourseLevelDisplay"
+                               readonly />
+                    </div>
 
-                    if (active) {
-                        button.classList.add("active");
-                        button.setAttribute("aria-current", "page");
-                    }
+                    <div class="mb-3">
+                        <label for="LateFeeActivationDate"
+                               class="form-label">
+                            Activation Date
+                        </label>
 
-                    button.addEventListener("click", function () {
-                        currentPage = page;
-                        render();
-                    });
+                        <input type="datetime-local"
+                               class="form-control"
+                               id="LateFeeActivationDate"
+                               name="ActivationDate" />
+                    </div>
 
-                    paginationElement.appendChild(button);
-                }
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="LateFeeIsActive"
+                               name="IsActive"
+                               value="true" />
 
-                addButton("‹", Math.max(1, currentPage - 1),
-                    currentPage === 1, false);
+                        <label class="form-check-label"
+                               for="LateFeeIsActive">
+                            Active
+                        </label>
+                    </div>
 
-                let start = Math.max(1, currentPage - 2);
-                let end = Math.min(totalPages, currentPage + 2);
+                </div>
 
-                if (end - start < 4) {
-                    start = Math.max(1, end - 4);
-                    end = Math.min(totalPages, start + 4);
-                }
+                <div class="modal-footer">
 
-                for (let page = start; page <= end; page++) {
-                    addButton(String(page), page, false,
-                        page === currentPage);
-                }
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
 
-                addButton("›", Math.min(totalPages, currentPage + 1),
-                    currentPage === totalPages, false);
-            }
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Save Changes
+                    </button>
 
-            function render() {
-                pageSize = parseInt(pageSizeSelect.value, 10) || 10;
+                </div>
 
-                const total = rows.length;
-                const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            </form>
 
-                currentPage = Math.min(currentPage, totalPages);
+        </div>
 
-                const startIndex = (currentPage - 1) * pageSize;
-                const endIndex = Math.min(startIndex + pageSize, total);
+    </div>
+</div>
 
-                const fragment = document.createDocumentFragment();
-
-                rows.forEach(function (row, index) {
-                    row.style.display =
-                        index >= startIndex && index < endIndex ? "" : "none";
-
-                    fragment.appendChild(row);
-                });
-
-                // Keep the original empty-state row if there are no data rows.
-                const emptyRow = Array.from(tbody.querySelectorAll("tr"))
-                    .find(row => row.querySelector(".adf-empty"));
-
-                if (total === 0 && emptyRow) {
-                    emptyRow.style.display = "";
-                    fragment.appendChild(emptyRow);
-                }
-
-                tbody.appendChild(fragment);
-
-                infoElement.textContent = total === 0
-                    ? "(0 entries)"
-                    : `(${startIndex + 1}–${endIndex} of ${total})`;
-
-                renderPagination(totalPages);
-            }
-
-            headers.forEach(function (header, index) {
-                header.setAttribute("aria-sort", "none");
-                header.title = "Click to sort";
-
-                header.addEventListener("click", function () {
-                    if (sortColumn === index) {
-                        sortDirection *= -1;
-                    } else {
-                        sortColumn = index;
-                        sortDirection = 1;
-                    }
-
-                    const type = header.dataset.sort;
-
-                    rows.sort(function (a, b) {
-                        const first = getCellValue(a, index, type);
-                        const second = getCellValue(b, index, type);
-
-                        let result;
-
-                        if (typeof first === "number" &&
-                            typeof second === "number") {
-                            result = first - second;
-                        } else {
-                            result = String(first).localeCompare(
-                                String(second),
-                                undefined,
-                                { numeric: true, sensitivity: "base" }
-                            );
-                        }
-
-                        return result * sortDirection;
-                    });
-
-                    headers.forEach(function (item) {
-                        item.setAttribute("aria-sort", "none");
-
-                        const oldArrow = item.querySelector(".adf-sort-arrow");
-                        if (oldArrow) oldArrow.remove();
-                    });
-
-                    header.setAttribute(
-                        "aria-sort",
-                        sortDirection === 1 ? "ascending" : "descending"
-                    );
-
-                    const arrow = document.createElement("span");
-                    arrow.className = "adf-sort-arrow";
-                    arrow.textContent = sortDirection === 1 ? " ▲" : " ▼";
-                    header.appendChild(arrow);
-
-                    currentPage = 1;
-                    render();
-                });
-            });
-
-            pageSizeSelect.addEventListener("change", function () {
-                currentPage = 1;
-                render();
-            });
-
-            render();
-        }
-
-        initializeTable(
-            "feeTable",
-            "feePageSize",
-            "feeTableInfo",
-            "feePagination"
-        );
-
-        initializeTable(
-            "paymentTable",
-            "paymentPageSize",
-            "paymentTableInfo",
-            "paymentPagination"
-        );
-    });
-
-    document.querySelectorAll(".payment-amount-input").forEach(function (input) {
-        input.dataset.originalValue = input.value;
-
-        input.addEventListener("change", function () {
-            const newValue = Number(input.value);
-            const oldValue = Number(input.dataset.originalValue);
-
-            if (input.value.trim() === "" ||
-                !Number.isFinite(newValue) ||
-                newValue < 0 ||
-                newValue > 999999999999) {
-                alert("Please enter a valid payment amount.");
-                input.value = input.dataset.originalValue;
-                return;
-            }
-
-            if (newValue === oldValue) {
-                return;
-            }
-
-            if (confirm("Save the updated payment amount?")) {
-                input.form.requestSubmit();
-            } else {
-                input.value = input.dataset.originalValue;
-            }
-        });
-    });
-
-</script>
+<script src="~/js/admin-dental-fee.js" asp-append-version="true"></script>
