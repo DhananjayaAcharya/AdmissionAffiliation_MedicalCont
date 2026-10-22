@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Admin Dental Fee";
+    Layout = "~/Views/Shared/_DentalAdminLayout.cshtml";
 
     var hasSelection =
         !string.IsNullOrWhiteSpace(Model.CollegeCode) &&

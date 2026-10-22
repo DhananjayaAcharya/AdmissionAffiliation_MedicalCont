@@ -803,6 +803,11 @@
                 </a>
                 <div class="sidebar-divider"></div>
 
+                <a class="sidebar-link" href="@Url.Action("Index", "DentalAdmin")">
+                    <i class="bi bi-cash-coin"></i> Dental Admin Dashboard
+                </a>
+                <div class="sidebar-divider"></div>
+
             }
 
             <div class="sidebar-divider" style="margin-top:auto;"></div>
@@ -915,6 +920,13 @@
                    class="action-btn">
                     <i class="bi bi-lock-fill"></i>
                     Admin Dental Submission Lock
+                </a>
+
+                <a asp-controller="DentalAdmin"
+                   asp-action="Index"
+                   class="action-btn">
+                    <i class="bi bi-lock-fill"></i>
+                    Dental Admin Dashboard
                 </a>
 
             </div>

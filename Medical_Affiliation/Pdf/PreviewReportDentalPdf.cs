@@ -2517,13 +2517,13 @@ public class PreviewReportDentalPdf : IDocument
                         : "Not Uploaded"
                 );
 
-                AddTextRow(
-                    table,
-                    "KSDC Certificate",
-                    trust.HasKSDCFile
-                        ? "Uploaded"
-                        : "Not Uploaded"
-                );
+                //AddTextRow(
+                //    table,
+                //    "KSDC Certificate",
+                //    trust.HasKSDCFile
+                //        ? "Uploaded"
+                //        : "Not Uploaded"
+                //);
             });
     }
 

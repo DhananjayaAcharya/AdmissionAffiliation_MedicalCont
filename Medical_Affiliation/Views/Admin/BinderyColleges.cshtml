@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Bindery Management";
-
+    Layout = "~/Views/Shared/_DentalAdminLayout.cshtml";
     var colleges = Model?.ToList() ?? new List<Medical_Affiliation.ViewModels.BinderyCollegeViewModel>();
 
     var totalColleges = colleges.Count;
