@@ -4,6 +4,7 @@
 @inject ApplicationDbContext _context
 @using System.Text.Json
 @using Microsoft.EntityFrameworkCore
+@using Medical_Affiliation.Services.Interfaces
 
 @{
     var collegeCode = HttpContextAccessor.HttpContext.Session.GetString("CollegeCode");
@@ -45,12 +46,27 @@
     // Determine the course levels (UG / PG / SS) offered by this college
     // so we can show/hide level-specific steps.
     // ------------------------------------------------------------------
-    var levels = await (
-        from ai in _context.AcademicIntakes
-        join mc in _context.MstCourses on ai.Courses equals mc.CourseCode.ToString()
-        where ai.CollegeCode == collegeCode && ai.FacultyCode == facultyCode
-        select mc.CourseLevel
-    ).Distinct().ToListAsync();
+    // var levels = await (
+    //     from ai in _context.AcademicIntakes
+    //     join mc in _context.MstCourses on ai.Courses equals mc.CourseCode.ToString()
+    //     where ai.CollegeCode == collegeCode && ai.FacultyCode == facultyCode
+    //     select mc.CourseLevel
+    // ).Distinct().ToListAsync();
+
+         List<string> levels;
+        if (facultyCode?.Trim() == "4")
+        {
+            levels = await CourseLevelHelper.GetMedicalIntakeLevelsAsync(_context, collegeCode);
+        }
+        else
+        {
+            levels = await (
+                from ai in _context.AcademicIntakes
+                join mc in _context.MstCourses on ai.Courses equals mc.CourseCode.ToString()
+                where ai.CollegeCode == collegeCode && ai.FacultyCode == facultyCode
+                select mc.CourseLevel
+            ).Distinct().ToListAsync();
+        }
 
     var selectedLevel = Context.Session.GetString("SelectedCourseLevel")?.ToLower();
 

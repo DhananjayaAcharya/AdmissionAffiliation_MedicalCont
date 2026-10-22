@@ -57,5 +57,5 @@ public partial class MedicalSkillsLaboratory
 
     public int? AffiliationTypeId { get; set; }
 
-    public virtual TypeOfAffiliation? AffiliationType { get; set; }
+    public string? CourseLevel { get; set; }
 }

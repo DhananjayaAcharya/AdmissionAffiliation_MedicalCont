@@ -28,13 +28,45 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+        //private async Task<string?> SaveLandFileAsync(IFormFile? file, string folder)
+        //{
+        //    if (file == null || file.Length == 0)
+        //        return null;
+
+
+        //    string rootPath = FacultyCode == "2" ? BaseDentalPath : BaseMedicalPath;
+
+        //    string basePath = Path.Combine(rootPath, "LandBuilding");
+        //    string fullFolder = Path.Combine(basePath, folder);
+
+        //    if (!Directory.Exists(fullFolder))
+        //        Directory.CreateDirectory(fullFolder);
+
+        //    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        //    string fullPath = Path.Combine(fullFolder, fileName);
+
+        //    using (var stream = new FileStream(fullPath, FileMode.Create))
+        //    {
+        //        await file.CopyToAsync(stream);
+        //    }
+
+        //    return fullPath;
+        //}
+        // GET: /SmallGroupTeaching/Edit
+        // GET: /SmallGroupTeaching/Edit
+
+
         private async Task<string?> SaveLandFileAsync(IFormFile? file, string folder)
         {
             if (file == null || file.Length == 0)
                 return null;
 
-
-            string rootPath = FacultyCode == "2" ? BaseDentalPath : BaseMedicalPath;
+            string rootPath = FacultyCode switch
+            {
+                "2" => BaseDentalPath,
+                "4" => BaseAyurvedaPath,
+                _ => BaseMedicalPath 
+            };
 
             string basePath = Path.Combine(rootPath, "LandBuilding");
             string fullFolder = Path.Combine(basePath, folder);
@@ -52,625 +84,626 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
-        // GET: /SmallGroupTeaching/Edit
-        // GET: /SmallGroupTeaching/Edit
-        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
-        [HttpGet]
-        public async Task<IActionResult> Medical_LandBuildingdetails()
-        {
-            var courseLevel = CourseLevel;
-
-            var facultyCode = FacultyCode;
-            var collegeCode = CollegeCode;
-
-
-            if (string.IsNullOrEmpty(facultyCode))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            // ============================
-            // 🔹 TABLE 1: SmallGroupTeachings
-            // ============================
-            var teaching = await _context.SmallGroupTeachings
-                                         .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                              x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
-
-            // ============================
-            // 🔹 TABLE 2: Medical_StudentPracticalLabs
-            // ============================
-            var labs = await _context.MedicalStudentPracticalLabs
-                                     .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
-
-            var museum = await _context.MedicalMuseums
-                               .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
-
-
-            // ============================
-            var admin = await _context.MedicalAdministrativePhysicalFacilities
-                                      .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
-
-            // ============================
-            // 🔹 FIRST TIME DEFAULTS
-            // ============================
-            if (teaching == null && labs == null)
-            {
-                return View(new SmallGroupTeachingViewModel
-                {
-                    AnnualMbbsIntake = 100,
-                    SmallGroupBatchSize = 15
-                });
-            }
-
-            // ============================
-            // 🔹 MAP TO VIEWMODEL
-            // ============================
-            var vm = new SmallGroupTeachingViewModel
-            {
-                // --- GENERAL ---
-                AnnualMbbsIntake = teaching?.AnnualMbbsIntake ?? 100,
-                SmallGroupBatchSize = teaching?.SmallGroupBatchSize ?? 15,
-
-                TeachingAreasSharedAllDepts = teaching?.TeachingAreasSharedAllDepts,
-                AvInAllTeachingAreas = teaching?.AvInAllTeachingAreas,
-                InternetInAllTeachingAreas = teaching?.InternetInAllTeachingAreas,
-                DigitalLinkAllTeachingAreas = teaching?.DigitalLinkAllTeachingAreas,
-
-                // --- TEACHING ROOMS ---
-                SmallGroupStudents = teaching?.SmallGroupStudents ?? 0,
-                RequiredAreaSqm = teaching?.RequiredAreaSqm ?? 0,
-                AvailableAreaSqm = teaching?.AvailableAreaSqm ?? 0,
-                AreaDeficiencySqm = teaching?.AreaDeficiencySqm ?? 0,
-
-                RoomsSharedByAllDepts = teaching?.RoomsSharedByAllDepts,
-                AppropriateAreaEachSpecialty = teaching?.AppropriateAreaEachSpecialty,
-                ConnectedToLectureHalls = teaching?.ConnectedToLectureHalls,
-                InternetInTeachingRooms = teaching?.InternetInTeachingRooms,
-
-                // --- LABS ---
-                HistologyAvailable = labs?.HistologyAvailable ?? false,
-                HistologyShared = labs?.HistologyShared ?? false,
-
-                ClinicalPhysiologyAvailable = labs?.ClinicalPhysiologyAvailable ?? false,
-                ClinicalPhysiologyShared = labs?.ClinicalPhysiologyShared ?? false,
-
-                BiochemistryAvailable = labs?.BiochemistryAvailable ?? false,
-                BiochemistryShared = labs?.BiochemistryShared ?? false,
-
-                HistopathCytopathAvailable = labs?.HistopathCytopathAvailable ?? false,
-                HistopathCytopathShared = labs?.HistopathCytopathShared ?? false,
-
-                ClinPathHemeAvailable = labs?.ClinPathHemeAvailable ?? false,
-                ClinPathHemeShared = labs?.ClinPathHemeShared ?? false,
-
-                MicrobiologyAvailable = labs?.MicrobiologyAvailable ?? false,
-                MicrobiologyShared = labs?.MicrobiologyShared ?? false,
-
-                ClinicalPharmAvailable = labs?.ClinicalPharmAvailable ?? false,
-                ClinicalPharmShared = labs?.ClinicalPharmShared ?? false,
-
-                CalPharmAvailable = labs?.CalPharmAvailable ?? false,
-                CalPharmShared = labs?.CalPharmShared ?? false,
-
-                AllLabsHaveAV = labs?.AllLabsHaveAv ?? false,
-                AllLabsHaveInternet = labs?.AllLabsHaveInternet ?? false,
-                TechnicalStaffFacilitiesEnsured = labs?.TechnicalStaffFacilitiesEnsured ?? false,
-
-
-                // Types
-                SeparateAnatomyMuseumAvailable = museum?.SeparateAnatomyMuseumAvailable,
-                PathologyForensicSharedMuseum = museum?.PathologyForensicSharedMuseum,
-                PharmMicroCommSharedMuseum = museum?.PharmMicroCommSharedMuseum,
-
-                // Seating & area
-                // Seating & area
-                SeatingCapacityPerMuseum = museum?.SeatingCapacityPerMuseum ?? 0,
-                SeatingAreaAvailableSqm = museum?.SeatingAreaAvailableSqm ?? 0,
-                SeatingAreaRequiredSqm = museum?.SeatingAreaRequiredSqm ?? 0,
-                SeatingAreaDeficiencySqm = museum?.SeatingAreaDeficiencySqm ?? 0,
-
-
-                // Facilities
-                MuseumsHaveAV = museum?.MuseumsHaveAv,
-                MuseumsHaveInternet = museum?.MuseumsHaveInternet,
-                MuseumsDigitallyLinked = museum?.MuseumsDigitallyLinked,
-                MuseumsHaveRacksShelves = museum?.MuseumsHaveRacksShelves,
-                MuseumsHaveRadiologyDisplay = museum?.MuseumsHaveRadiologyDisplay,
-                TeachingTimeSharingProgrammed = museum?.TeachingTimeSharingProgrammed,
-
-                // ====================================================
-                // 🆕 LAND DETAILS (NEWLY ADDED)
-                // ====================================================
-                IsMinimumLandAvailable = teaching?.IsMinimumLandAvailable,
-                LandDetailsIfYes = teaching?.LandDetailsIfYes,
-                HasPurchasePlanIfNo = teaching?.HasPurchasePlanIfNo,
-                HasBudgetProvisionIfNo = teaching?.HasBudgetProvisionIfNo,
-                HasFutureExpansionSpace = teaching?.HasFutureExpansionSpace,
-                HasLandRecordsFile = teaching?.LandRecordsFilePath != null,
-                HasApprovedBuildingPlanFile = teaching?.ApprovedBuildingPlanFilePath != null,
-
-
-                // ====================================================
-                // 🆕 BUILDING DETAILS (NEWLY ADDED)
-                // ====================================================
-                IsBuildingAsPerCouncilNorms = teaching?.IsBuildingAsPerCouncilNorms,
-                LandOwnershipType = teaching?.LandOwnershipType,
-                BuildingOwnershipType = teaching?.BuildingOwnershipType,
-                FloorAreaSqFt = teaching?.FloorAreaSqFt ?? 0,
-                NumberOfBlocks = teaching?.NumberOfBlocks ?? 0,
-                NumberOfFloors = teaching?.NumberOfFloors ?? 0,
-                YearOfConstruction = teaching?.YearOfConstruction ?? 0,
-
-
-                // ---------- ADMINISTRATIVE ----------
-                PrincipalChamberAreaSqFt = admin?.PrincipalChamberAreaSqFt,
-                OfficeRoomAreaSqFt = admin?.OfficeRoomAreaSqFt,
-                StaffRoomsAreaSqFt = admin?.StaffRoomsAreaSqFt,
-                LectureHallsAreaSqFt = admin?.LectureHallsAreaSqFt,
-                LaboratoriesAreaSqFt = admin?.LaboratoriesAreaSqFt,
-                SeminarHallAreaSqFt = admin?.SeminarHallAreaSqFt,
-                AuditoriumAreaSqFt = admin?.AuditoriumAreaSqFt,
-                MuseumAreaSqFt = admin?.MuseumAreaSqFt,
-                ExaminationHallAvailable = admin?.ExaminationHallAvailable ?? false,
-                AnimalHouseAvailable = admin?.AnimalHouseAvailable ?? false,
-                CommitteeRoomsAreaSqFt = admin?.CommitteeRoomsAreaSqFt,
-
-                WorkshopStaffCount = admin?.WorkshopStaffCount,
-                WorkshopEquipmentDetails = admin?.WorkshopEquipmentDetails,
-                WorkshopScopeOfWork = admin?.WorkshopScopeOfWork,
-
-                AnimalHouseAreaSqFt = admin?.AnimalHouseAreaSqFt,
-                AnimalHouseStaffCount = admin?.AnimalHouseStaffCount,
-                AnimalTypes = admin?.AnimalTypes,
-
-                CommonRoomMenAvailable = admin?.CommonRoomMenAvailable ?? false,
-                CommonRoomWomenAvailable = admin?.CommonRoomWomenAvailable ?? false,
-                StudentHostelAvailable = admin?.StudentHostelAvailable ?? false,
-                StaffQuartersPrincipal = admin?.StaffQuartersPrincipal ?? false,
-                StaffQuartersOtherStaff = admin?.StaffQuartersOtherStaff ?? false,
-                StaffQuartersTeachingAncillary = admin?.StaffQuartersTeachingAncillary ?? false,
-                RegisteredUnderAnatomyAct = admin?.RegisteredUnderAnatomyAct ?? false,
-
-            };
-
-            return View(vm);
-        }
 
 
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Medical_LandBuildingdetails(SmallGroupTeachingViewModel model)
-        {
-            var courseLevel = CourseLevel;
-            var collegeCode = CollegeCode;
-            var facultyCode = FacultyCode;
-
-            // ✅ SESSION SAFE CHECK
-            if (string.IsNullOrEmpty(facultyCode))
+            [HttpGet]
+            public async Task<IActionResult> Medical_LandBuildingdetails()
             {
-                TempData["Error"] = "Session expired. Please login again.";
-                return RedirectToAction("Login", "Account");
-            }
+                var courseLevel = CourseLevel;
 
-            if (string.IsNullOrWhiteSpace(courseLevel))
-            {
-                TempData["Error"] = "Session expired. Please select course again.";
-                return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
-            }
+                var facultyCode = FacultyCode;
+                var collegeCode = CollegeCode;
 
-            // ✅ LOG ERRORS BUT DO NOT BLOCK SAVE
-            if (!ModelState.IsValid)
-            {
-                foreach (var key in ModelState.Keys)
+
+                if (string.IsNullOrEmpty(facultyCode))
                 {
-                    foreach (var error in ModelState[key].Errors)
-                    {
-                        Console.WriteLine($"{key}: {error.ErrorMessage}");
-                    }
+                    return RedirectToAction("Login", "Account");
                 }
-            }
 
-            // ✅ CALCULATIONS
-            model.RequiredAreaSqm = model.SmallGroupStudents * 1.2m;
-            model.AreaDeficiencySqm = Math.Max(0, model.RequiredAreaSqm - model.AvailableAreaSqm);
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                // ========================= TEACHING =========================
+                // ============================
+                // 🔹 TABLE 1: SmallGroupTeachings
+                // ============================
                 var teaching = await _context.SmallGroupTeachings
-                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode &&
-                                             x.CourseLevel == courseLevel);
+                                             .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                  x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
 
-                if (teaching == null)
-                {
-                    teaching = new SmallGroupTeaching
-                    {
-                        FacultyCode = facultyCode,
-                        CollegeCode = collegeCode,
-                        CourseLevel = courseLevel
-                    };
-                    _context.SmallGroupTeachings.Add(teaching);
-                }
-
-                teaching.AnnualMbbsIntake = model.AnnualMbbsIntake;
-                teaching.SmallGroupBatchSize = model.SmallGroupBatchSize;
-                teaching.TeachingAreasSharedAllDepts = model.TeachingAreasSharedAllDepts ?? false;
-                teaching.AvInAllTeachingAreas = model.AvInAllTeachingAreas ?? false;
-                teaching.InternetInAllTeachingAreas = model.InternetInAllTeachingAreas ?? false;
-                teaching.DigitalLinkAllTeachingAreas = model.DigitalLinkAllTeachingAreas ?? false;
-
-                teaching.SmallGroupStudents = model.SmallGroupStudents;
-                teaching.RequiredAreaSqm = model.RequiredAreaSqm;
-                teaching.AvailableAreaSqm = model.AvailableAreaSqm;
-                teaching.AreaDeficiencySqm = model.AreaDeficiencySqm;
-
-                teaching.RoomsSharedByAllDepts = model.RoomsSharedByAllDepts ?? false;
-                teaching.AppropriateAreaEachSpecialty = model.AppropriateAreaEachSpecialty ?? false;
-                teaching.ConnectedToLectureHalls = model.ConnectedToLectureHalls ?? false;
-                teaching.InternetInTeachingRooms = model.InternetInTeachingRooms ?? false;
-
-                // LAND
-                teaching.IsMinimumLandAvailable = model.IsMinimumLandAvailable ?? false;
-                teaching.LandDetailsIfYes = model.LandDetailsIfYes;
-                teaching.HasPurchasePlanIfNo = model.HasPurchasePlanIfNo ?? false;
-                teaching.HasBudgetProvisionIfNo = model.HasBudgetProvisionIfNo ?? false;
-                teaching.HasFutureExpansionSpace = model.HasFutureExpansionSpace ?? false;
-
-
-                if (model.LandRecordsDocument != null && model.LandRecordsDocument.Length > 0)
-                {
-                    var path = await SaveLandFileAsync(model.LandRecordsDocument, "LandRecords");
-
-                    if (path != null)
-                    {
-                        // 🔥 Delete old file
-                        if (!string.IsNullOrEmpty(teaching.LandRecordsFilePath) &&
-                            System.IO.File.Exists(teaching.LandRecordsFilePath))
-                        {
-                            System.IO.File.Delete(teaching.LandRecordsFilePath);
-                        }
-
-                        teaching.LandRecordsFilePath = path;
-                    }
-                }
-
-
-                // BUILDING
-                teaching.IsBuildingAsPerCouncilNorms = model.IsBuildingAsPerCouncilNorms ?? false;
-                teaching.LandOwnershipType = model.LandOwnershipType;
-                teaching.BuildingOwnershipType = model.BuildingOwnershipType;
-                teaching.FloorAreaSqFt = model.FloorAreaSqFt;
-                teaching.NumberOfBlocks = model.NumberOfBlocks;
-                teaching.NumberOfFloors = model.NumberOfFloors;
-                teaching.YearOfConstruction = model.YearOfConstruction;
-
-                if (model.ApprovedBuildingPlanDocument != null && model.ApprovedBuildingPlanDocument.Length > 0)
-                {
-                    var path = await SaveLandFileAsync(model.ApprovedBuildingPlanDocument, "BuildingPlans");
-
-                    if (path != null)
-                    {
-                        if (!string.IsNullOrEmpty(teaching.ApprovedBuildingPlanFilePath) &&
-                            System.IO.File.Exists(teaching.ApprovedBuildingPlanFilePath))
-                        {
-                            System.IO.File.Delete(teaching.ApprovedBuildingPlanFilePath);
-                        }
-
-                        teaching.ApprovedBuildingPlanFilePath = path;
-                    }
-                }
-
-                // ========================= LABS =========================
+                // ============================
+                // 🔹 TABLE 2: Medical_StudentPracticalLabs
+                // ============================
                 var labs = await _context.MedicalStudentPracticalLabs
-                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode &&
-                                             x.CourseLevel == courseLevel);
+                                         .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                 x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
 
-                if (labs == null)
-                {
-                    labs = new MedicalStudentPracticalLab
-                    {
-                        FacultyCode = facultyCode,
-                        CollegeCode = collegeCode,
-                        CourseLevel = courseLevel
-                    };
-                    _context.MedicalStudentPracticalLabs.Add(labs);
-                }
-
-                labs.HistologyAvailable = model.HistologyAvailable;
-                labs.HistologyShared = model.HistologyShared;
-                labs.ClinicalPhysiologyAvailable = model.ClinicalPhysiologyAvailable;
-                labs.ClinicalPhysiologyShared = model.ClinicalPhysiologyShared;
-                labs.BiochemistryAvailable = model.BiochemistryAvailable;
-                labs.BiochemistryShared = model.BiochemistryShared;
-                labs.HistopathCytopathAvailable = model.HistopathCytopathAvailable;
-                labs.HistopathCytopathShared = model.HistopathCytopathShared;
-                labs.ClinPathHemeAvailable = model.ClinPathHemeAvailable;
-                labs.ClinPathHemeShared = model.ClinPathHemeShared;
-                labs.MicrobiologyAvailable = model.MicrobiologyAvailable;
-                labs.MicrobiologyShared = model.MicrobiologyShared;
-                labs.ClinicalPharmAvailable = model.ClinicalPharmAvailable;
-                labs.ClinicalPharmShared = model.ClinicalPharmShared;
-                labs.CalPharmAvailable = model.CalPharmAvailable;
-                labs.CalPharmShared = model.CalPharmShared;
-
-                labs.AllLabsHaveAv = model.AllLabsHaveAV;
-                labs.AllLabsHaveInternet = model.AllLabsHaveInternet;
-                labs.TechnicalStaffFacilitiesEnsured = model.TechnicalStaffFacilitiesEnsured;
-
-                // ========================= ADMIN =========================
-                var admin = await _context.MedicalAdministrativePhysicalFacilities
-                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode &&
-                                             x.CourseLevel == courseLevel);
-
-                if (admin == null)
-                {
-                    admin = new MedicalAdministrativePhysicalFacility
-                    {
-                        FacultyCode = facultyCode,
-                        CollegeCode = collegeCode,
-                        CourseLevel = courseLevel,
-                        CreatedDate = DateTime.Now
-                    };
-                    _context.MedicalAdministrativePhysicalFacilities.Add(admin);
-                }
-                else
-                {
-                    admin.UpdatedDate = DateTime.Now;
-                }
-
-                admin.PrincipalChamberAreaSqFt = model.PrincipalChamberAreaSqFt;
-                admin.OfficeRoomAreaSqFt = model.OfficeRoomAreaSqFt;
-                admin.StaffRoomsAreaSqFt = model.StaffRoomsAreaSqFt;
-                admin.LectureHallsAreaSqFt = model.LectureHallsAreaSqFt;
-                admin.LaboratoriesAreaSqFt = model.LaboratoriesAreaSqFt;
-                admin.SeminarHallAreaSqFt = model.SeminarHallAreaSqFt;
-                admin.AuditoriumAreaSqFt = model.AuditoriumAreaSqFt;
-                admin.MuseumAreaSqFt = model.MuseumAreaSqFt;
-
-                admin.ExaminationHallAvailable = model.ExaminationHallAvailable;
-                admin.AnimalHouseAvailable = model.AnimalHouseAvailable;
-
-                admin.WorkshopStaffCount = model.WorkshopStaffCount;
-                admin.WorkshopEquipmentDetails = model.WorkshopEquipmentDetails;
-                admin.WorkshopScopeOfWork = model.WorkshopScopeOfWork;
-
-                admin.AnimalHouseAreaSqFt = model.AnimalHouseAreaSqFt;
-                admin.AnimalHouseStaffCount = model.AnimalHouseStaffCount;
-                admin.AnimalTypes = model.AnimalTypes;
-
-                admin.CommitteeRoomsAreaSqFt = model.CommitteeRoomsAreaSqFt;
-                admin.CommonRoomMenAvailable = model.CommonRoomMenAvailable;
-                admin.CommonRoomWomenAvailable = model.CommonRoomWomenAvailable;
-
-                admin.StudentHostelAvailable = model.StudentHostelAvailable;
-                admin.StaffQuartersPrincipal = model.StaffQuartersPrincipal;
-                admin.StaffQuartersOtherStaff = model.StaffQuartersOtherStaff;
-                admin.StaffQuartersTeachingAncillary = model.StaffQuartersTeachingAncillary;
-
-                admin.RegisteredUnderAnatomyAct = model.RegisteredUnderAnatomyAct;
-
-                // ========================= MUSEUM =========================
                 var museum = await _context.MedicalMuseums
-                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
-                                             x.CollegeCode == collegeCode &&
-                                             x.CourseLevel == courseLevel);
+                                   .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                 x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
 
-                if (museum == null)
+
+                // ============================
+                var admin = await _context.MedicalAdministrativePhysicalFacilities
+                                          .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                 x.CollegeCode == collegeCode && x.CourseLevel == courseLevel);
+
+                // ============================
+                // 🔹 FIRST TIME DEFAULTS
+                // ============================
+                if (teaching == null && labs == null)
                 {
-                    museum = new MedicalMuseum
+                    return View(new SmallGroupTeachingViewModel
+                    {
+                        AnnualMbbsIntake = 100,
+                        SmallGroupBatchSize = 15
+                    });
+                }
+
+                // ============================
+                // 🔹 MAP TO VIEWMODEL
+                // ============================
+                var vm = new SmallGroupTeachingViewModel
+                {
+                    // --- GENERAL ---
+                    AnnualMbbsIntake = teaching?.AnnualMbbsIntake ?? 100,
+                    SmallGroupBatchSize = teaching?.SmallGroupBatchSize ?? 15,
+
+                    TeachingAreasSharedAllDepts = teaching?.TeachingAreasSharedAllDepts,
+                    AvInAllTeachingAreas = teaching?.AvInAllTeachingAreas,
+                    InternetInAllTeachingAreas = teaching?.InternetInAllTeachingAreas,
+                    DigitalLinkAllTeachingAreas = teaching?.DigitalLinkAllTeachingAreas,
+
+                    // --- TEACHING ROOMS ---
+                    SmallGroupStudents = teaching?.SmallGroupStudents ?? 0,
+                    RequiredAreaSqm = teaching?.RequiredAreaSqm ?? 0,
+                    AvailableAreaSqm = teaching?.AvailableAreaSqm ?? 0,
+                    AreaDeficiencySqm = teaching?.AreaDeficiencySqm ?? 0,
+
+                    RoomsSharedByAllDepts = teaching?.RoomsSharedByAllDepts,
+                    AppropriateAreaEachSpecialty = teaching?.AppropriateAreaEachSpecialty,
+                    ConnectedToLectureHalls = teaching?.ConnectedToLectureHalls,
+                    InternetInTeachingRooms = teaching?.InternetInTeachingRooms,
+
+                    // --- LABS ---
+                    HistologyAvailable = labs?.HistologyAvailable ?? false,
+                    HistologyShared = labs?.HistologyShared ?? false,
+
+                    ClinicalPhysiologyAvailable = labs?.ClinicalPhysiologyAvailable ?? false,
+                    ClinicalPhysiologyShared = labs?.ClinicalPhysiologyShared ?? false,
+
+                    BiochemistryAvailable = labs?.BiochemistryAvailable ?? false,
+                    BiochemistryShared = labs?.BiochemistryShared ?? false,
+
+                    HistopathCytopathAvailable = labs?.HistopathCytopathAvailable ?? false,
+                    HistopathCytopathShared = labs?.HistopathCytopathShared ?? false,
+
+                    ClinPathHemeAvailable = labs?.ClinPathHemeAvailable ?? false,
+                    ClinPathHemeShared = labs?.ClinPathHemeShared ?? false,
+
+                    MicrobiologyAvailable = labs?.MicrobiologyAvailable ?? false,
+                    MicrobiologyShared = labs?.MicrobiologyShared ?? false,
+
+                    ClinicalPharmAvailable = labs?.ClinicalPharmAvailable ?? false,
+                    ClinicalPharmShared = labs?.ClinicalPharmShared ?? false,
+
+                    CalPharmAvailable = labs?.CalPharmAvailable ?? false,
+                    CalPharmShared = labs?.CalPharmShared ?? false,
+
+                    AllLabsHaveAV = labs?.AllLabsHaveAv ?? false,
+                    AllLabsHaveInternet = labs?.AllLabsHaveInternet ?? false,
+                    TechnicalStaffFacilitiesEnsured = labs?.TechnicalStaffFacilitiesEnsured ?? false,
+
+
+                    // Types
+                    SeparateAnatomyMuseumAvailable = museum?.SeparateAnatomyMuseumAvailable,
+                    PathologyForensicSharedMuseum = museum?.PathologyForensicSharedMuseum,
+                    PharmMicroCommSharedMuseum = museum?.PharmMicroCommSharedMuseum,
+
+                    // Seating & area
+                    // Seating & area
+                    SeatingCapacityPerMuseum = museum?.SeatingCapacityPerMuseum ?? 0,
+                    SeatingAreaAvailableSqm = museum?.SeatingAreaAvailableSqm ?? 0,
+                    SeatingAreaRequiredSqm = museum?.SeatingAreaRequiredSqm ?? 0,
+                    SeatingAreaDeficiencySqm = museum?.SeatingAreaDeficiencySqm ?? 0,
+
+
+                    // Facilities
+                    MuseumsHaveAV = museum?.MuseumsHaveAv,
+                    MuseumsHaveInternet = museum?.MuseumsHaveInternet,
+                    MuseumsDigitallyLinked = museum?.MuseumsDigitallyLinked,
+                    MuseumsHaveRacksShelves = museum?.MuseumsHaveRacksShelves,
+                    MuseumsHaveRadiologyDisplay = museum?.MuseumsHaveRadiologyDisplay,
+                    TeachingTimeSharingProgrammed = museum?.TeachingTimeSharingProgrammed,
+
+                    // ====================================================
+                    // 🆕 LAND DETAILS (NEWLY ADDED)
+                    // ====================================================
+                    IsMinimumLandAvailable = teaching?.IsMinimumLandAvailable,
+                    LandDetailsIfYes = teaching?.LandDetailsIfYes,
+                    HasPurchasePlanIfNo = teaching?.HasPurchasePlanIfNo,
+                    HasBudgetProvisionIfNo = teaching?.HasBudgetProvisionIfNo,
+                    HasFutureExpansionSpace = teaching?.HasFutureExpansionSpace,
+                    HasLandRecordsFile = teaching?.LandRecordsFilePath != null,
+                    HasApprovedBuildingPlanFile = teaching?.ApprovedBuildingPlanFilePath != null,
+
+
+                    // ====================================================
+                    // 🆕 BUILDING DETAILS (NEWLY ADDED)
+                    // ====================================================
+                    IsBuildingAsPerCouncilNorms = teaching?.IsBuildingAsPerCouncilNorms,
+                    LandOwnershipType = teaching?.LandOwnershipType,
+                    BuildingOwnershipType = teaching?.BuildingOwnershipType,
+                    FloorAreaSqFt = teaching?.FloorAreaSqFt ?? 0,
+                    NumberOfBlocks = teaching?.NumberOfBlocks ?? 0,
+                    NumberOfFloors = teaching?.NumberOfFloors ?? 0,
+                    YearOfConstruction = teaching?.YearOfConstruction ?? 0,
+
+
+                    // ---------- ADMINISTRATIVE ----------
+                    PrincipalChamberAreaSqFt = admin?.PrincipalChamberAreaSqFt,
+                    OfficeRoomAreaSqFt = admin?.OfficeRoomAreaSqFt,
+                    StaffRoomsAreaSqFt = admin?.StaffRoomsAreaSqFt,
+                    LectureHallsAreaSqFt = admin?.LectureHallsAreaSqFt,
+                    LaboratoriesAreaSqFt = admin?.LaboratoriesAreaSqFt,
+                    SeminarHallAreaSqFt = admin?.SeminarHallAreaSqFt,
+                    AuditoriumAreaSqFt = admin?.AuditoriumAreaSqFt,
+                    MuseumAreaSqFt = admin?.MuseumAreaSqFt,
+                    ExaminationHallAvailable = admin?.ExaminationHallAvailable ?? false,
+                    AnimalHouseAvailable = admin?.AnimalHouseAvailable ?? false,
+                    CommitteeRoomsAreaSqFt = admin?.CommitteeRoomsAreaSqFt,
+
+                    WorkshopStaffCount = admin?.WorkshopStaffCount,
+                    WorkshopEquipmentDetails = admin?.WorkshopEquipmentDetails,
+                    WorkshopScopeOfWork = admin?.WorkshopScopeOfWork,
+
+                    AnimalHouseAreaSqFt = admin?.AnimalHouseAreaSqFt,
+                    AnimalHouseStaffCount = admin?.AnimalHouseStaffCount,
+                    AnimalTypes = admin?.AnimalTypes,
+
+                    CommonRoomMenAvailable = admin?.CommonRoomMenAvailable ?? false,
+                    CommonRoomWomenAvailable = admin?.CommonRoomWomenAvailable ?? false,
+                    StudentHostelAvailable = admin?.StudentHostelAvailable ?? false,
+                    StaffQuartersPrincipal = admin?.StaffQuartersPrincipal ?? false,
+                    StaffQuartersOtherStaff = admin?.StaffQuartersOtherStaff ?? false,
+                    StaffQuartersTeachingAncillary = admin?.StaffQuartersTeachingAncillary ?? false,
+                    RegisteredUnderAnatomyAct = admin?.RegisteredUnderAnatomyAct ?? false,
+
+                };
+
+                return View(vm);
+            }
+
+
+            [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Medical_LandBuildingdetails(SmallGroupTeachingViewModel model)
+            {
+                var courseLevel = CourseLevel;
+                var collegeCode = CollegeCode;
+                var facultyCode = FacultyCode;
+
+                // ✅ SESSION SAFE CHECK
+                if (string.IsNullOrEmpty(facultyCode))
+                {
+                    TempData["Error"] = "Session expired. Please login again.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                if (string.IsNullOrWhiteSpace(courseLevel))
+                {
+                    TempData["Error"] = "Session expired. Please select course again.";
+                    return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
+                }
+
+                // ✅ LOG ERRORS BUT DO NOT BLOCK SAVE
+                if (!ModelState.IsValid)
+                {
+                    foreach (var key in ModelState.Keys)
+                    {
+                        foreach (var error in ModelState[key].Errors)
+                        {
+                            Console.WriteLine($"{key}: {error.ErrorMessage}");
+                        }
+                    }
+                }
+
+                // ✅ CALCULATIONS
+                model.RequiredAreaSqm = model.SmallGroupStudents * 1.2m;
+                model.AreaDeficiencySqm = Math.Max(0, model.RequiredAreaSqm - model.AvailableAreaSqm);
+
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                try
+                {
+                    // ========================= TEACHING =========================
+                    var teaching = await _context.SmallGroupTeachings
+                        .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                 x.CollegeCode == collegeCode &&
+                                                 x.CourseLevel == courseLevel);
+
+                    if (teaching == null)
+                    {
+                        teaching = new SmallGroupTeaching
+                        {
+                            FacultyCode = facultyCode,
+                            CollegeCode = collegeCode,
+                            CourseLevel = courseLevel
+                        };
+                        _context.SmallGroupTeachings.Add(teaching);
+                    }
+
+                    teaching.AnnualMbbsIntake = model.AnnualMbbsIntake;
+                    teaching.SmallGroupBatchSize = model.SmallGroupBatchSize;
+                    teaching.TeachingAreasSharedAllDepts = model.TeachingAreasSharedAllDepts ?? false;
+                    teaching.AvInAllTeachingAreas = model.AvInAllTeachingAreas ?? false;
+                    teaching.InternetInAllTeachingAreas = model.InternetInAllTeachingAreas ?? false;
+                    teaching.DigitalLinkAllTeachingAreas = model.DigitalLinkAllTeachingAreas ?? false;
+
+                    teaching.SmallGroupStudents = model.SmallGroupStudents;
+                    teaching.RequiredAreaSqm = model.RequiredAreaSqm;
+                    teaching.AvailableAreaSqm = model.AvailableAreaSqm;
+                    teaching.AreaDeficiencySqm = model.AreaDeficiencySqm;
+
+                    teaching.RoomsSharedByAllDepts = model.RoomsSharedByAllDepts ?? false;
+                    teaching.AppropriateAreaEachSpecialty = model.AppropriateAreaEachSpecialty ?? false;
+                    teaching.ConnectedToLectureHalls = model.ConnectedToLectureHalls ?? false;
+                    teaching.InternetInTeachingRooms = model.InternetInTeachingRooms ?? false;
+
+                    // LAND
+                    teaching.IsMinimumLandAvailable = model.IsMinimumLandAvailable ?? false;
+                    teaching.LandDetailsIfYes = model.LandDetailsIfYes;
+                    teaching.HasPurchasePlanIfNo = model.HasPurchasePlanIfNo ?? false;
+                    teaching.HasBudgetProvisionIfNo = model.HasBudgetProvisionIfNo ?? false;
+                    teaching.HasFutureExpansionSpace = model.HasFutureExpansionSpace ?? false;
+
+
+                    if (model.LandRecordsDocument != null && model.LandRecordsDocument.Length > 0)
+                    {
+                        var path = await SaveLandFileAsync(model.LandRecordsDocument, "LandRecords");
+
+                        if (path != null)
+                        {
+                            // 🔥 Delete old file
+                            if (!string.IsNullOrEmpty(teaching.LandRecordsFilePath) &&
+                                System.IO.File.Exists(teaching.LandRecordsFilePath))
+                            {
+                                System.IO.File.Delete(teaching.LandRecordsFilePath);
+                            }
+
+                            teaching.LandRecordsFilePath = path;
+                        }
+                    }
+
+
+                    // BUILDING
+                    teaching.IsBuildingAsPerCouncilNorms = model.IsBuildingAsPerCouncilNorms ?? false;
+                    teaching.LandOwnershipType = model.LandOwnershipType;
+                    teaching.BuildingOwnershipType = model.BuildingOwnershipType;
+                    teaching.FloorAreaSqFt = model.FloorAreaSqFt;
+                    teaching.NumberOfBlocks = model.NumberOfBlocks;
+                    teaching.NumberOfFloors = model.NumberOfFloors;
+                    teaching.YearOfConstruction = model.YearOfConstruction;
+
+                    if (model.ApprovedBuildingPlanDocument != null && model.ApprovedBuildingPlanDocument.Length > 0)
+                    {
+                        var path = await SaveLandFileAsync(model.ApprovedBuildingPlanDocument, "BuildingPlans");
+
+                        if (path != null)
+                        {
+                            if (!string.IsNullOrEmpty(teaching.ApprovedBuildingPlanFilePath) &&
+                                System.IO.File.Exists(teaching.ApprovedBuildingPlanFilePath))
+                            {
+                                System.IO.File.Delete(teaching.ApprovedBuildingPlanFilePath);
+                            }
+
+                            teaching.ApprovedBuildingPlanFilePath = path;
+                        }
+                    }
+
+                    // ========================= LABS =========================
+                    var labs = await _context.MedicalStudentPracticalLabs
+                        .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                 x.CollegeCode == collegeCode &&
+                                                 x.CourseLevel == courseLevel);
+
+                    if (labs == null)
+                    {
+                        labs = new MedicalStudentPracticalLab
+                        {
+                            FacultyCode = facultyCode,
+                            CollegeCode = collegeCode,
+                            CourseLevel = courseLevel
+                        };
+                        _context.MedicalStudentPracticalLabs.Add(labs);
+                    }
+
+                    labs.HistologyAvailable = model.HistologyAvailable;
+                    labs.HistologyShared = model.HistologyShared;
+                    labs.ClinicalPhysiologyAvailable = model.ClinicalPhysiologyAvailable;
+                    labs.ClinicalPhysiologyShared = model.ClinicalPhysiologyShared;
+                    labs.BiochemistryAvailable = model.BiochemistryAvailable;
+                    labs.BiochemistryShared = model.BiochemistryShared;
+                    labs.HistopathCytopathAvailable = model.HistopathCytopathAvailable;
+                    labs.HistopathCytopathShared = model.HistopathCytopathShared;
+                    labs.ClinPathHemeAvailable = model.ClinPathHemeAvailable;
+                    labs.ClinPathHemeShared = model.ClinPathHemeShared;
+                    labs.MicrobiologyAvailable = model.MicrobiologyAvailable;
+                    labs.MicrobiologyShared = model.MicrobiologyShared;
+                    labs.ClinicalPharmAvailable = model.ClinicalPharmAvailable;
+                    labs.ClinicalPharmShared = model.ClinicalPharmShared;
+                    labs.CalPharmAvailable = model.CalPharmAvailable;
+                    labs.CalPharmShared = model.CalPharmShared;
+
+                    labs.AllLabsHaveAv = model.AllLabsHaveAV;
+                    labs.AllLabsHaveInternet = model.AllLabsHaveInternet;
+                    labs.TechnicalStaffFacilitiesEnsured = model.TechnicalStaffFacilitiesEnsured;
+
+                    // ========================= ADMIN =========================
+                    var admin = await _context.MedicalAdministrativePhysicalFacilities
+                        .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                 x.CollegeCode == collegeCode &&
+                                                 x.CourseLevel == courseLevel);
+
+                    if (admin == null)
+                    {
+                        admin = new MedicalAdministrativePhysicalFacility
+                        {
+                            FacultyCode = facultyCode,
+                            CollegeCode = collegeCode,
+                            CourseLevel = courseLevel,
+                            CreatedDate = DateTime.Now
+                        };
+                        _context.MedicalAdministrativePhysicalFacilities.Add(admin);
+                    }
+                    else
+                    {
+                        admin.UpdatedDate = DateTime.Now;
+                    }
+
+                    admin.PrincipalChamberAreaSqFt = model.PrincipalChamberAreaSqFt;
+                    admin.OfficeRoomAreaSqFt = model.OfficeRoomAreaSqFt;
+                    admin.StaffRoomsAreaSqFt = model.StaffRoomsAreaSqFt;
+                    admin.LectureHallsAreaSqFt = model.LectureHallsAreaSqFt;
+                    admin.LaboratoriesAreaSqFt = model.LaboratoriesAreaSqFt;
+                    admin.SeminarHallAreaSqFt = model.SeminarHallAreaSqFt;
+                    admin.AuditoriumAreaSqFt = model.AuditoriumAreaSqFt;
+                    admin.MuseumAreaSqFt = model.MuseumAreaSqFt;
+
+                    admin.ExaminationHallAvailable = model.ExaminationHallAvailable;
+                    admin.AnimalHouseAvailable = model.AnimalHouseAvailable;
+
+                    admin.WorkshopStaffCount = model.WorkshopStaffCount;
+                    admin.WorkshopEquipmentDetails = model.WorkshopEquipmentDetails;
+                    admin.WorkshopScopeOfWork = model.WorkshopScopeOfWork;
+
+                    admin.AnimalHouseAreaSqFt = model.AnimalHouseAreaSqFt;
+                    admin.AnimalHouseStaffCount = model.AnimalHouseStaffCount;
+                    admin.AnimalTypes = model.AnimalTypes;
+
+                    admin.CommitteeRoomsAreaSqFt = model.CommitteeRoomsAreaSqFt;
+                    admin.CommonRoomMenAvailable = model.CommonRoomMenAvailable;
+                    admin.CommonRoomWomenAvailable = model.CommonRoomWomenAvailable;
+
+                    admin.StudentHostelAvailable = model.StudentHostelAvailable;
+                    admin.StaffQuartersPrincipal = model.StaffQuartersPrincipal;
+                    admin.StaffQuartersOtherStaff = model.StaffQuartersOtherStaff;
+                    admin.StaffQuartersTeachingAncillary = model.StaffQuartersTeachingAncillary;
+
+                    admin.RegisteredUnderAnatomyAct = model.RegisteredUnderAnatomyAct;
+
+                    // ========================= MUSEUM =========================
+                    var museum = await _context.MedicalMuseums
+                        .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                 x.CollegeCode == collegeCode &&
+                                                 x.CourseLevel == courseLevel);
+
+                    if (museum == null)
+                    {
+                        museum = new MedicalMuseum
+                        {
+                            FacultyCode = facultyCode,
+                            CollegeCode = collegeCode,
+                            CourseLevel = courseLevel
+                        };
+                        _context.MedicalMuseums.Add(museum);
+                    }
+
+                    museum.SeparateAnatomyMuseumAvailable = model.SeparateAnatomyMuseumAvailable ?? false;
+                    museum.PathologyForensicSharedMuseum = model.PathologyForensicSharedMuseum ?? false;
+                    museum.PharmMicroCommSharedMuseum = model.PharmMicroCommSharedMuseum ?? false;
+
+                    museum.SeatingCapacityPerMuseum = model.SeatingCapacityPerMuseum;
+                    museum.SeatingAreaAvailableSqm = model.SeatingAreaAvailableSqm;
+                    museum.SeatingAreaRequiredSqm = model.SeatingAreaRequiredSqm;
+                    museum.SeatingAreaDeficiencySqm = model.SeatingAreaDeficiencySqm;
+
+                    museum.MuseumsHaveAv = model.MuseumsHaveAV ?? false;
+                    museum.MuseumsHaveInternet = model.MuseumsHaveInternet ?? false;
+                    museum.MuseumsDigitallyLinked = model.MuseumsDigitallyLinked ?? false;
+                    museum.MuseumsHaveRacksShelves = model.MuseumsHaveRacksShelves ?? false;
+                    museum.MuseumsHaveRadiologyDisplay = model.MuseumsHaveRadiologyDisplay ?? false;
+                    museum.TeachingTimeSharingProgrammed = model.TeachingTimeSharingProgrammed ?? false;
+
+                    // ========================= SAVE =========================
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return RedirectToAction("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation");
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    TempData["Error"] = "Something went wrong while saving data.";
+                    return View(model);
+                }
+            }
+
+
+            public async Task<IActionResult> ViewLandRecords()
+            {
+                var teaching = await _context.SmallGroupTeachings
+                    .FirstOrDefaultAsync(x => x.FacultyCode == FacultyCode &&
+                                             x.CollegeCode == CollegeCode &&
+                                             x.CourseLevel == CourseLevel);
+
+                if (string.IsNullOrEmpty(teaching?.LandRecordsFilePath) ||
+                    !System.IO.File.Exists(teaching.LandRecordsFilePath))
+                    return NotFound();
+
+                return PhysicalFile(teaching.LandRecordsFilePath, "application/pdf");
+            }
+
+            public async Task<IActionResult> ViewBuildingPlan()
+            {
+                var teaching = await _context.SmallGroupTeachings
+                    .FirstOrDefaultAsync(x => x.FacultyCode == FacultyCode &&
+                                             x.CollegeCode == CollegeCode &&
+                                             x.CourseLevel == CourseLevel);
+
+                if (string.IsNullOrEmpty(teaching?.ApprovedBuildingPlanFilePath) ||
+                    !System.IO.File.Exists(teaching.ApprovedBuildingPlanFilePath))
+                    return NotFound();
+
+                return PhysicalFile(teaching.ApprovedBuildingPlanFilePath, "application/pdf");
+            }
+
+            [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+            [HttpGet]
+            public async Task<IActionResult> Medical_SkillsLaboratory()
+            {
+                var facultyCode = FacultyCode;
+                var collegeCode = CollegeCode;
+
+
+                if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                    return RedirectToAction("Login", "Account");
+
+                var lab = await _context.MedicalSkillsLaboratories
+                                        .AsNoTracking()
+                                        .FirstOrDefaultAsync(x =>
+                                            x.FacultyCode == facultyCode &&
+                                            x.CollegeCode == collegeCode);
+
+                if (lab == null)
+                {
+                    return View(new SkillsLabViewModel());
+                }
+
+                var vm = new SkillsLabViewModel
+                {
+                    AnnualMbbsIntake = lab.AnnualMbbsIntake,
+
+                    TotalAreaAvailableSqm = lab.TotalAreaAvailableSqm,
+                    TotalAreaRequiredSqm = lab.TotalAreaRequiredSqm,
+                    TotalAreaDeficiencySqm = lab.TotalAreaDeficiencySqm,
+
+                    SixWeeksTrainingCompletedBeforeClinical = lab.SixWeeksTrainingCompletedBeforeClinical,
+
+                    NumberOfExaminationRooms = lab.NumberOfExaminationRooms,
+                    HasMinFourExamRooms = lab.HasMinFourExamRooms,
+                    HasDemoRoomSmallGroups = lab.HasDemoRoomSmallGroups,
+                    HasDebriefArea = lab.HasDebriefArea,
+                    HasFacultyCoordinatorRoom = lab.HasFacultyCoordinatorRoom,
+                    HasSupportStaffRoom = lab.HasSupportStaffRoom,
+                    HasStorageForMannequins = lab.HasStorageForMannequins,
+                    HasVideoRecordingFacility = lab.HasVideoRecordingFacility,
+
+                    NumberOfSkillStations = lab.NumberOfSkillStations,
+                    HasGroupAndIndividualStations = lab.HasGroupAndIndividualStations,
+                    HasRequiredTrainersAndMannequins = lab.HasRequiredTrainersAndMannequins,
+                    HasDedicatedTechnicalOfficer = lab.HasDedicatedTechnicalOfficer,
+                    HasAdequateSupportStaff = lab.HasAdequateSupportStaff,
+
+                    TeachingAreasHaveAV = lab.TeachingAreasHaveAv,
+                    TeachingAreasHaveInternet = lab.TeachingAreasHaveInternet,
+                    SkillsLabEnabledForELearning = lab.SkillsLabEnabledForElearning
+                };
+
+                return View(vm);
+            }
+
+
+            [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Medical_SkillsLaboratory(SkillsLabViewModel model)
+            {
+                var facultyCode = FacultyCode;
+                var collegeCode = CollegeCode;
+
+                if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                    return RedirectToAction("Login", "Account");
+
+                if (!ModelState.IsValid)
+                    return View(model);
+
+                // ================================
+                // SERVER-SIDE CALCULATION
+                // (same rule as the page script: 600 Sq.m up to 150 intake, 800 Sq.m above)
+                // The page only posts AnnualMbbsIntake, so that is the value used here.
+                // ================================
+                var intake = Convert.ToInt32(model.AnnualMbbsIntake ?? 0);
+
+                model.TotalAreaRequiredSqm = intake <= 150 ? 600m : 800m;
+                model.TotalAreaDeficiencySqm =
+                    Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
+
+                var lab = await _context.MedicalSkillsLaboratories
+                                        .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
+
+                if (lab == null)
+                {
+                    lab = new MedicalSkillsLaboratory
                     {
                         FacultyCode = facultyCode,
                         CollegeCode = collegeCode,
-                        CourseLevel = courseLevel
                     };
-                    _context.MedicalMuseums.Add(museum);
+                    _context.MedicalSkillsLaboratories.Add(lab);
                 }
 
-                museum.SeparateAnatomyMuseumAvailable = model.SeparateAnatomyMuseumAvailable ?? false;
-                museum.PathologyForensicSharedMuseum = model.PathologyForensicSharedMuseum ?? false;
-                museum.PharmMicroCommSharedMuseum = model.PharmMicroCommSharedMuseum ?? false;
+                // ================================
+                // UPDATE FIELDS
+                // ================================
+                lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
+                lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;
+                lab.TotalAreaRequiredSqm = model.TotalAreaRequiredSqm;
+                lab.TotalAreaDeficiencySqm = model.TotalAreaDeficiencySqm;
 
-                museum.SeatingCapacityPerMuseum = model.SeatingCapacityPerMuseum;
-                museum.SeatingAreaAvailableSqm = model.SeatingAreaAvailableSqm;
-                museum.SeatingAreaRequiredSqm = model.SeatingAreaRequiredSqm;
-                museum.SeatingAreaDeficiencySqm = model.SeatingAreaDeficiencySqm;
+                lab.SixWeeksTrainingCompletedBeforeClinical =
+                    model.SixWeeksTrainingCompletedBeforeClinical ?? false;
 
-                museum.MuseumsHaveAv = model.MuseumsHaveAV ?? false;
-                museum.MuseumsHaveInternet = model.MuseumsHaveInternet ?? false;
-                museum.MuseumsDigitallyLinked = model.MuseumsDigitallyLinked ?? false;
-                museum.MuseumsHaveRacksShelves = model.MuseumsHaveRacksShelves ?? false;
-                museum.MuseumsHaveRadiologyDisplay = model.MuseumsHaveRadiologyDisplay ?? false;
-                museum.TeachingTimeSharingProgrammed = model.TeachingTimeSharingProgrammed ?? false;
+                lab.NumberOfExaminationRooms = model.NumberOfExaminationRooms;
+                lab.HasMinFourExamRooms = model.HasMinFourExamRooms ?? false;
+                lab.HasDemoRoomSmallGroups = model.HasDemoRoomSmallGroups ?? false;
+                lab.HasDebriefArea = model.HasDebriefArea ?? false;
+                lab.HasFacultyCoordinatorRoom = model.HasFacultyCoordinatorRoom ?? false;
+                lab.HasSupportStaffRoom = model.HasSupportStaffRoom ?? false;
+                lab.HasStorageForMannequins = model.HasStorageForMannequins ?? false;
+                lab.HasVideoRecordingFacility = model.HasVideoRecordingFacility ?? false;
 
-                // ========================= SAVE =========================
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return RedirectToAction("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation");
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                TempData["Error"] = "Something went wrong while saving data.";
-                return View(model);
-            }
-        }
+                lab.NumberOfSkillStations = model.NumberOfSkillStations;
+                lab.HasGroupAndIndividualStations = model.HasGroupAndIndividualStations ?? false;
+                lab.HasRequiredTrainersAndMannequins = model.HasRequiredTrainersAndMannequins ?? false;
+                lab.HasDedicatedTechnicalOfficer = model.HasDedicatedTechnicalOfficer ?? false;
+                lab.HasAdequateSupportStaff = model.HasAdequateSupportStaff ?? false;
 
+                lab.TeachingAreasHaveAv = model.TeachingAreasHaveAV ?? false;
+                lab.TeachingAreasHaveInternet = model.TeachingAreasHaveInternet ?? false;
+                lab.SkillsLabEnabledForElearning = model.SkillsLabEnabledForELearning ?? false;
 
-        public async Task<IActionResult> ViewLandRecords()
-        {
-            var teaching = await _context.SmallGroupTeachings
-                .FirstOrDefaultAsync(x => x.FacultyCode == FacultyCode &&
-                                         x.CollegeCode == CollegeCode &&
-                                         x.CourseLevel == CourseLevel);
+                using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (string.IsNullOrEmpty(teaching?.LandRecordsFilePath) ||
-                !System.IO.File.Exists(teaching.LandRecordsFilePath))
-                return NotFound();
-
-            return PhysicalFile(teaching.LandRecordsFilePath, "application/pdf");
-        }
-
-        public async Task<IActionResult> ViewBuildingPlan()
-        {
-            var teaching = await _context.SmallGroupTeachings
-                .FirstOrDefaultAsync(x => x.FacultyCode == FacultyCode &&
-                                         x.CollegeCode == CollegeCode &&
-                                         x.CourseLevel == CourseLevel);
-
-            if (string.IsNullOrEmpty(teaching?.ApprovedBuildingPlanFilePath) ||
-                !System.IO.File.Exists(teaching.ApprovedBuildingPlanFilePath))
-                return NotFound();
-
-            return PhysicalFile(teaching.ApprovedBuildingPlanFilePath, "application/pdf");
-        }
-
-        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
-        [HttpGet]
-        public async Task<IActionResult> Medical_SkillsLaboratory()
-        {
-            var facultyCode = FacultyCode;
-            var collegeCode = CollegeCode;
-
-            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
-                return RedirectToAction("Login", "Account");
-
-            var lab = await _context.MedicalSkillsLaboratories
-                                    .AsNoTracking()
-                                    .FirstOrDefaultAsync(x =>
-                                        x.FacultyCode == facultyCode &&
-                                        x.CollegeCode == collegeCode);
-
-            if (lab == null)
-            {
-                return View(new SkillsLabViewModel());
-            }
-
-            var vm = new SkillsLabViewModel
-            {
-                AnnualMbbsIntake = lab.AnnualMbbsIntake,
-
-                TotalAreaAvailableSqm = lab.TotalAreaAvailableSqm,
-                TotalAreaRequiredSqm = lab.TotalAreaRequiredSqm,
-                TotalAreaDeficiencySqm = lab.TotalAreaDeficiencySqm,
-
-                SixWeeksTrainingCompletedBeforeClinical = lab.SixWeeksTrainingCompletedBeforeClinical,
-
-                NumberOfExaminationRooms = lab.NumberOfExaminationRooms,
-                HasMinFourExamRooms = lab.HasMinFourExamRooms,
-                HasDemoRoomSmallGroups = lab.HasDemoRoomSmallGroups,
-                HasDebriefArea = lab.HasDebriefArea,
-                HasFacultyCoordinatorRoom = lab.HasFacultyCoordinatorRoom,
-                HasSupportStaffRoom = lab.HasSupportStaffRoom,
-                HasStorageForMannequins = lab.HasStorageForMannequins,
-                HasVideoRecordingFacility = lab.HasVideoRecordingFacility,
-
-                NumberOfSkillStations = lab.NumberOfSkillStations,
-                HasGroupAndIndividualStations = lab.HasGroupAndIndividualStations,
-                HasRequiredTrainersAndMannequins = lab.HasRequiredTrainersAndMannequins,
-                HasDedicatedTechnicalOfficer = lab.HasDedicatedTechnicalOfficer,
-                HasAdequateSupportStaff = lab.HasAdequateSupportStaff,
-
-                TeachingAreasHaveAV = lab.TeachingAreasHaveAv,
-                TeachingAreasHaveInternet = lab.TeachingAreasHaveInternet,
-                SkillsLabEnabledForELearning = lab.SkillsLabEnabledForElearning
-            };
-
-            return View(vm);
-        }
-
-
-        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Medical_SkillsLaboratory(SkillsLabViewModel model)
-        {
-            var facultyCode = FacultyCode;
-            var collegeCode = CollegeCode;
-
-            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
-                return RedirectToAction("Login", "Account");
-
-            if (!ModelState.IsValid)
-                return View(model);
-
-            // ================================
-            // SERVER-SIDE CALCULATION
-            // (same rule as the page script: 600 Sq.m up to 150 intake, 800 Sq.m above)
-            // The page only posts AnnualMbbsIntake, so that is the value used here.
-            // ================================
-            var intake = Convert.ToInt32(model.AnnualMbbsIntake ?? 0);
-
-            model.TotalAreaRequiredSqm = intake <= 150 ? 600m : 800m;
-            model.TotalAreaDeficiencySqm =
-                Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
-
-            var lab = await _context.MedicalSkillsLaboratories
-                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
-
-            if (lab == null)
-            {
-                lab = new MedicalSkillsLaboratory
+                try
                 {
-                    FacultyCode = facultyCode,
-                    CollegeCode = collegeCode,
-                };
-                _context.MedicalSkillsLaboratories.Add(lab);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return RedirectToAction("Medical_EquimentDetails", "Medical_ContinuousAffiliation");
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", "Error while saving data");
+                    return View(model);
+                }
             }
-
-            // ================================
-            // UPDATE FIELDS
-            // ================================
-            lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
-            lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;
-            lab.TotalAreaRequiredSqm = model.TotalAreaRequiredSqm;
-            lab.TotalAreaDeficiencySqm = model.TotalAreaDeficiencySqm;
-
-            lab.SixWeeksTrainingCompletedBeforeClinical =
-                model.SixWeeksTrainingCompletedBeforeClinical ?? false;
-
-            lab.NumberOfExaminationRooms = model.NumberOfExaminationRooms;
-            lab.HasMinFourExamRooms = model.HasMinFourExamRooms ?? false;
-            lab.HasDemoRoomSmallGroups = model.HasDemoRoomSmallGroups ?? false;
-            lab.HasDebriefArea = model.HasDebriefArea ?? false;
-            lab.HasFacultyCoordinatorRoom = model.HasFacultyCoordinatorRoom ?? false;
-            lab.HasSupportStaffRoom = model.HasSupportStaffRoom ?? false;
-            lab.HasStorageForMannequins = model.HasStorageForMannequins ?? false;
-            lab.HasVideoRecordingFacility = model.HasVideoRecordingFacility ?? false;
-
-            lab.NumberOfSkillStations = model.NumberOfSkillStations;
-            lab.HasGroupAndIndividualStations = model.HasGroupAndIndividualStations ?? false;
-            lab.HasRequiredTrainersAndMannequins = model.HasRequiredTrainersAndMannequins ?? false;
-            lab.HasDedicatedTechnicalOfficer = model.HasDedicatedTechnicalOfficer ?? false;
-            lab.HasAdequateSupportStaff = model.HasAdequateSupportStaff ?? false;
-
-            lab.TeachingAreasHaveAv = model.TeachingAreasHaveAV ?? false;
-            lab.TeachingAreasHaveInternet = model.TeachingAreasHaveInternet ?? false;
-            lab.SkillsLabEnabledForElearning = model.SkillsLabEnabledForELearning ?? false;
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return RedirectToAction("Medical_EquimentDetails", "Medical_ContinuousAffiliation");
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                ModelState.AddModelError("", "Error while saving data");
-                return View(model);
-            }
-        }
 
 
 

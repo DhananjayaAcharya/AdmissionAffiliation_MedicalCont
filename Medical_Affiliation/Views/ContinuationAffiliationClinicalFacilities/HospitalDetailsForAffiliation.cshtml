@@ -17,6 +17,7 @@
         3 => "Nursing",
         2 => "Dental",
         1 => "Medical",
+        4 => "Ayurveda",
         _ => "Common"
     };
 
@@ -329,6 +330,15 @@
                             as Microsoft.AspNetCore.Mvc.ViewEngines.ICompositeViewEngine;
 
                         var viewResult = viewEngine?.FindView(ViewContext, partialPath, false);
+
+                        // For Ayurveda, use the Medical partial when an Ayurveda-specific
+                        // partial has not yet been created.
+                        if ((viewResult == null || !viewResult.Success) &&
+                            Model.FacultyCode == 4)
+                        {
+                            partialPath = $"Sections/ClinicalSection/{section}/_Medical";
+                            viewResult = viewEngine?.FindView(ViewContext, partialPath, false);
+                        }
 
                         if (viewResult == null || !viewResult.Success)
                         {

@@ -134,6 +134,12 @@ namespace Medical_Affiliation.Controllers
 
         protected async Task<List<string>> GetSortedCourseLevels()
         {
+            if (FacultyCode == "4")
+            {
+                var ayurLevels = await CourseLevelHelper.GetMedicalIntakeLevelsAsync(_context, CollegeCode);
+                return ayurLevels.Any() ? ayurLevels : new List<string> { "UG" };
+            }
+
             var collegeCode = CollegeCode;
 
             var order = new List<string> { "UG", "PG", "SS" };
@@ -213,6 +219,36 @@ namespace Medical_Affiliation.Controllers
 
             return fullPath;
         }
+
+        public static class CourseLevelHelper
+        {
+            public static string Normalize(string? level)
+            {
+                var l = level?.Trim().ToUpperInvariant() ?? string.Empty;
+                if (l.Contains("UG") || l.Contains("UNDERGRADUATE")) return "UG";
+                if (l.Contains("SS") || l.Contains("SUPERSPECIAL")) return "SS";
+                if (l.Contains("PG") || l.Contains("POSTGRADUATE")) return "PG";
+                return l;
+            }
+
+            public static readonly string[] Order = { "UG", "PG", "SS" };
+
+            public static async Task<List<string>> GetMedicalIntakeLevelsAsync(ApplicationDbContext ctx, string? collegeCode)
+            {
+                var raw = await ctx.MstMedicalCollegeCourseIntakes
+                    .AsNoTracking()
+                    .Where(i => i.CollCode == collegeCode && i.UgPg != null)
+                    .Select(i => i.UgPg!)
+                    .Distinct()
+                    .ToListAsync();
+
+                return raw.Select(Normalize)
+                          .Where(l => !string.IsNullOrWhiteSpace(l))
+                          .Distinct()
+                          .OrderBy(l => Array.IndexOf(Order, l) is var i && i >= 0 ? i : int.MaxValue)
+                          .ToList();
+            }
+        }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             Console.WriteLine("=== BaseController.OnActionExecuting HIT ===");
@@ -240,6 +276,15 @@ namespace Medical_Affiliation.Controllers
                 // normalize
                 var normalized = levelFromUrl.Trim().ToUpper();
                 context.HttpContext.Session.SetString("CourseLevel", normalized);
+                //temp lines 
+
+                Console.WriteLine("===== COURSE LEVEL DEBUG =====");
+                Console.WriteLine($"Request URL: {context.HttpContext.Request.Path}{context.HttpContext.Request.QueryString}");
+                Console.WriteLine($"Query courseLevel: {context.HttpContext.Request.Query["courseLevel"]}");
+                Console.WriteLine($"Query level: {context.HttpContext.Request.Query["level"]}");
+                Console.WriteLine($"Session before update: {context.HttpContext.Session.GetString("CourseLevel")}");
+                Console.WriteLine($"Claim CourseLevel: {User.FindFirst("CourseLevel")?.Value}");
+                Console.WriteLine("==============================");
                 context.HttpContext.Session.SetString("SelectedCourseLevel", normalized);
                 context.HttpContext.Session.SetString("SelectedLevel", normalized);
             }

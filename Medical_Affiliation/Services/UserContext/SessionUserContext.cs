@@ -13,17 +13,40 @@ namespace Medical_Affiliation.Services.UserContext
         }
 
         private ClaimsPrincipal User => _httpContextAccessor.HttpContext?.User;
+
         public string CollegeCode =>
             User?.FindFirst("CollegeCode")?.Value
             ?? throw new UnauthorizedAccessException("CollegeCode missing");
 
-        public string CourseLevel =>
-            User?.FindFirst("CourseLevel")?.Value
-            ?? throw new UnauthorizedAccessException("CourseLevel missing");
+        public string CourseLevel
+        {
+            get
+            {
+                // Ayurveda (FacultyCode 4): level follows the UG/PG button the user clicked
+                if (int.TryParse(User?.FindFirst("FacultyCode")?.Value, out var faculty) && faculty == 4)
+                {
+                    var ctx = _httpContextAccessor.HttpContext;
+
+                    var level = ctx?.Session.GetString("SelectedCourseLevel");
+                    if (string.IsNullOrWhiteSpace(level))
+                        level = ctx?.Session.GetString("CourseLevel");
+                    if (string.IsNullOrWhiteSpace(level))
+                        level = User?.FindFirst("CourseLevel")?.Value;
+
+                    if (string.IsNullOrWhiteSpace(level))
+                        throw new UnauthorizedAccessException("CourseLevel missing");
+
+                    return level.Trim().ToUpperInvariant();
+                }
+
+                // Medical / Dental / others: original behaviour, untouched
+                return User?.FindFirst("CourseLevel")?.Value
+                    ?? throw new UnauthorizedAccessException("CourseLevel missing");
+            }
+        }
 
         public int FacultyId =>
             int.TryParse(User?.FindFirst("FacultyCode")?.Value, out var f) ? f : throw new UnauthorizedAccessException("FacultyCode missing");
-
 
         public string SeatSlabId => User?.FindFirst("SeatSlabId")?.Value ?? "S01";
 
@@ -47,5 +70,4 @@ namespace Medical_Affiliation.Services.UserContext
             }
         }
     }
-
 }

@@ -65,10 +65,17 @@ namespace Medical_Affiliation.Controllers
         }
         public async Task<IActionResult> ClinicalFacilities()
         {
+            if (_userContext.FacultyId == 4)
+            {
+                try { _ = _userContext.CourseLevel; }
+                catch (UnauthorizedAccessException)
+                {
+                    return RedirectToAction("Dashboard", "CollegeLogin");
+                }
+            }
+
             var model = await _hospitalService.GetHospitalDetailsAsync(
-                _userContext.CollegeCode,
-                _userContext.FacultyId,
-                _userContext.CourseLevel
+                _userContext.CollegeCode, _userContext.FacultyId, _userContext.CourseLevel
             ) ?? new HospitalAffiliationCompositeViewModel();
 
             return View("HospitalDetailsForAffiliation", model);

@@ -29,4 +29,7 @@
 			<HintPath>Libraries\SecureConnectionLibrary.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Affiliation_Medical\NewFolder\" />
+	</ItemGroup>
 </Project>

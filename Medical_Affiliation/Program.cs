@@ -22,6 +22,7 @@ using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
 using SecureConnectionLibrary;
 using System.Globalization;
+using Medical_Affiliation.Services.Handlers.Ayurveda;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +58,14 @@ builder.Services.AddScoped<AutoProgressFilter>();
 builder.Services.AddScoped<AuditExceptionFilter>();
 builder.Services.AddScoped<AuditActionFilter>();
 builder.Services.AddScoped<ComprehensiveAuditActionFilter>();
+
+//3 lines of ayurveda code added below by ram 
+builder.Services.AddScoped<IFacultyHospitalHandler, MedicalHospitalHandler>();
+builder.Services.AddScoped<IFacultyHospitalHandler, DentalHospitalHandler>();
+builder.Services.AddScoped<IFacultyHospitalHandler, AyurvedaHospitalHandler>();
+
+builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
+
 
 builder.Services.AddControllersWithViews(options =>
 {
