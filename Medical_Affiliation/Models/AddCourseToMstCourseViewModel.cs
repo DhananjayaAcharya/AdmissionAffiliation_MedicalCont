@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
@@ -594,14 +595,19 @@ public class OtherHealthScienceCollegeVM
     // Faculty selected from Faculty master
     public int? OtherFacultyId { get; set; }
 
+    [ValidateNever]
     public string FacultyName { get; set; }
 
     // Other Health Science College
     public string? OtherCollegeCode { get; set; }
+
+    [ValidateNever]
     public string OtherCollegeName { get; set; }
 
     // Course selected from MstCourse
     public int? OtherCourseCode { get; set; }
+
+    [ValidateNever]
     public string CourseName { get; set; }
 
     // Dropdown data

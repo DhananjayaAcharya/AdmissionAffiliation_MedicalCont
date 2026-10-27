@@ -3151,7 +3151,6 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> GetFacultiesForOtherHealthScienceColleges()
         {
             var faculties = await _context.Faculties
-                .Where(x => x.Status == "Active")
                 .OrderBy(x => x.FacultyName)
                 .Select(x => new
                 {
@@ -3272,7 +3271,6 @@ namespace Medical_Affiliation.Controllers
                     // Faculty dropdown
                     // -----------------------------
                     row.FacultyList = _context.Faculties
-                        .Where(f => f.Status == "Active")
                         .Select(f => new SelectListItem
                         {
                             Value = f.FacultyId.ToString(),
@@ -3580,15 +3578,15 @@ namespace Medical_Affiliation.Controllers
             // ============================================================
 
             // First remove existing records for this institution
-            var existingOtherColleges = await _context.OtherHealthScienceColleges
-                .Where(x =>
-                    x.CollegeCode == collegeCode)
-                .ToListAsync();
+            //var existingOtherColleges = await _context.OtherHealthScienceColleges
+            //    .Where(x =>
+            //        x.CollegeCode == collegeCode)
+            //    .ToListAsync();
 
-            if (existingOtherColleges.Any())
-            {
-                _context.OtherHealthScienceColleges.RemoveRange(existingOtherColleges);
-            }
+            //if (existingOtherColleges.Any())
+            //{
+            //    _context.OtherHealthScienceColleges.RemoveRange(existingOtherColleges);
+            //}
 
 
             // Save new records only when YES is selected
@@ -3661,6 +3659,30 @@ namespace Medical_Affiliation.Controllers
             {
                 return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
             }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteOtherHealthScienceCollege(int id)
+        {
+            var entity = await _context.OtherHealthScienceColleges.FirstOrDefaultAsync(e => e.Id == id);
+
+            if(entity == null)
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    message = "Other health science college not found."
+                });
+            }
+
+            _context.OtherHealthScienceColleges.Remove(entity);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                message = "Other health science college deleted successfullly."
+            });
         }
 
         private static InstitutionViewModel MapEntityToViewModel(AffInstitutionsDetail e)
