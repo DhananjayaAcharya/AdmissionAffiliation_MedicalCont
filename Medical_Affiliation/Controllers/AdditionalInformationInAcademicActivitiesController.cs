@@ -348,19 +348,17 @@ namespace Medical_Affiliation.Controllers
             // 10. SOFT DELETE REMOVED CONFERENCES
             // ========================================================
 
-            foreach (var existingConferenceConducted in existingConferencesConducted)
+            // ========================================================
+            // DIRECT DELETE REMOVED CONFERENCES CONDUCTED
+            // ========================================================
+
+            var conferencesConductedToDelete = existingConferencesConducted
+                .Where(x => !submittedConferenceConductedIds.Contains(x.Id))
+                .ToList();
+
+            if (conferencesConductedToDelete.Any())
             {
-                if (!submittedConferenceConductedIds.Contains(
-                        existingConferenceConducted.Id))
-                {
-                    existingConferenceConducted.IsActive = false;
-
-                    existingConferenceConducted.ModifiedBy =
-                        User.Identity?.Name;
-
-                    existingConferenceConducted.ModifiedDate =
-                        DateTime.Now;
-                }
+                _context.DentalConferencesConducteds.RemoveRange(conferencesConductedToDelete);
             }
 
             if (vm.ConferencesConducted != null)
@@ -456,18 +454,13 @@ namespace Medical_Affiliation.Controllers
             // ========================================================
             // SOFT DELETE REMOVED CONFERENCES
             // ========================================================
+            var conferencesAttendedToDelete = existingConferencesAttended
+                .Where(x => !submittedConferenceAttendedIds.Contains(x.Id))
+                .ToList();
 
-            foreach (var existingConferenceAttended in existingConferencesAttended)
+            if (conferencesAttendedToDelete.Any())
             {
-                if (!submittedConferenceAttendedIds.Contains(
-                        existingConferenceAttended.Id))
-                {
-                    existingConferenceAttended.IsActive = false;
-
-                    existingConferenceAttended.ModifiedBy =  User.Identity?.Name;
-
-                    existingConferenceAttended.ModifiedDate = DateTime.Now;
-                }
+                _context.DentalConferencesAttendeds.RemoveRange(conferencesAttendedToDelete);
             }
 
 
