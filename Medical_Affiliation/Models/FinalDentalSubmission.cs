@@ -35,6 +35,8 @@ public partial class FinalDentalSubmission
 
     public bool IsLocked { get; set; }
 
+    public DateTime? RevokeAt { get; set; }
+
     public virtual TypeOfAffiliation AffiliationType { get; set; } = null!;
 
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;

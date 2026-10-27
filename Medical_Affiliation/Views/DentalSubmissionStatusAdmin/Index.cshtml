@@ -818,40 +818,69 @@
                                 </td>
 
                                 <td>
-                                    <form asp-controller="DentalSubmissionStatusAdmin"
-                                          asp-action="ToggleLock"
-                                          method="post">
-                                        @Html.AntiForgeryToken()
+                                    @if (!item.IsActive)
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                    else if (item.IsLocked)
+                                    {
+                                        <form asp-controller="DentalSubmissionStatusAdmin"
+                                            asp-action="ToggleLock"
+                                            method="post">
 
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <input type="hidden" name="courseLevel"
-                                               value="@Model.SelectedCourseLevel" />
-                                        <input type="hidden" name="collegeCode"
-                                               value="@Model.SelectedCollegeCode" />
+                                            @Html.AntiForgeryToken()
 
-                                        @if (!item.IsActive)
-                                        {
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        }
-                                        else if (item.IsLocked)
-                                        {
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-success"
-                                                    onclick="return confirm('Unlock this Dental submission?');">
-                                                <i class="bi bi-unlock-fill me-1"></i>
-                                                Unlock
-                                            </button>
-                                        }
-                                        else
-                                        {
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="courseLevel"
+                                                value="@Model.SelectedCourseLevel" />
+                                            <input type="hidden" name="collegeCode"
+                                                value="@Model.SelectedCollegeCode" />
+
+                                            <div class="d-flex align-items-center gap-2">
+
+                                                <input type="datetime-local"
+                                                    name="revokeAt"
+                                                    class="form-control form-control-sm"
+                                                    required
+                                                    style="width: 210px;"
+                                                    min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-success"
+                                                        onclick="return confirm('Unlock this Dental submission?');">
+                                                    <i class="bi bi-unlock-fill me-1"></i>
+                                                    Unlock
+                                                </button>
+
+                                            </div>
+
+                                            <small class="text-muted d-block mt-1">
+                                                Access will be revoked at the selected date & time.
+                                            </small>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="DentalSubmissionStatusAdmin"
+                                            asp-action="ToggleLock"
+                                            method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="courseLevel"
+                                                value="@Model.SelectedCourseLevel" />
+                                            <input type="hidden" name="collegeCode"
+                                                value="@Model.SelectedCollegeCode" />
+
                                             <button type="submit"
                                                     class="btn btn-sm btn-danger"
                                                     onclick="return confirm('Lock this Dental submission?');">
                                                 <i class="bi bi-lock-fill me-1"></i>
                                                 Lock
                                             </button>
-                                        }
-                                    </form>
+                                        </form>
+                                    }
                                 </td>
                             </tr>
                         }

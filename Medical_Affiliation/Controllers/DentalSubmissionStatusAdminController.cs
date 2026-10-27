@@ -134,10 +134,7 @@ namespace Medical_Affiliation.Controllers
         // Toggle between locked and unlocked.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleLock(
-            int id,
-            string? courseLevel,
-            string? collegeCode)
+        public async Task<IActionResult> ToggleLock(int id, string? courseLevel, DateTime? revokeAt, string? collegeCode)
         {
             var submission = await _context.FinalDentalSubmissions
                 .FirstOrDefaultAsync(x =>
@@ -159,15 +156,48 @@ namespace Medical_Affiliation.Controllers
                 });
             }
 
-            // Toggle the lock state.
-            submission.IsLocked = !submission.IsLocked;
+            if (submission.IsLocked)
+            {
+                // Currently locked -> Unlock
+                if (!revokeAt.HasValue)
+                {
+                    TempData["ErrorMessage"] = "Please select a revoke date and time before unlocking.";
+
+                    return RedirectToAction(nameof(Index), new
+                    {
+                        courseLevel,
+                        collegeCode
+                    });
+                }
+
+                if (revokeAt.Value <= DateTime.Now)
+                {
+                    TempData["ErrorMessage"] = "Revoke date and time must be in the future.";
+
+                    return RedirectToAction(nameof(Index), new
+                    {
+                        courseLevel,
+                        collegeCode
+                    });
+                }
+
+                submission.IsLocked = false;
+                submission.RevokeAt = revokeAt.Value;
+
+                TempData["SuccessMessage"] = "Dental submission unlocked successfully.";
+            }
+            else
+            {
+                // Currently unlocked -> Lock immediately
+                submission.IsLocked = true;
+                submission.RevokeAt = null;
+
+                TempData["SuccessMessage"] = "Dental submission locked successfully.";
+            }
+
             submission.ModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = submission.IsLocked
-                ? "Dental submission locked successfully."
-                : "Dental submission unlocked successfully.";
 
             return RedirectToAction(nameof(Index), new
             {
@@ -175,5 +205,6 @@ namespace Medical_Affiliation.Controllers
                 collegeCode
             });
         }
+
     }
 }

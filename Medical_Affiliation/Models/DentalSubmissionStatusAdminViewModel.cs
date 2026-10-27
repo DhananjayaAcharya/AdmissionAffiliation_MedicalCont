@@ -33,6 +33,7 @@ namespace Medical_Affiliation.Models
         public string ApplicationNumber { get; set; } = string.Empty;
 
         public DateTime? SubmittedDate { get; set; }
+        public DateTime? RevokeAt { get; set; }
 
         public bool IsLocked { get; set; }
         public bool IsActive { get; set; }

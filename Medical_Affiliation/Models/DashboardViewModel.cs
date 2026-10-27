@@ -20,7 +20,7 @@
 
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
-
+        public DateTime? SubmissionPostponeDate { get; set; }
         public List<DistrictMaster> Districts { get; set; } = new();
 
         public List<DashboardLateSubmissionFeeViewModel> LateSubmissionFees { get; set; } = new();

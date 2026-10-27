@@ -2046,6 +2046,8 @@
 
         var pgLateFee = Model.LateSubmissionFees.FirstOrDefault(x => string.Equals(x.CourseLevel,"PG",StringComparison.OrdinalIgnoreCase));
 
+        var finalSubmissionDate = Model.SubmissionPostponeDate ?? new DateTime(2026, 10, 30);
+
         <div class="modal fade" id="affiliationNotificationModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
@@ -2077,7 +2079,7 @@
                                         <td><span class="badge bg-success">Without fine</span></td>
                                     </tr>
                                     <tr>
-                                        <td><strong>@(ugLateFee.ActivationDate.HasValue ? ugLateFee.ActivationDate.Value.AddDays(1).ToString("dd/MM/yyyy"): "-") to 30/10/2026</strong></td>
+                                        <td><strong>@(ugLateFee.ActivationDate.HasValue ? ugLateFee.ActivationDate.Value.AddDays(1).ToString("dd/MM/yyyy"): "-") to @finalSubmissionDate.ToString("dd/MM/yyyy")</strong></td>
                                         <td><span class="badge bg-danger">With a fine of Rs. 1,00,000/-</span></td>
                                     </tr>
                                     <tr>
@@ -2086,7 +2088,7 @@
                                         <td><span class="badge bg-success">Without fine</span></td>
                                     </tr>
                                     <tr>
-                                        <td><strong>@(pgLateFee.ActivationDate.HasValue ? pgLateFee.ActivationDate.Value.AddDays(1).ToString("dd/MM/yyyy"): "-") to 30/10/2026</strong></td>
+                                        <td><strong>@(pgLateFee.ActivationDate.HasValue ? pgLateFee.ActivationDate.Value.AddDays(1).ToString("dd/MM/yyyy"): "-") to @finalSubmissionDate.ToString("dd/MM/yyyy")</strong></td>
                                         <td><span class="badge bg-danger">With a fine of Rs. 1,00,000/-</span></td>
                                     </tr>
                                 </tbody>
@@ -2095,7 +2097,7 @@
                         <div class="alert alert-warning mb-0">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>
                             <strong>Caution :</strong> Dates are revised as per the RGUHS Revised Notification-1.
-                            <strong>Payment will not work after 30/10/2026.</strong>
+                            <strong>Payment will not work after @finalSubmissionDate.ToString("dd/MM/yyyy").</strong>
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -2105,7 +2107,7 @@
             </div>
         </div>
     }
-
+    
     <!-- ── COLLEGE PROFILE MODAL ─────────────────────────────── -->
     <div class="modal fade" id="collegeProfileModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">

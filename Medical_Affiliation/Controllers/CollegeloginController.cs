@@ -250,6 +250,15 @@ namespace Admission_Affiliation.Controllers
                 }
 
                 model.LateSubmissionFees = GetDentalLateSubmissionFees(facultyCode);
+
+                model.SubmissionPostponeDate =  _context.FinalDentalSubmissions
+                                                    .Where(x =>
+                                                        x.CollegeCode == model.CollegeCode &&
+                                                        x.FacultyCode == 2 &&
+                                                        x.RevokeAt.HasValue)
+                                                    .Select(x => x.RevokeAt)
+                                                    .FirstOrDefault();
+                
                 // Session exists → load affiliation types
                 var affiliationTypes = _context.TypeOfAffiliations
                     .AsNoTracking()

@@ -4794,6 +4794,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.SubmittedDate).HasColumnType("datetime");
+            entity.Property(e => e.RevokeAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.AffiliationType).WithMany(p => p.FinalDentalSubmissions)
                 .HasForeignKey(d => d.AffiliationTypeId)
