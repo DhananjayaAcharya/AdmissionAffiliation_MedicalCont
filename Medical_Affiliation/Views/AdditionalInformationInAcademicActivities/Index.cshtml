@@ -1013,6 +1013,7 @@
     .conference-item {
         background: #ffffff;
         border: 1px solid #dfe5ec;
+        margin: 1rem 0;
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.025);
@@ -3068,6 +3069,17 @@
 
                 </div>
 
+                <div class="conference-add-bottom mt-3">
+                    <button type="button"
+                        class="aiaa-add-conference-button"
+                        onclick="addConductedConference()">
+
+                        <i class="bi bi-plus-lg"></i>
+                        Add Conference Conducted
+
+                    </button>
+                </div>
+
 
                 <!-- =================================================
                      JAVASCRIPT TEMPLATE
@@ -3312,7 +3324,6 @@
 
                                         <label>
                                             Conference Date
-                                            <span class="required">*</span>
                                         </label>
 
                                         <input type="date"
@@ -3467,7 +3478,7 @@
                     <p>No conferences added yet.</p>
 
                     <small>
-                        Click "Add Conference" to enter conference attendance details.
+                        Click "Add Conference Attended" to enter conference attendance details.
                     </small>
 
                     <button type="button"
@@ -3476,7 +3487,7 @@
 
                         <i class="bi bi-plus-lg"></i>
 
-                        Add First Conference
+                        Add First Conference Attended
 
                     </button>
 
@@ -3490,7 +3501,7 @@
 
                         <i class="bi bi-plus-lg"></i>
 
-                        Add Conference
+                        Add Conference Attended
 
                     </button>
 
