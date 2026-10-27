@@ -2211,10 +2211,6 @@
                                 Medical Education Unit?
                             </h4>
 
-                            <span>
-                                Select Yes or No.
-                            </span>
-
                         </div>
 
                     </div>
@@ -2236,7 +2232,6 @@
 
                                 <span>
                                     <strong>Yes</strong>
-                                    <small>Available</small>
                                 </span>
 
                             </span>
@@ -2258,7 +2253,6 @@
 
                                 <span>
                                     <strong>No</strong>
-                                    <small>Not Available</small>
                                 </span>
 
                             </span>
@@ -2289,7 +2283,6 @@
 
                 <div>
                     <h4>Has the institution conducted TOT programmes?</h4>
-                    <span>Select Yes or No.</span>
                 </div>
             </div>
 
@@ -2308,7 +2301,6 @@
 
                         <span>
                             <strong>Yes</strong>
-                            <small>Conducted</small>
                         </span>
                     </span>
                 </label>
@@ -2327,7 +2319,6 @@
 
                         <span>
                             <strong>No</strong>
-                            <small>Not Conducted</small>
                         </span>
                     </span>
                 </label>
@@ -2424,9 +2415,6 @@
                                 Has the faculty attended TOT programmes?
                             </h4>
 
-                            <span>
-                                Select Yes or No.
-                            </span>
                         </div>
 
                     </div>
@@ -2971,15 +2959,6 @@
                         <p>Add one or more conferences conducted.</p>
                     </div>
 
-                    <button type="button"
-                            class="aiaa-add-conference-button"
-                            onclick="addConductedConference()">
-
-                        <i class="bi bi-plus-lg"></i>
-                        Add Conference
-
-                    </button>
-
                 </div>
 
 
@@ -3221,17 +3200,6 @@
 
                     </div>
 
-
-                    <button type="button"
-                            class="aiaa-add-conference-button"
-                            onclick="addAttendedConference()">
-
-                        <i class="bi bi-plus-lg"></i>
-
-                        Add Conference
-
-                    </button>
-
                 </div>
 
 
@@ -3300,7 +3268,7 @@
 
                                         <label>
                                             Conference Name
-                                            <span class="required">*</span>
+                                            @* <span class="required">*</span> *@
                                         </label>
 
                                         <input type="text"
@@ -3322,7 +3290,7 @@
 
                                         <label>
                                             Conference Place
-                                            <span class="required">*</span>
+                                            @* <span class="required">*</span> *@
                                         </label>
 
                                         <input type="text"
@@ -3466,9 +3434,9 @@
                                                            min="0"
                                                            name="ConferencesAttended[@i].TotalParticipants"
                                                            value="@conference.TotalParticipants"
-                                                           class="participant-input"
+                                                           class="form-control"
                                                            placeholder="Enter total"
-                                                           required />
+                                                           readonly />
 
                                                 </div>
 
@@ -3509,6 +3477,20 @@
                         <i class="bi bi-plus-lg"></i>
 
                         Add First Conference
+
+                    </button>
+
+                </div>
+
+                <div class="conference-add-bottom mt-3">
+
+                    <button type="button"
+                            class="aiaa-add-conference-button"
+                            onclick="addAttendedConference()">
+
+                        <i class="bi bi-plus-lg"></i>
+
+                        Add Conference
 
                     </button>
 
@@ -3567,7 +3549,7 @@
 
                                 <label>
                                     Conference Name
-                                    <span class="required">*</span>
+                                    @* <span class="required">*</span> *@
                                 </label>
 
                                 <input type="text"
@@ -3586,7 +3568,7 @@
 
                                 <label>
                                     Conference Place
-                                    <span class="required">*</span>
+                                    @* <span class="required">*</span> *@
                                 </label>
 
                                 <input type="text"
@@ -3605,7 +3587,7 @@
 
                                 <label>
                                     Conference Date
-                                    <span class="required">*</span>
+                                    @* <span class="required">*</span> *@
                                 </label>
 
                                 <input type="date"
@@ -3655,7 +3637,7 @@
 
                                             <label>
                                                 Student Participants
-                                                <span class="required">*</span>
+                                                @* <span class="required">*</span> *@
                                             </label>
 
                                             <input type="number"
@@ -3682,7 +3664,7 @@
 
                                             <label>
                                                 Teacher Participants
-                                                <span class="required">*</span>
+                                                @* <span class="required">*</span> *@
                                             </label>
 
                                             <input type="number"
@@ -3709,15 +3691,15 @@
 
                                             <label>
                                                 Total Participants
-                                                <span class="required">*</span>
+                                                @* <span class="required">*</span> *@
                                             </label>
 
                                             <input type="number"
                                                    min="0"
                                                    name="ConferencesAttended[__INDEX__].TotalParticipants"
-                                                   class="participant-input"
-                                                   placeholder="Enter total"
-                                                   required />
+                                                   class="form-control"
+                                                   placeholder="Total participants"
+                                                   readonly />
 
                                         </div>
 

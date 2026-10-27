@@ -71,7 +71,7 @@ namespace Medical_Affiliation.Controllers
                     x.CourseLevel == courseLevel &&
                     x.TypeId.ToString() == typeId &&
                     x.IsActive)
-                .OrderByDescending(x => x.ConferenceDate)
+                .OrderByDescending(x => x.Id)
                 .Select(x => new DentalConferencesConductedVM
                 {
                     Id = x.Id,
@@ -102,7 +102,7 @@ namespace Medical_Affiliation.Controllers
                     x.CourseLevel == courseLevel &&
                     x.TypeId == int.Parse(typeId) &&
                     x.IsActive)
-                .OrderBy(x => x.ConferenceDate)
+                .OrderBy(x => x.Id)
                 .Select(x => new DentalConferencesAttendedVM
                 {
                     Id = x.Id,
