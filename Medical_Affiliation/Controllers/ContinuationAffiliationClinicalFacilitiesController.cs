@@ -277,33 +277,32 @@ namespace Medical_Affiliation.Controllers
             return ms.ToArray();
         }
         private async Task<string?> SaveAffiliatedHospitalFileAsync(
-    IFormFile? file,
-    string facultyCode)
+      IFormFile? file,
+      string facultyCode)
         {
             if (file == null || file.Length == 0)
                 return null;
 
             // Select root path based on faculty
-            string rootPath = facultyCode == "2"
-                ? BaseDentalPath
-                : BaseMedicalPath;
+            string rootPath = facultyCode switch
+            {
+                "2" => BaseDentalPath,
+                "4" => BaseAyurvedaPath,      // new: Ayurveda
+                _ => BaseMedicalPath
+            };
 
             // AffiliatedHospitalDocs folder
-            string basePath =
-                Path.Combine(rootPath, "AffiliatedHospitalDocs");
+            string basePath = Path.Combine(rootPath, "AffiliatedHospitalDocs");
 
-            // Create folder if not exists
-            if (!Directory.Exists(basePath))
-                Directory.CreateDirectory(basePath);
+            // Directory.CreateDirectory does nothing if the folder already exists,
+            // so the Exists check is not needed
+            Directory.CreateDirectory(basePath);
 
             // Generate unique file name
-            string fileName =
-                Guid.NewGuid().ToString() +
-                Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
 
             // Full file path
-            string fullPath =
-                Path.Combine(basePath, fileName);
+            string fullPath = Path.Combine(basePath, fileName);
 
             // Save file
             using (var stream = new FileStream(fullPath, FileMode.Create))

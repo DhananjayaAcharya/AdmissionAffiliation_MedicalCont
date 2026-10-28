@@ -40,4 +40,6 @@ public partial class TypeOfAffiliation
     public virtual ICollection<MstIndoorInfrastructureRequirementsMaster> MstIndoorInfrastructureRequirementsMasters { get; set; } = new List<MstIndoorInfrastructureRequirementsMaster>();
 
     public virtual ICollection<SuperVisionInFieldPracticeArea> SuperVisionInFieldPracticeAreas { get; set; } = new List<SuperVisionInFieldPracticeArea>();
+
+    //public virtual ICollection<MedicalSkillsLaboratory> MedicalSkillsLaboratories { get; set; } = new List<MedicalSkillsLaboratory>();
 }

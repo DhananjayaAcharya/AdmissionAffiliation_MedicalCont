@@ -565,145 +565,163 @@ namespace Medical_Affiliation.Controllers
                 return PhysicalFile(teaching.ApprovedBuildingPlanFilePath, "application/pdf");
             }
 
-            [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
-            [HttpGet]
-            public async Task<IActionResult> Medical_SkillsLaboratory()
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpGet]
+        public async Task<IActionResult> Medical_SkillsLaboratory()
+        {
+            var courseLevel = CourseLevel;                                   // CL
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
+
+            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("Login", "Account");
+
+            if (string.IsNullOrWhiteSpace(courseLevel))                      // CL
             {
-                var facultyCode = FacultyCode;
-                var collegeCode = CollegeCode;
+                TempData["Error"] = "Session expired. Please select course again.";
+                return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
+            }
+
+            var lab = await _context.MedicalSkillsLaboratories
+                                    .AsNoTracking()
+                                    .FirstOrDefaultAsync(x =>
+                                        x.FacultyCode == facultyCode &&
+                                        x.CollegeCode == collegeCode &&
+                                        x.CourseLevel == courseLevel);       // CL
+
+            if (lab == null)
+            {
+                return View(new SkillsLabViewModel());
+            }
+
+            var vm = new SkillsLabViewModel
+            {
+                AnnualMbbsIntake = lab.AnnualMbbsIntake,
+
+                TotalAreaAvailableSqm = lab.TotalAreaAvailableSqm,
+                TotalAreaRequiredSqm = lab.TotalAreaRequiredSqm,
+                TotalAreaDeficiencySqm = lab.TotalAreaDeficiencySqm,
+
+                SixWeeksTrainingCompletedBeforeClinical = lab.SixWeeksTrainingCompletedBeforeClinical,
+
+                NumberOfExaminationRooms = lab.NumberOfExaminationRooms,
+                HasMinFourExamRooms = lab.HasMinFourExamRooms,
+                HasDemoRoomSmallGroups = lab.HasDemoRoomSmallGroups,
+                HasDebriefArea = lab.HasDebriefArea,
+                HasFacultyCoordinatorRoom = lab.HasFacultyCoordinatorRoom,
+                HasSupportStaffRoom = lab.HasSupportStaffRoom,
+                HasStorageForMannequins = lab.HasStorageForMannequins,
+                HasVideoRecordingFacility = lab.HasVideoRecordingFacility,
+
+                NumberOfSkillStations = lab.NumberOfSkillStations,
+                HasGroupAndIndividualStations = lab.HasGroupAndIndividualStations,
+                HasRequiredTrainersAndMannequins = lab.HasRequiredTrainersAndMannequins,
+                HasDedicatedTechnicalOfficer = lab.HasDedicatedTechnicalOfficer,
+                HasAdequateSupportStaff = lab.HasAdequateSupportStaff,
+
+                TeachingAreasHaveAV = lab.TeachingAreasHaveAv,
+                TeachingAreasHaveInternet = lab.TeachingAreasHaveInternet,
+                SkillsLabEnabledForELearning = lab.SkillsLabEnabledForElearning
+            };
+
+            return View(vm);
+        }
 
 
-                if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
-                    return RedirectToAction("Login", "Account");
+        [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Medical_SkillsLaboratory(SkillsLabViewModel model)
+        {
+            var courseLevel = CourseLevel;                                   // CL
+            var facultyCode = FacultyCode;
+            var collegeCode = CollegeCode;
 
-                var lab = await _context.MedicalSkillsLaboratories
-                                        .AsNoTracking()
-                                        .FirstOrDefaultAsync(x =>
-                                            x.FacultyCode == facultyCode &&
-                                            x.CollegeCode == collegeCode);
+            if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
+                return RedirectToAction("Login", "Account");
 
-                if (lab == null)
+            if (string.IsNullOrWhiteSpace(courseLevel))                      // CL
+            {
+                TempData["Error"] = "Session expired. Please select course again.";
+                return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
+            }
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // ================================
+            // SERVER-SIDE CALCULATION
+            // (same rule as the page script: 600 Sq.m up to 150 intake, 800 Sq.m above)
+            // The page only posts AnnualMbbsIntake, so that is the value used here.
+            // ================================
+            var intake = Convert.ToInt32(model.AnnualMbbsIntake ?? 0);
+
+            model.TotalAreaRequiredSqm = intake <= 150 ? 600m : 800m;
+            model.TotalAreaDeficiencySqm =
+                Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
+
+            var lab = await _context.MedicalSkillsLaboratories
+                                    .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode &&
+                                                              x.CollegeCode == collegeCode &&
+                                                              x.CourseLevel == courseLevel);   // CL
+
+            if (lab == null)
+            {
+                lab = new MedicalSkillsLaboratory
                 {
-                    return View(new SkillsLabViewModel());
-                }
-
-                var vm = new SkillsLabViewModel
-                {
-                    AnnualMbbsIntake = lab.AnnualMbbsIntake,
-
-                    TotalAreaAvailableSqm = lab.TotalAreaAvailableSqm,
-                    TotalAreaRequiredSqm = lab.TotalAreaRequiredSqm,
-                    TotalAreaDeficiencySqm = lab.TotalAreaDeficiencySqm,
-
-                    SixWeeksTrainingCompletedBeforeClinical = lab.SixWeeksTrainingCompletedBeforeClinical,
-
-                    NumberOfExaminationRooms = lab.NumberOfExaminationRooms,
-                    HasMinFourExamRooms = lab.HasMinFourExamRooms,
-                    HasDemoRoomSmallGroups = lab.HasDemoRoomSmallGroups,
-                    HasDebriefArea = lab.HasDebriefArea,
-                    HasFacultyCoordinatorRoom = lab.HasFacultyCoordinatorRoom,
-                    HasSupportStaffRoom = lab.HasSupportStaffRoom,
-                    HasStorageForMannequins = lab.HasStorageForMannequins,
-                    HasVideoRecordingFacility = lab.HasVideoRecordingFacility,
-
-                    NumberOfSkillStations = lab.NumberOfSkillStations,
-                    HasGroupAndIndividualStations = lab.HasGroupAndIndividualStations,
-                    HasRequiredTrainersAndMannequins = lab.HasRequiredTrainersAndMannequins,
-                    HasDedicatedTechnicalOfficer = lab.HasDedicatedTechnicalOfficer,
-                    HasAdequateSupportStaff = lab.HasAdequateSupportStaff,
-
-                    TeachingAreasHaveAV = lab.TeachingAreasHaveAv,
-                    TeachingAreasHaveInternet = lab.TeachingAreasHaveInternet,
-                    SkillsLabEnabledForELearning = lab.SkillsLabEnabledForElearning
+                    FacultyCode = facultyCode,
+                    CollegeCode = collegeCode,
+                    CourseLevel = courseLevel                                // CL
                 };
-
-                return View(vm);
+                _context.MedicalSkillsLaboratories.Add(lab);
             }
 
+            // ================================
+            // UPDATE FIELDS
+            // ================================
+            lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
+            lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;
+            lab.TotalAreaRequiredSqm = model.TotalAreaRequiredSqm;
+            lab.TotalAreaDeficiencySqm = model.TotalAreaDeficiencySqm;
 
-            [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Medical_SkillsLaboratory(SkillsLabViewModel model)
+            lab.SixWeeksTrainingCompletedBeforeClinical =
+                model.SixWeeksTrainingCompletedBeforeClinical ?? false;
+
+            lab.NumberOfExaminationRooms = model.NumberOfExaminationRooms;
+            lab.HasMinFourExamRooms = model.HasMinFourExamRooms ?? false;
+            lab.HasDemoRoomSmallGroups = model.HasDemoRoomSmallGroups ?? false;
+            lab.HasDebriefArea = model.HasDebriefArea ?? false;
+            lab.HasFacultyCoordinatorRoom = model.HasFacultyCoordinatorRoom ?? false;
+            lab.HasSupportStaffRoom = model.HasSupportStaffRoom ?? false;
+            lab.HasStorageForMannequins = model.HasStorageForMannequins ?? false;
+            lab.HasVideoRecordingFacility = model.HasVideoRecordingFacility ?? false;
+
+            lab.NumberOfSkillStations = model.NumberOfSkillStations;
+            lab.HasGroupAndIndividualStations = model.HasGroupAndIndividualStations ?? false;
+            lab.HasRequiredTrainersAndMannequins = model.HasRequiredTrainersAndMannequins ?? false;
+            lab.HasDedicatedTechnicalOfficer = model.HasDedicatedTechnicalOfficer ?? false;
+            lab.HasAdequateSupportStaff = model.HasAdequateSupportStaff ?? false;
+
+            lab.TeachingAreasHaveAv = model.TeachingAreasHaveAV ?? false;
+            lab.TeachingAreasHaveInternet = model.TeachingAreasHaveInternet ?? false;
+            lab.SkillsLabEnabledForElearning = model.SkillsLabEnabledForELearning ?? false;
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                var facultyCode = FacultyCode;
-                var collegeCode = CollegeCode;
-
-                if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
-                    return RedirectToAction("Login", "Account");
-
-                if (!ModelState.IsValid)
-                    return View(model);
-
-                // ================================
-                // SERVER-SIDE CALCULATION
-                // (same rule as the page script: 600 Sq.m up to 150 intake, 800 Sq.m above)
-                // The page only posts AnnualMbbsIntake, so that is the value used here.
-                // ================================
-                var intake = Convert.ToInt32(model.AnnualMbbsIntake ?? 0);
-
-                model.TotalAreaRequiredSqm = intake <= 150 ? 600m : 800m;
-                model.TotalAreaDeficiencySqm =
-                    Math.Max(0, model.TotalAreaRequiredSqm - model.TotalAreaAvailableSqm);
-
-                var lab = await _context.MedicalSkillsLaboratories
-                                        .FirstOrDefaultAsync(x => x.FacultyCode == facultyCode && x.CollegeCode == collegeCode);
-
-                if (lab == null)
-                {
-                    lab = new MedicalSkillsLaboratory
-                    {
-                        FacultyCode = facultyCode,
-                        CollegeCode = collegeCode,
-                    };
-                    _context.MedicalSkillsLaboratories.Add(lab);
-                }
-
-                // ================================
-                // UPDATE FIELDS
-                // ================================
-                lab.AnnualMbbsIntake = model.AnnualMbbsIntake;
-                lab.TotalAreaAvailableSqm = model.TotalAreaAvailableSqm;
-                lab.TotalAreaRequiredSqm = model.TotalAreaRequiredSqm;
-                lab.TotalAreaDeficiencySqm = model.TotalAreaDeficiencySqm;
-
-                lab.SixWeeksTrainingCompletedBeforeClinical =
-                    model.SixWeeksTrainingCompletedBeforeClinical ?? false;
-
-                lab.NumberOfExaminationRooms = model.NumberOfExaminationRooms;
-                lab.HasMinFourExamRooms = model.HasMinFourExamRooms ?? false;
-                lab.HasDemoRoomSmallGroups = model.HasDemoRoomSmallGroups ?? false;
-                lab.HasDebriefArea = model.HasDebriefArea ?? false;
-                lab.HasFacultyCoordinatorRoom = model.HasFacultyCoordinatorRoom ?? false;
-                lab.HasSupportStaffRoom = model.HasSupportStaffRoom ?? false;
-                lab.HasStorageForMannequins = model.HasStorageForMannequins ?? false;
-                lab.HasVideoRecordingFacility = model.HasVideoRecordingFacility ?? false;
-
-                lab.NumberOfSkillStations = model.NumberOfSkillStations;
-                lab.HasGroupAndIndividualStations = model.HasGroupAndIndividualStations ?? false;
-                lab.HasRequiredTrainersAndMannequins = model.HasRequiredTrainersAndMannequins ?? false;
-                lab.HasDedicatedTechnicalOfficer = model.HasDedicatedTechnicalOfficer ?? false;
-                lab.HasAdequateSupportStaff = model.HasAdequateSupportStaff ?? false;
-
-                lab.TeachingAreasHaveAv = model.TeachingAreasHaveAV ?? false;
-                lab.TeachingAreasHaveInternet = model.TeachingAreasHaveInternet ?? false;
-                lab.SkillsLabEnabledForElearning = model.SkillsLabEnabledForELearning ?? false;
-
-                using var transaction = await _context.Database.BeginTransactionAsync();
-
-                try
-                {
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    return RedirectToAction("Medical_EquimentDetails", "Medical_ContinuousAffiliation");
-                }
-                catch
-                {
-                    await transaction.RollbackAsync();
-                    ModelState.AddModelError("", "Error while saving data");
-                    return View(model);
-                }
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return RedirectToAction("Medical_EquimentDetails", "Medical_ContinuousAffiliation");
             }
+            catch (Exception ex)                                             // CL (log the real error)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine(ex);
+                ModelState.AddModelError("", "Error while saving data");
+                return View(model);
+            }
+        }
 
 
 

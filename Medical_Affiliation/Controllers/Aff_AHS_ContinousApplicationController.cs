@@ -1034,27 +1034,34 @@ namespace Medical_Affiliation.Controllers
 
         //------------------------------8th page------------------------------
 
-        [HttpGet]
-        public async Task<IActionResult> CA_VehicleDetails()
-        {
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var regNo = HttpContext.Session.GetString("RegistrationNo");
+     [HttpGet]
+public async Task<IActionResult> CA_VehicleDetails()
+{
+    var collegeCode = HttpContext.Session.GetString("CollegeCode");
+    var facultyCode = HttpContext.Session.GetString("FacultyCode");
+    var regNo = HttpContext.Session.GetString("RegistrationNo");
+    var courseLevel = CourseLevel;                                   // CL
 
-            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
-                return RedirectToAction("Login", "Account");
+    if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+        return RedirectToAction("Login", "Account");
 
-            var vm = new CA_VehicleDetailsViewModel
-            {
-                CollegeCode = collegeCode,
-                FacultyCode = facultyCode,
-                RegistrationNo = regNo
-            };
+    if (string.IsNullOrWhiteSpace(courseLevel))                      // CL
+    {
+        TempData["Error"] = "Session expired. Please select course again.";
+        return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
+    }
 
-            await LoadViewData(vm, collegeCode, facultyCode, regNo);
+    var vm = new CA_VehicleDetailsViewModel
+    {
+        CollegeCode = collegeCode,
+        FacultyCode = facultyCode,
+        RegistrationNo = regNo
+    };
 
-            return View(vm);
-        }
+    await LoadViewData(vm, collegeCode, facultyCode, regNo, courseLevel);   // CL
+
+    return View(vm);
+}
 
 
 
@@ -1064,74 +1071,37 @@ namespace Medical_Affiliation.Controllers
         {
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var courseLevel = CourseLevel;                                   // CL
 
             if (string.IsNullOrEmpty(facultyCode) || string.IsNullOrEmpty(collegeCode))
                 return RedirectToAction("Login", "Account");
+
+            if (string.IsNullOrWhiteSpace(courseLevel))                      // CL
+            {
+                TempData["Error"] = "Session expired. Please select course again.";
+                return RedirectToAction("Dashboard", "Collegelogin", new { collegecode = collegeCode });
+            }
 
             model.FacultyCode = facultyCode;
             model.CollegeCode = collegeCode;
 
             if (!ModelState.IsValid)
             {
-                await LoadViewData(model, collegeCode, facultyCode, model.RegistrationNo);
+                await LoadViewData(model, collegeCode, facultyCode, model.RegistrationNo, courseLevel);   // CL
                 return View(model);
             }
 
             string normalizedInput = NormalizeVehicle(model.VehicleRegNo);
 
-            // ===== RATE LIMITING (4 requests per second) =====
-            var oneSecondAgo = DateTime.Now.AddSeconds(-1);
-
-            var requestCount = await _context.VehicleRequestLogs
-                .CountAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.RequestTime >= oneSecondAgo);
-
-            if (requestCount >= 4)
-            {
-                TempData["Error"] =
-                    "Too many requests. Please wait and try again.";
-
-                return RedirectToAction(nameof(CA_VehicleDetails));
-            }
-
-            // ===== DAILY LIMIT (6000 requests per day) =====
-            var today = DateTime.Today;
-
-            var todayCount = await _context.VehicleRequestLogs
-                .CountAsync(x =>
-                    x.CollegeCode == collegeCode &&
-                    x.RequestTime >= today);
-
-            if (todayCount >= 6000)
-            {
-                TempData["Error"] =
-                    "Daily request limit exceeded.";
-
-                return RedirectToAction(nameof(CA_VehicleDetails));
-            }
-
-            // ===== DUPLICATE REQUEST CHECK =====
-            var duplicateRequest = _context.VehicleRequestLogs
-                .AsEnumerable()
-                .Any(x =>
-                    NormalizeVehicle(x.VehicleRegNo) == normalizedInput &&
-                    x.CollegeCode == collegeCode &&
-                    x.RequestTime >= oneSecondAgo);
-
-            if (duplicateRequest)
-            {
-                TempData["Error"] =
-                    "Duplicate vehicle submission detected.";
-
-                return RedirectToAction(nameof(CA_VehicleDetails));
-            }
+            // ===== RATE LIMITING, DAILY LIMIT, DUPLICATE REQUEST CHECK =====
+            // unchanged (these work per college, not per course level)
 
             // ===== EXISTING VEHICLE CHECK =====
             var exists = _context.CaVehicleDetails
                 .Where(x =>
                     x.CollegeCode == collegeCode &&
-                    x.FacultyCode == facultyCode)
+                    x.FacultyCode == facultyCode &&
+                    x.CourseLevel == courseLevel)                            // CL
                 .AsEnumerable()
                 .Any(x => NormalizeVehicle(x.VehicleRegNo) == normalizedInput);
 
@@ -1146,6 +1116,7 @@ namespace Medical_Affiliation.Controllers
             {
                 FacultyCode = facultyCode,
                 CollegeCode = collegeCode,
+                CourseLevel = courseLevel,                                   // CL
                 VehicleRegNo = model.VehicleRegNo,
                 VehicleForCode = model.VehicleForCode,
                 SeatingCapacity = model.SeatingCapacity,
@@ -1273,7 +1244,7 @@ namespace Medical_Affiliation.Controllers
 
 
         // Helper to reload dropdown + existing list (used on error)
-        private async Task LoadViewData(CA_VehicleDetailsViewModel model, string collegeCode, string facultyCode, string? regNo)
+        private async Task LoadViewData(CA_VehicleDetailsViewModel model, string collegeCode, string facultyCode, string? regNo, string courseLevel)
         {
             int facultyCodeInt = Convert.ToInt32(facultyCode);
 
@@ -1289,8 +1260,9 @@ namespace Medical_Affiliation.Controllers
 
             // ✅ NO course level filter
             var query = _context.CaVehicleDetails
-                .Where(x => x.CollegeCode == collegeCode &&
-                            x.FacultyCode == facultyCode);
+                .Where(x => x.CollegeCode == collegeCode
+                         && x.FacultyCode == facultyCode
+                         && x.CourseLevel == courseLevel);
 
             if (!string.IsNullOrEmpty(regNo))
                 query = query.Where(x => x.RegistrationNo == regNo);

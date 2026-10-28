@@ -5810,13 +5810,10 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Id)
                 .HasName("PK__Medical___3214EC07723BD6E2")
                 .HasFillFactor(80);
-
             entity.ToTable("Medical_SkillsLaboratory");
-
             entity.Property(e => e.CollegeCode)
                 .HasMaxLength(10)
                 .IsUnicode(false);
-            entity.Property(e => e.CourseLevel).HasMaxLength(10);
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -5825,10 +5822,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.TotalAreaAvailableSqm).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TotalAreaDeficiencySqm).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TotalAreaRequiredSqm).HasColumnType("decimal(18, 2)");
-            entity.HasOne<TypeOfAffiliation>()
-            .WithMany()
-            .HasForeignKey(e => e.AffiliationTypeId)
-            .HasPrincipalKey(e => e.TypeId);
+            entity.HasOne(d => d.AffiliationType).WithMany(p => p.MedicalSkillsLaboratories)
+                .HasForeignKey(d => d.AffiliationTypeId)
+                .HasConstraintName("FK_Medical_SkillsLaboratory_TypeOfAffiliation");
         });
 
         modelBuilder.Entity<MedicalStudentPracticalLab>(entity =>
