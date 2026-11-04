@@ -6433,7 +6433,7 @@ namespace Medical_Affiliation.Controllers
             {
                 return RedirectToAction("Index", "DentalPayment");
             }
-            return RedirectToAction("Aff_HostelDetails");
+            return RedirectToAction("Index", "PaymentCalculation");
         }
 
         [HttpPost]

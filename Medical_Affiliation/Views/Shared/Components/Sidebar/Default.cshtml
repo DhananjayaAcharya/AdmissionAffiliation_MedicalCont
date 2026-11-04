@@ -25,17 +25,17 @@
 
 <style>
     :root {
-        --sb-navy: #0a3d91;
-        --sb-navy-mid: #0d4fb0;
-        --sb-navy-deep: #082f70;
-        --sb-gold: #1d5fd6;
-        --sb-gold-lt: #7fb0ff;
-        --sb-gold-ring: rgba(29,95,214,.18);
+        --sb-navy: #12399a;
+        --sb-navy-mid: #1d4ed8;
+        --sb-navy-deep: #0b2a6f;
+        --sb-gold: #f5b301;
+        --sb-gold-lt: #fcd34d;
+        --sb-gold-ring: rgba(245,179,1,.18);
         --sb-teal: #0e7490;
-        --sb-text: #d9e5f7;
-        --sb-text-muted: #8ea3c4;
+        --sb-text: #dbe6fb;
+        --sb-text-muted: #9fb4de;
         --sb-hover: rgba(255,255,255,.06);
-        --sb-active: linear-gradient(135deg, var(--sb-gold) 0%, var(--sb-navy-mid) 100%);
+        --sb-active: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         --sb-border: rgba(255,255,255,.09);
         --header-height: 71px; /* 68px topbar + 3px gov strip — must match Dashboard header */
         --sb-radius: 8px;
@@ -51,7 +51,7 @@
         left: 0;
         width: var(--sb-width);
         height: calc(100vh - var(--header-height));
-        background: linear-gradient(180deg, var(--sb-navy-deep) 0%, var(--sb-navy) 55%, var(--sb-navy-mid) 100%);
+        background: linear-gradient(180deg, #0b2a6f 0%, #12399a 55%, #1d4ed8 100%);
         color: var(--sb-text);
         box-shadow: 4px 0 24px rgba(5,15,40,.35);
         padding: 0 0 1.25rem;
@@ -89,19 +89,19 @@
         border-radius: 50%;
         border: none;
         background: var(--sb-gold);
-        color: #fff;
+        color: #0b2a6f;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         z-index: 10;
-        box-shadow: 0 2px 8px rgba(29,95,214,.45);
+        box-shadow: 0 2px 8px rgba(245,179,1,.45);
         transition: background var(--sb-dur) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease), transform var(--sb-dur) var(--sb-ease);
     }
 
         .sidebar-handle:hover {
             background: var(--sb-gold-lt);
-            box-shadow: 0 3px 10px rgba(29,95,214,.55);
+            box-shadow: 0 3px 10px rgba(245,179,1,.55);
             transform: translateY(-1px);
         }
 
@@ -164,7 +164,7 @@
         height: 34px;
         border-radius: 8px;
         background: var(--sb-gold-ring);
-        border: 1px solid rgba(29,95,214,.32);
+        border: 1px solid rgba(245,179,1,.45);
         display: grid;
         place-items: center;
         color: var(--sb-gold-lt);
@@ -200,7 +200,7 @@
         text-transform: uppercase;
         color: var(--sb-gold-lt);
         background: var(--sb-gold-ring);
-        border: 1px solid rgba(29,95,214,.30);
+        border: 1px solid rgba(245,179,1,.45);
         padding: 3px 9px;
         border-radius: 20px;
         margin-top: 2px;
@@ -282,7 +282,7 @@
             background: var(--sb-active);
             color: #fff;
             font-weight: 600;
-            box-shadow: 0 4px 14px rgba(29,95,214,.32);
+            box-shadow: 0 4px 14px rgba(0,0,0,.28), inset 3px 0 0 var(--sb-gold);
             border-color: transparent;
         }
 
@@ -362,7 +362,7 @@
     }
 
         .affiliation-option:hover {
-            background: rgba(29,95,214,.20);
+            background: rgba(245,179,1,.16);
             color: #fff;
         }
 
@@ -415,8 +415,9 @@
         transition: max-height 0.25s ease, opacity 0.2s ease;
     }
 
+        /* 3 levels (UG / PG / SS) at ~2rem each need more than the old 8rem */
         .affiliation-submenu.show {
-            max-height: 8rem;
+            max-height: 10rem;
             opacity: 1;
         }
 
@@ -431,7 +432,7 @@
     }
 
         .affiliation-subitem:hover {
-            background: rgba(29,95,214,.20);
+            background: rgba(245,179,1,.16);
             color: #fff;
         }
 
@@ -510,7 +511,7 @@
 
         .sidebar-action-btn:hover {
             background: var(--sb-gold-ring);
-            border-color: rgba(29,95,214,.35);
+            border-color: rgba(245,179,1,.5);
             color: #fff;
         }
 
@@ -519,8 +520,8 @@
             }
 
         .sidebar-action-btn.primary {
-            background: rgba(29,95,214,.10);
-            border-color: rgba(29,95,214,.30);
+            background: rgba(245,179,1,.12);
+            border-color: rgba(245,179,1,.45);
             color: var(--sb-gold-lt);
         }
 
@@ -531,12 +532,12 @@
             .sidebar-action-btn.primary:hover {
                 background: var(--sb-gold);
                 border-color: var(--sb-gold);
-                color: #fff;
-                box-shadow: 0 4px 14px rgba(29,95,214,.35);
+                color: #0b2a6f;
+                box-shadow: 0 4px 14px rgba(245,179,1,.35);
             }
 
                 .sidebar-action-btn.primary:hover i {
-                    color: #fff;
+                    color: #0b2a6f;
                 }
 
     .sidebar.collapsed .sidebar-action-btn {
@@ -619,7 +620,7 @@
 
                 .password-modal .password-input-wrap .form-control:focus {
                     border-color: var(--sb-gold);
-                    box-shadow: 0 0 0 3px rgba(29,95,214,.13);
+                    box-shadow: 0 0 0 3px rgba(245,179,1,.25);
                 }
 
         .password-modal .password-visibility {
@@ -702,7 +703,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid var(--sb-navy);
+        border: 2px solid var(--sb-navy-deep);
     }
 
     /* Responsive */
@@ -847,7 +848,7 @@
                        class="sidebar-link @(currentController == "Fellowship" && currentAction == "FellowshipMedical_Details" ? "active" : "")"
                        title="Fellowship Application">
                         <i class="bi bi-mortarboard"></i>
-                        <span class="sidebar-link-label">Fellowship Application</span>
+                        <span class="sidebar-link-label">Student Admission Details</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -932,21 +933,32 @@
 }
 
 <script>
+    window.CourseScheduleUrl = @Html.Raw(Json.Serialize(Url.Action("GetSchedule", "CourseLevelSchedule")));
+</script>
+<script src="~/js/course-schedule.js" asp-append-version="true"></script>
+
+<script>
     // ── Values coming from the server session (safely JSON-encoded) ──────────
     const currentFacultyCode = @Html.Raw(Json.Serialize(facultyCode ?? ""));
     const currentLevel       = @Html.Raw(Json.Serialize(currentLevel));
     const currentTypeId      = @Html.Raw(Json.Serialize(currentTypeId));
 
     const getAffiliationTypesUrl = @Html.Raw(Json.Serialize(Url.Action("GetAffiliationTypes", "ContinuesAffiliation_Facultybased")));
-    const getCourseLevelsUrl     = @Html.Raw(Json.Serialize(Url.Action("GetCourseLevels", "ContinuesAffiliation_Facultybased")));
     const loginUrl               = @Html.Raw(Json.Serialize(Url.Action("Login", "Account")));
 
     // Only affiliation types listed here are selectable (value = destination, kept for reference;
     // the actual redirect is done by SetCourseLevel on the server).
     const affiliationBaseUrlMap = {
-        "2": @Html.Raw(Json.Serialize(Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased"))),
-        "3": @Html.Raw(Json.Serialize(Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")))
+    "2": @Html.Raw(Json.Serialize(Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased"))),
+    "3": @Html.Raw(Json.Serialize(Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")))
     };
+
+    // Course levels that can be opened from the sidebar
+    const CLICKABLE_LEVELS = ["ug", "pg", "ss"];
+
+    // Fallback levels for faculties 2 and 4 when the college has no rows in Mst_MedicalCollegeCourseIntake
+    // (faculty 1 always uses the levels stored for the college in the [ug_pg] column)
+    const DEFAULT_LEVELS = ["ug", "pg", "ss"];
 
     const SIDEBAR_KEY = "rguhsSidebarCollapsed";
 
@@ -956,297 +968,312 @@
 
     // ── Sidebar collapse / expand ────────────────────────────────────────────
     function isSidebarCollapsed() {
-        const sidebar = document.querySelector(".sidebar");
-        return !!sidebar && sidebar.classList.contains("collapsed");
+    const sidebar = document.querySelector(".sidebar");
+    return !!sidebar && sidebar.classList.contains("collapsed");
     }
 
     function setSidebarCollapsed(collapsed) {
-        const sidebar = document.querySelector(".sidebar");
-        const handle = document.querySelector(".sidebar-handle");
-        if (!sidebar || !handle) return;
+    const sidebar = document.querySelector(".sidebar");
+    const handle = document.querySelector(".sidebar-handle");
+    if (!sidebar || !handle) return;
 
-        sidebar.classList.toggle("collapsed", collapsed);
-        document.body.classList.toggle("app-sidebar-collapsed", collapsed);
-        writeStored(SIDEBAR_KEY, collapsed ? "true" : "false");
+    sidebar.classList.toggle("collapsed", collapsed);
+    document.body.classList.toggle("app-sidebar-collapsed", collapsed);
+    writeStored(SIDEBAR_KEY, collapsed ? "true" : "false");
 
-        handle.setAttribute("aria-expanded", collapsed ? "false" : "true");
-        handle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
-        handle.setAttribute("title", collapsed ? "Expand sidebar" : "Collapse sidebar");
+    handle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    handle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+    handle.setAttribute("title", collapsed ? "Expand sidebar" : "Collapse sidebar");
 
-        window.dispatchEvent(new CustomEvent("sidebarToggle", { detail: { collapsed: collapsed } }));
+    window.dispatchEvent(new CustomEvent("sidebarToggle", { detail: { collapsed: collapsed } }));
     }
 
     function toggleSidebar() { setSidebarCollapsed(!isSidebarCollapsed()); }
 
     window.addEventListener("resize", function () {
-        if (window.innerWidth < 992 && isSidebarCollapsed()) setSidebarCollapsed(false);
+    if (window.innerWidth < 992 && isSidebarCollapsed()) setSidebarCollapsed(false);
     });
 
     // ── Fetch helper: handles expired session (redirect to login) ────────────
     async function fetchJson(url) {
-        const res = await fetch(url, {
-            credentials: "same-origin",
-            headers: { "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" }
-        });
+    const res = await fetch(url, {
+    credentials: "same-origin",
+    headers: { "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" }
+    });
 
-        // An expired session makes the server redirect to the login page (HTML)
-        if (res.redirected || res.status === 401 || res.status === 403) {
-            window.location.href = res.redirected ? res.url : loginUrl;
-            throw new Error("Session expired");
-        }
-        if (!res.ok) throw new Error("Request failed (" + res.status + ")");
-        return res.json();
+    // An expired session makes the server redirect to the login page (HTML)
+    if (res.redirected || res.status === 401 || res.status === 403) {
+    window.location.href = res.redirected ? res.url : loginUrl;
+    throw new Error("Session expired");
+    }
+    if (!res.ok) throw new Error("Request failed (" + res.status + ")");
+    return res.json();
     }
 
     // ── Affiliation dropdown ────────────────────────────────────────────────
     let affiliationOptionsCache = null;
-    let courseLevelsPromise = null;
 
-    function loadCourseLevels() {
-        if (!courseLevelsPromise) {
-            courseLevelsPromise = fetchJson(getCourseLevelsUrl).catch(function (err) {
-                courseLevelsPromise = null;   // allow retry
-                throw err;
-            });
-        }
-        return courseLevelsPromise;
-    }
-
+    // UG, PG and SS are all enabled
     function isLevelClickable(level) {
-        return level === "ug" || (level === "pg" && currentFacultyCode === "2");
+    return CLICKABLE_LEVELS.includes(level);
     }
 
-    function addLevelItem(subMenu, rawLevel, typeId) {
-        const level = String(rawLevel).trim().toLowerCase();
-        const clickable = isLevelClickable(level);
-        const isCurrent = clickable && level === currentLevel && String(typeId) === String(currentTypeId);
+    function addLevelItem(subMenu, rawLevel, typeId, sched) {
+    const level = String(rawLevel).trim().toLowerCase();
+    const info = (sched || {})[level];                       // row from Mst_CourseLevelSchedule
+    const blocked = !!info && !info.isSelectable;            // Closed or Disabled
+    const clickable = isLevelClickable(level) && !blocked;
+    const isCurrent = clickable && level === currentLevel && String(typeId) === String(currentTypeId);
 
-        const el = document.createElement(clickable ? "a" : "span");
-        el.className = "affiliation-subitem" + (clickable ? "" : " readonly") + (isCurrent ? " active" : "");
-        el.textContent = level.toUpperCase();
+    const el = document.createElement(clickable ? "a" : "span");
+    el.className = "affiliation-subitem" + (clickable ? "" : " readonly") + (isCurrent ? " active" : "");
 
-        if (clickable) {
-            el.href = "#";
-            el.dataset.level = level;
-            el.addEventListener("click", navigateToLevel);
-        }
-        subMenu.appendChild(el);
+    const text = document.createElement("span");
+    text.textContent = level.toUpperCase();
+    el.appendChild(text);
 
-        if (isCurrent) {
-            subMenu.classList.add("show");
-            const parent = subMenu.previousElementSibling;
-            if (parent) parent.classList.add("expanded");
-        }
+    if (info && (blocked || info.status === "LateFine")) {
+    const badge = document.createElement("span");
+    badge.className = "cs-badge " + (blocked ? "off" : "warn");
+    badge.textContent = info.status === "LateFine" ? "Late fine" : (info.status === "Disabled" ? "Disabled" : "Closed");
+    el.appendChild(badge);
+    el.title = info.status === "LateFine"
+    ? "Fine of " + CourseSchedule.money(info.fineAmount) + " applies until " + CourseSchedule.fmtLong(info.fineLastDate)
+    : (info.status === "Disabled" ? "Submissions are switched off" : "Submission period has ended");
+    }
+
+    if (clickable) {
+    el.href = "#";
+    el.dataset.level = level;
+    el.addEventListener("click", navigateToLevel);
+    }
+    subMenu.appendChild(el);
+
+    if (isCurrent) {
+    subMenu.classList.add("show");
+    const parent = subMenu.previousElementSibling;
+    if (parent) parent.classList.add("expanded");
+    }
     }
 
     function renderAffiliationOptions(items) {
-        const panel = document.getElementById("affiliationDropdownPanel");
-        panel.innerHTML = "";
+    const panel = document.getElementById("affiliationDropdownPanel");
+    panel.innerHTML = "";
 
-        if (!items || items.length === 0) {
-            const empty = document.createElement("div");
-            empty.className = "affiliation-loading";
-            empty.textContent = "No affiliation types available.";
-            panel.appendChild(empty);
-            return;
-        }
+    if (!items || items.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "affiliation-loading";
+    empty.textContent = "No affiliation types available.";
+    panel.appendChild(empty);
+    return;
+    }
 
-        const showSubMenu = ["1", "2", "4"].includes(currentFacultyCode);
+    // One request: deadlines (Mst_CourseLevelSchedule) + levels offered by this college (ug_pg column).
+    // Re-read every time the menu opens, so a change in the tables shows without a re-login.
+    const schedulePromise = CourseSchedule.load(true).catch(function () { return null; });
 
-        items.forEach(function (item) {
-            const typeId = String(item.typeId);
-            const hasRoute = !!affiliationBaseUrlMap[typeId];
-            const isDisabled = !hasRoute || (currentFacultyCode === "2" && typeId === "3");
+    const showSubMenu = ["1", "2", "4"].includes(currentFacultyCode);
 
-            // Parent row (built with DOM APIs, so text can never inject HTML)
-            const parentDiv = document.createElement("div");
-            parentDiv.className = "affiliation-option" + (isDisabled ? " disabled" : "");
-            parentDiv.dataset.typeId = typeId;
+    items.forEach(function (item) {
+    const typeId = String(item.typeId);
+    const hasRoute = !!affiliationBaseUrlMap[typeId];
+    const isDisabled = !hasRoute || (currentFacultyCode === "2" && typeId === "3");
 
-            const dot = document.createElement("i");
-            dot.className = "bi bi-dot";
-            const label = document.createElement("span");
-            label.textContent = item.typeDescription;
-            const arrow = document.createElement("i");
-            arrow.className = "bi bi-chevron-right ms-auto";
+    // Parent row (built with DOM APIs, so text can never inject HTML)
+    const parentDiv = document.createElement("div");
+    parentDiv.className = "affiliation-option" + (isDisabled ? " disabled" : "");
+    parentDiv.dataset.typeId = typeId;
 
-            parentDiv.append(dot, label, arrow);
-            parentDiv.addEventListener("click", toggleUgPgSubmenu);
-            panel.appendChild(parentDiv);
+    const dot = document.createElement("i");
+    dot.className = "bi bi-dot";
+    const label = document.createElement("span");
+    label.textContent = item.typeDescription;
+    const arrow = document.createElement("i");
+    arrow.className = "bi bi-chevron-right ms-auto";
 
-            if (isDisabled || !showSubMenu) return;
+    parentDiv.append(dot, label, arrow);
+    parentDiv.addEventListener("click", toggleUgPgSubmenu);
+    panel.appendChild(parentDiv);
 
-            const subMenu = document.createElement("div");
-            subMenu.className = "affiliation-submenu";
-            subMenu.dataset.parentId = typeId;
-            panel.appendChild(subMenu);
+    if (isDisabled || !showSubMenu) return;
 
-            if (currentFacultyCode === "1") {
-                // Faculty 1: levels depend on the college, fetched once and cached
-                loadCourseLevels()
-                    .then(function (levels) { (levels || []).forEach(function (l) { addLevelItem(subMenu, l, typeId); }); })
-                    .catch(function () {
-                        const err = document.createElement("span");
-                        err.className = "affiliation-subitem readonly";
-                        err.textContent = "Unable to load levels";
-                        subMenu.appendChild(err);
-                        subMenu.classList.add("show");
-                    });
-            } else {
-                ["ug", "pg"].forEach(function (l) { addLevelItem(subMenu, l, typeId); });
-            }
-        });
+    const subMenu = document.createElement("div");
+    subMenu.className = "affiliation-submenu";
+    subMenu.dataset.parentId = typeId;
+    panel.appendChild(subMenu);
+
+    function note(text) {
+    const el = document.createElement("span");
+    el.className = "affiliation-subitem readonly";
+    el.textContent = text;
+    subMenu.appendChild(el);
+    subMenu.classList.add("show");
+    }
+
+    schedulePromise.then(function (data) {
+    if (!data || data.collegeLevelsFailed) { note("Unable to load levels"); return; }
+
+    const sched = CourseSchedule.map(data);
+    let levels = data.collegeLevels || [];
+
+    // Only medical colleges are in the intake table; other faculties keep the default list
+    if (!levels.length && currentFacultyCode !== "1") levels = DEFAULT_LEVELS;
+    if (!levels.length) { note("No course levels found for this college"); return; }
+
+    levels.forEach(function (l) { addLevelItem(subMenu, l, typeId, sched); });
+    });
+    });
     }
 
     function toggleUgPgSubmenu(e) {
-        e.stopPropagation();
-        const parent = e.currentTarget;
-        if (parent.classList.contains("disabled")) return;
+    e.stopPropagation();
+    const parent = e.currentTarget;
+    if (parent.classList.contains("disabled")) return;
 
-        const panel = document.getElementById("affiliationDropdownPanel");
-        const subMenu = panel.querySelector('.affiliation-submenu[data-parent-id="' + parent.dataset.typeId + '"]');
-        if (!subMenu) return;
+    const panel = document.getElementById("affiliationDropdownPanel");
+    const subMenu = panel.querySelector('.affiliation-submenu[data-parent-id="' + parent.dataset.typeId + '"]');
+    if (!subMenu) return;
 
-        // Accordion: close the others
-        panel.querySelectorAll(".affiliation-submenu").forEach(function (m) { if (m !== subMenu) m.classList.remove("show"); });
-        panel.querySelectorAll(".affiliation-option").forEach(function (o) { if (o !== parent) o.classList.remove("expanded"); });
+    // Accordion: close the others
+    panel.querySelectorAll(".affiliation-submenu").forEach(function (m) { if (m !== subMenu) m.classList.remove("show"); });
+    panel.querySelectorAll(".affiliation-option").forEach(function (o) { if (o !== parent) o.classList.remove("expanded"); });
 
-        subMenu.classList.toggle("show");
-        parent.classList.toggle("expanded", subMenu.classList.contains("show"));
+    subMenu.classList.toggle("show");
+    parent.classList.toggle("expanded", subMenu.classList.contains("show"));
     }
 
     // Stores level + type in the SESSION (server side) with a normal form POST
     let levelSubmitting = false;
     function navigateToLevel(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (levelSubmitting) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (levelSubmitting) return;
 
-        const level = e.currentTarget.dataset.level;
-        const subMenu = e.currentTarget.closest(".affiliation-submenu");
-        const typeId = subMenu ? subMenu.dataset.parentId : null;
+    const level = e.currentTarget.dataset.level;
+    const subMenu = e.currentTarget.closest(".affiliation-submenu");
+    const typeId = subMenu ? subMenu.dataset.parentId : null;
 
-        if (!typeId || !affiliationBaseUrlMap[typeId]) {
-            alert("No URL configured for this affiliation type.");
-            return;
-        }
+    if (!typeId || !affiliationBaseUrlMap[typeId]) {
+    alert("No URL configured for this affiliation type.");
+    return;
+    }
 
-        levelSubmitting = true;
-        document.getElementById("hiddenLevel").value = level;
-        document.getElementById("hiddenAffiliationId").value = typeId;
-        document.getElementById("hiddenFacultyCode").value = currentFacultyCode;
-        document.getElementById("setLevelForm").submit();
+    levelSubmitting = true;
+    document.getElementById("hiddenLevel").value = level;
+    document.getElementById("hiddenAffiliationId").value = typeId;
+    document.getElementById("hiddenFacultyCode").value = currentFacultyCode;
+    document.getElementById("setLevelForm").submit();
     }
 
     function openAffiliationDropdown() {
-        const panel = document.getElementById("affiliationDropdownPanel");
-        const toggleLink = document.getElementById("admissionAffiliationToggle");
-        if (!panel || !toggleLink) return;
+    const panel = document.getElementById("affiliationDropdownPanel");
+    const toggleLink = document.getElementById("admissionAffiliationToggle");
+    if (!panel || !toggleLink) return;
 
-        panel.classList.remove("d-none-collapsed");
-        panel.classList.add("open");
-        toggleLink.classList.add("expanded");
-        toggleLink.setAttribute("aria-expanded", "true");
+    panel.classList.remove("d-none-collapsed");
+    panel.classList.add("open");
+    toggleLink.classList.add("expanded");
+    toggleLink.setAttribute("aria-expanded", "true");
 
-        if (affiliationOptionsCache) {
-            renderAffiliationOptions(affiliationOptionsCache);
-            return;
-        }
+    if (affiliationOptionsCache) {
+    renderAffiliationOptions(affiliationOptionsCache);
+    return;
+    }
 
-        panel.innerHTML = '<div class="affiliation-loading"><span class="spinner-border" role="status"></span> Loading...</div>';
+    panel.innerHTML = '<div class="affiliation-loading"><span class="spinner-border" role="status"></span> Loading...</div>';
 
-        fetchJson(getAffiliationTypesUrl)
-            .then(function (data) {
-                affiliationOptionsCache = data;
-                renderAffiliationOptions(data);
-            })
-            .catch(function (err) {
-                if (err && err.message === "Session expired") return;   // already redirecting
-                console.error("Failed to load affiliation types:", err);
-                panel.innerHTML = '<div class="affiliation-loading">Failed to load. Click again to retry.</div>';
-                panel.classList.remove("open");
-                panel.classList.add("d-none-collapsed");
-                toggleLink.classList.remove("expanded");
-                toggleLink.setAttribute("aria-expanded", "false");
-            });
+    fetchJson(getAffiliationTypesUrl)
+    .then(function (data) {
+    affiliationOptionsCache = data;
+    renderAffiliationOptions(data);
+    })
+    .catch(function (err) {
+    if (err && err.message === "Session expired") return;   // already redirecting
+    console.error("Failed to load affiliation types:", err);
+    panel.innerHTML = '<div class="affiliation-loading">Failed to load. Click again to retry.</div>';
+    panel.classList.remove("open");
+    panel.classList.add("d-none-collapsed");
+    toggleLink.classList.remove("expanded");
+    toggleLink.setAttribute("aria-expanded", "false");
+    });
     }
 
     function closeAffiliationDropdown() {
-        const panel = document.getElementById("affiliationDropdownPanel");
-        const toggleLink = document.getElementById("admissionAffiliationToggle");
-        if (!panel || !toggleLink) return;
-        panel.classList.remove("open");
-        panel.classList.add("d-none-collapsed");
-        toggleLink.classList.remove("expanded");
-        toggleLink.setAttribute("aria-expanded", "false");
+    const panel = document.getElementById("affiliationDropdownPanel");
+    const toggleLink = document.getElementById("admissionAffiliationToggle");
+    if (!panel || !toggleLink) return;
+    panel.classList.remove("open");
+    panel.classList.add("d-none-collapsed");
+    toggleLink.classList.remove("expanded");
+    toggleLink.setAttribute("aria-expanded", "false");
     }
 
     function toggleAffiliationDropdown(e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        // A collapsed 68px rail has no room for the panel: expand first, then open
-        if (isSidebarCollapsed()) {
-            setSidebarCollapsed(false);
-            window.setTimeout(openAffiliationDropdown, 90);
-            return;
-        }
+    // A collapsed 68px rail has no room for the panel: expand first, then open
+    if (isSidebarCollapsed()) {
+    setSidebarCollapsed(false);
+    window.setTimeout(openAffiliationDropdown, 90);
+    return;
+    }
 
-        const panel = document.getElementById("affiliationDropdownPanel");
-        if (panel.classList.contains("open")) closeAffiliationDropdown();
-        else openAffiliationDropdown();
+    const panel = document.getElementById("affiliationDropdownPanel");
+    if (panel.classList.contains("open")) closeAffiliationDropdown();
+    else openAffiliationDropdown();
     }
 
     // Lets the notifications code update the bell badge:  setSidebarNotificationCount(5)
     function setSidebarNotificationCount(count) {
-        const badge = document.getElementById("sidebarNotificationBadge");
-        if (!badge) return;
-        const n = Number(count) || 0;
-        badge.textContent = n > 99 ? "99+" : String(n);
-        badge.style.display = n > 0 ? "flex" : "none";
+    const badge = document.getElementById("sidebarNotificationBadge");
+    if (!badge) return;
+    const n = Number(count) || 0;
+    badge.textContent = n > 99 ? "99+" : String(n);
+    badge.style.display = n > 0 ? "flex" : "none";
     }
 
     // ── Page init ────────────────────────────────────────────────────────────
     document.addEventListener("DOMContentLoaded", function () {
 
-        // Modal must live directly under <body> to sit above the fixed sidebar
-        const passwordModal = document.getElementById("updatePasswordModal");
-        if (passwordModal && passwordModal.parentElement !== document.body) {
-            document.body.appendChild(passwordModal);
-        }
+    // Modal must live directly under <body> to sit above the fixed sidebar
+    const passwordModal = document.getElementById("updatePasswordModal");
+    if (passwordModal && passwordModal.parentElement !== document.body) {
+    document.body.appendChild(passwordModal);
+    }
 
-        // Show / hide password
-        const toggleBtn = document.querySelector(".toggle-password");
-        const passwordInput = document.getElementById("NewPassword");
-        const toggleIcon = document.getElementById("toggleIcon");
+    // Show / hide password
+    const toggleBtn = document.querySelector(".toggle-password");
+    const passwordInput = document.getElementById("NewPassword");
+    const toggleIcon = document.getElementById("toggleIcon");
 
-        if (toggleBtn && passwordInput && toggleIcon) {
-            toggleBtn.addEventListener("click", function () {
-                const hidden = passwordInput.getAttribute("type") === "password";
-                passwordInput.setAttribute("type", hidden ? "text" : "password");
-                toggleIcon.className = hidden ? "bi bi-eye-slash" : "bi bi-eye";
-                toggleBtn.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
-            });
-        }
+    if (toggleBtn && passwordInput && toggleIcon) {
+    toggleBtn.addEventListener("click", function () {
+    const hidden = passwordInput.getAttribute("type") === "password";
+    passwordInput.setAttribute("type", hidden ? "text" : "password");
+    toggleIcon.className = hidden ? "bi bi-eye-slash" : "bi bi-eye";
+    toggleBtn.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
+    });
+    }
 
-        // Live password-rule feedback
-        if (passwordInput) {
-            const rules = {
-                length: function (v) { return v.length >= 8 && v.length <= 20; },
-                upper:  function (v) { return /[A-Z]/.test(v); },
-                lower:  function (v) { return /[a-z]/.test(v); },
-                numsym: function (v) { return /\d/.test(v) && /[@@$!%*?&]/.test(v); }
-            };
-            passwordInput.addEventListener("input", function () {
-                document.querySelectorAll(".password-rule").forEach(function (el) {
-                    const fn = rules[el.dataset.rule];
-                    el.classList.toggle("ok", !!fn && fn(passwordInput.value));
-                });
-            });
-        }
+    // Live password-rule feedback
+    if (passwordInput) {
+    const rules = {
+    length: function (v) { return v.length >= 8 && v.length <= 20; },
+    upper:  function (v) { return /[A-Z]/.test(v); },
+    lower:  function (v) { return /[a-z]/.test(v); },
+    numsym: function (v) { return /\d/.test(v) && /[@@$!%*?&]/.test(v); }
+    };
+    passwordInput.addEventListener("input", function () {
+    document.querySelectorAll(".password-rule").forEach(function (el) {
+    const fn = rules[el.dataset.rule];
+    el.classList.toggle("ok", !!fn && fn(passwordInput.value));
+    });
+    });
+    }
 
-        // Restore collapsed state (desktop only)
-        if (window.innerWidth >= 992) {
-            setSidebarCollapsed(readStored(SIDEBAR_KEY) === "true");
-        }
+    // Restore collapsed state (desktop only)
+    if (window.innerWidth >= 992) {
+    setSidebarCollapsed(readStored(SIDEBAR_KEY) === "true");
+    }
     });
 </script>

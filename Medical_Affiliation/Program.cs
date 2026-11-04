@@ -1,5 +1,6 @@
-﻿using Medical_Affiliation.DATA;
-using Medical_Affiliation.Controllers;
+﻿using Medical_Affiliation.Controllers;
+using Medical_Affiliation.Controllers.Api;   // NEW: for AddBasicAuthSecurity()
+using Medical_Affiliation.DATA;
 using Medical_Affiliation.Middleware;
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services;
@@ -20,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
+using Rguhs.Portal.Services;
 using SecureConnectionLibrary;
 using System.Globalization;
 
@@ -69,6 +71,23 @@ builder.Services.AddControllersWithViews(options =>
 })
 .AddViewLocalization()
 .AddDataAnnotationsLocalization();
+
+
+// =============================================
+// 🔹 Swagger (used to test the /api/payment-calculation endpoints, protected by Basic auth)
+// =============================================
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Document only the payment API so the existing MVC controllers
+    // can never cause Swagger "conflicting action" errors.
+    options.DocInclusionPredicate((_, api) =>
+        api.RelativePath?.StartsWith("api/payment-calculation", StringComparison.OrdinalIgnoreCase) == true);
+
+    // NEW: adds the "Authorize" button + padlock on each payment-calculation endpoint.
+    // Enter the Basic auth username / password once and every request sends them.
+    options.AddBasicAuthSecurity();
+});
 
 
 // =============================================
@@ -145,7 +164,8 @@ builder.Services.AddScoped<IHospitalService, FacultyHospitalService>();
 builder.Services.AddScoped<ICAAcademicService, CAAcademicService>();
 builder.Services.AddScoped<ICADentalBedDistributionService, CADentalBedDistributionService>();
 builder.Services.AddScoped<ICADepartmentOfficesMeuService, CADepartmentOfficesMeuService>();
-
+builder.Services.AddScoped<ICourseLevelScheduleService>(_ =>
+    new CourseLevelScheduleService(decryptedConnectionString));
 builder.Services.AddScoped<ICAAcademicIntakeService, CAAcademicIntakeService>();
 builder.Services.AddScoped<IInstitutionPreviewService, InstitutionPreviewService>();
 builder.Services.AddScoped<ICATrustMemberDetailsPreviewService, CATrustMemberDetailsPreviewService>();
@@ -189,6 +209,7 @@ builder.Services.Configure<WhatsAppSettings>(builder.Configuration.GetSection("W
 builder.Services.AddHttpClient<IWhatsAppService, WhatsAppService>();
 builder.Services.AddScoped<IPrincipalContactLookupService, PrincipalContactLookupService>();
 builder.Services.AddScoped<IPaymentReceiptPdfService, PaymentReceiptPdfService>();
+builder.Services.AddScoped<Medical_Affiliation.Services.PgCourseCompletionService>();
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 // =============================================
@@ -397,11 +418,27 @@ app.UseSession();
 
 
 // =============================================
+// 🔹 Swagger UI  ->  /swagger
+// Enabled in Development, or when "EnableSwagger": true is set in appsettings.
+// =============================================
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableSwagger"))
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        // Relative URL so it also works when the app runs under an IIS virtual directory.
+        options.SwaggerEndpoint("v1/swagger.json", "Affiliation API v1");
+        options.RoutePrefix = "swagger";
+    });
+}
+
+
+// =============================================
 // 🔹 AdmissionAffiliation Path Redirect
 // =============================================
 app.Use(async (context, next) =>
 {
-    var path = context.Request.Path.Value;  
+    var path = context.Request.Path.Value;
 
     if (!string.IsNullOrEmpty(path) && path.StartsWith("/AdmissionAffiliation"))
     {
@@ -451,16 +488,24 @@ app.Use(async (context, next) =>
 // 🔹 Audit & Session Tracking Middlewares
 // =============================================
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
-app.UseMiddleware<SessionTrackingMiddleware>();
+app.UseWhen(ctx => !IsPublicApiPath(ctx.Request.Path), branch =>
+{
+    branch.UseMiddleware<SessionTrackingMiddleware>();
+});
 
 
 // =============================================
 // 🔹 Custom Session Middlewares
 // =============================================
-app.UseMiddleware<Medical_Affiliation.Utilities.AdminSessionMiddleware>();
-app.UseMiddleware<Medical_Affiliation.Utilities.CollegeSessionMiddleware>();
-app.UseMiddleware<Medical_Affiliation.Utilities.SectionOfficerSessionMiddleware>();
-app.UseMiddleware<Medical_Affiliation.Utilities.LicInspectionSessionMiddleware>();
+// Skipped for the public API / Swagger paths (no login or session is needed there;
+// the payment API is protected by its own Basic auth filter instead).
+app.UseWhen(ctx => !IsPublicApiPath(ctx.Request.Path), branch =>
+{
+    branch.UseMiddleware<Medical_Affiliation.Utilities.AdminSessionMiddleware>();
+    branch.UseMiddleware<Medical_Affiliation.Utilities.CollegeSessionMiddleware>();
+    branch.UseMiddleware<Medical_Affiliation.Utilities.SectionOfficerSessionMiddleware>();
+    branch.UseMiddleware<Medical_Affiliation.Utilities.LicInspectionSessionMiddleware>();
+});
 
 app.UseAuthorization();
 
@@ -511,4 +556,11 @@ static bool IsAjaxRequest(HttpRequest request)
     return request.Headers["X-Requested-With"] == "XMLHttpRequest"
         || request.Headers.Accept.Any(h => h != null && h.Contains("application/json"))
         || request.Path.StartsWithSegments("/PaymentDocument");
+}
+
+// Anonymous endpoints that must bypass the login / session middlewares.
+static bool IsPublicApiPath(PathString path)
+{
+    return path.StartsWithSegments("/api/payment-calculation", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase);
 }

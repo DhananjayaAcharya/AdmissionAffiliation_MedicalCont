@@ -28,7 +28,25 @@ namespace Medical_Affiliation.Models
         // H. List of Students appeared for exams during the previous years (dynamic rows)
         public List<StudentExamResultRowVM> ExamResults { get; set; } = new();
     }
-
+    public class FacultyDisplayRowVM
+    {
+        public string? DepartmentCode { get; set; }
+        public string? DepartmentName { get; set; }      // DepartmentMastersForUG
+        public string? Name { get; set; }
+        public string? DesignationCode { get; set; }
+        public string? Designation { get; set; }         // UGDesignationMaster.DesignationName
+        public string? Dob { get; set; }
+        public string? DateOfAppointment { get; set; }
+        public string? AadhaarNo { get; set; }
+        public string? PanNo { get; set; }
+        public string? MobileNo { get; set; }
+        public string? EmailId { get; set; }
+        public string? StateCouncilRegNo { get; set; }
+        public string? AebasAttendId { get; set; }
+        public string? ProfessionalQualification { get; set; }
+        public string? NatureOfEmployment { get; set; }
+        public string? TeachingExpInYrs { get; set; }
+    }
     public class StaffRowVM
     {
         public int SrNo { get; set; }

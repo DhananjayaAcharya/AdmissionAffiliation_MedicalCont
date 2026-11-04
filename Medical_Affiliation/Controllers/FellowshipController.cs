@@ -72,7 +72,6 @@ namespace Medical_Affiliation.Controllers
             ViewBag.CourseList = LoadCourseList(facultyCode, collegeCode);
             pageVm.ExistingRecords = LoadExistingRecords(facultyCode, collegeCode);
         }
-
         // GET
         [HttpGet]
         public IActionResult FellowshipMedical_Details()
@@ -108,17 +107,22 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove("Form.FacultyCode");
             ModelState.Remove("Form.CollegeCode");
 
-            // Fields that are OPTIONAL on this form (PG row, previous-experience college)
-            // or that have no input on this page at all (programme opening / ending date).
-            // With <Nullable>enable</Nullable>, non-nullable string properties get an
-            // implicit [Required] from MVC, which silently blocks the save when the user
-            // leaves them blank. Clear those binder errors so only real rules apply.
+                // Fields that are OPTIONAL on this form (PG row, previous-experience college,
+                // candidate registered number) or that have no input on this page at all
+                // (programme opening / ending date). With <Nullable>enable</Nullable>,
+                // non-nullable string properties get an implicit [Required] from MVC, and
+                // some of them also carry an explicit [Required] in the view-model, which
+                // silently blocks the save when the user leaves them blank.
+                // Clear those binder errors so only the real rules apply.
             ModelState.Remove("Form.PG_Degree");
             ModelState.Remove("Form.PG_UniversityCollegeName");
             ModelState.Remove("Form.PG_YearOfPassing");
             ModelState.Remove("Form.ExperienceCollege");
             ModelState.Remove("Form.Admission_openingDate");
             ModelState.Remove("Form.EndingDate");
+            ModelState.Remove("Form.CandidateRegisteredNumber");
+            ModelState.Remove("Form.ExistingRecords");
+            ModelState.Remove("ExistingRecords");
 
             if (!ModelState.IsValid)
             {
@@ -139,11 +143,12 @@ namespace Medical_Affiliation.Controllers
             // Track every file actually written to disk so we can clean them up if
             // the DB save fails partway through - otherwise a failed save still
             // leaves orphaned documents behind on the D: drive.
+           
             var writtenPaths = new List<string>();
 
             try
             {
-                var generatedFellowshipCode = GenerateFellowshipCode(vm.Course);
+                var generatedFellowshipCode = GenerateFellowshipCode(vm.Course);    
 
                 var (sslcPath, sslcGuid) = SaveDocumentToCollegeFolder(ssLC_Doc, safeCollegeCode, "SSLC", writtenPaths);
                 var (kmcPath, kmcGuid) = SaveDocumentToCollegeFolder(kmc_Doc, safeCollegeCode, "KMC", writtenPaths);
@@ -183,7 +188,9 @@ namespace Medical_Affiliation.Controllers
                     ContactNumber = vm.ContactNumber,
                     Email = vm.Email,
                     Nationality = vm.Nationality,
-                    CandidateRegisteredNumber = vm.CandidateRegisteredNumber,
+                    // There is no input for this on the page any more, so it arrives as null.
+                    // An empty string keeps the save safe even if the column is NOT NULL.
+                    CandidateRegisteredNumber = vm.CandidateRegisteredNumber ?? string.Empty,
                     ExperienceCollege = vm.ExperienceCollege,
 
                     // ---- UG row ----

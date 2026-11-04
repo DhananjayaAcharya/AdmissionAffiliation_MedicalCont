@@ -38,4 +38,6 @@ public partial class AffDeanTeachingExperience
     public DateOnly? ToDate { get; set; }
 
     public string? ExpCollegeCode { get; set; }
+
+    public virtual AffDeanOrDirectorDetail? Dean { get; set; }
 }

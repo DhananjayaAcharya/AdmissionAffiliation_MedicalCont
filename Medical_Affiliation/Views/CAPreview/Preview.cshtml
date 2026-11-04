@@ -51,7 +51,6 @@
             ORDER BY Id DESC").FirstOrDefaultAsync();
     }
 
-    // Annual MBBS intake: UG uses Intake_26_27 (same source as Section 10)
     int? slAnnualMbbsIntake = skillsLab?.AnnualMbbsIntake;
     if (isUgPreview && !string.IsNullOrWhiteSpace(previewCollegeCode) && !string.IsNullOrWhiteSpace(slFacultyCode))
     {
@@ -65,439 +64,442 @@
             ORDER BY SLNO DESC").FirstOrDefaultAsync();
     }
 
-    // ---- Section 12: Associated Institutions (from dbo.AssociatedInstitutions, by college code) ----
-    // If your connection string does not point at Admission_Affiliation, use
-    // [Admission_Affiliation].[dbo].[AssociatedInstitutions] in the FROM clause.
+    // ---- Section 12: Associated Institutions ----
     List<AssociatedInstitutionRow> associatedInstitutions = new();
     if (!string.IsNullOrWhiteSpace(previewCollegeCode))
     {
         associatedInstitutions = await _context.Database.SqlQuery<AssociatedInstitutionRow>($@"
-            SELECT Id,
-                   CAST(TypeOfAffiliation AS varchar(100))      AS TypeOfAffiliation,
-                   CAST(CollegeCode AS varchar(50))             AS CollegeCode,
-                   CAST(AssociatedCollegeCode AS varchar(50))   AS AssociatedCollegeCode,
-                   CAST(AssociatedFacultyCode AS varchar(50))   AS AssociatedFacultyCode,
-                   CAST(FacultyCode AS varchar(50))             AS FacultyCode,
-                   CAST(CourseCode AS varchar(50))              AS CourseCode,
-                   CAST(CourseName AS varchar(300))             AS CourseName,
-                   CAST(CourseLevel AS varchar(50))             AS CourseLevel,
-                   AnnualIntake,
-                   CreatedOn
-            FROM dbo.AssociatedInstitutions
-            WHERE LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = {previewCollegeCode}
-            ORDER BY AssociatedCollegeCode, CourseName").ToListAsync();
+        SELECT a.Id,
+               CAST(a.TypeOfAffiliation AS varchar(100))      AS TypeOfAffiliation,
+               CAST(a.CollegeCode AS varchar(50))             AS CollegeCode,
+               CAST(a.AssociatedCollegeCode AS varchar(50))   AS AssociatedCollegeCode,
+               CAST(cm.CollegeName AS varchar(300))           AS AssociatedCollegeName,
+               CAST(a.AssociatedFacultyCode AS varchar(50))   AS AssociatedFacultyCode,
+               CAST(a.FacultyCode AS varchar(50))             AS FacultyCode,
+               CAST(a.CourseCode AS varchar(50))              AS CourseCode,
+               CAST(COALESCE(NULLIF(LTRIM(RTRIM(mc.CourseName)), ''), a.CourseName) AS varchar(300)) AS CourseName,
+               CAST(a.CourseLevel AS varchar(50))             AS CourseLevel,
+               a.AnnualIntake,
+               a.CreatedOn
+        FROM dbo.AssociatedInstitutions a
+        OUTER APPLY (
+            SELECT TOP (1) m.CollegeName
+            FROM [Admission_Affiliation].[dbo].[Affiliation_College_Master] m
+            WHERE LTRIM(RTRIM(CAST(m.CollegeCode AS varchar(50)))) = LTRIM(RTRIM(CAST(a.AssociatedCollegeCode AS varchar(50))))
+            ORDER BY CASE WHEN LTRIM(RTRIM(CAST(m.FacultyCode AS varchar(50)))) = LTRIM(RTRIM(CAST(a.AssociatedFacultyCode AS varchar(50)))) THEN 0 ELSE 1 END
+        ) cm
+        OUTER APPLY (
+            SELECT TOP (1) c.CourseName
+            FROM [Admission_Affiliation].[dbo].[Mst_Course] c
+            WHERE LTRIM(RTRIM(CAST(c.CourseCode AS varchar(50)))) = LTRIM(RTRIM(CAST(a.CourseCode AS varchar(50))))
+            ORDER BY CASE WHEN LTRIM(RTRIM(CAST(c.FacultyCode AS varchar(50)))) = LTRIM(RTRIM(CAST(a.AssociatedFacultyCode AS varchar(50)))) THEN 0 ELSE 1 END
+        ) mc
+        WHERE LTRIM(RTRIM(CAST(a.CollegeCode AS varchar(50)))) = {previewCollegeCode}
+        ORDER BY a.AssociatedCollegeCode, a.CourseName").ToListAsync();
     }
 
-    // ---- Section 17: Vehicle Registration & Documents (loaded in CAPreviewController.LoadVehicleDocsAsync) ----
     var vehicleDocs = ViewBag.VehicleDocs as List<VehicleDocRow> ?? new List<VehicleDocRow>();
-
-    // ---- Section 13B: Outpatient Area (loaded in CAPreviewController.LoadOutpatientAreaAsync,
-    //      source: IndoorInfrastructureRequirementsCompliance WHERE SectionCode = 15) ----
     var outpatientRows = ViewBag.OutpatientArea as List<OutpatientAreaRow> ?? new List<OutpatientAreaRow>();
+    var pgSections = ViewBag.PgSections as List<PgSectionGroup> ?? new List<PgSectionGroup>();
+    var pgCourseTables = ViewBag.PgCourseAffiliation as List<PgSectionTable> ?? new List<PgSectionTable>();
+    var pgAcademicTable = ViewBag.PgAcademicPerformance as PgSectionTable ?? new PgSectionTable();
 
     string Yn(bool? v) => v.HasValue ? (v.Value ? "Yes" : "No") : "—";
     string Num(int? v) => v.HasValue ? v.Value.ToString() : "—";
     string Dec(decimal? v) => v.HasValue ? v.Value.ToString("N2") : "—";
+
+    var completionPct = Math.Max(0, Math.Min(100, (int)Model.CompletionPercentage));
 }
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
-    /* ==========================================================
-                           Palette shared with the continuous-affiliation shell:
-                           gradient  #173d56 -> #176b87 -> #25859a
-                           accent    #dcae3f -> #f1d27a -> #dcae3f
-                           body bg   #eef3f8
-                           fonts     EB Garamond (display) / DM Sans (body)
-                           ========================================================== */
     :root {
-        --ink: #1d2b3a;
-        --navy-deep: #173d56;
-        --navy: #176b87;
-        --navy-light: #25859a;
-        --navy-soft: #e7f3f5;
-        --gold: #dcae3f;
-        --gold-soft: #f1d27a;
-        --gold-ink: #765b18;
-        --paper: #eef3f8;
-        --surface: #ffffff;
-        --border: #d6e0ea;
-        --border-soft: #e8eef3;
-        --muted: #647386;
-        --danger: #a83232;
-        --card-shadow: 0 8px 24px rgba(29, 55, 79, 0.08);
-        --header-shadow: 0 10px 30px rgba(23, 61, 86, 0.22);
-        --font-serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
-        --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --ink: #1f2937;
+        --navy-deep: #1f2937;
+        --navy: #374151;
+        --navy-light: #6b7280;
+        --navy-soft: #f3f4f6;
+        --gold: #9ca3af;
+        --gold-soft: #d1d5db;
+        --gold-ink: #4b5563;
+        --paper: #f3f4f6;
+        --surface: #fff;
+        --border: #e5e7eb;
+        --border-soft: #eceef1;
+        --muted: #6b7280;
+        --ok: #1e6b3a;
+        --shadow: 0 1px 2px rgba(17,24,39,.05), 0 6px 18px rgba(17,24,39,.05);
+        --font-serif: 'EB Garamond', Georgia, serif;
+        --font-sans: 'DM Sans', -apple-system, 'Segoe UI', sans-serif;
+        --pad: clamp(.8rem, 2.2vw, 1.3rem);
     }
 
-    /* ========================= */
-    /* PAGE SHELL */
-    /* ========================= */
-    .affiliation-page-container {
-        background: transparent;
-        min-height: 100vh;
-        padding: 0 0 1rem;
+    .pv-page {
         font-family: var(--font-sans);
         color: var(--ink);
+        padding-bottom: 1.5rem;
     }
 
-        .affiliation-page-container > .container-fluid {
-            max-width: 1360px;
+        .pv-page > .container-fluid {
+            max-width: 1200px;
+            padding-left: var(--pad);
+            padding-right: var(--pad);
         }
 
-    /* ========================= */
-    /* HEADER */
-    /* ========================= */
-    .affiliation-header-wrapper {
-        background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
-        border: 0;
-        border-radius: 14px;
-        box-shadow: var(--header-shadow);
-        color: #fff;
-        margin-bottom: 1rem;
-        overflow: hidden;
-        padding: 1.85rem 2.1rem;
+        .pv-page *, .pv-page *::before, .pv-page *::after {
+            box-sizing: border-box;
+        }
+
+    /* ---------- Hero ---------- */
+    .pv-hero {
         position: relative;
+        background: linear-gradient(120deg, var(--navy-deep), var(--navy) 55%, var(--navy-light));
+        color: #fff;
+        border-radius: 16px;
+        padding: clamp(1.1rem, 3vw, 1.7rem);
+        margin-bottom: 1rem;
+        box-shadow: 0 12px 32px rgba(18,51,73,.22);
+        overflow: hidden;
     }
 
-        .affiliation-header-wrapper::before {
+        .pv-hero::before {
             content: "";
             position: absolute;
             inset: 0 0 auto 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-soft) 45%, var(--gold) 100%);
+            background: linear-gradient(90deg, var(--gold), var(--gold-soft), var(--gold));
         }
 
-    .affiliation-header-content {
+    .pv-hero-top {
         display: flex;
-        flex-direction: column;
-        gap: 1.1rem;
-    }
-
-    .affiliation-header-top {
-        display: flex;
-        align-items: flex-start;
+        gap: 1rem 1.5rem;
         justify-content: space-between;
-        gap: 1.75rem;
+        align-items: flex-start;
         flex-wrap: wrap;
     }
 
-    .affiliation-header-primary {
-        min-width: 0;
+    .pv-hero-main {
         flex: 1 1 320px;
+        min-width: 0;
     }
 
-    .affiliation-header-actions {
-        flex-shrink: 0;
-        padding-top: 0.15rem;
+    .pv-kicker {
+        color: var(--gold-soft);
+        font-size: .8rem;
+        font-weight: 600;
+        margin-bottom: .45rem;
+        display: flex;
+        gap: .4rem;
+        align-items: center;
+    }
+
+    .pv-title {
+        font-family: var(--font-serif);
+        font-size: clamp(1.35rem, 4vw, 2rem);
+        font-weight: 600;
+        line-height: 1.2;
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .pv-sub {
+        color: rgba(255,255,255,.78);
+        font-size: .85rem;
+        margin-top: .4rem;
+        max-width: 70ch;
+    }
+
+    .pv-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+        margin-top: 1rem;
+    }
+
+    .pv-chip {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 999px;
+        padding: .3rem .75rem;
+        font-size: .8rem;
+        display: inline-flex;
+        gap: .4rem;
+        align-items: baseline;
+        max-width: 100%;
+    }
+
+        .pv-chip small {
+            color: rgba(255,255,255,.68);
+            font-size: .72rem;
+        }
+
+        .pv-chip b {
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+    .pv-progress {
+        margin-top: 1rem;
+        max-width: 520px;
+    }
+
+    .pv-progress-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: .78rem;
+        color: rgba(255,255,255,.85);
+        margin-bottom: .3rem;
+    }
+
+    .pv-progress-track {
+        height: 6px;
+        background: rgba(255,255,255,.22);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .pv-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+        border-radius: 999px;
     }
 
     .submit-application-btn {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        background: linear-gradient(135deg, var(--gold-soft) 0%, var(--gold) 100%);
+        justify-content: center;
+        gap: .5rem;
+        background: linear-gradient(135deg, var(--gold-soft), var(--gold));
         border: 1px solid var(--gold);
-        border-radius: 8px;
-        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+        border-radius: 10px;
         color: var(--navy-deep);
-        font-size: 0.85rem;
+        font-size: .86rem;
         font-weight: 700;
-        padding: 0.65rem 1.2rem;
-        white-space: nowrap;
-        transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        padding: .65rem 1.2rem;
+        box-shadow: 0 8px 18px rgba(0,0,0,.18);
     }
 
-        .submit-application-btn:disabled {
-            background: #d5dde5;
-            border-color: #c3ced8;
-            box-shadow: none;
-            color: #647386;
-            cursor: not-allowed;
-            opacity: .85;
-            transform: none;
-        }
-
-        .submit-application-btn:hover {
-            background: linear-gradient(135deg, #fff 0%, var(--gold-soft) 100%);
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
-            transform: translateY(-1px);
-        }
-
-        .submit-application-btn i {
-            font-size: 0.95rem;
-        }
-
-    .affiliation-badge {
+    .readonly-status {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(241, 210, 122, 0.55);
-        color: #f1d27a;
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
-        padding: 0.35rem 0.75rem;
-        border-radius: 999px;
-        margin-bottom: 0.9rem;
-    }
-
-    .affiliation-title {
-        font-family: var(--font-serif);
-        font-weight: 600;
-        font-size: clamp(1.5rem, 2.4vw, 2.05rem);
-        line-height: 1.25;
-        margin: 0;
-        max-width: 34ch;
-        overflow-wrap: break-word;
-    }
-
-    .affiliation-subtitle {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.85rem;
-        margin-top: 0.45rem;
-    }
-
-    .affiliation-meta {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 0.6rem;
-    }
-
-    .meta-item {
-        background: rgba(4, 20, 39, 0.22);
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        border-left: 2px solid var(--gold-soft);
-        border-radius: 6px;
-        padding: 0.65rem 0.85rem;
-        min-width: 0;
-    }
-
-    .meta-label {
-        color: rgba(255, 255, 255, 0.65);
-        font-size: 0.68rem;
-        font-weight: 500;
-        letter-spacing: 0.02em;
-        margin-bottom: 0.2rem;
-    }
-
-    .meta-value {
+        gap: .4rem;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.4);
+        border-radius: 10px;
         color: #fff;
-        font-weight: 600;
-        font-size: 0.92rem;
-        white-space: nowrap;
+        font-size: .82rem;
+        font-weight: 700;
+        padding: .6rem .9rem;
+        text-decoration: none;
+    }
+
+        .readonly-status:hover {
+            background: rgba(255,255,255,.24);
+            color: #fff;
+        }
+
+    /* ---------- Re-upload ---------- */
+    .reupload-highlight {
+        background: #fffaf0;
+        border: 1px solid #ecd48a;
+        border-left: 5px solid var(--gold);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        margin-bottom: 1rem;
         overflow: hidden;
-        text-overflow: ellipsis;
     }
 
-    /* ========================= */
-    /* BREADCRUMB */
-    /* ========================= */
-    .breadcrumb-wrapper {
-        background: transparent;
-        border: 0;
-        border-bottom: 1px solid var(--border);
-        border-radius: 0;
-        margin-bottom: 1.1rem;
-        padding: 0.25rem 0 0.75rem;
-    }
-
-    .breadcrumb-custom {
-        margin: 0;
-        background: transparent;
-        font-size: 0.82rem;
-    }
-
-        .breadcrumb-custom .breadcrumb-item a {
-            color: var(--navy-light);
-            font-weight: 500;
-            text-decoration: none;
-        }
-
-            .breadcrumb-custom .breadcrumb-item a:hover {
-                text-decoration: underline;
-            }
-
-        .breadcrumb-custom .breadcrumb-item.active {
-            color: var(--muted);
-        }
-
-        .breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
-            color: #b7c2cd;
-        }
-
-    /* ========================= */
-    /* INFO ALERT */
-    /* ========================= */
-    .info-alert {
+    .reupload-header {
         display: flex;
-        align-items: flex-start;
-        gap: 0.9rem;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-left: 4px solid var(--gold);
-        border-radius: 12px;
-        box-shadow: var(--card-shadow);
-        padding: 0.95rem 1.2rem;
-        margin-bottom: 1.15rem;
+        align-items: center;
+        gap: .6rem;
+        background: linear-gradient(90deg, rgba(18,51,73,.06), rgba(220,174,63,.16));
+        border-bottom: 1px solid rgba(220,174,63,.35);
+        color: var(--navy-deep);
+        font-size: .92rem;
+        font-weight: 700;
+        padding: .7rem 1rem;
     }
 
-        .info-alert i {
+        .reupload-header i {
             color: var(--gold-ink);
-            font-size: 1.2rem;
-            margin-top: 0.1rem;
         }
 
-    .info-alert-content {
-        flex: 1;
+    .reupload-body {
+        padding: 1rem;
     }
 
-    .info-alert-title {
+        .reupload-body p {
+            font-size: .9rem;
+            font-weight: 500;
+            margin: 0 0 .8rem;
+        }
+
+    .reupload-form {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        flex-wrap: wrap;
+    }
+
+        .reupload-form .form-control {
+            flex: 1 1 260px;
+            min-width: 0;
+            border-color: #d7b861;
+        }
+
+    .reupload-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+        background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+        border: 1px solid #c99828;
+        border-radius: 10px;
+        color: var(--navy-deep);
         font-weight: 700;
-        color: var(--navy);
-        font-size: 0.9rem;
-        margin-bottom: 0.15rem;
+        padding: .62rem 1rem;
+        cursor: pointer;
     }
 
-    .info-alert-text {
-        color: var(--muted);
-        font-size: 0.85rem;
-        line-height: 1.55;
-        margin: 0;
-    }
-
-    /* ========================= */
-    /* TAB DIRECTORY */
-    /* ========================= */
-    .preview-tab-directory {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.85rem;
-        margin-bottom: 1.4rem;
-    }
-
-    .preview-tab-group {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: var(--card-shadow);
-    }
-
-    .preview-tab-group-title {
-        background: var(--navy-soft);
-        border-bottom: 1px solid var(--border);
-        color: var(--navy);
-        font-size: 0.76rem;
-        font-weight: 700;
-        letter-spacing: 0.01em;
-        margin: 0;
-        padding: 0.65rem 0.85rem;
-    }
-
-    .preview-tab-list {
-        display: grid;
-    }
-
-    .preview-tab-row {
+    /* ---------- Toolbar ---------- */
+    .pv-toolbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 0.75rem;
-        background: var(--surface);
-        border: 0;
-        border-bottom: 1px solid var(--border-soft);
-        border-radius: 0;
-        padding: 0.55rem 0.85rem;
-        transition: background 0.15s ease;
+        gap: .6rem;
+        flex-wrap: wrap;
+        margin-bottom: .8rem;
     }
 
-        .preview-tab-row:last-child {
-            border-bottom: 0;
-        }
+    .pv-toolbar-title {
+        font-family: var(--font-serif);
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--navy-deep);
+        margin: 0;
+    }
 
-        .preview-tab-row:hover {
+    .pv-toolbar-actions {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+    }
+
+    .pv-btn {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--navy-deep);
+        font-size: .8rem;
+        font-weight: 600;
+        padding: .45rem .85rem;
+        cursor: pointer;
+        display: inline-flex;
+        gap: .35rem;
+        align-items: center;
+    }
+
+        .pv-btn:hover {
+            border-color: var(--navy);
             background: var(--navy-soft);
         }
 
-        .preview-tab-row span {
-            color: var(--navy);
-            cursor: pointer;
-            font-size: 0.83rem;
-            font-weight: 500;
-            line-height: 1.35;
-        }
+    /* ---------- Section cards (collapsible) ---------- */
+    .pv-layout {
+        display: block;
+    }
 
-            .preview-tab-row span:hover {
-                color: var(--navy-light);
-                text-decoration: underline;
-                text-decoration-thickness: 1px;
-                text-underline-offset: 3px;
-            }
-
-        .preview-tab-row a {
-            flex-shrink: 0;
-            background: transparent;
-            border: 1px solid var(--navy);
-            border-radius: 6px;
-            color: var(--navy);
-            font-size: 0.72rem;
-            font-weight: 600;
-            padding: 0.3rem 0.6rem;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-            .preview-tab-row a:hover {
-                background: var(--navy);
-                color: #fff;
-            }
-
-    /* ========================= */
-    /* REPORT SECTIONS */
-    /* ========================= */
     .preview-report {
         display: grid;
-        gap: 0.9rem;
+        gap: .8rem;
+        min-width: 0;
     }
 
     .preview-report-section {
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 12px;
-        box-shadow: var(--card-shadow);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
         overflow: hidden;
-        scroll-margin-top: 20px;
+        min-width: 0;
+        scroll-margin-top: 12px;
     }
 
     .preview-report-heading {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
-        background: var(--navy-soft);
-        border-bottom: 1px solid var(--border);
-        color: var(--navy);
-        font-family: var(--font-serif);
-        font-size: 1.05rem;
-        font-weight: 600;
+        gap: .6rem;
         margin: 0;
-        padding: 0.8rem 1.1rem;
+        padding: .75rem 1rem;
+        background: linear-gradient(180deg, #f8fbfc, var(--navy-soft));
+        border-bottom: 1px solid var(--border);
+        color: var(--navy-deep);
+        font-family: var(--font-serif);
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+    }
+
+        .preview-report-heading > span:first-of-type {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            overflow-wrap: anywhere;
+        }
+
+    .pv-no {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.1rem;
+        height: 1.7rem;
+        padding: 0 .45rem;
+        border-radius: 8px;
+        background: var(--navy);
+        color: #fff;
+        font-family: var(--font-sans);
+        font-size: .76rem;
+        font-weight: 700;
+    }
+
+    .pv-chev {
+        flex: none;
+        color: var(--muted);
+        transition: transform .2s;
+    }
+
+    .preview-report-section.collapsed .pv-chev {
+        transform: rotate(-90deg);
+    }
+
+    .preview-report-section.collapsed .preview-report-body {
+        display: none;
+    }
+
+    .preview-report-section.collapsed .preview-report-heading {
+        border-bottom: 0;
     }
 
     .preview-report-edit {
-        flex: 0 0 auto;
+        flex: none;
         background: #fff;
         border: 1px solid var(--navy);
-        border-radius: 6px;
+        border-radius: 8px;
         color: var(--navy);
         font-family: var(--font-sans);
-        font-size: 0.72rem;
+        font-size: .75rem;
         font-weight: 700;
-        padding: 0.3rem 0.65rem;
+        padding: .3rem .7rem;
         text-decoration: none;
+        white-space: nowrap;
     }
 
         .preview-report-edit:hover {
@@ -505,90 +507,17 @@
             color: #fff;
         }
 
-    /* After submission: hide only the Edit links and the Submit button.
-                   The Principal Seal & Signature re-upload block is NOT affected and
-                   stays visible and enabled at all times. */
-    /* After submission: hide only the Edit links and the main Submit button.
-                   The Principal Seal & Signature re-upload block is NOT affected and
-                   stays visible and enabled at all times. */
-    .application-readonly .preview-report-edit,
-    .application-readonly .preview-tab-row a,
-    .application-readonly .submit-application-btn {
+    .application-readonly .preview-report-edit, .application-readonly .submit-application-btn {
         display: none;
     }
 
-    /* Principal Seal & Signature Re-upload: always visible and always enabled,
-                   before AND after the application is submitted. */
-    #SealReupload {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        height: auto !important;
-        max-height: none !important;
-        position: static !important;
-    }
-
-        #SealReupload .reupload-body {
-            display: block !important;
-            visibility: visible !important;
-        }
-
-        #SealReupload .reupload-form {
-            display: flex !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
-        }
-
-            #SealReupload .reupload-form .form-control {
-                display: block !important;
-                visibility: visible !important;
-                pointer-events: auto !important;
-                opacity: 1 !important;
-            }
-
-            #SealReupload .reupload-form .reupload-btn {
-                display: inline-flex !important;
-                visibility: visible !important;
-                pointer-events: auto !important;
-                opacity: 1 !important;
-                cursor: pointer;
-            }
-
-    .readonly-status {
-        display: inline-flex;
-        align-items: center;
-        gap: .4rem;
-        background: rgba(255, 255, 255, .14);
-        border: 1px solid rgba(255, 255, 255, .35);
-        border-radius: 8px;
-        color: #fff;
-        font-size: .8rem;
-        font-weight: 700;
-        padding: .6rem .85rem;
-    }
-
-    .preview-report-heading span {
-        display: flex;
-        align-items: center;
-        flex: 1;
-    }
-
-        .preview-report-heading span::before {
-            content: "";
-            display: inline-block;
-            width: 3px;
-            height: 1.05rem;
-            background: var(--gold);
-            margin-right: 0.65rem;
-            border-radius: 2px;
-        }
-
     .preview-report-body {
-        padding: 1.15rem 1.25rem;
+        padding: var(--pad);
+        max-width: 100%;
+        overflow-x: auto;
     }
 
-        .preview-report-body .general-section,
-        .preview-report-body .general-body {
+        .preview-report-body .general-section, .preview-report-body .general-body, .preview-report-body .section-block {
             border: 0;
             margin: 0;
             padding: 0;
@@ -598,96 +527,134 @@
             display: none;
         }
 
-        .preview-report-body .section-block {
-            border: 0;
-            margin: 0;
+        .preview-report-body h5.fw-bold {
+            font-family: var(--font-serif);
+            color: var(--navy);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: .55rem;
         }
 
-        .preview-report-body .section-header-block {
-            margin-top: 0.3rem;
-        }
-
-        .preview-report-body .empty-state {
-            padding: 0.9rem 0;
+        .preview-report-body img {
+            max-width: 100%;
+            height: auto;
         }
 
     .empty-state {
         color: var(--muted);
-        font-size: 0.85rem;
-        font-style: italic;
-        padding: 0.5rem 0;
+        font-size: .87rem;
+        padding: .4rem 0;
     }
 
-    /* ========================= */
-    /* DATA TABLES */
-    /* ========================= */
+    /* ---------- Horizontal scroll ---------- */
+    .scroll-x, .table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #9db8c6 #eef3f7;
+        border-radius: 10px;
+    }
+
+        .scroll-x::-webkit-scrollbar, .table-responsive::-webkit-scrollbar, .preview-report-body::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .scroll-x::-webkit-scrollbar-track, .table-responsive::-webkit-scrollbar-track, .preview-report-body::-webkit-scrollbar-track {
+            background: #eef3f7;
+            border-radius: 999px;
+        }
+
+        .scroll-x::-webkit-scrollbar-thumb, .table-responsive::-webkit-scrollbar-thumb, .preview-report-body::-webkit-scrollbar-thumb {
+            background: #9db8c6;
+            border-radius: 999px;
+        }
+
+    /* ---------- Tables ---------- */
     .data-table {
+        width: 100%;
         border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        overflow: hidden;
-        font-size: 0.87rem;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: .87rem;
+        margin: 0;
     }
 
-        .data-table th,
-        .data-table td {
-            padding: 0.55rem 0.85rem;
+        .data-table th, .data-table td {
+            padding: .55rem .8rem;
             vertical-align: middle;
-            border-color: var(--border-soft) !important;
+            border-bottom: 1px solid var(--border-soft) !important;
+            border-top: 0 !important;
+        }
+
+        .data-table tbody tr:last-child > * {
+            border-bottom: 0 !important;
         }
 
         .data-table tbody th {
             background: var(--navy-soft);
-            color: var(--navy);
+            color: var(--navy-deep);
             font-weight: 600;
             width: 30%;
-            white-space: nowrap;
-        }
-
-        .data-table tbody td {
-            color: var(--ink);
+            min-width: 170px;
         }
 
         .data-table thead th {
             background: var(--navy);
             color: #fff;
-            font-weight: 700;
-            font-size: 0.78rem;
-            letter-spacing: 0.02em;
-            border-bottom: 1px solid var(--navy-deep);
+            font-weight: 600;
+            font-size: .8rem;
+            white-space: nowrap;
         }
 
-    .preview-report-body h5.fw-bold {
-        font-family: var(--font-serif);
-        color: var(--navy);
-        font-size: 0.98rem;
-        font-weight: 600;
-        margin-bottom: 0.6rem;
-    }
+        .data-table tbody tr:nth-child(even) td {
+            background: #fafcfd;
+        }
 
-    /* Section 17 - document availability badges */
+        .data-table.wide {
+            min-width: max-content;
+        }
+
+            .data-table.wide td, .data-table.wide thead th {
+                white-space: nowrap;
+            }
+
+                .data-table.wide td.wrap {
+                    white-space: normal;
+                    min-width: 240px;
+                }
+                /* first column stays visible while a wide table scrolls */
+                .data-table.wide tbody td:first-child, .data-table.wide thead th:first-child {
+                    position: sticky;
+                    left: 0;
+                    z-index: 1;
+                }
+
+            .data-table.wide tbody td:first-child {
+                background: #fff;
+            }
+
+            .data-table.wide thead th:first-child {
+                background: var(--navy-deep);
+            }
+
     .doc-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.3rem;
+        gap: .3rem;
         border-radius: 999px;
-        font-size: 0.76rem;
+        font-size: .76rem;
         font-weight: 600;
-        padding: 0.18rem 0.7rem;
-        text-decoration: none;
+        padding: .18rem .7rem;
         white-space: nowrap;
     }
 
     .doc-badge-yes {
         background: #e6f4ea;
         border: 1px solid #b7dfc2;
-        color: #1e6b3a;
+        color: var(--ok);
     }
-
-        .doc-badge-yes:hover {
-            background: #1e6b3a;
-            color: #fff;
-            text-decoration: none;
-        }
 
     .doc-badge-no {
         background: #f3f5f7;
@@ -695,104 +662,102 @@
         color: var(--muted);
     }
 
-    /* ========================= */
-    /* CONSENT MODAL */
-    /* ========================= */
+    .page-actions {
+        margin-top: 1.1rem;
+    }
+
+        .page-actions .btn-secondary {
+            background: var(--surface);
+            border: 1px solid var(--navy);
+            color: var(--navy);
+            font-weight: 600;
+            font-size: .85rem;
+            padding: .55rem 1.3rem;
+            border-radius: 10px;
+        }
+
+            .page-actions .btn-secondary:hover {
+                background: var(--navy);
+                color: #fff;
+            }
+
+    /* ---------- Consent modal ---------- */
     .consent-modal .modal-dialog {
         max-width: 580px;
     }
 
     .consent-modal .modal-content {
         border: 0;
-        border-radius: 14px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 24px 60px rgba(9, 40, 78, 0.28);
+        box-shadow: 0 24px 60px rgba(9,40,78,.28);
     }
 
     .consent-modal .modal-header {
-        background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
+        background: linear-gradient(120deg, var(--navy-deep), var(--navy), var(--navy-light));
         border-bottom: 3px solid var(--gold-soft);
         color: #fff;
         align-items: flex-start;
-        padding: 1.3rem 1.5rem;
-        position: relative;
+        padding: 1.1rem 1.4rem;
     }
 
     .consent-modal-eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
         color: #ffe27a;
-        font-size: 0.68rem;
+        font-size: .75rem;
         font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin-bottom: 0.4rem;
+        margin-bottom: .35rem;
+        display: flex;
+        gap: .4rem;
+        align-items: center;
     }
 
     .consent-modal .modal-title {
         font-family: var(--font-serif);
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         font-weight: 600;
         margin: 0;
     }
 
     .consent-modal .btn-close {
         filter: invert(1);
-        margin-top: 0.2rem;
     }
 
     .consent-body {
-        padding: 1.4rem 1.6rem 1.6rem;
+        padding: 1.3rem 1.5rem 1.5rem;
     }
 
         .consent-body p {
             color: var(--muted);
-            font-size: 0.87rem;
+            font-size: .88rem;
             line-height: 1.65;
-            margin-bottom: 1.1rem;
+            margin-bottom: 1rem;
         }
 
             .consent-body p strong {
-                color: var(--navy);
-                font-weight: 700;
+                color: var(--navy-deep);
             }
 
     .preview-caution {
         display: flex;
-        align-items: flex-start;
-        gap: 0.6rem;
+        gap: .6rem;
         background: #fff8e6;
         border: 1px solid #f3dfa0;
         border-left: 4px solid var(--gold);
-        border-radius: 8px;
+        border-radius: 10px;
         color: var(--gold-ink);
-        font-size: 0.82rem;
-        font-weight: 500;
+        font-size: .83rem;
         line-height: 1.5;
-        margin-bottom: 1.25rem;
-        padding: 0.75rem 1.1rem;
+        margin-bottom: 1.1rem;
+        padding: .75rem 1rem;
     }
-
-        .preview-caution i {
-            color: var(--gold-ink);
-            font-size: 1rem;
-            flex-shrink: 0;
-            margin-top: 0.15rem;
-        }
-
-        .preview-caution strong {
-            color: var(--gold-ink);
-            font-weight: 700;
-        }
 
     .consent-body .form-check {
         display: flex;
         align-items: center;
-        gap: 0.55rem;
+        gap: .55rem;
         border-top: 1px solid var(--border-soft);
         padding-top: 1rem;
-        margin-top: 0.2rem;
+        padding-left: 0;
     }
 
     .consent-body .form-check-input {
@@ -802,389 +767,469 @@
         height: 1.25rem;
         margin: 0;
         border: 1.75px solid #8a96a3;
-        border-radius: 4px;
-        background-color: #fff;
+        border-radius: 5px;
+        background: #fff;
         cursor: pointer;
         position: relative;
-        flex-shrink: 0;
-        transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        flex: none;
+        float: none;
     }
 
-        .consent-body .form-check-input:hover {
-            border-color: var(--navy-light);
-        }
-
-        .consent-body .form-check-input:focus-visible {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(14, 87, 173, 0.22);
-        }
-
         .consent-body .form-check-input:checked {
-            background-color: var(--navy);
+            background: var(--navy);
             border-color: var(--navy);
-            box-shadow: 0 2px 6px rgba(13, 74, 148, 0.28);
         }
 
             .consent-body .form-check-input:checked::after {
                 content: "";
                 position: absolute;
-                left: 0.36rem;
-                top: 0.16rem;
-                width: 0.32rem;
-                height: 0.62rem;
-                border: solid #ffffff;
+                left: .36rem;
+                top: .14rem;
+                width: .32rem;
+                height: .62rem;
+                border: solid #fff;
                 border-width: 0 2px 2px 0;
                 transform: rotate(40deg);
             }
 
     .consent-body .form-check-label {
-        color: var(--ink);
-        font-size: 0.87rem;
+        font-size: .88rem;
         font-weight: 500;
         cursor: pointer;
-        transition: color 0.15s ease;
-    }
-
-    .consent-body .form-check-input:checked + .form-check-label {
-        color: var(--navy);
-        font-weight: 600;
     }
 
     .consent-body .pdf-action {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.45rem;
+        gap: .45rem;
         width: 100%;
-        background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
-        border: 1px solid var(--navy-deep);
-        border-radius: 8px;
-        box-shadow: 0 8px 18px rgba(13, 74, 148, 0.28);
+        background: linear-gradient(120deg, var(--navy-deep), var(--navy), var(--navy-light));
+        border: 0;
+        border-radius: 10px;
         color: #fff;
-        font-size: 0.88rem;
+        font-size: .9rem;
         font-weight: 700;
-        padding: 0.75rem 1.05rem;
+        padding: .75rem 1rem;
         margin-top: 1.1rem;
         cursor: pointer;
-        transition: filter 0.15s ease, opacity 0.15s ease;
     }
-
-        .consent-body .pdf-action:hover:not(:disabled) {
-            filter: brightness(1.08);
-        }
 
         .consent-body .pdf-action:disabled {
             background: #c3cdd6;
-            border-color: #c3cdd6;
-            box-shadow: none;
             cursor: not-allowed;
-            opacity: 0.85;
         }
 
     .consent-body .pdf-hint {
         color: var(--muted);
-        font-size: 0.74rem;
+        font-size: .76rem;
         text-align: center;
-        margin-top: 0.55rem;
+        margin-top: .5rem;
     }
 
-    .reupload-highlight {
-        background: linear-gradient(135deg, #fffaf0 0%, #fff4d6 100%);
-        border: 1px solid #e7c86d;
-        border-left: 5px solid var(--gold);
+    /* ---------- Responsive ---------- */
+    @@media (max-width: 768px) {
+        .preview-report-heading {
+            flex-wrap: wrap;
+            font-size: 1rem;
+            padding: .65rem .85rem;
+        }
+
+        .submit-application-btn, .readonly-status {
+            width: 100%;
+        }
+
+        .pv-hero-top > div:last-child {
+            width: 100%;
+        }
+
+        .pv-toolbar-actions {
+            width: 100%;
+        }
+
+            .pv-toolbar-actions .pv-btn {
+                flex: 1;
+                justify-content: center;
+            }
+    }
+    /* key/value tables (no header row) become stacked label-over-value cards on phones */
+    @@media (max-width: 640px) {
+        .data-table.kv {
+            border: 0;
+        }
+
+            .data-table.kv, .data-table.kv tbody, .data-table.kv tr {
+                display: block;
+                width: 100%;
+            }
+
+                .data-table.kv tr {
+                    border: 1px solid var(--border-soft);
+                    border-radius: 10px;
+                    margin-bottom: .55rem;
+                    overflow: hidden;
+                }
+
+                .data-table.kv th, .data-table.kv td {
+                    display: block;
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    border-bottom: 0 !important;
+                    padding: .4rem .8rem;
+                }
+
+                .data-table.kv th {
+                    padding-bottom: .1rem;
+                    font-size: .74rem;
+                }
+
+                    .data-table.kv th:empty, .data-table.kv td:empty {
+                        display: none;
+                    }
+
+                .data-table.kv td {
+                    background: #fff !important;
+                    overflow-wrap: anywhere;
+                }
+
+        .pv-chip b {
+            white-space: normal;
+        }
+    }
+
+    /* ======== WHITE & GRAY PROFESSIONAL THEME + LOGO WATERMARK ======== */
+    .pv-page {
+        background: #f3f4f6;
+        position: relative;
+        padding-top: 1rem;
         border-radius: 12px;
-        box-shadow: 0 10px 26px rgba(134, 95, 14, 0.08);
-        margin: 0 0 1.25rem;
-        overflow: hidden;
+    }
+
+        .pv-page > .container-fluid {
+            position: relative;
+            z-index: 1;
+        }
+
+        .pv-page::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            background: var(--wm) center center / min(480px, 60vw) auto no-repeat;
+            opacity: .07;
+            mix-blend-mode: multiply;
+            filter: grayscale(1);
+        }
+
+    .pv-hero {
+        background: #fff;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+        box-shadow: var(--shadow);
+    }
+
+        .pv-hero::before {
+            background: linear-gradient(90deg, #374151, #9ca3af, #374151);
+        }
+
+    .pv-brand {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .pv-logo {
+        flex: none;
+        width: clamp(56px, 9vw, 84px);
+        height: clamp(56px, 9vw, 84px);
+        object-fit: contain;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        padding: 5px;
+    }
+
+    .pv-kicker {
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-size: .72rem;
+    }
+
+    .pv-sub {
+        color: #6b7280;
+    }
+
+    .pv-chip {
+        background: #f3f4f6;
+        border-color: #e5e7eb;
+        color: #1f2937;
+    }
+
+        .pv-chip small {
+            color: #6b7280;
+        }
+
+    .pv-progress-row {
+        color: #6b7280;
+    }
+
+    .pv-progress-track {
+        background: #e5e7eb;
+    }
+
+    .pv-progress-fill {
+        background: linear-gradient(90deg, #6b7280, #1f2937);
+    }
+
+    .submit-application-btn, .readonly-status {
+        background: #1f2937;
+        color: #fff;
+        border: 1px solid #1f2937;
+        box-shadow: 0 6px 14px rgba(17,24,39,.18);
+    }
+
+        .submit-application-btn:hover, .readonly-status:hover {
+            background: #374151;
+            color: #fff;
+        }
+
+    .reupload-highlight {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-left: 5px solid #374151;
     }
 
     .reupload-header {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        background: linear-gradient(90deg, rgba(18, 58, 91, 0.08), rgba(200, 155, 60, 0.14));
-        border-bottom: 1px solid rgba(200, 155, 60, 0.35);
-        color: var(--navy-deep);
-        font-size: 0.9rem;
-        font-weight: 800;
-        letter-spacing: 0.03em;
-        padding: 0.8rem 1rem;
-        text-transform: uppercase;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        color: #1f2937;
     }
 
         .reupload-header i {
-            color: var(--gold-ink);
-            font-size: 1rem;
+            color: #4b5563;
         }
 
-    .reupload-body {
-        padding: 1rem 1rem 1.1rem;
+    .reupload-form .form-control {
+        border-color: #d1d5db;
     }
-
-        .reupload-body p {
-            color: var(--ink);
-            font-size: 0.92rem;
-            font-weight: 600;
-            margin: 0 0 0.9rem;
-        }
-
-    .reupload-form {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-        flex-wrap: wrap;
-    }
-
-        .reupload-form .form-control {
-            flex: 1 1 320px;
-            min-width: 220px;
-            border-color: #d7b861;
-            background: rgba(255, 255, 255, 0.8);
-        }
-
-            .reupload-form .form-control:focus {
-                border-color: var(--navy-light);
-                box-shadow: 0 0 0 0.2rem rgba(37, 124, 157, 0.18);
-            }
 
     .reupload-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, var(--gold-soft), var(--gold));
-        border: 1px solid #c99828;
-        border-radius: 8px;
-        color: var(--navy-deep);
-        font-weight: 800;
-        padding: 0.68rem 1rem;
-        box-shadow: 0 8px 18px rgba(134, 95, 14, 0.16);
-        cursor: pointer;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        background: #374151;
+        border-color: #374151;
+        color: #fff;
     }
 
         .reupload-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(134, 95, 14, 0.2);
+            background: #1f2937;
         }
 
-    /* ========================= */
-    /* FOOTER ACTIONS */
-    /* ========================= */
-    .page-actions {
-        margin-top: 1.25rem;
+    .pv-toolbar-title {
+        color: #1f2937;
     }
 
-        .page-actions .btn-secondary {
-            background: var(--surface);
-            border: 1px solid var(--navy);
-            color: var(--navy);
-            font-weight: 600;
-            font-size: 0.85rem;
-            padding: 0.55rem 1.35rem;
-            border-radius: 8px;
-            transition: all 0.15s ease;
+    .pv-btn {
+        color: #374151;
+        border-color: #d1d5db;
+    }
+
+        .pv-btn:hover {
+            background: #f3f4f6;
+            border-color: #6b7280;
         }
 
-            .page-actions .btn-secondary:hover {
-                background: var(--navy);
-                color: #fff;
-            }
-
-    /* ========================= */
-    /* TAB PREVIEW MODAL */
-    /* ========================= */
-    .preview-modal .modal-dialog {
-        max-width: 1120px;
-    }
-
-    .preview-modal .modal-content {
-        border: 0;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .preview-modal .modal-header {
-        background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
-        border-bottom: 3px solid var(--gold-soft);
-        color: #fff;
-        padding: 0.8rem 1.1rem;
-    }
-
-    .preview-modal .modal-title {
-        font-family: var(--font-serif);
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .preview-modal .btn-close {
-        filter: invert(1);
-    }
-
-    .preview-modal .modal-body {
-        background: var(--paper);
-        height: min(74vh, 760px);
-        padding: 0;
-    }
-
-        .preview-modal .modal-body.is-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-            .preview-modal .modal-body.is-loading::after {
-                content: "Loading preview…";
-                color: var(--navy);
-                font-size: 0.85rem;
-                font-weight: 600;
-            }
-
-    .preview-modal iframe {
+    .preview-report-section {
         background: #fff;
-        border: 0;
-        height: 100%;
-        width: 100%;
+        border-color: #e5e7eb;
     }
 
-    .preview-modal .modal-footer {
-        background: #fff;
-        border-top: 1px solid var(--border);
-        padding: 0.65rem 1rem;
+    .preview-report-heading {
+        background: linear-gradient(180deg, #fff, #f3f4f6);
+        color: #1f2937;
+        border-bottom-color: #e5e7eb;
     }
 
-        .preview-modal .modal-footer a {
-            background: var(--navy);
-            border-radius: 6px;
+    .pv-no {
+        background: #374151;
+    }
+
+    .preview-report-edit {
+        border-color: #374151;
+        color: #374151;
+    }
+
+        .preview-report-edit:hover {
+            background: #374151;
             color: #fff;
-            font-size: 0.76rem;
-            font-weight: 600;
-            padding: 0.45rem 0.85rem;
-            text-decoration: none;
         }
 
-            .preview-modal .modal-footer a:hover {
-                background: var(--navy-light);
+    .preview-report-body h5.fw-bold {
+        color: #374151;
+    }
+
+    .data-table thead th {
+        background: #374151;
+        color: #fff;
+    }
+
+    .data-table.wide thead th:first-child {
+        background: #1f2937;
+    }
+
+    .data-table tbody th {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .data-table tbody tr:nth-child(even) td {
+        background: #fafafa;
+    }
+
+    .data-table tbody tr:hover td {
+        background: #f3f4f6;
+    }
+
+    .scroll-x, .table-responsive {
+        scrollbar-color: #9ca3af #f3f4f6;
+    }
+
+        .scroll-x::-webkit-scrollbar-thumb, .table-responsive::-webkit-scrollbar-thumb, .preview-report-body::-webkit-scrollbar-thumb {
+            background: #9ca3af;
+        }
+
+        .scroll-x::-webkit-scrollbar-track, .table-responsive::-webkit-scrollbar-track, .preview-report-body::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+
+    .page-actions .btn-secondary {
+        border-color: #374151;
+        color: #374151;
+    }
+
+        .page-actions .btn-secondary:hover {
+            background: #374151;
+            color: #fff;
+        }
+
+    .consent-modal .modal-header {
+        background: #1f2937;
+        border-bottom: 3px solid #9ca3af;
+    }
+
+    .consent-modal-eyebrow {
+        color: #d1d5db;
+    }
+
+    .preview-caution {
+        background: #f9fafb;
+        border-color: #e5e7eb;
+        border-left-color: #374151;
+        color: #374151;
+    }
+
+    .consent-body .form-check-input:checked {
+        background: #374151;
+        border-color: #374151;
+    }
+
+    .consent-body .pdf-action {
+        background: #1f2937;
+    }
+
+        .consent-body .pdf-action:disabled {
+            background: #d1d5db;
+        }
+
+    @@media print {
+        .pv-toolbar-actions, .preview-report-edit, .reupload-highlight, .submit-application-btn, .readonly-status, .page-actions, .pv-chev {
+            display: none !important;
+        }
+
+        .pv-page {
+            background: #fff;
+        }
+
+        .preview-report-section {
+            box-shadow: none;
+            break-inside: auto;
+        }
+
+            .preview-report-section.collapsed .preview-report-body {
+                display: block !important;
             }
 
-    /* ========================= */
-    /* RESPONSIVE */
-    /* ========================= */
-    @@media (max-width: 992px) {
-        .preview-tab-directory {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+        .preview-report-body, .scroll-x, .table-responsive {
+            overflow: visible !important;
         }
 
-        .affiliation-meta {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @@media (max-width: 900px) {
-        .affiliation-header-top {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.9rem;
+        .data-table.wide {
+            min-width: 0;
         }
 
-        .submit-application-btn {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
-    @@media (max-width: 640px) {
-        .preview-tab-directory {
-            grid-template-columns: 1fr;
-        }
-
-        .affiliation-meta {
-            grid-template-columns: 1fr;
-        }
-
-        .affiliation-header-wrapper {
-            padding: 1.4rem 1.25rem;
-        }
-
-        .data-table th, .data-table td {
-            font-size: 0.82rem;
-            padding: 0.5rem 0.6rem;
-        }
+            .data-table.wide td, .data-table.wide thead th {
+                white-space: normal;
+            }
     }
 </style>
 
-<div id="PreviewTop" class="affiliation-page-container @(applicationReadOnly ? "application-readonly" : string.Empty)">
+<div id="PreviewTop" class="pv-page affiliation-page-container @(applicationReadOnly ? "application-readonly" : string.Empty)" style="--wm:url('@Url.Content("~/images/newLogo.jpeg")')">
     <div class="container-fluid">
 
-        <!-- ========================= -->
-        <!-- OFFICIAL HEADER -->
-        <!-- ========================= -->
-        <div class="affiliation-header-wrapper">
-            <div class="affiliation-header-content">
-                <div class="affiliation-header-top">
-                    <div class="affiliation-header-primary">
-                        <div class="affiliation-badge">
-                            <i class="bi bi-patch-check-fill"></i>
-                            Continuous Affiliation &middot; Application Preview
-                        </div>
-                        <h1 class="affiliation-title">
+        <!-- ================= HERO ================= -->
+        <header class="pv-hero">
+            <div class="pv-hero-top">
+                <div class="pv-brand pv-hero-main">
+                    <img class="pv-logo" src="@Url.Content("~/images/newLogo.jpeg")" alt="RGUHS logo" />
+                    <div style="min-width:0">
+                        <div class="pv-kicker"><i class="bi bi-patch-check-fill"></i> Continuous Affiliation application preview</div>
+                        <h1 class="pv-title">
                             @(Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.NameOfInstitution)
                                 ? Model.InstitutionDetails.NameOfInstitution
                                 : "College Affiliation Preview")
                         </h1>
-                        <div class="affiliation-subtitle">Read-only summary generated from your submitted application. Edit any section from the directory below before final submission.</div>
-                    </div>
-                    <div class="affiliation-header-actions">
-                        @if (applicationReadOnly)
-                        {
-                            <a class="readonly-status" href="@Url.Action("SubmitApplication", "CAPreview")" target="_blank" rel="noopener">
-                                <i class="bi bi-file-earmark-pdf-fill"></i> View / Download Final PDF
-                            </a>
-                        }
-                        else if (Model.IsApplicationComplete && Model.CompletionPercentage >= 100)
-                        {
-                            <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal" title="Submit application">
-                                <i class="bi bi-send-check-fill"></i>
-                                Submit Application
-                            </button>
-                        }
+                        <div class="pv-sub">Read-only summary of your application. Use Edit on any section to change it before final submission.</div>
                     </div>
                 </div>
-                <div class="affiliation-meta">
-                    <div class="meta-item">
-                        <div class="meta-label">Course Level</div>
-                        <div class="meta-value">@courseLevelLabel</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">Institution Type</div>
-                        <div class="meta-value">@(Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.TypeOfInstitution) ? Model.InstitutionDetails.TypeOfInstitution : "—")</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">District</div>
-                        <div class="meta-value">@(Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.District) ? Model.InstitutionDetails.District : "—")</div>
-                    </div>
-                    <div class="meta-item">
-                        <div class="meta-label">Preview Generated</div>
-                        <div class="meta-value">@DateTime.Now.ToString("dd MMM yyyy")</div>
-                    </div>
+                <div>
+                    @if (applicationReadOnly)
+                    {
+                        <a class="readonly-status" href="@Url.Action("SubmitApplication", "CAPreview")" target="_blank" rel="noopener">
+                            <i class="bi bi-file-earmark-pdf-fill"></i> View / download final PDF
+                        </a>
+                    }
+                    else if (Model.IsApplicationComplete && Model.CompletionPercentage >= 100)
+                    {
+                        <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal">
+                            <i class="bi bi-send-check-fill"></i> Submit application
+                        </button>
+                    }
                 </div>
             </div>
-        </div>
 
-        <!-- ================================================================ -->
-        <!-- PRINCIPAL SEAL & SIGNATURE RE-UPLOAD                              -->
-        <!-- Always rendered and always enabled (before AND after submission). -->
-        <!-- ================================================================ -->
-        <div class="reupload-highlight" id="SealReupload">
-            <div class="reupload-header">
-                <i class="bi bi-file-earmark-arrow-up-fill"></i>
-                Principal Seal &amp; Signature Re-upload
+            <div class="pv-chips">
+                <span class="pv-chip"><small>Course level</small><b>@courseLevelLabel</b></span>
+                <span class="pv-chip"><small>Institution type</small><b>@(Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.TypeOfInstitution) ? Model.InstitutionDetails.TypeOfInstitution : "—")</b></span>
+                <span class="pv-chip"><small>District</small><b>@(Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.District) ? Model.InstitutionDetails.District : "—")</b></span>
+                <span class="pv-chip"><small>Generated</small><b>@DateTime.Now.ToString("dd MMM yyyy")</b></span>
             </div>
+
+            <div class="pv-progress" role="progressbar" aria-valuenow="@completionPct" aria-valuemin="0" aria-valuemax="100" aria-label="Application completion">
+                <div class="pv-progress-row"><span>Application completion</span><span>@completionPct%</span></div>
+                <div class="pv-progress-track"><div class="pv-progress-fill" style="width:@completionPct%"></div></div>
+            </div>
+        </header>
+
+        <!-- ============ SEAL & SIGNATURE RE-UPLOAD (always available) ============ -->
+        <div class="reupload-highlight" id="SealReupload">
+            <div class="reupload-header"><i class="bi bi-file-earmark-arrow-up-fill"></i> Principal seal and signature re-upload</div>
             <div class="reupload-body">
-                <p>Please re-upload the complete application after obtaining the Principal’s seal and signature.</p>
+                <p>Upload the complete application after the Principal has signed and sealed it.</p>
                 @if (Model.HasSealedSignedReupload)
                 {
                     <a asp-controller="CAPreview" asp-action="ViewSignedReupload" target="_blank" rel="noopener" class="btn btn-outline-primary mb-3">
-                        <i class="bi bi-eye"></i> View Uploaded Document
+                        <i class="bi bi-eye"></i> View uploaded document
                     </a>
                 }
                 @if (TempData["PreviewError"] != null)
@@ -1198,620 +1243,182 @@
                 <form asp-controller="CAPreview" asp-action="ReuploadSignedDocument" method="post" enctype="multipart/form-data" class="reupload-form">
                     @Html.AntiForgeryToken()
                     <input type="file" class="form-control" name="sealedSignedReupload" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
-                    <button type="submit" class="reupload-btn">
-                        <i class="bi bi-upload"></i> Upload sealed &amp; Signed copy
-                    </button>
+                    <button type="submit" class="reupload-btn"><i class="bi bi-upload"></i> Upload signed copy</button>
                 </form>
             </div>
         </div>
 
-        <!-- ========================= -->
-        <!-- BREADCRUMB NAVIGATION -->
-        <!-- ========================= -->
-        <div class="breadcrumb-wrapper">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-custom">
-                    <li class="breadcrumb-item">
-                        <i class="bi bi-house-door me-1"></i>
-                        <a href="#" class="text-decoration-none">Home</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="#" class="text-decoration-none">College Affiliation</a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">
-                        Preview
-                    </li>
-                </ol>
-            </nav>
-        </div>
-
-        <!-- ========================= -->
-        <!-- INFO ALERT -->
-        <!-- ========================= -->
-        <div class="info-alert">
-            <i class="bi bi-info-circle-fill"></i>
-            <div class="info-alert-content">
-                <div class="info-alert-title">Review Your Information</div>
-                <p class="info-alert-text">
-                    This is a preview of your college details. Please review all sections carefully.
-                    Use the edit buttons within each section to make any necessary changes.
-                </p>
-            </div>
-        </div>
-
-        <!-- ========================= -->
-        <!-- ORDERED TAB DIRECTORY -->
-        <!-- ========================= -->
-        <div class="preview-tab-directory">
-            <div class="preview-tab-group">
-                <div class="preview-tab-group-title">Basic Details</div>
-                <div class="preview-tab-list">
-                    <div class="preview-tab-row"><span>Institution Details</span><a href="@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Trust Institution Details</span><a href="@Url.Action("Aff_InstituteDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Trust Member Details</span><a href="@Url.Action("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Staff Particulars - Dean / Director</span><a href="@Url.Action("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Staff Particulars - Principal</span><a href="@Url.Action("Aff_PrincipalDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
+        <!-- ============ OUTLINE + SECTIONS ============ -->
+        <div class="pv-layout">
+            <div class="pv-toolbar">
+                <h2 class="pv-toolbar-title">Application sections</h2>
+                <div class="pv-toolbar-actions">
+                    <button type="button" class="pv-btn" id="pvExpandAll"><i class="bi bi-arrows-expand"></i> Expand all</button>
+                    <button type="button" class="pv-btn" id="pvCollapseAll"><i class="bi bi-arrows-collapse"></i> Collapse all</button>
                 </div>
             </div>
 
-            <div class="preview-tab-group">
-                <div class="preview-tab-group-title">Intake Details</div>
-                <div class="preview-tab-list">
-                    @if (isUgPreview)
-                    {
-                        <div class="preview-tab-row"><span>Details of MBBS Course - UG</span><a href="@Url.Action("Details_Of_MBBS", "ContinuesAffiliation_Facultybased")">Edit</a></div>
-                    }
-                    <div class="preview-tab-row"><span>Course Intake List</span><a href="@Url.Action("MedicalCollegeCourseIntake", "ContinuousAffiliationIncreaseintake")">Edit</a></div>
-                    @if (isPgPreview)
-                    {
-                        <div class="preview-tab-row"><span>PG Course Affiliation - PG</span><a href="@Url.Action("PgCourses", "AffiliationPgCourse")">Edit</a></div>
-                    }
-                    @if (isSsPreview)
-                    {
-                        <div class="preview-tab-row"><span>Super Specialty Courses - SS</span><a href="@Url.Action("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS")">Edit</a></div>
-                    }
-                </div>
-            </div>
+            <div class="preview-report">
 
-            <div class="preview-tab-group">
-                <div class="preview-tab-group-title">Physical Infrastructure</div>
-                <div class="preview-tab-list">
-                    <div class="preview-tab-row"><span>Land, Building &amp; Teaching Facilities</span><a href="@Url.Action("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Skills Laboratory</span><a href="@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Clinical Facilities</span><a href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Outpatient Area</span><a href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")">Edit</a></div>
-                    @if (isUgPreview)
-                    {
-                        <div class="preview-tab-row"><span>Bed Distribution - MBBS - UG</span><a href="@Url.Action("MedicalUGBedDistribution", "ContinuesAffiliation_Facultybased")">Edit</a></div>
-                    }
-                    <div class="preview-tab-row"><span>Department Offices Details</span><a href="@Url.Action("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Affiliation Hostel Details</span><a href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Associated Institutions</span><a href="@Url.Action("AssociatedInstitutions", "AffiliationSS")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Vehicle Registration &amp; Documents</span><a href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")">Edit</a></div>
-                </div>
-            </div>
-
-            <div class="preview-tab-group">
-                <div class="preview-tab-group-title">Academic &amp; Admin</div>
-                <div class="preview-tab-list">
-                    @if (isUgPreview)
-                    {
-                        <div class="preview-tab-row"><span>Academic Matters - UG</span><a href="@Url.Action("AcademicMatters", "CA_Aff_AcademicMatters")">Edit</a></div>
-                    }
-                    <div class="preview-tab-row"><span>Account and Fee Details</span><a href="@Url.Action("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Staff Pay Scale Details</span><a href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")">Edit</a></div>
-                    @if (isPgPreview)
-                    {
-                        <div class="preview-tab-row"><span>Academic Matters PG - PG</span><a href="@Url.Action("AcademicMattersPG", "CA_Aff_AcademicMatters")">Edit</a></div>
-                    }
-                </div>
-            </div>
-
-            <div class="preview-tab-group">
-                <div class="preview-tab-group-title">Human Resource</div>
-                <div class="preview-tab-list">
-                    <div class="preview-tab-row"><span>Faculty Details</span><a href="@Url.Action("Repo_FacultyDetails", "FacultyDetails")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Non-Teaching Staff Details</span><a href="@Url.Action("NonTeachingStaffDepartmentwise", "ContinuesAffiliation_Facultybased")">Edit</a></div>
-                </div>
-            </div>
-
-            <div class="preview-tab-group">
-                <div class="preview-tab-group-title">Research &amp; Library</div>
-                <div class="preview-tab-list">
-                    <div class="preview-tab-row"><span>Library Details</span><a href="@Url.Action("MedicalLibrary", "CA_Aff_MedicalLibrary")">Edit</a></div>
-                    <div class="preview-tab-row"><span>Research Publications</span><a href="@Url.Action("CA_Med_ResearchPublicationsDetails", "CA_Med_ResearchPublications")">Edit</a></div>
-                </div>
-            </div>
-
-            <div class="preview-tab-group">
-                <div class="preview-tab-group-title">Payment</div>
-                <div class="preview-tab-list">
-                    <div class="preview-tab-row"><span>Payment Calculation</span><a href="@Url.Action("Index", "PaymentCalculation")">Edit</a></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================= -->
-        <!-- SECTIONS CONTAINER -->
-        <!-- ========================= -->
-        <div class="preview-report">
-            <div id="InstitutionDetails" class="preview-report-section">
-                <h2 class="preview-report-heading"><span>01 · Institution Details</span><a class="preview-report-edit" href="@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                <div class="preview-report-body">
-                    @if (Model.InstitutionDetails != null)
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm data-table align-middle mb-0">
-                                <tbody>
-                                    <tr><th>Type of Institution</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.TypeOfInstitution) ? Model.InstitutionDetails.TypeOfInstitution : "—")</td></tr>
-                                    <tr><th>Institution Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NameOfInstitution) ? Model.InstitutionDetails.NameOfInstitution : "—")</td></tr>
-                                    <tr><th>Address</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Address) ? Model.InstitutionDetails.Address : "—")</td></tr>
-                                    <tr><th>City / Taluk / District</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.VillageTownCity) ? Model.InstitutionDetails.VillageTownCity : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Taluk) ? Model.InstitutionDetails.Taluk : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.District) ? Model.InstitutionDetails.District : "—")</td></tr>
-                                    <tr><th>PIN Code</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.PinCode) ? Model.InstitutionDetails.PinCode : "—")</td></tr>
-                                    <tr><th>Mobile / Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.MobileNumber) ? Model.InstitutionDetails.MobileNumber : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.EmailId) ? Model.InstitutionDetails.EmailId : "—")</td></tr>
-                                    <tr><th>Website</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Website) ? Model.InstitutionDetails.Website : "—")</td></tr>
-                                    <tr><th>Survey / PID No</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.SurveyNoPidNo) ? Model.InstitutionDetails.SurveyNoPidNo : "—")</td></tr>
-                                    <tr><th>Minority Institute</th><td>@(Model.InstitutionDetails.MinorityInstitute ? "Yes" : "No")</td></tr>
-                                    <tr><th>Attached to Medical College</th><td>@(Model.InstitutionDetails.AttachedToMedicalClg ? "Yes" : "No")</td></tr>
-                                    <tr><th>Rural Institute</th><td>@(Model.InstitutionDetails.RuralInstitute ? "Yes" : "No")</td></tr>
-                                    <tr><th>Year of Establishment</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.YearOfEstablishment) ? Model.InstitutionDetails.YearOfEstablishment : "—")</td></tr>
-                                    <tr><th>Alternate Landline / Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.AltLandlineMobile) ? Model.InstitutionDetails.AltLandlineMobile : "—")</td></tr>
-                                    <tr><th>Alternate Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.AltEmailId) ? Model.InstitutionDetails.AltEmailId : "—")</td></tr>
-                                    <tr><th>Nodal Officer Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Name) ? Model.InstitutionDetails.NodalOfficer_Name : "—")</td></tr>
-                                    <tr><th>Nodal Officer Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Mob_Number) ? Model.InstitutionDetails.NodalOfficer_Mob_Number : "—")</td></tr>
-                                    <tr><th>Nodal Officer Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Email) ? Model.InstitutionDetails.NodalOfficer_Email : "—")</td></tr>
-                                    <tr><th>Principal Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Name) ? Model.InstitutionDetails.Principal_Name : "—")</td></tr>
-                                    <tr><th>Principal Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Mob_No) ? Model.InstitutionDetails.Principal_Mob_No : "—")</td></tr>
-                                    <tr><th>Principal Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Email) ? Model.InstitutionDetails.Principal_Email : "—")</td></tr>
-                                    <tr><th>Course Level</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.CourseLevel) ? Model.InstitutionDetails.CourseLevel : "—")</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">No institution details available.</div>
-                    }
-                </div>
-            </div>
-
-            <div id="TrustInstitutionDetails" class="preview-report-section">
-                <h2 class="preview-report-heading"><span>02 · Trust Institution Details</span><a class="preview-report-edit" href="@Url.Action("Aff_InstituteDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                <div class="preview-report-body">
-                    @if (Model.AffInstituteDetails != null)
-                    {
-                        <div class="table-responsive mb-4">
-                            <h5 class="mb-2 fw-bold">Trust / Society Details</h5>
-                            <table class="table table-sm data-table align-middle mb-0">
-                                <tbody>
-                                    <tr><th>Trust Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.TrustName) ? Model.AffInstituteDetails.TrustName : "—")</td></tr>
-                                    <tr><th>TRUST PAN Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.PANNumber) ? Model.AffInstituteDetails.PANNumber : "—")</td></tr>
-                                    <tr><th>Registration Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.RegistrationNumber) ? Model.AffInstituteDetails.RegistrationNumber : "—")</td></tr>
-                                    <tr><th>Registration Date</th><td>@(Model.AffInstituteDetails.RegistrationDate.HasValue ? Model.AffInstituteDetails.RegistrationDate.Value.ToString("dd-MM-yyyy") : "—")</td></tr>
-                                    <tr><th>President Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.PresidentName) ? Model.AffInstituteDetails.PresidentName : "—")</td></tr>
-                                    <tr><th>Category of Organisation</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.CategoryOfOrganisation) ? Model.AffInstituteDetails.CategoryOfOrganisation : "—")</td></tr>
-                                    <tr><th>Address</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.Address) ? Model.AffInstituteDetails.Address : "—")</td></tr>
-                                    <tr><th>Mobile Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.MobileNumber) ? Model.AffInstituteDetails.MobileNumber : "—")</td></tr>
-                                    <tr><th>Email ID</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.EmailId) ? Model.AffInstituteDetails.EmailId : "—")</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="table-responsive mb-4">
-                            <h5 class="mb-2 fw-bold">Trust Contact Person</h5>
-                            <table class="table table-sm data-table align-middle mb-0">
-                                <tbody>
-                                    <tr><th>Full Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonName) ? Model.AffInstituteDetails.ContactPersonName : "—")</td></tr>
-                                    <tr><th>Designation</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonRelation) ? Model.AffInstituteDetails.ContactPersonRelation : "—")</td></tr>
-                                    <tr><th>Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonMobile) ? Model.AffInstituteDetails.ContactPersonMobile : "—")</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="table-responsive">
-                            <h5 class="mb-2 fw-bold">Upload Documents</h5>
-                            <table class="table table-sm data-table align-middle mb-0">
-                                <tbody>
-                                    <tr><th>Trust PAN File</th><td>@(Model.AffInstituteDetails.hasPANFile ? "Uploaded" : "Not Uploaded")</td></tr>
-                                    <tr><th>Bank Statement</th><td>@(Model.AffInstituteDetails.hasBankStatementFile ? "Uploaded" : "Not Uploaded")</td></tr>
-                                    <tr><th>Registration Certificate</th><td>@(Model.AffInstituteDetails.hasRegistrationCertificateFile ? "Uploaded" : "Not Uploaded")</td></tr>
-                                    <tr><th>Audit Statement</th><td>@(Model.AffInstituteDetails.hasAuditStatementFile ? "Uploaded" : "Not Uploaded")</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">No trust institution details available.</div>
-                    }
-                </div>
-            </div>
-
-            @if (Model.InstitutionBasicVM != null)
-            {
-                <div id="TrustMemberDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>03 · Trust Member Details</span><a class="preview-report-edit" href="@Url.Action("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_TrustMembersDetails", Model.InstitutionBasicVM)</div>
-                </div>
-                <div id="DeanDirectorDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>04 · Staff Particulars - Dean / Director</span><a class="preview-report-edit" href="@Url.Action("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_DeanOrDirectorDetails", Model.InstitutionBasicVM)</div>
-                </div>
-                <div id="PrincipalDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>05 · Staff Particulars - Principal</span><a class="preview-report-edit" href="@Url.Action("Aff_PrincipalDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_PrincipalDetails", Model.InstitutionBasicVM)</div>
-                </div>
-            }
-
-            @if (isUgPreview)
-            {
-                <div id="MBBSDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>06 · Details of MBBS Course - UG</span><a class="preview-report-edit" href="@Url.Action("Details_Of_MBBS", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                <div id="InstitutionDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>01 · Institution Details</span><a class="preview-report-edit" href="@Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">
-                        @if (Model.InstitutionBasicVM != null)
-                        {
-                            @await Html.PartialAsync("BasicDetails/_AffiliatedUgCourseDetails", Model.InstitutionBasicVM)
-                        }
-                    </div>
-                </div>
-            }
-            <div id="CourseIntakeList" class="preview-report-section">
-                <h2 class="preview-report-heading"><span>07 · Course Intake List</span><a class="preview-report-edit" href="@Url.Action("MedicalCollegeCourseIntake", "ContinuousAffiliationIncreaseintake")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                <div class="preview-report-body">
-                    @if (Model.CourseIntakeList.Any())
-                    {
-                        var isEnhancementApplication = !string.IsNullOrWhiteSpace(Model.ApplicationType)
-                            && (Model.ApplicationType.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
-                                || Model.ApplicationType.Contains("Increase in Intake", StringComparison.OrdinalIgnoreCase));
-
-                        <div class="table-responsive">
-                            <table class="table table-sm data-table align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Course</th>
-                                        <th>Application Type</th>
-                                        <th>Applying Course Level</th>
-                                        <th class="text-center">Present Intake</th>
-                                        @if (isEnhancementApplication)
-                                        {
-                                            <th class="text-center">Additional Seats Requested</th>
-                                            <th class="text-center">Total Seats</th>
-                                        }
-                                        else
-                                        {
-                                            <th>Course Code</th>
-                                            <th>Match Note</th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.CourseIntakeList)
-                                    {
-                                        <tr>
-                                            <td>@item.CourseName</td>
-                                            <td>@(string.IsNullOrWhiteSpace(Model.ApplicationType) ? "—" : Model.ApplicationType)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(item.ApplyingCourseLevel) ? item.CourseLevel : item.ApplyingCourseLevel)</td>
-                                            <td class="text-center">@(item.Intake?.ToString() ?? "—")</td>
-                                            @if (isEnhancementApplication)
-                                            {
-                                                <td class="text-center">@(item.AdditionalSeatsRequested.HasValue ? item.AdditionalSeatsRequested.Value.ToString() : "—")</td>
-                                                <td class="text-center">@(item.TotalSeats.HasValue ? item.TotalSeats.Value.ToString() : "—")</td>
-                                            }
-                                            else
-                                            {
-                                                <td>@(item.CourseCode?.ToString() ?? "—")</td>
-                                                <td>@(string.IsNullOrWhiteSpace(item.MatchNote) ? "—" : item.MatchNote)</td>
-                                            }
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">No course intake details available for the selected college and course level.</div>
-                    }
-                </div>
-            </div>
-            @if (isPgPreview)
-            {
-                <div id="PGCourseAffiliation" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>08 · PG Course Affiliation - PG</span><a class="preview-report-edit" href="@Url.Action("PgCourses", "AffiliationPgCourse")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">
-                        @if (Model.InstitutionBasicVM != null)
-                        {
-                            @await Html.PartialAsync("BasicDetails/_AffCourseDetails", Model.InstitutionBasicVM)
-                        }
-                    </div>
-                </div>
-            }
-            @if (isSsPreview)
-            {
-                <div id="SSCourseAffiliation" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>09 · Super Specialty Courses - SS</span><a class="preview-report-edit" href="@Url.Action("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><div class="empty-state">No Super Specialty course preview data is available.</div></div>
-                </div>
-            }
-
-            @if (Model.PhysicalFacilities != null)
-            {
-                <div id="LandBuilding" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>10 · Land, Building &amp; Teaching Facilities</span><a class="preview-report-edit" href="@Url.Action("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><partial name="PhysicalFacilities/_SmallGroupTeaching" model="Model.PhysicalFacilities.SmallGroupTeaching" /></div>
-                </div>
-                <div id="SkillsLaboratory" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>11 · Skills Laboratory</span><a class="preview-report-edit" href="@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">
-                        @if (skillsLab != null)
+                        @if (Model.InstitutionDetails != null)
                         {
                             <div class="table-responsive">
                                 <table class="table table-sm data-table align-middle mb-0">
                                     <tbody>
-                                        <tr><th>Annual MBBS Intake</th><td>@Num(slAnnualMbbsIntake)</td><th></th><td></td></tr>
-                                        <tr><th>Total Area Available (Sq.m)</th><td>@Dec(skillsLab.TotalAreaAvailableSqm)</td><th>Total Area Required (Sq.m)</th><td>@Dec(skillsLab.TotalAreaRequiredSqm)</td></tr>
-                                        <tr><th>Area Deficiency (Sq.m)</th><td>@Dec(skillsLab.TotalAreaDeficiencySqm)</td><th>6 Weeks Training Completed Before Clinical</th><td>@Yn(skillsLab.SixWeeksTrainingCompletedBeforeClinical)</td></tr>
-                                        <tr><th>Number of Examination Rooms</th><td>@Num(skillsLab.NumberOfExaminationRooms)</td><th>Minimum Four Exam Rooms</th><td>@Yn(skillsLab.HasMinFourExamRooms)</td></tr>
-                                        <tr><th>Demo Room for Small Groups</th><td>@Yn(skillsLab.HasDemoRoomSmallGroups)</td><th>Debrief Area</th><td>@Yn(skillsLab.HasDebriefArea)</td></tr>
-                                        <tr><th>Faculty Coordinator Room</th><td>@Yn(skillsLab.HasFacultyCoordinatorRoom)</td><th>Support Staff Room</th><td>@Yn(skillsLab.HasSupportStaffRoom)</td></tr>
-                                        <tr><th>Storage for Mannequins</th><td>@Yn(skillsLab.HasStorageForMannequins)</td><th>Video Recording Facility</th><td>@Yn(skillsLab.HasVideoRecordingFacility)</td></tr>
-                                        <tr><th>Number of Skill Stations</th><td>@Num(skillsLab.NumberOfSkillStations)</td><th>Group &amp; Individual Stations</th><td>@Yn(skillsLab.HasGroupAndIndividualStations)</td></tr>
-                                        <tr><th>Required Trainers &amp; Mannequins</th><td>@Yn(skillsLab.HasRequiredTrainersAndMannequins)</td><th>Dedicated Technical Officer</th><td>@Yn(skillsLab.HasDedicatedTechnicalOfficer)</td></tr>
-                                        <tr><th>Adequate Support Staff</th><td>@Yn(skillsLab.HasAdequateSupportStaff)</td><th>Teaching Areas Have AV</th><td>@Yn(skillsLab.TeachingAreasHaveAV)</td></tr>
-                                        <tr><th>Teaching Areas Have Internet</th><td>@Yn(skillsLab.TeachingAreasHaveInternet)</td><th>Enabled for E-Learning</th><td>@Yn(skillsLab.SkillsLabEnabledForELearning)</td></tr>
+                                        <tr><th>Type of Institution</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.TypeOfInstitution) ? Model.InstitutionDetails.TypeOfInstitution : "—")</td></tr>
+                                        <tr><th>Institution Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NameOfInstitution) ? Model.InstitutionDetails.NameOfInstitution : "—")</td></tr>
+                                        <tr><th>Address</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Address) ? Model.InstitutionDetails.Address : "—")</td></tr>
+                                        <tr><th>City / Taluk / District</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.VillageTownCity) ? Model.InstitutionDetails.VillageTownCity : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Taluk) ? Model.InstitutionDetails.Taluk : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.District) ? Model.InstitutionDetails.District : "—")</td></tr>
+                                        <tr><th>PIN Code</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.PinCode) ? Model.InstitutionDetails.PinCode : "—")</td></tr>
+                                        <tr><th>Mobile / Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.MobileNumber) ? Model.InstitutionDetails.MobileNumber : "—") / @(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.EmailId) ? Model.InstitutionDetails.EmailId : "—")</td></tr>
+                                        <tr><th>Website</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Website) ? Model.InstitutionDetails.Website : "—")</td></tr>
+                                        <tr><th>Survey / PID No</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.SurveyNoPidNo) ? Model.InstitutionDetails.SurveyNoPidNo : "—")</td></tr>
+                                        <tr><th>Minority Institute</th><td>@(Model.InstitutionDetails.MinorityInstitute ? "Yes" : "No")</td></tr>
+                                        <tr><th>Attached to Medical College</th><td>@(Model.InstitutionDetails.AttachedToMedicalClg ? "Yes" : "No")</td></tr>
+                                        <tr><th>Rural Institute</th><td>@(Model.InstitutionDetails.RuralInstitute ? "Yes" : "No")</td></tr>
+                                        <tr><th>Year of Establishment</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.YearOfEstablishment) ? Model.InstitutionDetails.YearOfEstablishment : "—")</td></tr>
+                                        <tr><th>Alternate Landline / Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.AltLandlineMobile) ? Model.InstitutionDetails.AltLandlineMobile : "—")</td></tr>
+                                        <tr><th>Alternate Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.AltEmailId) ? Model.InstitutionDetails.AltEmailId : "—")</td></tr>
+                                        <tr><th>Nodal Officer Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Name) ? Model.InstitutionDetails.NodalOfficer_Name : "—")</td></tr>
+                                        <tr><th>Nodal Officer Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Mob_Number) ? Model.InstitutionDetails.NodalOfficer_Mob_Number : "—")</td></tr>
+                                        <tr><th>Nodal Officer Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.NodalOfficer_Email) ? Model.InstitutionDetails.NodalOfficer_Email : "—")</td></tr>
+                                        <tr><th>Principal Name</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Name) ? Model.InstitutionDetails.Principal_Name : "—")</td></tr>
+                                        <tr><th>Principal Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Mob_No) ? Model.InstitutionDetails.Principal_Mob_No : "—")</td></tr>
+                                        <tr><th>Principal Email</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Email) ? Model.InstitutionDetails.Principal_Email : "—")</td></tr>
+                                        <tr><th>Course Level</th><td>@(!string.IsNullOrWhiteSpace(Model.InstitutionDetails.CourseLevel) ? Model.InstitutionDetails.CourseLevel : "—")</td></tr>
                                     </tbody>
                                 </table>
                             </div>
                         }
                         else
                         {
-                            <div class="empty-state">No skills laboratory details available.</div>
+                            <div class="empty-state">No institution details available.</div>
                         }
                     </div>
                 </div>
-            }
 
-            <!-- ========================= -->
-            <!-- 12 · ASSOCIATED INSTITUTIONS -->
-            <!-- ========================= -->
-            <div id="AssociatedInstitutions" class="preview-report-section">
-                <h2 class="preview-report-heading">
-                    <span>12 · Associated Institutions</span>
-                    <a class="preview-report-edit" href="@Url.Action("AssociatedInstitutions", "AffiliationSS")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
-                </h2>
-                <div class="preview-report-body">
-                    @if (associatedInstitutions.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm data-table align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Associated College Code</th>
-                                        <th>Associated Faculty Code</th>
-                                        <th>Course Code</th>
-                                        <th>Course Name</th>
-                                        <th>Course Level</th>
-                                        <th>Affiliation Type</th>
-                                        <th class="text-center">Annual Intake</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @{
-                                        var aiSno = 0;
-                                    }
-                                    @foreach (var ai in associatedInstitutions)
-                                    {
-                                        <tr>
-                                            <td>@(++aiSno)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(ai.AssociatedCollegeCode) ? "—" : ai.AssociatedCollegeCode)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(ai.AssociatedFacultyCode) ? "—" : ai.AssociatedFacultyCode)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(ai.CourseCode) ? "—" : ai.CourseCode)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(ai.CourseName) ? "—" : ai.CourseName)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(ai.CourseLevel) ? "—" : ai.CourseLevel)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(ai.TypeOfAffiliation) ? "—" : ai.TypeOfAffiliation)</td>
-                                            <td class="text-center">@(ai.AnnualIntake?.ToString() ?? "—")</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">No associated institutions available for this college.</div>
-                    }
-                </div>
-            </div>
-
-            @if (Model.CAHospitalAFfiliationCompVM != null)
-            {
-                <div id="ClinicalFacilities" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>13 · Clinical Facilities</span><a class="preview-report-edit" href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">@await Html.PartialAsync("ClinicalFacilities/_HospitalAffiliation", Model.CAHospitalAFfiliationCompVM)</div>
-                </div>
-            }
-            <!-- ============================================================ -->
-            <!-- 13B · OUTPATIENT AREA                                         -->
-            <!-- Data: IndoorInfrastructureRequirementsCompliance, SectionCode = 15 -->
-            <!-- ============================================================ -->
-            <div id="OutpatientArea" class="preview-report-section">
-                <h2 class="preview-report-heading"><span>13B · Outpatient Area</span><a class="preview-report-edit" href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                <div class="preview-report-body">
-                    @if (outpatientRows.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm data-table align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Requirement</th>
-                                        <th class="text-center">Compliant</th>
-                                        <th>Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @{
-                                        var opSno = 0;
-                                    }
-                                    @foreach (var op in outpatientRows)
-                                    {
-                                        <tr>
-                                            <td>@(++opSno)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(op.RequirementName) ? "Requirement #" + op.RequirementId : op.RequirementName)</td>
-                                            <td class="text-center" title="Stored value: @(op.IsCompliantRaw ?? "NULL") | Row Id: @op.Id | Hospital: @op.HospitalDetailsId">
-                                                @if (op.IsCompliant == true)
-                                                {
-                                                    <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Yes</span>
-                                                }
-                                                else if (op.IsCompliant == false)
-                                                {
-                                                    <span class="doc-badge doc-badge-no">No</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="doc-badge doc-badge-no">—</span>
-                                                }
-                                            </td>
-                                            <td>@(string.IsNullOrWhiteSpace(op.Remarks) ? "—" : op.Remarks)</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">No outpatient area details available.</div>
-                    }
-                </div>
-            </div>
-            <div id="GeoPhotos" class="preview-report-section">
-                <h2 class="preview-report-heading">
-                    <span>13A · Geo-Tagged Photos</span>
-                    <a class="preview-report-edit" href="@Url.Action("Index", "GeoPhoto")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
-                </h2>
-                <div class="preview-report-body">
-                    @await Html.PartialAsync("GeoPhotos/_GeoPhotos", Model.GeoPhotos)
-                </div>
-            </div>
-            @if (isUgPreview)
-            {
-                <div id="BedDistribution" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>14 · Bed Distribution - MBBS - UG</span><a class="preview-report-edit" href="@Url.Action("MedicalUGBedDistribution", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                <div id="TrustInstitutionDetails" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>02 · Trust Institution Details</span><a class="preview-report-edit" href="@Url.Action("Aff_InstituteDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">
-                        @if (Model.BedDistribution != null)
+                        @if (Model.AffInstituteDetails != null)
                         {
-                            <div class="table-responsive">
+                            <div class="table-responsive mb-4">
+                                <h5 class="mb-2 fw-bold">Trust / Society Details</h5>
                                 <table class="table table-sm data-table align-middle mb-0">
                                     <tbody>
-                                        <tr><th>General Medicine</th><td>@Model.BedDistribution.GenMedicine</td><th>Paediatrics</th><td>@Model.BedDistribution.Paediatrics</td></tr>
-                                        <tr><th>Skin &amp; V.D.</th><td>@Model.BedDistribution.SkinVD</td><th>Psychiatry</th><td>@Model.BedDistribution.Psychiatry</td></tr>
-                                        <tr><th>General Surgery</th><td>@Model.BedDistribution.GenSurgery</td><th>Orthopaedics</th><td>@Model.BedDistribution.Orthopaedics</td></tr>
-                                        <tr><th>Ophthalmology</th><td>@Model.BedDistribution.Ophthalmology</td><th>ENT</th><td>@Model.BedDistribution.ENT</td></tr>
-                                        <tr><th>Obstetrics &amp; ANC</th><td>@Model.BedDistribution.ObstetricsANC</td><th>Gynaecology</th><td>@Model.BedDistribution.Gynaecology</td></tr>
-                                        <tr><th>Postpartum</th><td>@Model.BedDistribution.Postpartum</td><th>Major OT</th><td>@Model.BedDistribution.MajorOT</td></tr>
-                                        <tr><th>Minor OT</th><td>@Model.BedDistribution.MinorOT</td><th>ICCU</th><td>@Model.BedDistribution.ICCU</td></tr>
-                                        <tr><th>ICU</th><td>@Model.BedDistribution.ICU</td><th>PICU / NICU</th><td>@Model.BedDistribution.PICU_NICU</td></tr>
-                                        <tr><th>SICU</th><td>@Model.BedDistribution.SICU</td><th>Casualty Beds</th><td>@Model.BedDistribution.CasualtyBeds</td></tr>
-                                        <tr><th>Total ICU Beds</th><td colspan="3">@Model.BedDistribution.TotalICUBeds</td></tr>
+                                        <tr><th>Trust Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.TrustName) ? Model.AffInstituteDetails.TrustName : "—")</td></tr>
+                                        <tr><th>TRUST PAN Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.PANNumber) ? Model.AffInstituteDetails.PANNumber : "—")</td></tr>
+                                        <tr><th>Registration Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.RegistrationNumber) ? Model.AffInstituteDetails.RegistrationNumber : "—")</td></tr>
+                                        <tr><th>Registration Date</th><td>@(Model.AffInstituteDetails.RegistrationDate.HasValue ? Model.AffInstituteDetails.RegistrationDate.Value.ToString("dd-MM-yyyy") : "—")</td></tr>
+                                        <tr><th>President Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.PresidentName) ? Model.AffInstituteDetails.PresidentName : "—")</td></tr>
+                                        <tr><th>Category of Organisation</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.CategoryOfOrganisation) ? Model.AffInstituteDetails.CategoryOfOrganisation : "—")</td></tr>
+                                        <tr><th>Address</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.Address) ? Model.AffInstituteDetails.Address : "—")</td></tr>
+                                        <tr><th>Mobile Number</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.MobileNumber) ? Model.AffInstituteDetails.MobileNumber : "—")</td></tr>
+                                        <tr><th>Email ID</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.EmailId) ? Model.AffInstituteDetails.EmailId : "—")</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="table-responsive mb-4">
+                                <h5 class="mb-2 fw-bold">Trust Contact Person</h5>
+                                <table class="table table-sm data-table align-middle mb-0">
+                                    <tbody>
+                                        <tr><th>Full Name</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonName) ? Model.AffInstituteDetails.ContactPersonName : "—")</td></tr>
+                                        <tr><th>Designation</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonRelation) ? Model.AffInstituteDetails.ContactPersonRelation : "—")</td></tr>
+                                        <tr><th>Mobile</th><td>@(!string.IsNullOrWhiteSpace(Model.AffInstituteDetails.ContactPersonMobile) ? Model.AffInstituteDetails.ContactPersonMobile : "—")</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="table-responsive">
+                                <h5 class="mb-2 fw-bold">Upload Documents</h5>
+                                <table class="table table-sm data-table align-middle mb-0">
+                                    <tbody>
+                                        <tr><th>Trust PAN File</th><td>@(Model.AffInstituteDetails.hasPANFile ? "Uploaded" : "Not Uploaded")</td></tr>
+                                        <tr><th>Bank Statement</th><td>@(Model.AffInstituteDetails.hasBankStatementFile ? "Uploaded" : "Not Uploaded")</td></tr>
+                                        <tr><th>Registration Certificate</th><td>@(Model.AffInstituteDetails.hasRegistrationCertificateFile ? "Uploaded" : "Not Uploaded")</td></tr>
+                                        <tr><th>Audit Statement</th><td>@(Model.AffInstituteDetails.hasAuditStatementFile ? "Uploaded" : "Not Uploaded")</td></tr>
                                     </tbody>
                                 </table>
                             </div>
                         }
                         else
                         {
-                            <div class="empty-state">No bed distribution details available.</div>
+                            <div class="empty-state">No trust institution details available.</div>
                         }
                     </div>
                 </div>
-            }
-            @if (Model.PhysicalFacilities != null)
-            {
-                <div id="DepartmentOffices" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>15 · Department Offices Details</span><a class="preview-report-edit" href="@Url.Action("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><partial name="PhysicalFacilities/_DepartmentOfficesMeuPartial" model="Model.PhysicalFacilities.DeptOfficeMeu" /></div>
-                </div>
-            }
-            @if (Model.AdminTeachAndHostelVM != null)
-            {
-                <div id="HostelDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>16 · Affiliation Hostel Details</span><a class="preview-report-edit" href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><partial name="AdminTeachAndHostel/_HostelDetails" model="Model.AdminTeachAndHostelVM.HostelDetailsVM" /></div>
-                </div>
-            }
 
-            <!-- ============================================================ -->
-            <!-- 17 · VEHICLE REGISTRATION & DOCUMENTS                         -->
-            <!-- RC / Insurance / DL: status 'A' = Available, 'N' = Not available. -->
-            <!-- Falls back to the original partial if the query returns none. -->
-            <!-- ============================================================ -->
-            @if (vehicleDocs.Any() || Model.VehicleDetailsVM != null)
-            {
-                <div id="VehicleDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>17 · Vehicle Registration &amp; Documents</span><a class="preview-report-edit" href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                @if (Model.InstitutionBasicVM != null)
+                {
+                    <div id="TrustMemberDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>03 · Trust Member Details</span><a class="preview-report-edit" href="@Url.Action("Aff_TrustMemberDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_TrustMembersDetails", Model.InstitutionBasicVM)</div>
+                    </div>
+                    <div id="DeanDirectorDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>04 · Staff Particulars - Dean / Director</span><a class="preview-report-edit" href="@Url.Action("Dean_DirectorDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_DeanOrDirectorDetails", Model.InstitutionBasicVM)</div>
+                    </div>
+                    <div id="PrincipalDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>05 · Staff Particulars - Principal</span><a class="preview-report-edit" href="@Url.Action("Aff_PrincipalDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">@await Html.PartialAsync("BasicDetails/_PrincipalDetails", Model.InstitutionBasicVM)</div>
+                    </div>
+                }
+
+                @if (isUgPreview)
+                {
+                    <div id="MBBSDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>06 · Details of MBBS Course - UG</span><a class="preview-report-edit" href="@Url.Action("Details_Of_MBBS", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">
+                            @if (Model.InstitutionBasicVM != null)
+                            {
+                                @await Html.PartialAsync("BasicDetails/_AffiliatedUgCourseDetails", Model.InstitutionBasicVM)
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div id="CourseIntakeList" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>07 · Course Intake List</span><a class="preview-report-edit" href="@Url.Action("MedicalCollegeCourseIntake", "ContinuousAffiliationIncreaseintake")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
                     <div class="preview-report-body">
-                        @if (vehicleDocs.Any())
+                        @if (Model.CourseIntakeList.Any())
                         {
+                            var isEnhancementApplication = !string.IsNullOrWhiteSpace(Model.ApplicationType)
+                                && (Model.ApplicationType.Contains("Enhancement", StringComparison.OrdinalIgnoreCase)
+                                    || Model.ApplicationType.Contains("Increase in Intake", StringComparison.OrdinalIgnoreCase));
+
                             <div class="table-responsive">
-                                <table class="table table-sm data-table align-middle mb-0">
+                                <table class="table table-sm data-table wide align-middle mb-0">
                                     <thead>
                                         <tr>
-                                            <th>#</th>
-                                            <th>Vehicle Reg. No</th>
-                                            <th>Vehicle For</th>
-                                            <th class="text-center">Seating Capacity</th>
-                                            <th>Validity Date</th>
-                                            <th class="text-center">RC Book</th>
-                                            <th class="text-center">Insurance</th>
-                                            <th class="text-center">Driving Licence</th>
+                                            <th>Course</th>
+                                            <th>Application Type</th>
+                                            <th>Applying Course Level</th>
+                                            <th class="text-center">Present Intake</th>
+                                            @if (isEnhancementApplication)
+                                            {
+                                                <th class="text-center">Additional Seats Requested</th>
+                                                <th class="text-center">Total Seats</th>
+                                            }
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @{
-                                            var vSno = 0;
-                                        }
-                                        @foreach (var veh in vehicleDocs)
+                                        @foreach (var item in Model.CourseIntakeList)
                                         {
                                             <tr>
-                                                <td>@(++vSno)</td>
-                                                <td>@(string.IsNullOrWhiteSpace(veh.VehicleRegNo) ? "—" : veh.VehicleRegNo.Trim())</td>
-                                                <td>@veh.VehicleTypeName</td>
-                                                <td class="text-center">@(veh.SeatingCapacity?.ToString() ?? "—")</td>
-                                                <td>@(veh.ValidityDate.HasValue ? veh.ValidityDate.Value.ToString("dd-MM-yyyy") : "—")</td>
-                                                <td class="text-center">
-                                                    @if (veh.HasRc)
-                                                    {
-                                                        <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
-                                                    }
-                                                    else
-                                                    {
+                                                <td>@item.CourseName</td>
+                                                <td>@(string.IsNullOrWhiteSpace(Model.ApplicationType) ? "—" : Model.ApplicationType)</td>
+                                                <td>@(string.IsNullOrWhiteSpace(item.ApplyingCourseLevel) ? item.CourseLevel : item.ApplyingCourseLevel)</td>
+                                                <td class="text-center">@(item.Intake?.ToString() ?? "—")</td>
+                                                @if (isEnhancementApplication)
+                                                {
+                                                    <td class="text-center">@(item.AdditionalSeatsRequested.HasValue ? item.AdditionalSeatsRequested.Value.ToString() : "—")</td>
+                                                    <td class="text-center">@(item.TotalSeats.HasValue ? item.TotalSeats.Value.ToString() : "—")</td>
+                                                }
 
-                                                        <span class="doc-badge doc-badge-no">Not available</span>
-                                                    }
-                                                </td>
-                                                <td class="text-center">
-                                                    @if (veh.HasInsurance)
-                                                    {
-                                                        <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
-                                                    }
-                                                    else
-                                                    {
-
-                                                        <span class="doc-badge doc-badge-no">Not available</span>
-                                                    }
-                                                </td>
-                                                <td class="text-center">
-                                                    @if (veh.HasDl)
-                                                    {
-                                                        <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
-                                                    }
-                                                    else
-                                                    {
-
-                                                        <span class="doc-badge doc-badge-no">Not available</span>
-                                                    }
-                                                </td>
                                             </tr>
                                         }
                                     </tbody>
@@ -1820,162 +1427,569 @@
                         }
                         else
                         {
-                            @await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehicleDetailsVM)
+                            <div class="empty-state">No course intake details available for the selected college and course level.</div>
                         }
                     </div>
                 </div>
-            }
 
-            @if (isUgPreview && Model.CAacademicMattersVM != null)
-            {
-                <div id="AcademicMattersUG" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>18 · Academic Matters - UG</span><a class="preview-report-edit" href="@Url.Action("AcademicMatters", "CA_Aff_AcademicMatters")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">@await Html.PartialAsync("AcademicMatters/_AcademicMatters", Model.CAacademicMattersVM)</div>
-                </div>
-            }
-            @if (Model.FinanceVm != null)
-            {
-                <div id="AccountAndFeeDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>19 · Account and Fee Details</span><a class="preview-report-edit" href="@Url.Action("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><partial name="FinancialDetails/_AccountAndFeeDetailsPreview" model="Model.FinanceVm" /></div>
-                </div>
-            }
-            @if (Model.FinanceVm != null)
-            {
-                <div id="StaffDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>20 · Staff Pay Scale Details</span><a class="preview-report-edit" href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body">
-                        @if (Model.FinanceVm != null)
-                        {
-                            <partial name="FinancialDetails/_StaffParticularsPreview" model="Model.FinanceVm" />
-                        }
-                        else
-                        {
-                            <div class="empty-state">No staff pay scale details available.</div>
-                        }
+                @if (isPgPreview)
+                {
+                    <div id="PGCourseAffiliation" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>08 · PG Course Affiliation - PG</span><a class="preview-report-edit" href="@Url.Action("PgCourses", "AffiliationPgCourse")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">
+                            @* Data comes from Affiliation_PgSsCourseDetails, ...ForGOK, ...RGUHS and
+                               Affiliation_OtherCoursesPermittedByNMC, loaded in the controller by CollegeCode + CourseLevel. *@
+                            @if (!pgCourseTables.Any(pct => pct.Rows.Count > 0))
+                            {
+                                <div class="empty-state">No PG course affiliation details available for this college and course level.</div>
+                            }
+                            else
+                            {
+                                foreach (var pcTable in pgCourseTables.Where(pcx => pcx.Rows.Count > 0))
+                                {
+                                    <div class="mb-4">
+                                        <h5 class="mb-2 fw-bold">@pcTable.Title</h5>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm data-table wide align-middle mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        @foreach (var pcHeader in pcTable.Headers)
+                                                        {
+                                                            <th>@pcHeader</th>
+                                                        }
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @for (var pcRow = 0; pcRow < pcTable.Rows.Count; pcRow++)
+                                                    {
+                                                        <tr>
+                                                            <td>@(pcRow + 1)</td>
+                                                            @foreach (var pcCell in pcTable.Rows[pcRow])
+                                                            {
+                                                                <td>@pcCell</td>
+                                                            }
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
                     </div>
-                </div>
-            }
-            @if (isPgPreview)
-            {
-                <div id="AcademicMattersPG" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>21 · Academic Matters PG - PG</span><a class="preview-report-edit" href="@Url.Action("AcademicMattersPG", "CA_Aff_AcademicMatters")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><div class="empty-state">No separate PG academic preview data is available.</div></div>
-                </div>
-            }
 
-            @if (Model.FacultyDesigNonTeachDisplayVM != null)
-            {
-                <div id="FacultyDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>22 · Faculty Details</span><a class="preview-report-edit" href="@Url.Action("Repo_FacultyDetails", "FacultyDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_FacultyDetails" model="Model.FacultyDesigNonTeachDisplayVM.FacultyDetailDisplayVM" /></div>
-                </div>
-                <div id="NonTeachingStaffDetails" class="preview-report-section">
-                    <h2 class="preview-report-heading"><span>23 · Non-Teaching Staff Details</span><a class="preview-report-edit" href="@Url.Action("NonTeachingStaffDepartmentwise", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
-                    <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_NonTeachingStaffDetails" model="Model.FacultyDesigNonTeachDisplayVM.NonTeachingStaffSectionVM" /></div>
-                </div>
-            }
-            @if (Model.LibraryDisplay != null)
-            {
-                <div id="ResearchLibrary" class="preview-report-section">
+                    @* 08A - 08F · PG-only sections. Multi-row tables are wide and scroll horizontally. *@
+                    @foreach (var pgGroup in pgSections)
+                    {
+                        <div id="@pgGroup.Anchor" class="preview-report-section">
+                            <h2 class="preview-report-heading"><span>@pgGroup.Number · @pgGroup.Title</span></h2>
+                            <div class="preview-report-body">
+                                @if (!pgGroup.HasData)
+                                {
+                                    <div class="empty-state">No records available for this college, course level and application type.</div>
+                                }
+                                else
+                                {
+                                    foreach (var pgTable in pgGroup.Tables)
+                                    {
+                                        <div class="mb-4">
+                                            <h5 class="mb-2 fw-bold">@pgTable.Title</h5>
+                                            @if (pgTable.Rows.Count == 0)
+                                            {
+                                                <div class="empty-state">No records available.</div>
+                                            }
+                                            else if (pgTable.Rows.Count == 1)
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm data-table align-middle mb-0">
+                                                        <tbody>
+                                                            @for (var pgCol = 0; pgCol < pgTable.Headers.Count; pgCol++)
+                                                            {
+                                                                <tr><th>@pgTable.Headers[pgCol]</th><td>@pgTable.Rows[0][pgCol]</td></tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm data-table wide align-middle mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                @foreach (var pgHeader in pgTable.Headers)
+                                                                {
+                                                                    <th>@pgHeader</th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (var pgRow = 0; pgRow < pgTable.Rows.Count; pgRow++)
+                                                            {
+                                                                <tr>
+                                                                    <td>@(pgRow + 1)</td>
+                                                                    @foreach (var pgCell in pgTable.Rows[pgRow])
+                                                                    {
+                                                                        <td class="@(pgCell != null && pgCell.Length > 60 ? "wrap" : "")">@pgCell</td>
+                                                                    }
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+
+                @if (isSsPreview)
+                {
+                    <div id="SSCourseAffiliation" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>09 · Super Specialty Courses - SS</span><a class="preview-report-edit" href="@Url.Action("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body"><div class="empty-state">No Super Specialty course preview data is available.</div></div>
+                    </div>
+                }
+
+                @if (Model.PhysicalFacilities != null)
+                {
+                    <div id="LandBuilding" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>10 · Land, Building &amp; Teaching Facilities</span><a class="preview-report-edit" href="@Url.Action("Medical_LandBuildingdetails", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body"><partial name="PhysicalFacilities/_SmallGroupTeaching" model="Model.PhysicalFacilities.SmallGroupTeaching" /></div>
+                    </div>
+                    <div id="SkillsLaboratory" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>11 · Skills Laboratory</span><a class="preview-report-edit" href="@Url.Action("Medical_SkillsLaboratory", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">
+                            @if (skillsLab != null)
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-sm data-table align-middle mb-0">
+                                        <tbody>
+                                            <tr><th>Annual MBBS Intake</th><td>@Num(slAnnualMbbsIntake)</td><th></th><td></td></tr>
+                                            <tr><th>Total Area Available (Sq.m)</th><td>@Dec(skillsLab.TotalAreaAvailableSqm)</td><th>Total Area Required (Sq.m)</th><td>@Dec(skillsLab.TotalAreaRequiredSqm)</td></tr>
+                                            <tr><th>Area Deficiency (Sq.m)</th><td>@Dec(skillsLab.TotalAreaDeficiencySqm)</td><th>6 Weeks Training Completed Before Clinical</th><td>@Yn(skillsLab.SixWeeksTrainingCompletedBeforeClinical)</td></tr>
+                                            <tr><th>Number of Examination Rooms</th><td>@Num(skillsLab.NumberOfExaminationRooms)</td><th>Minimum Four Exam Rooms</th><td>@Yn(skillsLab.HasMinFourExamRooms)</td></tr>
+                                            <tr><th>Demo Room for Small Groups</th><td>@Yn(skillsLab.HasDemoRoomSmallGroups)</td><th>Debrief Area</th><td>@Yn(skillsLab.HasDebriefArea)</td></tr>
+                                            <tr><th>Faculty Coordinator Room</th><td>@Yn(skillsLab.HasFacultyCoordinatorRoom)</td><th>Support Staff Room</th><td>@Yn(skillsLab.HasSupportStaffRoom)</td></tr>
+                                            <tr><th>Storage for Mannequins</th><td>@Yn(skillsLab.HasStorageForMannequins)</td><th>Video Recording Facility</th><td>@Yn(skillsLab.HasVideoRecordingFacility)</td></tr>
+                                            <tr><th>Number of Skill Stations</th><td>@Num(skillsLab.NumberOfSkillStations)</td><th>Group &amp; Individual Stations</th><td>@Yn(skillsLab.HasGroupAndIndividualStations)</td></tr>
+                                            <tr><th>Required Trainers &amp; Mannequins</th><td>@Yn(skillsLab.HasRequiredTrainersAndMannequins)</td><th>Dedicated Technical Officer</th><td>@Yn(skillsLab.HasDedicatedTechnicalOfficer)</td></tr>
+                                            <tr><th>Adequate Support Staff</th><td>@Yn(skillsLab.HasAdequateSupportStaff)</td><th>Teaching Areas Have AV</th><td>@Yn(skillsLab.TeachingAreasHaveAV)</td></tr>
+                                            <tr><th>Teaching Areas Have Internet</th><td>@Yn(skillsLab.TeachingAreasHaveInternet)</td><th>Enabled for E-Learning</th><td>@Yn(skillsLab.SkillsLabEnabledForELearning)</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state">No skills laboratory details available.</div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div id="AssociatedInstitutions" class="preview-report-section">
                     <h2 class="preview-report-heading">
-                        <span>24 · Research &amp; Library</span>
-                        <span class="d-flex gap-2">
-                            <a class="preview-report-edit" href="@Url.Action("MedicalLibrary", "CA_Aff_MedicalLibrary")"><i class="bi bi-pencil-square me-1"></i>Edit Library</a>
-                            <a class="preview-report-edit" href="@Url.Action("CA_Med_ResearchPublicationsDetails", "CA_Med_ResearchPublications")"><i class="bi bi-pencil-square me-1"></i>Edit Research</a>
-                        </span>
+                        <span>12 · Associated Institutions</span>
+                        <a class="preview-report-edit" href="@Url.Action("AssociatedInstitutions", "AffiliationSS")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
                     </h2>
                     <div class="preview-report-body">
-                        @await Html.PartialAsync("Library/LibraryPreview", Model.LibraryDisplay)
-                    </div>
-                </div>
-            }
-            @if (Model.PaymentVM != null || Model.PaymentCalculation?.HasResult == true)
-            {
-                <div id="PaymentCalculation" class="preview-report-section">
-                    <h2 class="preview-report-heading">
-                        <span>25 · Payment Calculation</span>
-                        @if (Model.IsApplicationComplete)
-                        {
-                            <a class="preview-report-edit" href="@Url.Action("Index", "PaymentCalculation")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
-                        }
-                    </h2>
-                    <div class="preview-report-body">
-                        @if (Model.PaymentCalculation?.HasResult == true)
+                        @if (associatedInstitutions.Any())
                         {
                             <div class="table-responsive">
-                                <table class="table table-sm data-table align-middle mb-0">
+                                <table class="table table-sm data-table wide align-middle mb-0">
                                     <thead>
-                                        <tr><th>Fee Head</th><th class="text-end">Unit Amount</th><th class="text-end">Quantity</th><th class="text-end">Amount</th></tr>
+                                        <tr>
+                                            <th>sl no</th>
+                                            <th>Associated College</th>
+                                            <th>Associated Faculty Code</th>
+                                            <th>Course Name</th>
+                                            <th>Course Level</th>
+                                            <th>Affiliation Type</th>
+                                            <th class="text-center">Annual Intake</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var fee in Model.PaymentCalculation.FeeLines)
-                                        {
-                                            <tr><td>@fee.FeeHeadName</td><td class="text-end">₹ @fee.UnitAmount.ToString("N2")</td><td class="text-end">@fee.Multiplier</td><td class="text-end">₹ @fee.LineAmount.ToString("N2")</td></tr>
+                                        @{
+                                            var aiSno = 0;
                                         }
-                                        <tr class="fw-bold"><td colspan="3">Grand Total</td><td class="text-end">₹ @Model.PaymentCalculation.Summary?.GrandTotal.ToString("N2")</td></tr>
+                                        @foreach (var ai in associatedInstitutions)
+                                        {
+                                            <tr>
+                                                <td>@(++aiSno)</td>
+                                                <td>
+                                                    @(!string.IsNullOrWhiteSpace(ai.AssociatedCollegeName) ? ai.AssociatedCollegeName.Trim()
+                                              : !string.IsNullOrWhiteSpace(ai.AssociatedCollegeCode) ? ai.AssociatedCollegeCode : "—")
+                                                </td>
+                                                <td>@(string.IsNullOrWhiteSpace(ai.AssociatedFacultyCode) ? "—" : ai.AssociatedFacultyCode)</td>
+                                                <td>@(string.IsNullOrWhiteSpace(ai.CourseName) ? "—" : ai.CourseName)</td>
+                                                <td>@(string.IsNullOrWhiteSpace(ai.CourseLevel) ? "—" : ai.CourseLevel)</td>
+                                                <td>@(string.IsNullOrWhiteSpace(ai.TypeOfAffiliation) ? "—" : ai.TypeOfAffiliation)</td>
+                                                <td class="text-center">@(ai.AnnualIntake?.ToString() ?? "—")</td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
                         }
-                        else if (Model.IsApplicationComplete && Model.PaymentVM != null)
-                        {
-                            @await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)
-                        }
                         else
                         {
-                            <div class="alert alert-secondary mb-0">
-                                Payment is available after the application reaches 100% completion. Current completion: <strong>@Model.CompletionPercentage%</strong>.
-                            </div>
+                            <div class="empty-state">No associated institutions available for this college.</div>
                         }
                     </div>
                 </div>
-            }
+
+                @if (Model.CAHospitalAFfiliationCompVM != null)
+                {
+                    <div id="ClinicalFacilities" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>13 · Clinical Facilities</span><a class="preview-report-edit" href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">@await Html.PartialAsync("ClinicalFacilities/_HospitalAffiliation", Model.CAHospitalAFfiliationCompVM)</div>
+                    </div>
+                }
+
+                <div id="GeoPhotos" class="preview-report-section">
+                    <h2 class="preview-report-heading">
+                        <span>13A · Geo-Tagged Photos</span>
+                        <a class="preview-report-edit" href="@Url.Action("Index", "GeoPhoto")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
+                    </h2>
+                    <div class="preview-report-body">
+                        @await Html.PartialAsync("GeoPhotos/_GeoPhotos", Model.GeoPhotos)
+                    </div>
+                </div>
+
+                <div id="OutpatientArea" class="preview-report-section">
+                    <h2 class="preview-report-heading"><span>13B · Outpatient Area</span><a class="preview-report-edit" href="@Url.Action("ClinicalFacilities", "ContinuationAffiliationClinicalFacilities")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                    <div class="preview-report-body">
+                        @if (outpatientRows.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm data-table wide align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Requirement</th>
+                                            <th class="text-center">Compliant</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var opSno = 0;
+                                        }
+                                        @foreach (var op in outpatientRows)
+                                        {
+                                            <tr>
+                                                <td>@(++opSno)</td>
+                                                <td>@(string.IsNullOrWhiteSpace(op.RequirementName) ? "Requirement #" + op.RequirementId : op.RequirementName)</td>
+                                                <td class="text-center" title="Stored value: @(op.IsCompliantRaw ?? "NULL") | Row Id: @op.Id | Hospital: @op.HospitalDetailsId">
+                                                    @if (op.IsCompliant == true)
+                                                    {
+                                                        <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Yes</span>
+                                                    }
+                                                    else if (op.IsCompliant == false)
+                                                    {
+                                                        <span class="doc-badge doc-badge-no">No</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="doc-badge doc-badge-no">—</span>
+                                                    }
+                                                </td>
+                                                <td class="wrap">@(string.IsNullOrWhiteSpace(op.Remarks) ? "—" : op.Remarks)</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">No outpatient area details available.</div>
+                        }
+                    </div>
+                </div>
+
+                @if (isUgPreview)
+                {
+                    <div id="BedDistribution" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>14 · Bed Distribution - MBBS - UG</span><a class="preview-report-edit" href="@Url.Action("MedicalUGBedDistribution", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">
+                            @if (Model.BedDistribution != null)
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-sm data-table align-middle mb-0">
+                                        <tbody>
+                                            <tr><th>General Medicine</th><td>@Model.BedDistribution.GenMedicine</td><th>Paediatrics</th><td>@Model.BedDistribution.Paediatrics</td></tr>
+                                            <tr><th>Skin &amp; V.D.</th><td>@Model.BedDistribution.SkinVD</td><th>Psychiatry</th><td>@Model.BedDistribution.Psychiatry</td></tr>
+                                            <tr><th>General Surgery</th><td>@Model.BedDistribution.GenSurgery</td><th>Orthopaedics</th><td>@Model.BedDistribution.Orthopaedics</td></tr>
+                                            <tr><th>Ophthalmology</th><td>@Model.BedDistribution.Ophthalmology</td><th>ENT</th><td>@Model.BedDistribution.ENT</td></tr>
+                                            <tr><th>Obstetrics &amp; ANC</th><td>@Model.BedDistribution.ObstetricsANC</td><th>Gynaecology</th><td>@Model.BedDistribution.Gynaecology</td></tr>
+                                            <tr><th>Postpartum</th><td>@Model.BedDistribution.Postpartum</td><th>Major OT</th><td>@Model.BedDistribution.MajorOT</td></tr>
+                                            <tr><th>Minor OT</th><td>@Model.BedDistribution.MinorOT</td><th>ICCU</th><td>@Model.BedDistribution.ICCU</td></tr>
+                                            <tr><th>ICU</th><td>@Model.BedDistribution.ICU</td><th>PICU / NICU</th><td>@Model.BedDistribution.PICU_NICU</td></tr>
+                                            <tr><th>SICU</th><td>@Model.BedDistribution.SICU</td><th>Casualty Beds</th><td>@Model.BedDistribution.CasualtyBeds</td></tr>
+                                            <tr><th>Total ICU Beds</th><td colspan="3">@Model.BedDistribution.TotalICUBeds</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state">No bed distribution details available.</div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (Model.PhysicalFacilities != null)
+                {
+                    <div id="DepartmentOffices" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>15 · Department Offices Details</span><a class="preview-report-edit" href="@Url.Action("Medical_DepartmentOfficesAndEducationalUnit", "Medical_ContinuousAffiliation")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body"><partial name="PhysicalFacilities/_DepartmentOfficesMeuPartial" model="Model.PhysicalFacilities.DeptOfficeMeu" /></div>
+                    </div>
+                }
+
+                @if (Model.AdminTeachAndHostelVM != null)
+                {
+                    <div id="HostelDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>16 · Affiliation Hostel Details</span><a class="preview-report-edit" href="@Url.Action("Aff_HostelDetails", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body"><partial name="AdminTeachAndHostel/_HostelDetails" model="Model.AdminTeachAndHostelVM.HostelDetailsVM" /></div>
+                    </div>
+                }
+
+                @if (vehicleDocs.Any() || Model.VehicleDetailsVM != null)
+                {
+                    <div id="VehicleDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>17 · Vehicle Registration &amp; Documents</span><a class="preview-report-edit" href="@Url.Action("CA_VehicleDetails", "Aff_AHS_ContinousApplication")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">
+                            @if (vehicleDocs.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-sm data-table wide align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Vehicle Reg. No</th>
+                                                <th>Vehicle For</th>
+                                                <th class="text-center">Seating Capacity</th>
+                                                <th>Validity Date</th>
+                                                <th class="text-center">RC Book</th>
+                                                <th class="text-center">Insurance</th>
+                                                <th class="text-center">Driving Licence</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                var vSno = 0;
+                                            }
+                                            @foreach (var veh in vehicleDocs)
+                                            {
+                                                <tr>
+                                                    <td>@(++vSno)</td>
+                                                    <td>@(string.IsNullOrWhiteSpace(veh.VehicleRegNo) ? "—" : veh.VehicleRegNo.Trim())</td>
+                                                    <td>@veh.VehicleTypeName</td>
+                                                    <td class="text-center">@(veh.SeatingCapacity?.ToString() ?? "—")</td>
+                                                    <td>@(veh.ValidityDate.HasValue ? veh.ValidityDate.Value.ToString("dd-MM-yyyy") : "—")</td>
+                                                    <td class="text-center">
+                                                        @if (veh.HasRc)
+                                                        {
+                                                            <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
+                                                        }
+                                                        else
+                                                        {
+
+                                                            <span class="doc-badge doc-badge-no">Not available</span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if (veh.HasInsurance)
+                                                        {
+                                                            <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
+                                                        }
+                                                        else
+                                                        {
+
+                                                            <span class="doc-badge doc-badge-no">Not available</span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if (veh.HasDl)
+                                                        {
+                                                            <span class="doc-badge doc-badge-yes"><i class="bi bi-check-circle-fill"></i> Available</span>
+                                                        }
+                                                        else
+                                                        {
+
+                                                            <span class="doc-badge doc-badge-no">Not available</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                @await Html.PartialAsync("VehicleDetails/VehicleDetailsPreview", Model.VehicleDetailsVM)
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (isUgPreview && Model.CAacademicMattersVM != null)
+                {
+                    <div id="AcademicMattersUG" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>18 · Academic Matters - UG</span><a class="preview-report-edit" href="@Url.Action("AcademicMatters", "CA_Aff_AcademicMatters")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">@await Html.PartialAsync("AcademicMatters/_AcademicMatters", Model.CAacademicMattersVM)</div>
+                    </div>
+                }
+
+                @if (Model.FinanceVm != null)
+                {
+                    <div id="AccountAndFeeDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>19 · Account and Fee Details</span><a class="preview-report-edit" href="@Url.Action("Med_CA_AccountAndFeeDetails", "Aff_CA_Med_FinanceDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body"><partial name="FinancialDetails/_AccountAndFeeDetailsPreview" model="Model.FinanceVm" /></div>
+                    </div>
+                    <div id="StaffDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>20 · Staff Pay Scale Details</span><a class="preview-report-edit" href="@Url.Action("CA_Med_StaffDetails", "CA_Med_StaffDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body"><partial name="FinancialDetails/_StaffParticularsPreview" model="Model.FinanceVm" /></div>
+                    </div>
+                }
+
+                @if (isPgPreview)
+                {
+                    <div id="AcademicMattersPG" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>21 · Academic Matters PG - PG</span><a class="preview-report-edit" href="@Url.Action("AcademicMattersPG", "CA_Aff_AcademicMatters")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body">
+                            @if (pgAcademicTable.Rows.Count == 0)
+                            {
+                                <div class="empty-state">No PG academic performance details available for this college and course level.</div>
+                            }
+                            else
+
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-sm data-table wide align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                @foreach (var apHeader in pgAcademicTable.Headers)
+                                                {
+                                                    <th>@apHeader</th>
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (var apRow = 0; apRow < pgAcademicTable.Rows.Count; apRow++)
+                                            {
+                                                <tr>
+                                                    <td>@(apRow + 1)</td>
+                                                    @for (var apCol = 0; apCol < pgAcademicTable.Rows[apRow].Count; apCol++)
+                                                    {
+                                                        var apCell = pgAcademicTable.Rows[apRow][apCol];
+                                                        <td class="@(apCol == pgAcademicTable.Rows[apRow].Count - 1 && apCell.Length > 40 ? "wrap" : "")">@apCell</td>
+                                                    }
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (Model.FacultyDesigNonTeachDisplayVM != null)
+                {
+                    <div id="FacultyDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>22 · Faculty Details</span><a class="preview-report-edit" href="@Url.Action("Repo_FacultyDetails", "FacultyDetails")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_FacultyDetails" model="Model.FacultyDesigNonTeachDisplayVM.FacultyDetailDisplayVM" /></div>
+                    </div>
+                    <div id="NonTeachingStaffDetails" class="preview-report-section">
+                        <h2 class="preview-report-heading"><span>23 · Non-Teaching Staff Details</span><a class="preview-report-edit" href="@Url.Action("NonTeachingStaffDepartmentwise", "ContinuesAffiliation_Facultybased")"><i class="bi bi-pencil-square me-1"></i>Edit</a></h2>
+                        <div class="preview-report-body"><partial name="FacultyDesigNonTeaching/_NonTeachingStaffDetails" model="Model.FacultyDesigNonTeachDisplayVM.NonTeachingStaffSectionVM" /></div>
+                    </div>
+                }
+
+                @if (Model.LibraryDisplay != null)
+                {
+                    <div id="ResearchLibrary" class="preview-report-section">
+                        <h2 class="preview-report-heading">
+                            <span>24 · Research &amp; Library</span>
+                            <span class="d-flex gap-2" style="flex:none">
+                                <a class="preview-report-edit" href="@Url.Action("MedicalLibrary", "CA_Aff_MedicalLibrary")"><i class="bi bi-pencil-square me-1"></i>Edit Library</a>
+                                <a class="preview-report-edit" href="@Url.Action("CA_Med_ResearchPublicationsDetails", "CA_Med_ResearchPublications")"><i class="bi bi-pencil-square me-1"></i>Edit Research</a>
+                            </span>
+                        </h2>
+                        <div class="preview-report-body">@await Html.PartialAsync("Library/LibraryPreview", Model.LibraryDisplay)</div>
+                    </div>
+                }
+
+                @if (Model.PaymentVM != null || Model.PaymentCalculation?.HasResult == true)
+                {
+                    <div id="PaymentCalculation" class="preview-report-section">
+                        <h2 class="preview-report-heading">
+                            <span>25 · Payment Calculation</span>
+                            @if (Model.IsApplicationComplete)
+                            {
+                                <a class="preview-report-edit" href="@Url.Action("Index", "PaymentCalculation")"><i class="bi bi-pencil-square me-1"></i>Edit</a>
+                            }
+                        </h2>
+                        <div class="preview-report-body">
+                            @if (Model.PaymentCalculation?.HasResult == true)
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-sm data-table wide align-middle mb-0">
+                                        <thead>
+                                            <tr><th>Fee Head</th><th class="text-end">Unit Amount</th><th class="text-end">Quantity</th><th class="text-end">Amount</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var fee in Model.PaymentCalculation.FeeLines)
+                                            {
+                                                <tr><td>@fee.FeeHeadName</td><td class="text-end">₹ @fee.UnitAmount.ToString("N2")</td><td class="text-end">@fee.Multiplier</td><td class="text-end">₹ @fee.LineAmount.ToString("N2")</td></tr>
+                                            }
+                                            <tr class="fw-bold"><td colspan="3">Grand Total</td><td class="text-end">₹ @Model.PaymentCalculation.Summary?.GrandTotal.ToString("N2")</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else if (Model.IsApplicationComplete && Model.PaymentVM != null)
+                            {
+                                @await Html.PartialAsync("PaymentDetails/paymentDetails", Model.PaymentVM)
+                            }
+                            else
+                            {
+                                <div class="alert alert-secondary mb-0">
+                                    Payment is available after the application reaches 100% completion. Current completion: <strong>@Model.CompletionPercentage%</strong>.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
 
-        <!-- ========================= -->
-        <!-- FOOTER ACTIONS -->
-        <!-- ========================= -->
-        <div class="page-actions d-flex justify-content-start align-items-center">
-            <a href="@Url.Action("Payment", "AffiliationPayment")" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i>
-                Previous
-            </a>
-        </div>
+        @* <div class="page-actions d-flex justify-content-start align-items-center">
+            <a href="@Url.Action("Payment", "AffiliationPayment")" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Previous</a>
+        </div> *@
     </div>
 </div>
 
-<div class="modal fade preview-modal" id="tabPreviewModal" tabindex="-1" aria-labelledby="tabPreviewModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="tabPreviewModalTitle">Tab Preview</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close preview"></button>
-            </div>
-            <div class="modal-body">
-                <iframe id="tabPreviewFrame" title="Selected tab preview" loading="lazy"></iframe>
-            </div>
-            <div class="modal-footer">
-                <span class="me-auto text-muted small">Review the selected page below or open it for editing.</span>
-                <a id="tabPreviewEdit" href="#">Edit this page</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ========================= -->
-<!-- CONSENT MODAL -->
-<!-- ========================= -->
+<!-- ============ CONSENT MODAL ============ -->
 <div class="modal fade consent-modal" id="consentModal" tabindex="-1" aria-labelledby="consentModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <div class="consent-modal-eyebrow">
-                        <i class="bi bi-bank2"></i>
-                        RGUHS &middot; Continuous Affiliation
-                    </div>
-                    <h2 class="modal-title" id="consentModalTitle">Declaration and Consent</h2>
+                    <div class="consent-modal-eyebrow"><i class="bi bi-bank2"></i> RGUHS · Continuous Affiliation</div>
+                    <h2 class="modal-title" id="consentModalTitle">Declaration and consent</h2>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -2002,7 +2016,7 @@
                 </p>
                 <div class="preview-caution">
                     <i class="bi bi-exclamation-triangle-fill"></i>
-                    <span><strong>Before you proceed:</strong> close this dialog and scroll through every section of the preview, then return here, tick the consent box and click Generate — consent is mandatory to generate the preview PDF.</span>
+                    <span><strong>Before you proceed:</strong> close this dialog and scroll through every section of the preview, then return here, tick the consent box and click Submit. Consent is mandatory.</span>
                 </div>
                 @if (TempData["PreviewError"] != null)
                 {
@@ -2013,14 +2027,12 @@
                     @Html.AntiForgeryToken()
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="declarationConsent" name="declarationConsent" value="true" />
-                        <label class="form-check-label" for="declarationConsent">
-                            I confirm and consent to submit the affiliation application.
-                        </label>
+                        <label class="form-check-label" for="declarationConsent">I confirm and consent to submit the affiliation application.</label>
                     </div>
                     <button type="submit" id="generatePreviewPdf" class="pdf-action" disabled>
-                        <i class="bi bi-send-check-fill"></i> Submit Application
+                        <i class="bi bi-send-check-fill"></i> Submit application
                     </button>
-                    <div class="pdf-hint">You must tick the consent box above to enable this button.</div>
+                    <div class="pdf-hint">Tick the consent box to enable this button.</div>
                 </form>
             </div>
         </div>
@@ -2028,182 +2040,86 @@
 </div>
 
 <script>
-    // Smooth scroll to section when tab is clicked
     document.addEventListener('DOMContentLoaded', function () {
-        const navLinks = document.querySelectorAll('.nav-tabs-custom .nav-link');
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                navLinks.forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-
-                const targetId = this.getAttribute('href');
-                const targetSection = document.querySelector(targetId);
-
-                if (targetSection) {
-                    targetSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+        /* 1. Wrap bare tables so they scroll horizontally; mark header-less tables as key/value */
+        document.querySelectorAll('.preview-report-body table').forEach(function (t) {
+            if (!t.closest('.table-responsive, .scroll-x')) {
+                var wrap = document.createElement('div');
+                wrap.className = 'scroll-x';
+                t.parentNode.insertBefore(wrap, t);
+                wrap.appendChild(t);
+            }
+            t.classList.add('data-table');
+            if (t.querySelectorAll('thead th').length > 5) t.classList.add('wide');
+            if (!t.querySelector('thead')) t.classList.add('kv');
         });
 
-        // Update active tab based on scroll position
-        const sections = document.querySelectorAll('.sections-container > div[id]');
-
-        window.addEventListener('scroll', function () {
-            let current = '';
-
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                if (pageYOffset >= (sectionTop - 150)) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === '#' + current) {
-                    link.classList.add('active');
-                }
+        /* 2. Collapsible sections: click the heading (not its Edit links) */
+        var sections = Array.prototype.slice.call(document.querySelectorAll('.preview-report-section'));
+        sections.forEach(function (sec) {
+            var head = sec.querySelector('.preview-report-heading');
+            var label = head && head.querySelector('span');
+            if (!head || !label) return;
+            var parts = label.textContent.split('\u00b7');
+            if (parts.length > 1) {
+                var badge = document.createElement('span');
+                badge.className = 'pv-no';
+                badge.textContent = parts[0].trim();
+                var text = document.createElement('span');
+                text.textContent = parts.slice(1).join('\u00b7').trim();
+                label.textContent = '';
+                label.appendChild(badge);
+                label.appendChild(text);
+            }
+            var chev = document.createElement('i');
+            chev.className = 'bi bi-chevron-down pv-chev';
+            head.appendChild(chev);
+            head.setAttribute('role', 'button');
+            head.setAttribute('tabindex', '0');
+            var toggle = function () {
+                var c = sec.classList.toggle('collapsed');
+                head.setAttribute('aria-expanded', c ? 'false' : 'true');
+            };
+            head.setAttribute('aria-expanded', 'true');
+            head.addEventListener('click', function (e) { if (!e.target.closest('a')) toggle(); });
+            head.addEventListener('keydown', function (e) {
+                if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('a')) { e.preventDefault(); toggle(); }
             });
         });
+        var setAll = function (collapse) {
+            sections.forEach(function (sec) {
+                sec.classList.toggle('collapsed', collapse);
+                var h = sec.querySelector('.preview-report-heading');
+                if (h) h.setAttribute('aria-expanded', collapse ? 'false' : 'true');
+            });
+        };
+        var ex = document.getElementById('pvExpandAll'), co = document.getElementById('pvCollapseAll');
+        if (ex) ex.addEventListener('click', function () { setAll(false); });
+        if (co) co.addEventListener('click', function () { setAll(true); });
 
-        const consent = document.getElementById('declarationConsent');
-        const pdfAction = document.getElementById('generatePreviewPdf');
-
+        /* 4. Consent modal */
+        var consent = document.getElementById('declarationConsent');
+        var pdfAction = document.getElementById('generatePreviewPdf');
         if (consent && pdfAction) {
-            consent.addEventListener('change', function () {
-                pdfAction.disabled = !consent.checked;
+            consent.addEventListener('change', function () { pdfAction.disabled = !consent.checked; });
+        }
+        var consentEl = document.getElementById('consentModal');
+        var consentModal = consentEl && typeof bootstrap !== 'undefined' ? bootstrap.Modal.getOrCreateInstance(consentEl) : null;
+        if (consentEl) {
+            consentEl.addEventListener('hidden.bs.modal', function () {
+                if (consent) consent.checked = false;
+                if (pdfAction) pdfAction.disabled = true;
             });
         }
-
-        const consentModalElement = document.getElementById('consentModal');
-        const consentModal = consentModalElement && typeof bootstrap !== 'undefined'
-            ? bootstrap.Modal.getOrCreateInstance(consentModalElement)
-            : null;
-
-        if (consentModalElement) {
-            consentModalElement.addEventListener('hidden.bs.modal', function () {
-                if (consent) {
-                    consent.checked = false;
-                }
-                if (pdfAction) {
-                    pdfAction.disabled = true;
-                }
-            });
-        }
-
         @if (TempData["PreviewError"] != null)
         {
-                                    <text>
-                                                        if (consentModal) {
-                                                            consentModal.show();
-                                                        }
-                                    </text>
-        }
-
-        const tabPreviewModalElement = document.getElementById('tabPreviewModal');
-        const tabPreviewFrame = document.getElementById('tabPreviewFrame');
-        const tabPreviewTitle = document.getElementById('tabPreviewModalTitle');
-        const tabPreviewEdit = document.getElementById('tabPreviewEdit');
-        const tabPreviewBody = tabPreviewFrame ? tabPreviewFrame.closest('.modal-body') : null;
-        const tabPreviewModal = tabPreviewModalElement && typeof bootstrap !== 'undefined'
-            ? bootstrap.Modal.getOrCreateInstance(tabPreviewModalElement)
-            : null;
-
-        const makeTabPreviewReadOnly = function () {
-            if (!tabPreviewFrame || !tabPreviewFrame.contentDocument) {
-                return;
-            }
-
-            const previewDocument = tabPreviewFrame.contentDocument;
-            const previewStyle = previewDocument.createElement('style');
-            previewStyle.textContent = `
-                .ca-sb { display: none !important; }
-                .ca-shell { gap: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
-                .ca-main { margin-left: 0 !important; width: 100% !important; }
-                input, select, textarea, button, [contenteditable="true"] { cursor: not-allowed !important; }
-                input:not([type="hidden"]), select, textarea { background: #eef2f6 !important; color: #435273 !important; }
-                input[type="checkbox"], input[type="radio"] { accent-color: #7d8ea1; }
-                button[type="submit"], input[type="submit"], input[type="button"] { display: none !important; }
-            `;
-            previewDocument.head.appendChild(previewStyle);
-
-            previewDocument.querySelectorAll('input, select, textarea, button, [contenteditable="true"]').forEach(function (field) {
-                if (field.matches('input[type="hidden"]')) {
-                    return;
-                }
-
-                if (field.matches('input[type="checkbox"], input[type="radio"], select, button')) {
-                    field.disabled = true;
-                } else if ('readOnly' in field) {
-                    field.readOnly = true;
-                }
-
-                field.setAttribute('aria-readonly', 'true');
-            });
-
-            previewDocument.querySelectorAll('form').forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    event.preventDefault();
-                });
-            });
-
-            if (tabPreviewBody) {
-                tabPreviewBody.classList.remove('is-loading');
-            }
-        };
-
-        if (tabPreviewFrame) {
-            tabPreviewFrame.addEventListener('load', makeTabPreviewReadOnly);
-        }
-
-        document.querySelectorAll('.preview-tab-row span').forEach(function (name) {
-            name.setAttribute('role', 'button');
-            name.setAttribute('tabindex', '0');
-
-            const openPreview = function () {
-                const row = name.closest('.preview-tab-row');
-                const editLink = row ? row.querySelector('a[href]') : null;
-
-                if (!editLink || !tabPreviewModal || !tabPreviewFrame || !tabPreviewEdit) {
-                    return;
-                }
-
-                tabPreviewTitle.textContent = name.textContent.trim() + ' Preview';
-                if (tabPreviewBody) {
-                    tabPreviewBody.classList.add('is-loading');
-                }
-                tabPreviewFrame.src = editLink.href;
-                tabPreviewEdit.href = editLink.href;
-                tabPreviewModal.show();
-            };
-
-            name.addEventListener('click', openPreview);
-            name.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    openPreview();
-                }
-            });
-        });
-
-        if (tabPreviewModalElement && tabPreviewFrame) {
-            tabPreviewModalElement.addEventListener('hidden.bs.modal', function () {
-                tabPreviewFrame.src = 'about:blank';
-            });
+                        <text>if (consentModal) { consentModal.show(); }</text>
         }
     });
 </script>
 
 <script>
-    // Principal Seal & Signature re-upload: keep the section, file input and upload button
-    // visible and enabled at all times (also after the application is submitted), even if a
-    // layout script, other stylesheet or browser extension tries to hide or disable them.
+    // Keep the Principal seal & signature re-upload visible and enabled before AND after submission.
     (function () {
         function force(el, display) {
             if (!el) return;
@@ -2218,7 +2134,6 @@
             el.style.setProperty('opacity', '1', 'important');
             el.style.setProperty('pointer-events', 'auto', 'important');
         }
-
         function keepReuploadAvailable() {
             var section = document.getElementById('SealReupload');
             if (!section) return;
@@ -2228,18 +2143,12 @@
             force(section.querySelector('input[type="file"]'), 'block');
             force(section.querySelector('.reupload-btn'), 'inline-flex');
         }
-
         document.addEventListener('DOMContentLoaded', function () {
             keepReuploadAvailable();
             var section = document.getElementById('SealReupload');
             if (!section) return;
-            var options = {
-                subtree: true,
-                attributes: true,
-                attributeFilter: ['style', 'class', 'hidden', 'disabled', 'readonly', 'aria-disabled']
-            };
+            var options = { subtree: true, attributes: true, attributeFilter: ['style', 'class', 'hidden', 'disabled', 'readonly', 'aria-disabled'] };
             var observer = new MutationObserver(function () {
-                // Pause while we restore state so our own changes don't re-trigger the observer.
                 observer.disconnect();
                 keepReuploadAvailable();
                 observer.observe(section, options);

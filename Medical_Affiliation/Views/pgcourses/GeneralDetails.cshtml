@@ -2,6 +2,11 @@
 @{
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     ViewData["Title"] = "General Details";
+
+    var departmentName = ViewBag.DepartmentName as string;
+    var courseLevel = ViewBag.CourseLevel as string;
+    var facultyCodeUsed = ViewBag.FacultyCodeUsed as string;
+    var collegeCodeUsed = ViewBag.CollegeCodeUsed as string;
 }
 
 <div class="container-fluid py-4">
@@ -12,6 +17,19 @@
             <small class="text-muted">for PG the year @Model.AcademicYear &mdash; @Model.TypeOfAffiliation</small>
         </div>
         <span class="badge bg-secondary">Section A &mdash; GENERAL</span>
+    </div>
+
+    <div class="alert alert-light border d-flex flex-wrap gap-2 gap-md-4 align-items-center py-2 mb-3">
+        <div>
+            <span class="text-muted">Selected department:</span>
+            <strong>@(string.IsNullOrWhiteSpace(departmentName) ? "(not found)" : departmentName)</strong>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(courseLevel))
+        {
+            <div><span class="text-muted">Course level:</span> <strong>@courseLevel</strong></div>
+        }
+        <div><span class="text-muted">College code:</span> <strong>@collegeCodeUsed</strong></div>
+        <div><span class="text-muted">Faculty code:</span> <strong>@facultyCodeUsed</strong></div>
     </div>
 
     @* @if (TempData["SuccessMessage"] != null)

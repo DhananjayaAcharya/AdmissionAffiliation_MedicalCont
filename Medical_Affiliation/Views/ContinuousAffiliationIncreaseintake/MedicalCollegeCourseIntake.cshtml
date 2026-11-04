@@ -64,8 +64,13 @@
         _ => currentCourseLevel
     };
 
-    // Fixed set of allowed "Increased Intake" values shown in the dropdown
+    // Fixed set of allowed "Increased Intake" values shown in the dropdown (UG / SS)
     var increasedIntakeOptions = new[] { 50, 100, 150, 200, 250 };
+
+    // Enhancement of Seats / Increase in Intake + PG  ->  free number entry instead of dropdown.
+    // Model.ShowIncreasedIntakeFields is set by the controller from IsEnhancementApplicationSelectedAsync(),
+    // i.e. it is true exactly when the application type is "Enhancement of Seats / Increase in Intake".
+    var useIntakeTextBox = Model.ShowIncreasedIntakeFields && currentCourseLevel == "PG";
 
     // Converts any saved value (int, int?, decimal, decimal?, string like "100" or "100.00")
     // to an int so it can be compared with the dropdown option values.
@@ -80,521 +85,681 @@
                ? (int?)Convert.ToInt32(number)
                : null;
     };
+
+    // Summary numbers for the header strip
+    var totalCourses = Model.Courses?.Count ?? 0;
+    var totalIntake = Model.Courses == null ? 0 : Model.Courses.Sum(c => toInt(c.Intake2627) ?? 0);
+    var logoUrl = Url.Content("~/images/newLogo.jpeg");
 }
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
 <style>
-    :root {
-        --navy: #102b4c;
-        --navy-deep: #0a1c36;
-        --blue: #1a4bbd;
-        --blue-soft: #eaf1ff;
-        --gold: #c9a24b;
-        --gold-soft: #f5e7b7;
-        --surface: #f2f6fb;
+    @@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    .ci-page {
+        --ink: #1f2937;
+        --ink-2: #374151;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --line-soft: #eceef1;
+        --bg: #f3f4f6;
+        --soft: #f9fafb;
         --card: #ffffff;
-        --bdr: #d7e1ee;
-        --txt: #1f2d3d;
-        --muted: #667b93;
-        --ok: #127c5f;
-        --ok-bg: #eaf8f3;
-        --err: #be3b32;
-        --err-bg: #fdeceb;
-        --fh: 'Georgia', 'Times New Roman', serif;
-        --fb: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        --radius: 10px;
+        --accent: #374151;
+        --accent-dark: #1f2937;
+        --ok: #1e6b3a;
+        --ok-bg: #e9f5ee;
+        --err: #b42318;
+        --err-bg: #fdecea;
+        --shadow: 0 1px 2px rgba(17,24,39,.05), 0 6px 18px rgba(17,24,39,.05);
+        --font-serif: 'EB Garamond', Georgia, serif;
+        --font-sans: 'DM Sans', -apple-system, 'Segoe UI', sans-serif;
+        --pad: clamp(.8rem, 2.2vw, 1.3rem);
+        position: relative;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        padding: 1rem 0 2rem;
+        border-radius: 12px;
     }
 
-    .course-intake-page {
-        min-height: 100%;
-        padding: 0 0 2.5rem;
-        background: linear-gradient(180deg, #edf3f8 0%, #f7f9fc 100%);
-        color: var(--txt);
-        font-family: var(--fb);
+        .ci-page *, .ci-page *::before, .ci-page *::after {
+            box-sizing: border-box;
+        }
+
+        /* logo watermark */
+        .ci-page::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            background: var(--wm) center center / min(480px, 60vw) auto no-repeat;
+            opacity: .07;
+            mix-blend-mode: multiply;
+            filter: grayscale(1);
+        }
+
+    .ci-wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 var(--pad);
     }
 
-    .gov-strip {
-        height: 5px;
-        background: linear-gradient(90deg, var(--navy) 0%, var(--navy) 34%, var(--gold) 34%, var(--gold) 66%, var(--navy) 66%, var(--navy) 100%);
+    /* ---------- Header ---------- */
+    .ci-hero {
+        position: relative;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        padding: clamp(1.1rem, 3vw, 1.6rem);
+        overflow: hidden;
+        margin-bottom: 1rem;
     }
 
-    .page-header {
+        .ci-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, #374151, #9ca3af, #374151);
+        }
+
+    .ci-brand {
         display: flex;
+        gap: 1rem;
         align-items: center;
-        gap: 1.1rem;
-        padding: 1.25rem 2.2rem;
-        background: linear-gradient(135deg, var(--navy) 0%, #173d69 55%, #1d4d84 100%);
-        color: #fff;
-        border-bottom: 4px solid var(--gold);
-        box-shadow: 0 10px 22px rgba(16, 43, 76, 0.08);
+        min-width: 0;
     }
 
-    .gov-emblem {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        width: 52px;
-        height: 52px;
-        background: rgba(255, 255, 255, .12);
-        border: 1.5px solid rgba(201, 150, 44, .65);
-        border-radius: 50%;
-        color: var(--gold);
-        font-family: var(--fh);
-        font-weight: 900;
-        font-size: 1.05rem;
+    .ci-logo {
+        flex: none;
+        width: clamp(56px, 9vw, 80px);
+        height: clamp(56px, 9vw, 80px);
+        object-fit: contain;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        padding: 5px;
     }
 
-    .page-header-text .eyebrow {
-        margin: 0 0 .2rem;
-        color: rgba(255, 255, 255, .68);
+    .ci-eyebrow {
+        margin: 0 0 .25rem;
+        color: var(--muted);
         font-size: .72rem;
         font-weight: 600;
-        letter-spacing: .12em;
+        letter-spacing: .06em;
         text-transform: uppercase;
     }
 
-    .page-header-text h1 {
-        margin: 0 0 .6rem;
-        font-family: var(--fh);
-        font-size: clamp(1.35rem, 2.6vw, 1.85rem);
-        font-weight: 900;
+    .ci-title {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-size: clamp(1.4rem, 3.6vw, 2rem);
+        font-weight: 600;
         line-height: 1.2;
+        color: var(--ink);
+        overflow-wrap: anywhere;
     }
 
-    .page-meta {
+    .ci-chips {
         display: flex;
         flex-wrap: wrap;
-        gap: .5rem 1.4rem;
-        color: rgba(255, 255, 255, .8);
-        font-size: .82rem;
+        gap: .45rem;
+        margin-top: 1rem;
     }
 
-        .page-meta strong {
-            color: #fff;
-            font-weight: 700;
+    .ci-chip {
+        display: inline-flex;
+        gap: .4rem;
+        align-items: baseline;
+        max-width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: .3rem .8rem;
+        font-size: .8rem;
+    }
+
+        .ci-chip small {
+            color: var(--muted);
+            font-size: .72rem;
         }
 
-    .breadcrumb {
+        .ci-chip b {
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+    .ci-crumbs {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: .4rem;
-        padding: .65rem 2.4rem;
-        background: #fff;
-        border-bottom: 1px solid var(--bdr);
+        margin: 0 0 1rem;
         color: var(--muted);
-        font-size: .78rem;
+        font-size: .8rem;
     }
 
-        .breadcrumb .current {
-            color: var(--maroon);
-            font-weight: 700;
+        .ci-crumbs .current {
+            color: var(--ink);
+            font-weight: 600;
         }
 
-    .content {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 1.6rem 1.4rem 0;
+    /* ---------- Stats ---------- */
+    .ci-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .8rem;
+        margin-bottom: 1rem;
     }
 
+    .ci-stat {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        padding: .85rem 1rem;
+    }
+
+        .ci-stat small {
+            display: block;
+            color: var(--muted);
+            font-size: .74rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .ci-stat b {
+            display: block;
+            margin-top: .15rem;
+            font-family: var(--font-serif);
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
+        }
+
     /* ---------- Alerts ---------- */
-    .alert {
+    .ci-alert {
         display: flex;
         align-items: center;
         gap: .6rem;
-        margin: 0 0 1.1rem;
-        padding: .85rem 1.2rem;
-        border-radius: 10px;
+        margin: 0 0 1rem;
+        padding: .8rem 1.1rem;
+        border-radius: 12px;
         font-size: .87rem;
         font-weight: 600;
     }
 
-    .success-msg {
+    .ci-ok {
         background: var(--ok-bg);
-        border: 1px solid var(--ok);
+        border: 1px solid #b7dfc2;
         color: var(--ok);
     }
 
-    .error-msg {
+    .ci-err {
         background: var(--err-bg);
-        border: 1px solid var(--err);
+        border: 1px solid #f3c1bc;
         color: var(--err);
     }
 
-    /* ---------- Card ---------- */
-    .card {
-        overflow: hidden;
+    /* ---------- Cards ---------- */
+    .ci-card {
         background: var(--card);
-        border: 1px solid var(--bdr);
-        border-radius: var(--radius);
-        box-shadow: 0 4px 18px rgba(12, 31, 63, .08);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 1rem;
     }
 
-    .card-header {
+    .ci-card-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        padding: 1.15rem 1.6rem;
-        border-bottom: 1px solid var(--bdr);
-        background: #f8f9fd;
+        gap: .8rem;
+        flex-wrap: wrap;
+        padding: .85rem 1.1rem;
+        background: linear-gradient(180deg, #fff, #f3f4f6);
+        border-bottom: 1px solid var(--line);
     }
 
-    .card-header-text {
-        display: flex;
-        flex-direction: column;
-        gap: .15rem;
-    }
-
-        .card-header-text h2 {
+        .ci-card-head h2 {
             margin: 0;
-            color: var(--navy);
-            font-family: var(--fh);
-            font-size: 1.05rem;
-            font-weight: 700;
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: .6rem;
         }
 
-        .card-header-text span {
+            .ci-card-head h2::before {
+                content: "";
+                width: 4px;
+                height: 1.1rem;
+                background: #9ca3af;
+                border-radius: 2px;
+            }
+
+        .ci-card-head span.sub {
+            display: block;
             color: var(--muted);
             font-size: .78rem;
+            margin-top: .1rem;
         }
 
-    .level-badge {
+    .ci-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 90px;
-        padding: 0.38rem 0.8rem;
+        min-width: 64px;
+        padding: .3rem .8rem;
         border-radius: 999px;
-        background: var(--blue-soft);
-        border: 1px solid rgba(26, 75, 189, 0.18);
-        color: var(--blue);
+        background: var(--accent);
+        color: #fff;
         font-size: .7rem;
         font-weight: 700;
         letter-spacing: .08em;
         text-transform: uppercase;
-        white-space: nowrap;
     }
 
-    .table-wrap {
+    .ci-hint {
+        margin: 0;
+        padding: .8rem 1.1rem 0;
+        color: var(--muted);
+        font-size: .8rem;
+    }
+
+    /* ---------- Tables (horizontal scroll) ---------- */
+    .ci-scroll {
         overflow-x: auto;
-        background: var(--card);
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #9ca3af #f3f4f6;
     }
 
-    table {
+        .ci-scroll::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .ci-scroll::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+
+        .ci-scroll::-webkit-scrollbar-thumb {
+            background: #9ca3af;
+            border-radius: 999px;
+        }
+
+    .ci-table {
         width: 100%;
-        border-collapse: collapse;
-        font-size: .87rem;
+        min-width: 640px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: .88rem;
+        margin: 0;
     }
 
-    th {
-        position: sticky;
-        top: 0;
-        padding: .8rem 1rem;
-        background: linear-gradient(180deg, #143b67 0%, #0f2d51 100%);
-        color: rgba(255, 255, 255, .95);
-        font-size: .71rem;
-        font-weight: 700;
-        letter-spacing: .06em;
-        text-align: left;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
+        .ci-table th {
+            padding: .7rem 1rem;
+            background: var(--accent);
+            color: #fff;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-align: left;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
 
-        th:last-child,
-        td:last-child {
+            .ci-table th:first-child {
+                border-top-left-radius: 0;
+            }
+
+        .ci-table td {
+            padding: .75rem 1rem;
+            border-bottom: 1px solid var(--line-soft);
+            vertical-align: middle;
+            background: #fff;
+        }
+
+        .ci-table tbody tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        .ci-table tbody tr:hover td {
+            background: #f3f4f6;
+        }
+
+        .ci-table td:first-child {
+            color: var(--muted);
+            font-variant-numeric: tabular-nums;
+            width: 64px;
+        }
+
+        .ci-table .name {
+            color: var(--ink);
+            font-weight: 600;
+            min-width: 200px;
+        }
+
+        .ci-table .center {
             text-align: center;
         }
 
-    td {
-        padding: .82rem 1.1rem;
-        border-bottom: 1px solid var(--bdr);
-    }
-
-        td:first-child {
-            color: var(--muted);
-            font-variant-numeric: tabular-nums;
-        }
-
-    tbody tr:nth-child(even) {
-        background: #f7f9fd;
-    }
-
-    tbody tr:hover {
-        background: #eef2fb;
-    }
-
-    .course-name {
-        color: var(--navy);
-        font-weight: 600;
-    }
-
-    .intake-value {
+    .ci-pill {
         display: inline-block;
-        min-width: 2.4rem;
-        padding: .15rem .55rem;
+        min-width: 2.6rem;
+        padding: .15rem .65rem;
+        border-radius: 8px;
         background: var(--ok-bg);
-        border-radius: 6px;
         color: var(--ok);
-        font-size: .92rem;
         font-weight: 700;
+        text-align: center;
         font-variant-numeric: tabular-nums;
     }
 
-    .empty {
-        padding: 3rem 1rem;
-        color: var(--muted);
+    .ci-slab {
+        display: inline-block;
+        min-width: 4.5rem;
+        padding: .15rem .65rem;
+        border-radius: 8px;
+        background: #eef0f3;
+        color: var(--ink-2);
+        font-weight: 700;
         text-align: center;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ci-table td.merged {
+        vertical-align: top;
+        border-right: 1px solid var(--line-soft);
+        background: #fff !important;
+    }
+
+    .ci-empty {
+        padding: 2.5rem 1rem;
+        text-align: center;
+        color: var(--muted);
         font-size: .92rem;
     }
 
     /* ---------- Fields ---------- */
-    .readonly-field {
-        width: 110px;
-        padding: .45rem .6rem;
-        background: #eef1f7;
-        border: 1px solid var(--bdr);
-        border-radius: 7px;
-        color: var(--muted);
-        font-family: var(--fb);
-        font-size: .85rem;
-        text-align: center;
-        cursor: not-allowed;
-    }
-
-    .editable-field {
-        width: 110px;
-        padding: .45rem .6rem;
-        background: #fff;
-        border: 1.5px solid var(--bdr);
-        border-radius: 7px;
-        color: var(--txt);
-        font-family: var(--fb);
-        font-size: .85rem;
+    .ci-field, .ci-readonly {
+        width: 120px;
+        max-width: 100%;
+        padding: .45rem .65rem;
+        border-radius: 8px;
+        font-family: var(--font-sans);
+        font-size: .86rem;
         font-weight: 600;
         text-align: center;
+    }
+
+    .ci-field {
+        background-color: #fff;
+        border: 1.5px solid #d1d5db;
+        color: var(--ink);
         transition: border-color .15s, box-shadow .15s;
     }
 
-        .editable-field:focus {
+        .ci-field:focus {
             outline: none;
-            border-color: var(--navy-2);
-            box-shadow: 0 0 0 3px rgba(20, 49, 94, .14);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(55,65,81,.15);
         }
 
-    select.editable-field {
+    /* number box used for PG enhancement: hide spinner arrows, keep it clean */
+    input.ci-field[type=number] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+        input.ci-field[type=number]::-webkit-outer-spin-button,
+        input.ci-field[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input.ci-field[type=number]::placeholder {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+    .ci-readonly {
+        background: #f3f4f6;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        cursor: not-allowed;
+    }
+
+    select.ci-field {
         appearance: none;
         -webkit-appearance: none;
         -moz-appearance: none;
-        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0L5 6L10 0Z' fill='%23667b93'/></svg>");
+        cursor: pointer;
+        padding-right: 1.7rem;
+        text-align-last: center;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0L5 6L10 0Z' fill='%236b7280'/></svg>");
         background-repeat: no-repeat;
         background-position: right .6rem center;
         background-size: .6rem .4rem;
-        padding-right: 1.6rem;
-        cursor: pointer;
+    }
+
+    .ci-file {
+        max-width: 230px;
+        font-size: .78rem;
+    }
+
+        .ci-file::file-selector-button {
+            margin-right: .6rem;
+            padding: .35rem .7rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #f3f4f6;
+            color: var(--ink-2);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            .ci-file::file-selector-button:hover {
+                background: #e5e7eb;
+            }
+
+    .ci-doc-link {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        margin-bottom: .35rem;
+        color: var(--accent-dark);
+        font-size: .78rem;
+        font-weight: 700;
+        text-decoration: underline;
+        text-underline-offset: 3px;
     }
 
     /* ---------- Buttons ---------- */
-    .actions {
+    .ci-actions {
         display: flex;
         justify-content: flex-end;
-        padding: 1.1rem 1.6rem;
-        border-top: 1px solid var(--bdr);
-        background: #f8f9fd;
+        padding: 1rem 1.1rem;
+        border-top: 1px solid var(--line);
+        background: var(--soft);
     }
 
-    .btn {
+    .ci-btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: .45rem;
-        padding: .72rem 1.3rem;
+        padding: .65rem 1.3rem;
+        border-radius: 10px;
         border: 1px solid transparent;
-        border-radius: 8px;
-        font-family: var(--fb);
-        font-size: .8rem;
+        font-family: var(--font-sans);
+        font-size: .82rem;
         font-weight: 700;
-        letter-spacing: .04em;
+        letter-spacing: .03em;
         text-decoration: none;
-        text-transform: uppercase;
         cursor: pointer;
-        transition: all .15s ease;
+        transition: background .15s, color .15s, transform .1s;
     }
 
-        .btn:active {
+        .ci-btn:active {
             transform: scale(.98);
         }
 
-    .btn-primary {
-        background: linear-gradient(135deg, var(--navy) 0%, #1e4f8b 100%);
+    .ci-btn-primary {
+        background: var(--accent-dark);
         color: #fff;
-        box-shadow: 0 8px 18px rgba(16, 43, 76, 0.15);
+        border-color: var(--accent-dark);
+        box-shadow: 0 6px 14px rgba(17,24,39,.16);
     }
 
-        .btn-primary:hover {
+        .ci-btn-primary:hover {
+            background: var(--accent);
             color: #fff;
-            opacity: .96;
-        }
-
-    .btn-outline {
-        border-color: var(--navy);
-        background: #fff;
-        color: var(--navy);
-    }
-
-        .btn-outline:hover {
-            background: #f3f8ff;
             text-decoration: none;
         }
 
-    .page-navigation {
+    .ci-btn-outline {
+        background: #fff;
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+
+        .ci-btn-outline:hover {
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+        }
+
+    .ci-nav {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        margin-top: 1.3rem;
-        padding-top: 0;
+        gap: .8rem;
+        margin-top: .4rem;
     }
 
-    /* ---------- Previous details ---------- */
-    .previous-details-card {
-        margin-top: 1.4rem;
-    }
-
-        .previous-details-card tbody tr:nth-child(even),
-        .previous-details-card tbody tr:hover {
-            background: transparent;
+    /* ---------- Responsive ---------- */
+    @@media (max-width: 768px) {
+        .ci-stats {
+            grid-template-columns: 1fr 1fr;
         }
 
-        .previous-details-card td.merged {
-            vertical-align: top;
-            border-right: 1px solid var(--bdr);
+            .ci-stats .ci-stat:first-child {
+                grid-column: 1 / -1;
+            }
+
+        .ci-nav {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+            .ci-nav .ci-btn {
+                width: 100%;
+            }
+
+        .ci-actions {
+            justify-content: stretch;
+        }
+
+            .ci-actions .ci-btn {
+                width: 100%;
+            }
+
+        .ci-field, .ci-readonly {
+            width: 100px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .ci-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .ci-brand {
+            align-items: flex-start;
+        }
+    }
+
+    @@media print {
+        .ci-nav, .ci-actions {
+            display: none !important;
+        }
+
+        .ci-page {
             background: #fff;
         }
 
-        .previous-details-card .slab-label {
-            display: inline-block;
-            min-width: 4.5rem;
-            padding: .15rem .55rem;
-            background: var(--blue-soft);
-            border-radius: 6px;
-            color: var(--blue);
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .previous-details-card input[type=file] {
-            max-width: 210px;
-            font-size: .78rem;
-        }
-
-        .previous-details-card .doc-link {
-            display: block;
-            margin-bottom: .25rem;
-            color: var(--blue);
-            font-size: .78rem;
-            font-weight: 700;
-        }
-
-        .previous-details-card .hint {
-            margin: 0;
-            padding: .8rem 1.6rem 0;
-            color: var(--muted);
-            font-size: .76rem;
-        }
-
-    @@media (max-width: 768px) {
-        .page-header {
-            flex-wrap: wrap;
-            padding: 1.3rem 1.2rem;
-        }
-
-        .breadcrumb {
-            padding: .6rem 1.2rem;
-        }
-
-        .content {
-            padding: 1.2rem .8rem 0;
-        }
-
-        .card-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .page-navigation {
-            align-items: stretch;
-            flex-direction: column;
-        }
-
-            .page-navigation .actions,
-            .page-navigation .btn {
-                justify-content: center;
-            }
-
-            .page-navigation .actions {
-                padding: 0;
-                border-top: none;
-                background: transparent;
-            }
-
-        .readonly-field,
-        .editable-field {
-            width: 90px;
+        .ci-scroll {
+            overflow: visible;
         }
     }
 </style>
 
-<div class="course-intake-page">
-    <div class="gov-strip"></div>
+<div class="ci-page" style="--wm:url('@logoUrl')">
+    <div class="ci-wrap">
 
-    <header class="page-header">
-        <div class="gov-emblem">RGUHS</div>
-        <div class="page-header-text">
-            <p class="eyebrow">Rajiv Gandhi University of Health Sciences &middot; Admission &amp; Affiliation Cell</p>
-            <h1>College Course Intake</h1>
-            <div class="page-meta">
-                <span><strong>College:</strong> @Model.CollegeName</span>
-                <span><strong>Code:</strong> @Model.CollegeCode</span>
-                <span><strong>Faculty:</strong> @Model.FacultyCode</span>
+        <header class="ci-hero">
+            <div class="ci-brand">
+                <img class="ci-logo" src="@logoUrl" alt="RGUHS logo" />
+                <div style="min-width:0">
+                    <p class="ci-eyebrow">Rajiv Gandhi University of Health Sciences &middot; Admission &amp; Affiliation Cell</p>
+                    <h1 class="ci-title">College Course Intake</h1>
+                </div>
             </div>
+            <div class="ci-chips">
+                <span class="ci-chip"><small>College</small><b>@Model.CollegeName</b></span>
+                <span class="ci-chip"><small>Code</small><b>@Model.CollegeCode</b></span>
+                <span class="ci-chip"><small>Faculty</small><b>@Model.FacultyCode</b></span>
+                <span class="ci-chip"><small>Level</small><b>@levelLabel</b></span>
+            </div>
+        </header>
+
+        <nav class="ci-crumbs" aria-label="Breadcrumb">
+            <span>Continuous Affiliation</span>
+            <span aria-hidden="true">›</span>
+            <span>@levelLabel Courses</span>
+            <span aria-hidden="true">›</span>
+            <span class="current">Course Intake</span>
+        </nav>
+
+        <div class="ci-stats">
+            <div class="ci-stat"><small>Courses</small><b>@totalCourses</b></div>
+            <div class="ci-stat"><small>Total intake 2026-27</small><b>@totalIntake</b></div>
+            <div class="ci-stat"><small>Applying for</small><b>2027-28</b></div>
         </div>
-    </header>
-
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-        <span>Continuous Affiliation</span>
-        <span aria-hidden="true">›</span>
-        <span>@levelLabel Courses</span>
-        <span aria-hidden="true">›</span>
-        <span class="current">Course Intake</span>
-    </nav>
-
-    <main class="content">
 
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert success-msg">@TempData["SuccessMessage"]</div>
+            <div class="ci-alert ci-ok" role="status">@TempData["SuccessMessage"]</div>
         }
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert error-msg">@TempData["ErrorMessage"]</div>
+            <div class="ci-alert ci-err" role="alert">@TempData["ErrorMessage"]</div>
         }
 
-        <section class="card">
-            <div class="card-header">
-                <div class="card-header-text">
+        <section class="ci-card">
+            <div class="ci-card-head">
+                <div>
                     <h2>Courses and Intake for 2027-28</h2>
-                    <span>Sanctioned intake as recorded for the academic year 2026-27</span>
+                    <span class="sub">Sanctioned intake as recorded for the academic year 2026-27</span>
                 </div>
-                <span class="level-badge">@Model.CourseLevel</span>
+                <span class="ci-badge">@Model.CourseLevel</span>
             </div>
 
             @if (Model.Courses.Count == 0)
             {
-                <div class="empty">No courses are available for this college and course level.</div>
+                <div class="ci-empty">No courses are available for this college and course level.</div>
             }
             else
             {
@@ -606,17 +771,17 @@
                     <input type="hidden" asp-for="CourseLevel" />
                     <input type="hidden" asp-for="ShowIncreasedIntakeFields" />
 
-                    <div class="table-wrap">
-                        <table>
+                    <div class="ci-scroll">
+                        <table class="ci-table">
                             <thead>
                                 <tr>
                                     <th>Sl. No.</th>
                                     <th>Course Name</th>
-                                    <th>Intake 2026-27</th>
+                                    <th class="center">Intake 2026-27</th>
                                     @if (Model.ShowIncreasedIntakeFields)
                                     {
-                                        <th>Increasing Intake</th>
-                                        <th>Academic Year</th>
+                                        <th class="center">Increasing Intake</th>
+                                        <th class="center">Academic Year</th>
                                     }
                                 </tr>
                             </thead>
@@ -630,31 +795,49 @@
                                     var selectedIncreased = toInt(course.IncreasedIntake);
                                     <tr>
                                         <td>@displaySlno</td>
-                                        <td class="course-name">@course.CourseName</td>
-                                        <td><span class="intake-value">@course.Intake2627</span></td>
+                                        <td class="name">@course.CourseName</td>
+                                        <td class="center"><span class="ci-pill">@course.Intake2627</span></td>
 
                                         @if (Model.ShowIncreasedIntakeFields)
                                         {
-                                            <td>
+                                            <td class="center">
                                                 <input type="hidden" asp-for="Courses[i].Slno" />
                                                 <input type="hidden" asp-for="Courses[i].CourseCode" />
                                                 <input type="hidden" asp-for="Courses[i].CourseName" />
                                                 <input type="hidden" asp-for="Courses[i].Intake2627" />
 
-                                                @* asp-for removed on purpose: selected option is set explicitly so saved values always show *@
-                                                <select class="editable-field"
-                                                        name="Courses[@i].IncreasedIntake"
-                                                        id="Courses_@(i)__IncreasedIntake">
-                                                    <option value="" selected="@(!selectedIncreased.HasValue)">Select</option>
-                                                    @foreach (var option in increasedIntakeOptions)
-                                                    {
-                                                        <option value="@option" selected="@(selectedIncreased == option)">@option</option>
-                                                    }
-                                                </select>
+                                                @if (useIntakeTextBox)
+                                                {
+                                                    @* PG + Enhancement of Seats / Increase in Intake: free number entry *@
+                                                    <input type="number"
+                                                           class="ci-field"
+                                                           name="Courses[@i].IncreasedIntake"
+                                                           id="Courses_@(i)__IncreasedIntake"
+                                                           value="@(selectedIncreased?.ToString() ?? "")"
+                                                           min="0"
+                                                           step="1"
+                                                           inputmode="numeric"
+                                                           placeholder="Enter seats"
+                                                           aria-label="Increasing intake for @course.CourseName" />
+                                                }
+                                                else
+                                                {
+                                                    @* UG / SS: fixed dropdown. asp-for removed on purpose: selected option is set explicitly so saved values always show *@
+                                                    <select class="ci-field"
+                                                            name="Courses[@i].IncreasedIntake"
+                                                            id="Courses_@(i)__IncreasedIntake"
+                                                            aria-label="Increasing intake for @course.CourseName">
+                                                        <option value="" selected="@(!selectedIncreased.HasValue)">Select</option>
+                                                        @foreach (var option in increasedIntakeOptions)
+                                                        {
+                                                            <option value="@option" selected="@(selectedIncreased == option)">@option</option>
+                                                        }
+                                                    </select>
+                                                }
                                             </td>
-                                            <td>
+                                            <td class="center">
                                                 <input type="text" readonly
-                                                       class="readonly-field"
+                                                       class="ci-readonly"
                                                        asp-for="Courses[i].AcademicYear"
                                                        value="2027-28" />
                                             </td>
@@ -668,8 +851,8 @@
 
                     @if (Model.ShowIncreasedIntakeFields)
                     {
-                        <div class="actions">
-                            <button type="submit" class="btn btn-primary">Save & Apply</button>
+                        <div class="ci-actions">
+                            <button type="submit" class="ci-btn ci-btn-primary">Save &amp; Apply</button>
                         </div>
                     }
                 </form>
@@ -681,30 +864,30 @@
         {
             var lopYears = Enumerable.Range(1950, DateTime.Now.Year - 1950 + 1).Reverse().ToList();
 
-            <section class="card previous-details-card">
-                <div class="card-header">
-                    <div class="card-header-text">
+            <section class="ci-card">
+                <div class="ci-card-head">
+                    <div>
                         <h2>Previous details</h2>
-                        <span>Enclose previous years notification copies</span>
+                        <span class="sub">Enclose previous years notification copies</span>
                     </div>
-                    <span class="level-badge">@Model.CourseLevel</span>
+                    <span class="ci-badge">@Model.CourseLevel</span>
                 </div>
 
                 <form asp-action="SavePreviousDetails" asp-controller="@currentControllerName"
                       method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
 
-                    <p class="hint">Select the year of obtaining LOP and upload the NMC document (PDF, max 5 MB) for each applicable intake. Leave a row empty if it does not apply.</p>
+                    <p class="ci-hint">Select the year of obtaining LOP and upload the NMC document (PDF, max 5 MB) for each applicable intake. Leave a row empty if it does not apply.</p>
 
-                    <div class="table-wrap">
-                        <table>
+                    <div class="ci-scroll" style="margin-top:.8rem">
+                        <table class="ci-table" style="min-width:820px">
                             <thead>
                                 <tr>
                                     <th>Sl. No.</th>
                                     <th>Course</th>
-                                    <th>Intake</th>
-                                    <th>Year of obtaining LOP</th>
-                                    <th>Selected Year</th>
+                                    <th class="center">Intake</th>
+                                    <th class="center">Year of obtaining LOP</th>
+                                    <th class="center">Selected Year</th>
                                     <th>Upload NMC Doc</th>
                                 </tr>
                             </thead>
@@ -725,19 +908,20 @@
                                                     <input type="hidden" asp-for="PreviousDetails[c].CourseCode" />
                                                     <input type="hidden" asp-for="PreviousDetails[c].CourseName" />
                                                 </td>
-                                                <td class="merged course-name" rowspan="@prevCourse.Slabs.Count">@prevCourse.CourseName</td>
+                                                <td class="merged name" rowspan="@prevCourse.Slabs.Count">@prevCourse.CourseName</td>
                                             }
 
-                                            <td>
-                                                <span class="slab-label">@slab.IntakeSlab</span>
+                                            <td class="center">
+                                                <span class="ci-slab">@slab.IntakeSlab</span>
                                                 <input type="hidden" asp-for="PreviousDetails[c].Slabs[s].IntakeSlab" />
                                             </td>
 
-                                            <td>
+                                            <td class="center">
                                                 @* asp-for removed on purpose: selected option is set explicitly so saved values always show *@
-                                                <select class="editable-field"
+                                                <select class="ci-field"
                                                         name="PreviousDetails[@c].Slabs[@s].LopYear"
-                                                        id="PreviousDetails_@(c)__Slabs_@(s)__LopYear">
+                                                        id="PreviousDetails_@(c)__Slabs_@(s)__LopYear"
+                                                        aria-label="Year of obtaining LOP">
                                                     <option value="" selected="@(!selectedLopYear.HasValue)">Select</option>
                                                     @foreach (var y in lopYears)
                                                     {
@@ -746,19 +930,20 @@
                                                 </select>
                                             </td>
 
-                                            <td class="selected-lop-year">
+                                            <td class="center selected-lop-year">
                                                 @(selectedLopYear?.ToString() ?? "-")
                                             </td>
 
                                             <td>
                                                 @if (slab.HasDocument)
                                                 {
-                                                    <a class="doc-link" target="_blank"
+                                                    <a class="ci-doc-link" target="_blank"
                                                        asp-action="ViewPreviousNmcDocument" asp-route-id="@slab.Id">
                                                         View @(string.IsNullOrWhiteSpace(slab.DocumentName) ? "uploaded document" : slab.DocumentName)
                                                     </a>
+                                                    <br />
                                                 }
-                                                <input type="file" accept="application/pdf"
+                                                <input type="file" class="ci-file" accept="application/pdf"
                                                        asp-for="PreviousDetails[c].Slabs[s].NmcDocument" />
                                             </td>
                                         </tr>
@@ -768,32 +953,29 @@
                         </table>
                     </div>
 
-                    <div class="actions">
-                        <button type="submit" class="btn btn-primary">Save Previous Details</button>
+                    <div class="ci-actions">
+                        <button type="submit" class="ci-btn ci-btn-primary">Save Previous Details</button>
                     </div>
                 </form>
             </section>
         }
 
-        <nav class="page-navigation" aria-label="Course intake navigation">
-            <div class="actions">
-                <a class="btn btn-outline" asp-action="@previousAction" asp-controller="@previousController">
-                    <span aria-hidden="true">←</span> Previous
-                </a>
-            </div>
-
-            <a class="btn btn-primary" asp-controller="@nextController" asp-action="@nextAction">
+        <nav class="ci-nav" aria-label="Course intake navigation">
+            <a class="ci-btn ci-btn-outline" asp-action="@previousAction" asp-controller="@previousController">
+                <span aria-hidden="true">←</span> Previous
+            </a>
+            <a class="ci-btn ci-btn-primary" asp-controller="@nextController" asp-action="@nextAction">
                 Next <span aria-hidden="true">→</span>
             </a>
         </nav>
 
         <script>
-                    document.querySelectorAll('select[name$=".LopYear"]').forEach(select => {
-                        select.addEventListener('change', () => {
-                            const selectedYearCell = select.closest('tr').querySelector('.selected-lop-year');
-                            selectedYearCell.textContent = select.value || '-';
+                    document.querySelectorAll('select[name$=".LopYear"]').forEach(function (select) {
+                        select.addEventListener('change', function () {
+                            var cell = select.closest('tr').querySelector('.selected-lop-year');
+                            if (cell) cell.textContent = select.value || '-';
                         });
                     });
         </script>
-    </main>
+    </div>
 </div>

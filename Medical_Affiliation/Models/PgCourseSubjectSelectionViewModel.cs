@@ -15,6 +15,8 @@ namespace Medical_Affiliation.Models
             public string CourseCode { get; set; } = string.Empty;
             public string CourseName { get; set; } = string.Empty;
             public string SubjectName { get; set; } = string.Empty;
+            public bool IsCompleted { get; set; }
+            public List<string> PendingSections { get; set; } = new();
         }
     }
 }

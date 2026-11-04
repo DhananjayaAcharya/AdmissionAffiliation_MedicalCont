@@ -1,18 +1,27 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
+/* Palette: Emerald + Coral */
 :root {
-    --page-bg: #eef3f8;
+    --page-bg: #eef6f3;
     --surface: #ffffff;
-    --surface-soft: #f4f7fb;
-    --text: #1d2b3a;
-    --text-muted: #647386;
-    --border: #d6e0ea;
-    --accent: #176b87;
-    --accent-soft: #dff1f4;
+    --surface-soft: #f2f8f5;
+    --text: #14302a;
+    --text-muted: #5b7a70;
+    --border: #d3e3dc;
+    --accent: #047857;
+    --accent-soft: #dcf3ea;
     --danger: #c53030;
-    --success: #197a68;
+    --success: #0d9488;
     --radius: 8px;
-    --shadow: 0 8px 24px rgba(29, 55, 79, 0.08);
+    --shadow: 0 8px 24px rgba(6, 50, 40, 0.08);
+
+    /* These were referenced below but never defined in the original file.
+       --navy / --gold now resolve to emerald-deep / coral so every rule
+       that uses them picks up the new palette. */
+    --white: #ffffff;
+    --navy: #064e3b;
+    --navy-mid: #047857;
+    --gold: #f97360;
 }
 
 /* Reset */
@@ -56,7 +65,7 @@ body {
     z-index: 5;
     gap: 18px;
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 2px 16px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 2px 16px rgba(6, 50, 40, 0.07);
     border-radius: 0;
 }
 
@@ -119,7 +128,7 @@ body {
     border-top: none;
     border-radius: 0 0 10px 10px;
     padding: 32px 36px 36px;
-    box-shadow: 0 4px 20px rgba(15,37,69,0.07);
+    box-shadow: 0 4px 20px rgba(6, 50, 40, 0.07);
     width: 65vw;
 }
 
@@ -167,7 +176,7 @@ body {
 }
 
     .data-table thead {
-        background: linear-gradient(180deg, #f1ede4 0%, #ebe6db 100%);
+        background: linear-gradient(180deg, #e8f5ef 0%, #dff0e8 100%);
     }
 
     .data-table th {
@@ -183,7 +192,7 @@ body {
 /* Inputs */
 .form-control {
     width: 100%;
-    border: 1px solid #d9d3c8;
+    border: 1px solid #cfe0d8;
     border-radius: 4px;
     padding: 6px 9px;
 }
@@ -197,11 +206,11 @@ body {
     background: var(--accent);
     color: white;
     border: 1px solid transparent;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
+    box-shadow: 0 6px 16px rgba(4, 120, 87, 0.22);
 }
 
 .btn-save:hover {
-    background: #1c4db7;
+    background: #065f46;
 }
 
 .btn-remove {
@@ -223,12 +232,12 @@ body {
 
 /* Shared continuous-affiliation surface: page-specific forms inherit one visual language. */
 .ca-body {
-    --form-accent: #176b87;
-    --form-accent-dark: #12566d;
-    --form-accent-soft: #e7f3f5;
-    --form-border: #d6e0ea;
-    --form-muted: #647386;
-    color: #1d2b3a;
+    --form-accent: #047857;
+    --form-accent-dark: #065f46;
+    --form-accent-soft: #e4f4ee;
+    --form-border: #d3e3dc;
+    --form-muted: #5b7a70;
+    color: #14302a;
     background: #ffffff;
 }
 
@@ -239,13 +248,13 @@ body {
 .ca-body .table-wrap,
 .ca-body .payment-panel {
     border-color: var(--form-border);
-    box-shadow: 0 8px 24px rgba(29, 55, 79, 0.07);
+    box-shadow: 0 8px 24px rgba(6, 50, 40, 0.07);
 }
 
 .ca-body .page-header {
-    background: linear-gradient(135deg, #173d56 0%, #176b87 100%);
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
     color: #ffffff;
-    border-bottom: 3px solid #e2b84d;
+    border-bottom: 3px solid #f97360;
 }
 
 .ca-body .page-header h1,
@@ -277,7 +286,7 @@ body {
 .ca-body select,
 .ca-body textarea {
     border-color: var(--form-border);
-    color: #1d2b3a;
+    color: #14302a;
 }
 
 .ca-body .form-control:focus,
@@ -286,7 +295,7 @@ body {
 .ca-body select:focus,
 .ca-body textarea:focus {
     border-color: var(--form-accent);
-    box-shadow: 0 0 0 0.2rem rgba(23, 107, 135, 0.14);
+    box-shadow: 0 0 0 0.2rem rgba(4, 120, 87, 0.16);
 }
 
 .ca-body .btn-primary,
@@ -336,8 +345,8 @@ body {
 }
 
 .btn-next:hover {
-    background: #1c4db7;
-    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+    background: #065f46;
+    box-shadow: 0 10px 20px rgba(4, 120, 87, 0.22);
 }
 
 .btn-prev {
@@ -373,7 +382,7 @@ body {
     height: 90px;
     margin: 0 auto 24px;
     border-radius: 50%;
-    background: rgba(184,136,42,.12);
+    background: rgba(249, 115, 96, 0.14);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -422,7 +431,7 @@ body {
     border-radius: 50%;
     align-items: center;
     justify-content: center;
-    background: #e9edf4;
+    background: #e4f4ee;
     color: var(--navy);
     font-weight: 700;
     margin-bottom: 10px;
@@ -430,7 +439,7 @@ body {
 
 .workflow-step.active {
     border: 2px solid var(--gold);
-    background: #fffdf8;
+    background: #fff7f5;
 }
 
     .workflow-step.active span {
@@ -454,7 +463,7 @@ body {
     margin: 20px auto 35px;
     padding: 16px 20px;
     border-left: 4px solid var(--gold);
-    background: #fffdf8;
+    background: #fff7f5;
     color: var(--text);
     text-align: left;
     border-radius: 4px;

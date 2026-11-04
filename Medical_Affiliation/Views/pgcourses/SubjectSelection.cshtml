@@ -46,7 +46,20 @@
                                     <strong>@subject.SubjectName</strong>
                                     <div class="text-muted">@subject.CourseName</div>
                                 </div>
-                                <span class="badge bg-primary rounded-pill">Open</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (subject.IsCompleted)
+                                    {
+                                        <span class="badge bg-success">Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark"
+                                              title="Pending: @string.Join(", ", subject.PendingSections)">
+                                            Not Completed (@subject.PendingSections.Count pending)
+                                        </span>
+                                    }
+                                    <span class="badge bg-primary rounded-pill">Open</span>
+                                </div>
                             </div>
                         </a>
                     }

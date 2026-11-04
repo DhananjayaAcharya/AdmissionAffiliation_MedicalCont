@@ -1,59 +1,142 @@
 ﻿@model SidebarViewModel
 <style>
-    :root{
+    :root {
         --header-gradient: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
         --header-height: 140px;
+        --adm-sb-width: 300px;
+        --adm-sb-collapsed-width: 56px;
     }
+
     .sidebar {
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            width: 300px;
-            height: calc(100vh - var(--header-height));
-            background: rgba(22, 33, 62, 0.95);
-            box-shadow: 0 0 50px rgba(34, 43, 65, 0.23);
-            padding: 30px 20px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-    .sidebar h4 {
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        width: var(--adm-sb-width);
+        height: calc(100vh - var(--header-height));
+        background: rgba(22, 33, 62, 0.95);
+        box-shadow: 0 0 50px rgba(34, 43, 65, 0.23);
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 1000; /* expanded sidebar floats over the page content */
+        transition: width 0.25s ease;
+    }
+
+        .sidebar h4 {
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 24px;
+            padding-right: 36px; /* room for the toggle handle */
+            white-space: nowrap;
         }
 
     .affiliation-dropdown {
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-            backdrop-filter: blur(3px);
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        backdrop-filter: blur(3px);
+    }
+
+    .sidebar-btn {
+        display: block;
+        margin-bottom: 12px;
+        padding: 10px;
+        font-weight: 600;
+        border-radius: 8px;
+        background-color: #0d6efd;
+        color: #fff;
+        text-align: center;
+        transition: background 0.3s ease;
+        white-space: nowrap;
+    }
+
+        .sidebar-btn:hover {
+            background: #0b5ed7;
         }
 
-        .sidebar-btn {
-            display: block;
-            margin-bottom: 12px;
-            padding: 10px;
-            font-weight: 600;
-            border-radius: 8px;
-            background-color: #0d6efd;
-            color: #fff;
-            text-align: center;
-            transition: background 0.3s ease;
+    /* ── Minimize / expand handle ── */
+    .adm-sb-handle {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: #f5b301;
+        color: #0b2a6f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+        font-size: 0.8rem;
+        line-height: 1;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        transition: background 0.15s ease, transform 0.25s ease;
+    }
+
+        .adm-sb-handle:hover {
+            background: #d99a00;
         }
 
-            .sidebar-btn:hover {
-                background: #0b5ed7;
+        .adm-sb-handle:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+        }
+
+    .sidebar.sidebar-collapsed .adm-sb-handle {
+        transform: rotate(180deg);
+    }
+
+    /* ── Collapsed state (desktop only) ── */
+    @@media (min-width: 576px) {
+        /* Page content always keeps the minimized width; the expanded sidebar overlays it */
+        .main-content {
+            margin-left: var(--adm-sb-collapsed-width);
+        }
+
+        .sidebar.sidebar-collapsed {
+            width: var(--adm-sb-collapsed-width) !important;
+            padding: 56px 8px 12px !important;
+            align-items: center;
+            cursor: pointer;
+        }
+
+            .sidebar.sidebar-collapsed .adm-label,
+            .sidebar.sidebar-collapsed .affiliation-dropdown {
+                display: none;
             }
-    @@media (max-width: 991px) {
-            .sidebar
 
-        {
+            .sidebar.sidebar-collapsed h4 {
+                margin-bottom: 16px;
+                padding-right: 0;
+                font-size: 1.4rem;
+                text-align: center;
+            }
+
+            .sidebar.sidebar-collapsed .sidebar-btn {
+                width: 40px;
+                padding: 8px 0;
+            }
+
+            .sidebar.sidebar-collapsed .adm-sb-handle {
+                right: 14px;
+            }
+    }
+
+    @@media (max-width: 575px) {
+        .sidebar {
             position: relative;
             width: 100%;
             height: auto;
             padding: 20px;
             overflow: visible;
+        }
+
+        .adm-sb-handle {
+            display: none; /* no minimize on phones */
         }
 
         .main-content {
@@ -62,14 +145,29 @@
             height: auto;
             overflow: visible;
         }
+    }
 
+    @@media (prefers-reduced-motion: reduce) {
+        .sidebar, .adm-sb-handle {
+            transition: none;
         }
+    }
 </style>
 
 @if (!string.IsNullOrEmpty(Model.FacultyCode))
 {
-    <div class="sidebar" style="color: white; padding:1rem; background:#146c43;">
-        <h4>🎓 Admission Affiliation</h4>
+    <div class="sidebar sidebar-collapsed" id="admissionSidebar" style="color: white; padding:1rem; background:#146c43;">
+
+        <button type="button"
+                class="adm-sb-handle"
+                id="admSbHandle"
+                aria-expanded="false"
+                aria-label="Expand sidebar"
+                title="Expand sidebar">
+            &#10094;
+        </button>
+
+        <h4><span class="adm-icon">🎓</span><span class="adm-label"> Admission Affiliation</span></h4>
         <input type="hidden" id="facultyCode" value="@Model.FacultyCode" />
 
         <select class="form-select affiliation-dropdown" id="typeOfAffiliationDropdown" style="margin-bottom:1rem;">
@@ -79,12 +177,87 @@
                 <option value="@item.Value">@item.Text</option>
             }
         </select>
-            <a asp-controller="LatestMedicalAffiliation" asp-action="Medical_LatestIntakeData" class="sidebar-btn btn btn-light mb-1 d-block">
-                👲 Medical Latest Intake
-            </a>
 
-       @*  <a asp-controller="Collegelogin" asp-action="GetExpectedDetails" class="sidebar-btn btn btn-light d-block">
+        <a asp-controller="LatestMedicalAffiliation"
+           asp-action="Medical_LatestIntakeData"
+           class="sidebar-btn btn btn-light mb-1 d-block"
+           title="Medical Latest Intake">
+            <span class="adm-icon">👲</span><span class="adm-label"> Medical Latest Intake</span>
+        </a>
+
+        @*  <a asp-controller="Collegelogin" asp-action="GetExpectedDetails" class="sidebar-btn btn btn-light d-block">
             Medical Intake Detail
         </a> *@
     </div>
+
+    <script>
+        (function () {
+            const sidebar = document.getElementById("admissionSidebar");
+            const handle = document.getElementById("admSbHandle");
+            if (!sidebar || !handle) return;
+
+            // Only phones keep the always-open layout.
+            const desktop = window.matchMedia("(min-width: 576px)");
+
+            function isCollapsed() {
+                return sidebar.classList.contains("sidebar-collapsed");
+            }
+
+            function setCollapsed(collapsed) {
+                if (!desktop.matches) collapsed = false;
+
+                sidebar.classList.toggle("sidebar-collapsed", collapsed);
+                document.body.classList.toggle("adm-sidebar-collapsed", collapsed);
+
+                handle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+                handle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+                handle.setAttribute("title", collapsed ? "Expand sidebar" : "Collapse sidebar");
+            }
+
+            // Always start minimized on every page load.
+            setCollapsed(true);
+
+            // True for a moment after a click expanded the sidebar, so that same
+            // click does not also follow a link inside it.
+            let justExpanded = false;
+
+            // Capture phase + pointerdown: runs before any other handler on the page,
+            // so it still works when other scripts call stopPropagation() on clicks.
+            document.addEventListener("pointerdown", function (e) {
+                const insideSidebar = sidebar.contains(e.target);
+
+                if (insideSidebar) {
+                    // The arrow handle has its own toggle below.
+                    if (handle.contains(e.target)) return;
+
+                    if (isCollapsed()) {
+                        setCollapsed(false);
+                        justExpanded = true;
+                        setTimeout(function () { justExpanded = false; }, 400);
+                    }
+                } else if (!isCollapsed()) {
+                    setCollapsed(true);
+                }
+            }, true);
+
+            // Swallow the click that expanded the sidebar (e.g. on the collapsed icon link).
+            sidebar.addEventListener("click", function (e) {
+                if (justExpanded && !handle.contains(e.target)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+
+            // Arrow handle toggles manually.
+            handle.addEventListener("click", function (e) {
+                e.stopPropagation();
+                setCollapsed(!isCollapsed());
+            });
+
+            // Re-evaluate when the window crosses the phone/desktop breakpoint.
+            desktop.addEventListener("change", function () {
+                setCollapsed(desktop.matches);
+            });
+        })();
+    </script>
 }

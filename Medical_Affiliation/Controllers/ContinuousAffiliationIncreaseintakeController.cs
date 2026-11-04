@@ -126,7 +126,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> MedicalCollegeCourseIntake()
         {
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
-            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var collegeCode = HttpContext.Session.GetString("CollegeCode")?.Trim();
             var collegeName = HttpContext.Session.GetString("CollegeName");
             var courseLevel = HttpContext.Session.GetString("SelectedCourseLevel")?.Trim();
             var applicationType = HttpContext.Session.GetString("ApplicationType");
@@ -140,31 +140,32 @@ namespace Medical_Affiliation.Controllers
             if (string.IsNullOrWhiteSpace(courseLevel))
                 return BadRequest("Course level is not selected");
 
+            // Normalised once so it can be compared with ug_pg ("UG" / "PG" / "SS")
+            var level = courseLevel.ToUpperInvariant();
+
             var showIncreasedIntakeFields = await IsEnhancementApplicationSelectedAsync();
             HttpContext.Session.SetString("ApplicationType", showIncreasedIntakeFields ? EnhancementApplicationType : (applicationType ?? ""));
 
-            var intakeRows = await (
-                from intake in _context.MstMedicalCollegeCourseIntakes
-                join course in _context.MstCourses
-                    on new { CourseCode = intake.CourseCode, FacultyCode = intake.Facultycode }
-                    equals new { CourseCode = (int?)course.CourseCode, FacultyCode = course.FacultyCode }
-                where intake.CollCode == collegeCode
-                      && intake.Facultycode == facultyId
-                      && course.FacultyCode == facultyId
-                      && course.CourseLevel.ToUpper() == courseLevel.ToUpper()
-                orderby course.CourseName
-                select new MedicalCollegeCourseIntakeRowViewModel
+            // Rows come only from Mst_MedicalCollegeCourseIntake:
+            // coll_code + Facultycode + ug_pg (course level from session)
+            var intakeRows = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(intake => intake.CollCode == collegeCode
+                              && intake.Facultycode == facultyId
+                              && intake.UgPg != null
+                              && intake.UgPg.Trim().ToUpper() == level)
+                .OrderBy(intake => intake.Course)
+                .Select(intake => new MedicalCollegeCourseIntakeRowViewModel
                 {
                     Slno = intake.Slno,
-                    CourseCode = course.CourseCode.ToString(),
-                    CourseName = course.CourseName,
+                    CourseCode = intake.CourseCode.ToString(),
+                    CourseName = intake.Course,
                     Intake2627 = intake.Intake2627 ?? 0,
                     IncreasedIntake = intake.IncreasedIntake,
                     AcademicYear = showIncreasedIntakeFields
                         ? (intake.AcademicYear ?? FixedAcademicYear)
                         : intake.AcademicYear
                 })
-                .AsNoTracking()
                 .ToListAsync();
 
             var affiliationTypeId = await GetAffiliationTypeIdAsync();
@@ -174,7 +175,7 @@ namespace Medical_Affiliation.Controllers
                 CollegeCode = collegeCode,
                 CollegeName = collegeName ?? string.Empty,
                 FacultyCode = facultyCode,
-                CourseLevel = courseLevel.ToUpperInvariant(),
+                CourseLevel = level,
                 Courses = intakeRows,
                 ShowIncreasedIntakeFields = showIncreasedIntakeFields,
                 AffiliationTypeId = affiliationTypeId
@@ -182,7 +183,7 @@ namespace Medical_Affiliation.Controllers
 
             // "Previous details" section (MBBS slabs) – UG only, needs a resolved affiliation type
             if (affiliationTypeId.HasValue &&
-                courseLevel.Equals("UG", StringComparison.OrdinalIgnoreCase))
+                level == "UG")
             {
                 model.PreviousDetails = await BuildPreviousDetailsAsync(
                     collegeCode, facultyId, affiliationTypeId.Value, intakeRows);
@@ -192,6 +193,9 @@ namespace Medical_Affiliation.Controllers
         }
 
 
+        private const int MaxPgIncreasedIntake = 1000;               // adjust to your rule
+        private static readonly int[] AllowedFixedIntake = { 50, 100, 150, 200, 250 };
+
         [Authorize(AuthenticationSchemes = "CollegeAuth", Policy = "CollegeOnly")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -199,7 +203,7 @@ namespace Medical_Affiliation.Controllers
         {
             var facultyCode = HttpContext.Session.GetString("FacultyCode");
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
-            var applicationType = HttpContext.Session.GetString("ApplicationType");
+            var level = HttpContext.Session.GetString("SelectedCourseLevel")?.Trim().ToUpperInvariant();
 
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return RedirectToAction("Collegelogin", "Login");
@@ -207,8 +211,6 @@ namespace Medical_Affiliation.Controllers
             if (!int.TryParse(facultyCode, out var facultyId))
                 return BadRequest("Invalid faculty code");
 
-            // This save path only applies to the Enhancement application type —
-            // reject if the session says otherwise, regardless of what was posted.
             var isEnhancementApplication = await IsEnhancementApplicationSelectedAsync();
             if (!isEnhancementApplication)
                 return Forbid();
@@ -216,7 +218,44 @@ namespace Medical_Affiliation.Controllers
             if (model.Courses == null || model.Courses.Count == 0)
                 return RedirectToAction("MedicalCollegeCourseIntake");
 
-            var slnos = model.Courses.Select(c => c.Slno).ToList();
+            var isPg = level == "PG";
+
+            // ---- validate everything first, save nothing if any row is bad ----
+            var parsed = new Dictionary<int, string?>();   // Slno -> value to store (null = cleared)
+            foreach (var row in model.Courses)
+            {
+                var raw = row.IncreasedIntake?.ToString()?.Trim();
+
+                if (string.IsNullOrEmpty(raw))
+                {
+                    parsed[row.Slno] = null;               // user left it blank
+                    continue;
+                }
+
+                if (!int.TryParse(raw, out var seats) || seats < 0)
+                {
+                    TempData["ErrorMessage"] = $"Increasing intake for \"{row.CourseName}\" must be a whole number (0 or more).";
+                    return RedirectToAction("MedicalCollegeCourseIntake");
+                }
+
+                if (isPg)
+                {
+                    if (seats > MaxPgIncreasedIntake)
+                    {
+                        TempData["ErrorMessage"] = $"Increasing intake for \"{row.CourseName}\" cannot exceed {MaxPgIncreasedIntake}.";
+                        return RedirectToAction("MedicalCollegeCourseIntake");
+                    }
+                }
+                else if (!AllowedFixedIntake.Contains(seats))   // UG / SS keep the fixed list
+                {
+                    TempData["ErrorMessage"] = $"Invalid increasing intake for \"{row.CourseName}\".";
+                    return RedirectToAction("MedicalCollegeCourseIntake");
+                }
+
+                parsed[row.Slno] = seats.ToString();
+            }
+
+            var slnos = parsed.Keys.ToList();
 
             var entities = await _context.MstMedicalCollegeCourseIntakes
                 .Where(x => slnos.Contains(x.Slno)
@@ -224,17 +263,10 @@ namespace Medical_Affiliation.Controllers
                             && x.Facultycode == facultyId)
                 .ToListAsync();
 
-            var entityMap = entities.ToDictionary(e => e.Slno);
-
-            foreach (var row in model.Courses)
+            foreach (var entity in entities)
             {
-                if (!entityMap.TryGetValue(row.Slno, out var entity))
-                    continue; // skip rows that don't belong to this college/faculty
-
-                entity.IncreasedIntake = row.IncreasedIntake.ToString();
-
-                // AcademicYear is server-enforced, never trusted from the client
-                entity.AcademicYear = FixedAcademicYear;
+                entity.IncreasedIntake = parsed[entity.Slno];   // null clears it
+                entity.AcademicYear = FixedAcademicYear;        // server-enforced
             }
 
             await _context.SaveChangesAsync();

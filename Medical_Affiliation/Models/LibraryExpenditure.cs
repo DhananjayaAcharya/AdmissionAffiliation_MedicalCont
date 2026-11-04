@@ -13,6 +13,8 @@ public partial class LibraryExpenditure
 
     public decimal ExpenditureProposed { get; set; }
 
+    public string? CourseLevel { get; set; }
+
     public bool IsActive { get; set; }
 
     public string? CreatedBy { get; set; }
@@ -22,8 +24,6 @@ public partial class LibraryExpenditure
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-
-    public string? CourseLevel { get; set; }
 
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 

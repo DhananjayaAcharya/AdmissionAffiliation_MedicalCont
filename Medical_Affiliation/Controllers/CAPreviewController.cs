@@ -1,4 +1,9 @@
-﻿using Medical_Affiliation.DATA;
+﻿using System.Data;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using Medical_Affiliation.DATA;
 using Medical_Affiliation.Services.Faculty;
 using Medical_Affiliation.Services.Interfaces;
 using Medical_Affiliation.Models;
@@ -69,11 +74,25 @@ namespace Medical_Affiliation.Controllers
             await ApplyAnnualMbbsIntakeAsync(model);   // AnnualMbbsIntake from Intake_26_27 (UG only)
             await ApplyDesignationIntakeAsync(model);  // Designation & Intake: Available + Seat Slab
 
+            // Sections 08A - 08F (PG only): General Details, Summary, Infrastructure, Services,
+            // Staff & Exam Results, Academic Activities. Grouped by department. Empty list for UG / SS.
+            ViewBag.PgSections = await LoadPgSectionsAsync(model);
+
+            // Section 08 - PG Course Affiliation (PG only): course details, GOK, RGUHS, NMC-permitted
+            // courses, filtered by college code + course level.
+            ViewBag.PgCourseAffiliation = await LoadPgCourseAffiliationAsync(model);
+
+            // Section 12 - Associated Institutions (college name + course name from master tables)
+            ViewBag.AssociatedInstitutions = await LoadAssociatedInstitutionsAsync(model);
+
             // Section 17 - Vehicle Registration & Documents (RC / Insurance / DL availability)
             ViewBag.VehicleDocs = await LoadVehicleDocsAsync();
 
             // Section 13B - Outpatient Area (IndoorInfrastructureRequirementsCompliance, SectionCode = 15)
             ViewBag.OutpatientArea = await LoadOutpatientAreaAsync();
+
+            // Section 21 - Academic Matters PG
+            ViewBag.PgAcademicPerformance = await LoadPgAcademicPerformanceAsync(model);
 
             var reuploadPath = await FindSealedSignedReuploadPathAsync(
                 model.FacultyCode ?? CurrentFacultyCode,
@@ -85,6 +104,7 @@ namespace Medical_Affiliation.Controllers
 
             return View(model);
         }
+
         private static void DedupeFaculty(CApreviewViewModel model)
         {
             var list = model?.FacultyDesigNonTeachDisplayVM?.FacultyDetailDisplayVM;
@@ -96,6 +116,261 @@ namespace Medical_Affiliation.Controllers
                     : "N:" + f.NameOfFaculty?.Trim().ToUpper() + "|" + f.Mobile?.Trim())
                 .Select(g => g.OrderByDescending(x => x.Id).First())
                 .ToList();
+        }
+
+        // ------------------------------------------------------------------
+        // Section 12 - Associated Institutions
+        // Source: dbo.AssociatedInstitutions (filtered by this college's code)
+        //   College name <- Affiliation_College_Master (CollegeCode -> CollegeName)
+        //   Course name  <- Mst_Course (CourseCode -> CourseName), falling back to
+        //                   the name stored in AssociatedInstitutions
+        // OUTER APPLY TOP (1) keeps one row per association even when a master
+        // code appears under several faculties (the faculty match is preferred).
+        // ------------------------------------------------------------------
+        private async Task<List<AssociatedInstitutionRow>> LoadAssociatedInstitutionsAsync(CApreviewViewModel model)
+        {
+            var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return new List<AssociatedInstitutionRow>();
+
+            try
+            {
+                return await _context.Database.SqlQuery<AssociatedInstitutionRow>($@"
+                    SELECT a.Id,
+                           CAST(a.TypeOfAffiliation AS varchar(100))      AS TypeOfAffiliation,
+                           CAST(a.CollegeCode AS varchar(50))             AS CollegeCode,
+                           CAST(a.AssociatedCollegeCode AS varchar(50))   AS AssociatedCollegeCode,
+                           CAST(cm.CollegeName AS varchar(300))           AS AssociatedCollegeName,
+                           CAST(a.AssociatedFacultyCode AS varchar(50))   AS AssociatedFacultyCode,
+                           CAST(a.FacultyCode AS varchar(50))             AS FacultyCode,
+                           CAST(a.CourseCode AS varchar(50))              AS CourseCode,
+                           CAST(COALESCE(NULLIF(LTRIM(RTRIM(mc.CourseName)), ''), a.CourseName) AS varchar(300)) AS CourseName,
+                           CAST(a.CourseLevel AS varchar(50))             AS CourseLevel,
+                           a.AnnualIntake,
+                           a.CreatedOn
+                    FROM dbo.AssociatedInstitutions a
+                    OUTER APPLY (
+                        SELECT TOP (1) m.CollegeName
+                        FROM [Admission_Affiliation].[dbo].[Affiliation_College_Master] m
+                        WHERE LTRIM(RTRIM(CAST(m.CollegeCode AS varchar(50)))) = LTRIM(RTRIM(CAST(a.AssociatedCollegeCode AS varchar(50))))
+                        ORDER BY CASE WHEN LTRIM(RTRIM(CAST(m.FacultyCode AS varchar(50)))) = LTRIM(RTRIM(CAST(a.AssociatedFacultyCode AS varchar(50)))) THEN 0 ELSE 1 END
+                    ) cm
+                    OUTER APPLY (
+                        SELECT TOP (1) c.CourseName
+                        FROM [Admission_Affiliation].[dbo].[Mst_Course] c
+                        WHERE LTRIM(RTRIM(CAST(c.CourseCode AS varchar(50)))) = LTRIM(RTRIM(CAST(a.CourseCode AS varchar(50))))
+                        ORDER BY CASE WHEN LTRIM(RTRIM(CAST(c.FacultyCode AS varchar(50)))) = LTRIM(RTRIM(CAST(a.AssociatedFacultyCode AS varchar(50)))) THEN 0 ELSE 1 END
+                    ) mc
+                    WHERE LTRIM(RTRIM(CAST(a.CollegeCode AS varchar(50)))) = {collegeCode}
+                    ORDER BY a.AssociatedCollegeCode, a.CourseName").ToListAsync();
+            }
+            catch (SqlException)
+            {
+                // A table/column name did not match in this deployment: show an empty
+                // section instead of breaking the whole preview.
+                return new List<AssociatedInstitutionRow>();
+            }
+        }
+
+        // ------------------------------------------------------------------
+        // Section 21 - Academic Matters PG
+        // Source: [Admission_Affiliation].[dbo].[CA_AcademicPerformance]
+        // Same rule as the AcademicMattersPG page: college + PG, prefer the
+        // session faculty/affiliation, otherwise use whatever was actually saved.
+        // Subject code and year id are shown as names.
+        // Reuses PgSectionTable so no new DTO is needed.
+        // ------------------------------------------------------------------
+        private async Task<PgSectionTable> LoadPgAcademicPerformanceAsync(CApreviewViewModel model)
+        {
+            var table = new PgSectionTable
+            {
+                Title = "Academic Performance",
+                Headers = new List<string>
+                {
+                    "Subject", "Year of Study", "Regular Students", "Repeater Students",
+                    "Students Passed", "Pass %", "First Class", "Distinction", "Remarks"
+                }
+            };
+
+            var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim().ToUpper();
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return table;
+
+            int sessFaculty = int.TryParse((model.FacultyCode ?? CurrentFacultyCode)?.Trim(), out var f) ? f : 1;
+            int sessAff = CurrentAffiliationType;
+
+            try
+            {
+                var all = await _context.CaAcademicPerformances
+                    .AsNoTracking()
+                    .Where(x => x.CollegeCode != null
+                                && x.CollegeCode.Trim().ToUpper() == collegeCode
+                                && x.CourseLevel != null
+                                && x.CourseLevel.Trim().ToUpper() == "PG"
+                                && x.Subject != null && x.Subject != "")
+                    .ToListAsync();
+
+                var scoped = all.Where(x => x.FacultyId == sessFaculty && x.AffiliationType == sessAff).ToList();
+                var rows = scoped.Any() ? scoped : all;
+
+                // Subject code -> subject name
+                var subjectNames = (await _context.MstCourses
+                        .AsNoTracking()
+                        .Where(c => c.CourseLevel.ToUpper() == "PG")
+                        .Select(c => new { c.CourseCode, c.SubjectName })
+                        .ToListAsync())
+                    .GroupBy(c => c.CourseCode.ToString())
+                    .ToDictionary(g => g.Key, g => g.First().SubjectName);
+
+                // Year id -> year name
+                var yearNames = (await _context.CaMstYearOfStudies
+                        .AsNoTracking()
+                        .ToListAsync())
+                    .GroupBy(y => y.YearOfStudyId)
+                    .ToDictionary(g => g.Key, g => g.First().YearName);
+
+                static string N(object? v) => v == null ? "—" : Convert.ToString(v, CultureInfo.InvariantCulture) ?? "—";
+
+                foreach (var r in rows
+                             .OrderBy(x => subjectNames.TryGetValue(x.Subject!.Trim(), out var n) ? n : x.Subject)
+                             .ThenBy(x => x.YearOfStudyId))
+                {
+                    var key = r.Subject!.Trim();
+                    var subject = subjectNames.TryGetValue(key, out var sn) && !string.IsNullOrWhiteSpace(sn) ? sn : key;
+                    var year = r.YearOfStudyId.HasValue && yearNames.TryGetValue(r.YearOfStudyId.Value, out var yn)
+                        ? yn
+                        : N(r.YearOfStudyId);
+
+                    table.Rows.Add(new List<string>
+                    {
+                        subject,
+                        year,
+                        N(r.RegularStudents),
+                        N(r.RepeaterStudents),
+                        N(r.NumberOfStudentsPassed),
+                        r.PassPercentage.HasValue ? r.PassPercentage.Value.ToString("0.##", CultureInfo.InvariantCulture) : "—",
+                        N(r.FirstClassCount),
+                        N(r.DistinctionCount),
+                        string.IsNullOrWhiteSpace(r.Remarks) ? "—" : r.Remarks.Trim()
+                    });
+                }
+            }
+            catch (Exception)
+            {
+                table.Rows.Clear();
+            }
+
+            return table;
+        }
+
+        // ------------------------------------------------------------------
+        // PG-only sections 08A - 08F (General Details, Summary, Infrastructure Details,
+        // Services & Clinical Material, Staff & Exam Results, Academic Activities).
+        // Filters by college code + faculty code + application type (+ course code).
+        // Grouped by department (name from Mst_MedicalCollegeCourseIntake).
+        // Returns an empty list when the applying course level is not PG.
+        // ------------------------------------------------------------------
+        private Task<List<PgSectionGroup>> LoadPgSectionsAsync(CApreviewViewModel model) =>
+            PgSectionLoader.LoadForApplicationAsync(
+                model,
+                HttpContext.Session,
+                _context.Database.GetConnectionString());
+
+        // ------------------------------------------------------------------
+        // Section 08 - PG Course Affiliation
+        // Reads four tables from [Admission_Affiliation].[dbo] filtered by
+        // CollegeCode + CourseLevel (as requested):
+        //   Affiliation_PgSsCourseDetails          -> PG Course Details
+        //   Affiliation_PgSsCourseDetailsForGOK    -> Details for GOK
+        //   Affiliation_PgSsCourseDetailsRGUHS     -> Details for RGUHS
+        //   Affiliation_OtherCoursesPermittedByNMC -> Other Courses Permitted by NMC
+        // Document path columns are shown as "Uploaded" / "Not Uploaded".
+        //
+        // If one college can have several application types, add
+        //   AND LTRIM(RTRIM(CAST(TypeOfAffiliation AS varchar(100)))) = @t
+        // so rows from past applications are not listed too.
+        // ------------------------------------------------------------------
+        private async Task<List<PgSectionTable>> LoadPgCourseAffiliationAsync(CApreviewViewModel model)
+        {
+            var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
+            var courseLevel = (!string.IsNullOrWhiteSpace(CurrentCourseLevel)
+                    ? CurrentCourseLevel
+                    : model.ApplyingCourseLevel ?? "PG")
+                .Trim().ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(collegeCode))
+                return new List<PgSectionTable>();
+
+            var connStr = _context.Database.GetConnectionString();
+            if (string.IsNullOrWhiteSpace(connStr))
+                return new List<PgSectionTable>();
+
+            // (title, table, columns, headers)
+            var defs = new (string Title, string Table, string[] Cols, string[] Heads)[]
+            {
+                ("PG Course Details", "Affiliation_PgSsCourseDetails",
+                    new[] { "CourseName", "CourseCode", "CoursePrefix", "PresentIntake", "RguhsIntake", "LOPDate", "DateofRecognitionByNMC", "DateofRecognitionByDCI" },
+                    new[] { "Course Name", "Course Code", "Prefix", "Present Intake", "RGUHS Intake", "LoP Date", "Recognition by NMC", "Recognition by DCI" }),
+
+                ("Details for GOK", "Affiliation_PgSsCourseDetailsForGOK",
+                    new[] { "CourseName", "CourseCode", "CoursePrefix", "PresentIntake", "SanctionedIntake", "GOKdate", "AcademicYear", "DocumentofGOKPath" },
+                    new[] { "Course Name", "Course Code", "Prefix", "Present Intake", "Sanctioned Intake", "GOK Date", "Academic Year", "GOK Document" }),
+
+                ("Details for RGUHS", "Affiliation_PgSsCourseDetailsRGUHS",
+                    new[] { "CourseName", "CourseCode", "RguhsIntake", "RGUHSsupportingDocumentPath" },
+                    new[] { "Course Name", "Course Code", "RGUHS Intake", "Supporting Document" }),
+
+                ("Other Courses Permitted by NMC", "Affiliation_OtherCoursesPermittedByNMC",
+                    new[] { "CourseName", "CourseCode", "PermissionByNMC", "NumberOfAdmissionsPerYear", "NMCsupportingDocumentPath" },
+                    new[] { "Course Name", "Course Code", "Permission by NMC", "Admissions per Year", "Supporting Document" })
+            };
+
+            var result = new List<PgSectionTable>();
+            await using var conn = new SqlConnection(connStr);
+            await conn.OpenAsync();
+
+            foreach (var d in defs)
+            {
+                var table = new PgSectionTable { Title = d.Title, Headers = d.Heads.ToList() };
+                try
+                {
+                    var cols = string.Join(", ", d.Cols.Select(c => $"[{c}]"));
+                    await using var cmd = new SqlCommand($@"
+                        SELECT {cols}
+                        FROM [Admission_Affiliation].[dbo].[{d.Table}]
+                        WHERE LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = @c
+                          AND UPPER(LTRIM(RTRIM(CAST(CourseLevel AS varchar(50))))) = @l
+                        ORDER BY CourseName, Id", conn);
+                    cmd.Parameters.Add("@c", SqlDbType.VarChar, 50).Value = collegeCode;
+                    cmd.Parameters.Add("@l", SqlDbType.VarChar, 50).Value = courseLevel;
+
+                    await using var r = await cmd.ExecuteReaderAsync();
+                    while (await r.ReadAsync())
+                    {
+                        var row = new List<string>();
+                        for (var i = 0; i < d.Cols.Length; i++)
+                        {
+                            var v = r.GetValue(i);
+                            var isDoc = d.Cols[i].EndsWith("Path", StringComparison.OrdinalIgnoreCase);
+                            row.Add(v is DBNull ? "—"
+                                : isDoc ? (string.IsNullOrWhiteSpace(Convert.ToString(v)) ? "Not Uploaded" : "Uploaded")
+                                : v is DateTime dt ? dt.ToString("dd-MM-yyyy")
+                                : v is bool b ? (b ? "Yes" : "No")
+                                : Convert.ToString(v, CultureInfo.InvariantCulture)?.Trim() is { Length: > 0 } s ? s : "—");
+                        }
+                        table.Rows.Add(row);
+                    }
+                }
+                catch (SqlException)
+                {
+                    // Table / column missing in this deployment: leave this table empty
+                    // instead of breaking the whole preview.
+                    table.Rows.Clear();
+                }
+                result.Add(table);
+            }
+
+            return result;
         }
 
         [HttpGet]
@@ -122,6 +397,7 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> GeneratePdf(bool declarationConsent)
         {
             var completion = await _capreviewService.GetPreviewAsync();
+
             if (!completion.IsApplicationComplete)
             {
                 TempData["PreviewError"] = $"Complete the application sections before submitting. Current completion: {completion.CompletionPercentage}%.";
@@ -142,7 +418,7 @@ namespace Medical_Affiliation.Controllers
             await ApplySmallGroupTeachingAsync(model);
             await ApplyAnnualMbbsIntakeAsync(model);
             await ApplyDesignationIntakeAsync(model);
-            return GeneratePreviewPdf(model);
+            return await GeneratePreviewPdf(model);
         }
 
         // ------------------------------------------------------------------
@@ -368,7 +644,7 @@ namespace Medical_Affiliation.Controllers
                 await ApplySmallGroupTeachingAsync(submittedModel);
                 await ApplyAnnualMbbsIntakeAsync(submittedModel);
                 await ApplyDesignationIntakeAsync(submittedModel);
-                return GeneratePreviewPdf(submittedModel);
+                return await GeneratePreviewPdf(submittedModel);
             }
 
             await SaveApplicationSubmissionAsync(
@@ -387,7 +663,7 @@ namespace Medical_Affiliation.Controllers
             await ApplySmallGroupTeachingAsync(model);
             await ApplyAnnualMbbsIntakeAsync(model);
             await ApplyDesignationIntakeAsync(model);
-            return GeneratePreviewPdf(model);
+            return await GeneratePreviewPdf(model);
         }
 
         [HttpGet]
@@ -415,7 +691,7 @@ namespace Medical_Affiliation.Controllers
             await ApplySmallGroupTeachingAsync(model);
             await ApplyAnnualMbbsIntakeAsync(model);
             await ApplyDesignationIntakeAsync(model);
-            return GeneratePreviewPdf(model);
+            return await GeneratePreviewPdf(model);
         }
 
         private async Task<bool> HasSubmittedApplicationAsync(
@@ -577,6 +853,7 @@ namespace Medical_Affiliation.Controllers
 
             return PhysicalFile(file.CurriculumPdfPath, "application/pdf");
         }
+
         public async Task<IActionResult> PreviewHospitalDocument(int id, string mode = "view")
         {
             var file = await _context.AffiliatedHospitalDocuments
@@ -614,6 +891,7 @@ namespace Medical_Affiliation.Controllers
             // Preview mode (inline)
             return PhysicalFile(file.DocumentFilePth, contentType);
         }
+
         public async Task<IActionResult> ViewServiceFile(int id)
         {
             var file = await _context.CaMedicalLibraryServices
@@ -709,7 +987,6 @@ namespace Medical_Affiliation.Controllers
             if (gov == null || string.IsNullOrWhiteSpace(gov.GoverningCouncilPdfPath) || !System.IO.File.Exists(gov.GoverningCouncilPdfPath)) return NotFound();
 
             return File(gov.GoverningCouncilPdfPath, "application/pdf");
-
         }
 
         public async Task<IActionResult> ViewAccountSummaryPdf(int id)
@@ -727,7 +1004,6 @@ namespace Medical_Affiliation.Controllers
             if (gov == null || string.IsNullOrWhiteSpace(gov.AccountSummaryPdfPath) || !System.IO.File.Exists(gov.AccountSummaryPdfPath)) return NotFound();
 
             return File(gov.AccountSummaryPdfPath, "application/pdf");
-
         }
 
         public async Task<IActionResult> ViewAuditedStatementPdf(int id)
@@ -745,8 +1021,8 @@ namespace Medical_Affiliation.Controllers
             if (gov == null || string.IsNullOrWhiteSpace(gov.AuditedStatementPdfPath) || !System.IO.File.Exists(gov.AuditedStatementPdfPath)) return NotFound();
 
             return File(gov.AuditedStatementPdfPath, "application/pdf");
-
         }
+
         public async Task<IActionResult> ViewExaminerDetailsPdf(int id)
         {
             var gov = await _context.CaMedStaffParticularsOthers
@@ -763,8 +1039,8 @@ namespace Medical_Affiliation.Controllers
             if (gov == null || string.IsNullOrWhiteSpace(gov.ExaminerDetailsPdfPath) || !System.IO.File.Exists(gov.ExaminerDetailsPdfPath)) return NotFound();
 
             return File(gov.ExaminerDetailsPdfPath, "application/pdf");
-
         }
+
         public async Task<IActionResult> ViewAebasLastThreeMonthsPdf(int id)
         {
             var gov = await _context.CaMedStaffParticularsOthers
@@ -781,8 +1057,8 @@ namespace Medical_Affiliation.Controllers
             if (gov == null || string.IsNullOrWhiteSpace(gov.AebaslastThreeMonthsPdfPath) || !System.IO.File.Exists(gov.AebaslastThreeMonthsPdfPath)) return NotFound();
 
             return File(gov.AebaslastThreeMonthsPdfPath, "application/pdf");
-
         }
+
         public async Task<IActionResult> ViewAebasInspectionDayPdf(int id)
         {
             var gov = await _context.CaMedStaffParticularsOthers
@@ -799,8 +1075,8 @@ namespace Medical_Affiliation.Controllers
             if (gov == null || string.IsNullOrWhiteSpace(gov.AebasinspectionDayPdfPath) || !System.IO.File.Exists(gov.AebasinspectionDayPdfPath)) return NotFound();
 
             return File(gov.AebasinspectionDayPdfPath, "application/pdf");
-
         }
+
         public async Task<IActionResult> ViewProvidentFundPdf(int id)
         {
             var gov = await _context.CaMedStaffParticularsOthers
@@ -817,8 +1093,8 @@ namespace Medical_Affiliation.Controllers
             if (gov == null || string.IsNullOrWhiteSpace(gov.ProvidentFundPdfPath) || !System.IO.File.Exists(gov.ProvidentFundPdfPath)) return NotFound();
 
             return File(gov.ProvidentFundPdfPath, "application/pdf");
-
         }
+
         public async Task<IActionResult> ViewEsipdf(int id)
         {
             var gov = await _context.CaMedStaffParticularsOthers
@@ -835,7 +1111,6 @@ namespace Medical_Affiliation.Controllers
             if (gov == null || string.IsNullOrWhiteSpace(gov.EsipdfPath) || !System.IO.File.Exists(gov.EsipdfPath)) return NotFound();
 
             return File(gov.EsipdfPath, "application/pdf");
-
         }
 
         // ------------------------------------------------------------------
@@ -944,7 +1219,9 @@ namespace Medical_Affiliation.Controllers
             return RedirectToAction(nameof(Preview));
         }
 
-        private IActionResult GeneratePreviewPdf(Medical_Affiliation.Models.CApreviewViewModel model)
+        // Async because the PG-only sections (08A - 08F) are loaded here so they
+        // appear in the generated PDF as well as on the preview page.
+        private async Task<IActionResult> GeneratePreviewPdf(Medical_Affiliation.Models.CApreviewViewModel model)
         {
             var logoPath = Path.Combine(
                 Directory.GetCurrentDirectory(),
@@ -961,7 +1238,27 @@ namespace Medical_Affiliation.Controllers
             var logoBytes = System.IO.File.ReadAllBytes(logoPath);
             var clglogoBytes = System.IO.File.ReadAllBytes(clgLogoPath);
 
-            var pdf = new PreviewReportPdf(model, logoBytes, clglogoBytes);
+            // The PDF still uses the flat tables (group.Tables). Where several departments are
+            // present, the flat tables get a leading "Department" column with the department name.
+            var pgSections = await LoadPgSectionsAsync(model);
+
+            // Section 08 (PG Course Affiliation) data for the PDF. Uncomment once
+            // PreviewReportPdf has a WithPgCourseAffiliation(List<PgSectionTable>) method:
+            // var pgCourseTables = await LoadPgCourseAffiliationAsync(model);
+
+            // Section 12 (Associated Institutions) data for the PDF. Pass it to PreviewReportPdf
+            // once it has a method for it, e.g. .WithAssociatedInstitutions(associatedInstitutions):
+            // var associatedInstitutions = await LoadAssociatedInstitutionsAsync(model);
+
+            // Section 21 (Academic Matters PG) data for the PDF. Loaded directly here because
+            // ViewBag is only filled by the Preview() action. Pass it to PreviewReportPdf once it
+            // has a method for it, e.g. .WithPgAcademic(pgAcademicTable):
+            var pgAcademicTable = await LoadPgAcademicPerformanceAsync(model);
+
+            var pdf = new PreviewReportPdf(model, logoBytes, clglogoBytes).WithPgSections(pgSections);
+            // .WithPgCourseAffiliation(pgCourseTables)
+            // .WithAssociatedInstitutions(associatedInstitutions)
+            // .WithPgAcademic(pgAcademicTable);
             var bytes = pdf.GeneratePdf();
 
             var collegeCode = HttpContext.Session.GetString("CollegeCode");
@@ -1267,8 +1564,6 @@ namespace Medical_Affiliation.Controllers
 
             return normalized.Trim('_');
         }
-
-
     }
 }
 
@@ -1317,6 +1612,9 @@ namespace Medical_Affiliation.Models
     // Row DTO for the existing dbo.AssociatedInstitutions table
     // (used by Section 12 - Associated Institutions in Preview.cshtml).
     // Read-only: the table already exists, nothing here creates or alters it.
+    // AssociatedCollegeName comes from Affiliation_College_Master and CourseName
+    // from Mst_Course (see LoadAssociatedInstitutionsAsync), so the preview shows
+    // names instead of codes.
     // If you already have a class with this name in your Models folder,
     // delete this copy. If a column type differs (e.g. FacultyCode is int),
     // change the matching property type.
@@ -1327,6 +1625,7 @@ namespace Medical_Affiliation.Models
         public string? TypeOfAffiliation { get; set; }
         public string? CollegeCode { get; set; }
         public string? AssociatedCollegeCode { get; set; }
+        public string? AssociatedCollegeName { get; set; }
         public string? AssociatedFacultyCode { get; set; }
         public string? FacultyCode { get; set; }
         public string? CourseCode { get; set; }
@@ -1422,5 +1721,454 @@ namespace Medical_Affiliation.Models
         }
         public string? Remarks { get; set; }
         public DateTime? InspectedOn { get; set; }
+    }
+
+    // ==================================================================
+    // PG-only preview / PDF sections 08A - 08F (Applying Course Level = PG)
+    //   08A General Details, 08B Summary, 08C Infrastructure Details,
+    //   08D Services & Clinical Material / Investigative Workload,
+    //   08E Staff Details & Student Exam Results, 08F Academic Activities.
+    // Data comes from [Admission_Affiliation].[dbo].* tables and is filtered by
+    // CollegeCode + FacultyCode + TypeOfAffiliation (+ CourseCode when known).
+    // The preview groups every section by department (Departments); the PDF
+    // keeps using the flat tables (Tables).
+    // ==================================================================
+    public class PgSectionTable
+    {
+        public string Title { get; set; } = string.Empty;
+        public List<string> Headers { get; set; } = new();
+        public List<List<string>> Rows { get; set; } = new();
+    }
+
+    public class PgDepartmentBlock
+    {
+        public string CourseCode { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public List<PgSectionTable> Tables { get; set; } = new();
+    }
+
+    public class PgSectionGroup
+    {
+        public string Anchor { get; set; } = string.Empty;
+        public string Number { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public List<PgSectionTable> Tables { get; set; } = new();          // flat tables (kept for the PDF)
+        public List<PgDepartmentBlock> Departments { get; set; } = new();  // same data grouped by department
+        public bool HasData => Tables.Any(t => t.Rows.Count > 0);
+    }
+
+    public static class PgSectionLoader
+    {
+        private const string Db = "[Admission_Affiliation].[dbo].";
+
+        // Order = comma separated column list (first column is used for "latest row" tables).
+        // Latest = keep only the newest row per CourseCode (single-record tables that may be re-saved).
+        private sealed record TableDef(string Title, string Table, string Order, bool Latest, string[] Columns);
+        private sealed record GroupDef(string Anchor, string Number, string Title, TableDef[] Tables);
+
+        private static TableDef T(string title, string table, string order, bool latest, params string[] cols)
+            => new(title, table, order, latest, cols);
+
+        private static readonly GroupDef[] Groups =
+        {
+            new("PgGeneralDetails", "08A", "PG General Details", new[]
+            {
+                T("General Details", "TxnPGCourseGeneralDetail", "PGCourseGeneralDetailId", true,
+                    "AcademicYear","LoPDate","YearsSinceStart","HODName","ExistingSeats","IncreaseSeatsFrom",
+                    "IncreaseSeatsTo","TotalUnits","DepartmentBeds","TotalICUHDUBeds")
+            }),
+
+            new("PgSummary", "08B", "PG Summary", new[]
+            {
+                T("Summary", "TxnPGCourseSummaryDetail", "PGCourseSummaryDetailId", true,
+                    "DateOfAssessment","AssessorName","InstitutionName","InstitutionCategory",
+                    "HeadOfInstitutionDesignation","HeadOfInstitutionName","HeadOfInstitutionAgeDob",
+                    "HeadOfInstitutionTeachingExp","HeadOfInstitutionPgdegree","HeadOfInstitutionPgrecognition",
+                    "HeadOfInstitutionSubject","DepartmentInspected","Hodname","HodageDob","HodteachingExp",
+                    "HodpgDegree","HodpgRecognition","NumberOfUgseats")
+            }),
+
+            new("PgInfrastructure", "08C", "PG Infrastructure Details", new[]
+            {
+                T("Local Inspection Committee", "LocalInspectionCommittee", "SlNo", false,
+                    "NameOfChairmanOrMember","CorrespondenceAddress","PhoneOffResMobile","Email"),
+                T("Fee Paid Details", "FeePaidDetails", "SlNo", false,
+                    "Particulars","Amount","TransactionId","PaymentDate","BankName","BankBranch"),
+                T("Other Courses / Observership", "OtherCourseObservership", "Id", false,
+                    "NameOfQualificationCourse","PermittedByMciNmc","NumberOfAdmissionsPerYear"),
+                T("OPD Details", "OpdDetails", "Id", true,
+                    "NoOfRoomsForConsultation","WaitingAreaInSqM","SpaceAndArrangements","IfNotAdequateReasons",
+                    "DressingRoomAvailable","SeparateMinorOtMaleFemale","PerRectalExamRoomAvailable","DressingRoom2Available"),
+                T("OPD Room Area", "OpdRoomArea", "Id", false, "RoomType","AreaInSqM"),
+                T("Wards", "WardsHeader", "Id", true, "NoOfWardsMale","NoOfWardsFemale"),
+                T("Ward Parameters", "WardsParameters", "Id", false, "ParameterName","Details"),
+                T("Operation Theatre Distribution", "OperationTheatreDistribution", "IsTotalRow,SlNo", false,
+                    "DepartmentName","MajorOtTables","MinorOtTables"),
+                T("Seminar Room", "SeminarRoom", "Id", true,
+                    "SpaceAndFacility","InternetFacility","AudiovisualEquipmentDetails"),
+                T("Departmental Museum", "DepartmentalMuseum", "Id", true,
+                    "Space","TotalNumberOfSpecimens","TotalNumberOfChartDiagram"),
+                T("Library Facility", "LibraryFacility", "Id", true,
+                    "NumberOfBooksCentral","NumberOfBooksDepartmental","BooksPurchasedLast3YrsCentral",
+                    "BooksPurchasedLast3YrsDept","AnnexureAttached","TotalIndianJournalsCentral",
+                    "TotalIndianJournalsDept","TotalForeignJournalsCentral","TotalForeignJournalsDept",
+                    "ComputerWithInternetCentral","ComputerWithInternetDept","CentralLibraryTiming",
+                    "CentralReadingRoomTiming"),
+                T("Departmental Research Lab", "DepartmentalResearchLab", "Id", true,
+                    "Space","Equipment","ResearchProjectsCompletedPast3Yrs","ResearchProjectsInProgress"),
+                T("Department Equipment", "DepartmentEquipment", "Id", false,
+                    "NameOfEquipment","NumbersAvailable","FunctionalStatus","IsAdequate")
+            }),
+
+            new("PgServices", "08D", "PG Services & Clinical Material / Investigative Workload", new[]
+            {
+                T("Specialty Clinics", "SpecialtyClinicDetail", "ClinicSequence", false,
+                    "ClinicName","Weekdays","Timings","NumberOfCasesAvg","ClinicInchargeName"),
+                T("Department Services", "DepartmentServiceDetail", "ServiceSequence", false,
+                    "ServiceName","IsAvailable","Remarks"),
+                T("Clinical / Investigative Workload", "ClinicalWorkloadDetail", "ParticularSequence", false,
+                    "ParticularName","EntireHospital","OnDayOfAssessment","Random3Days","PreviousYear")
+            }),
+
+            new("PgStaffExam", "08E", "PG Staff Details & Student Exam Results", new[]
+            {
+                T("Eligible Faculty", "EligibleFacultyDetail", "DesignationSequence", false,
+                    "Designation","NumberOfFaculty","Names","TotalAdmissionSeats","IsAdequateForAdmission"),
+                T("PG Students (Year-wise)", "PgStudentsYearWiseDetail", "YearSequence", false,
+                    "YearLabel","NumberOfStudents"),
+                T("Student Exam Results", "StudentExamResultDetail", "SlNo", false,
+                    "StudentName","Result")
+            }),
+
+            new("PgAcademic", "08F", "PG Academic Activities", new[]
+            {
+                T("Academic Activities", "AcademicActivityDetail", "SlNo", false,
+                    "ActivityDetails","NumberInLastYear","Remarks"),
+                T("Academic Summary", "AcademicSummaryDetail", "Id", true,
+                    "PublicationsPast3Years","AssessmentDate","LiccommitteeObservations")
+            })
+        };
+
+        // Friendly header text where plain camel-case splitting would read badly.
+        private static readonly Dictionary<string, string> Labels = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["LoPDate"] = "LoP Date",
+            ["HODName"] = "HOD Name",
+            ["TotalICUHDUBeds"] = "Total ICU / HDU Beds",
+            ["HeadOfInstitutionAgeDob"] = "Head of Institution - Age / DOB",
+            ["HeadOfInstitutionTeachingExp"] = "Head of Institution - Teaching Experience",
+            ["HeadOfInstitutionPgdegree"] = "Head of Institution - PG Degree",
+            ["HeadOfInstitutionPgrecognition"] = "Head of Institution - PG Recognition",
+            ["Hodname"] = "HOD Name",
+            ["HodageDob"] = "HOD Age / DOB",
+            ["HodteachingExp"] = "HOD Teaching Experience",
+            ["HodpgDegree"] = "HOD PG Degree",
+            ["HodpgRecognition"] = "HOD PG Recognition",
+            ["NumberOfUgseats"] = "Number of UG Seats",
+            ["NameOfChairmanOrMember"] = "Name of Chairman / Member",
+            ["PhoneOffResMobile"] = "Phone (Off / Res / Mobile)",
+            ["PermittedByMciNmc"] = "Permitted by MCI / NMC",
+            ["NoOfRoomsForConsultation"] = "No. of Consultation Rooms",
+            ["WaitingAreaInSqM"] = "Waiting Area (Sq.m)",
+            ["AreaInSqM"] = "Area (Sq.m)",
+            ["SeparateMinorOtMaleFemale"] = "Separate Minor OT (Male / Female)",
+            ["PerRectalExamRoomAvailable"] = "Per-rectal Exam Room Available",
+            ["DressingRoom2Available"] = "Dressing Room 2 Available",
+            ["NoOfWardsMale"] = "No. of Wards (Male)",
+            ["NoOfWardsFemale"] = "No. of Wards (Female)",
+            ["MajorOtTables"] = "Major OT Tables",
+            ["MinorOtTables"] = "Minor OT Tables",
+            ["AudiovisualEquipmentDetails"] = "Audio-visual Equipment Details",
+            ["NumberOfBooksCentral"] = "Number of Books (Central)",
+            ["NumberOfBooksDepartmental"] = "Number of Books (Departmental)",
+            ["BooksPurchasedLast3YrsCentral"] = "Books Purchased in Last 3 Yrs (Central)",
+            ["BooksPurchasedLast3YrsDept"] = "Books Purchased in Last 3 Yrs (Dept)",
+            ["TotalIndianJournalsCentral"] = "Indian Journals (Central)",
+            ["TotalIndianJournalsDept"] = "Indian Journals (Dept)",
+            ["TotalForeignJournalsCentral"] = "Foreign Journals (Central)",
+            ["TotalForeignJournalsDept"] = "Foreign Journals (Dept)",
+            ["ComputerWithInternetCentral"] = "Computers with Internet (Central)",
+            ["ComputerWithInternetDept"] = "Computers with Internet (Dept)",
+            ["CentralLibraryTiming"] = "Central Library Timing",
+            ["CentralReadingRoomTiming"] = "Central Reading Room Timing",
+            ["ResearchProjectsCompletedPast3Yrs"] = "Research Projects Completed (Past 3 Yrs)",
+            ["Random3Days"] = "Random 3 Days",
+            ["LiccommitteeObservations"] = "LIC Observations",
+            ["IsAvailable"] = "Available",
+            ["IsAdequate"] = "Adequate",
+            ["IsAdequateForAdmission"] = "Adequate for Admission",
+            ["Email"] = "Email"
+        };
+
+        /// <summary>
+        /// Loads the PG sections for the current application, grouped by department.
+        /// Returns an empty list unless the applying course level is PG, so UG / SS
+        /// previews and PDFs never get these sections.
+        /// </summary>
+        public static async Task<List<PgSectionGroup>> LoadForApplicationAsync(
+            CApreviewViewModel? model, ISession session, string? connectionString)
+        {
+            var level = (session.GetString("CourseLevel")
+                         ?? session.GetString("SelectedCourseLevel")
+                         ?? model?.ApplyingCourseLevel
+                         ?? string.Empty).Trim().ToUpperInvariant();
+
+            if (level != "PG" || string.IsNullOrWhiteSpace(connectionString))
+                return new List<PgSectionGroup>();
+
+            var collegeCode = (model?.CollegeCode ?? session.GetString("CollegeCode"))?.Trim();
+            var facultyCode = (model?.FacultyCode ?? session.GetString("FacultyCode"))?.Trim();
+
+            // TypeOfAffiliation may be stored as text ("Continuation of Affiliation") or as the numeric id,
+            // so match either.
+            var typeKeys = new List<string>();
+            void AddType(string? v) { if (!string.IsNullOrWhiteSpace(v) && !typeKeys.Contains(v.Trim(), StringComparer.OrdinalIgnoreCase)) typeKeys.Add(v.Trim()); }
+            AddType(model?.ApplicationType);
+            AddType(session.GetString("TypeOfAffiliation"));
+            AddType(session.GetInt32("AffiliationType")?.ToString());
+            AddType(session.GetString("AffiliationTypeId"));
+
+            var courseCodes = new List<string>();
+            void AddCourse(string? v) { if (!string.IsNullOrWhiteSpace(v) && !courseCodes.Contains(v.Trim(), StringComparer.OrdinalIgnoreCase)) courseCodes.Add(v.Trim()); }
+            var matched = model?.PaymentCalculation?.MatchedCourses;
+            if (matched != null)
+                foreach (var c in matched) AddCourse(c.CourseCode);
+            if (courseCodes.Count == 0)
+                foreach (var c in (session.GetString("CourseCode") ?? string.Empty)
+                             .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                    AddCourse(c);
+
+            var result = new List<PgSectionGroup>();
+            foreach (var g in Groups)
+            {
+                var group = new PgSectionGroup { Anchor = g.Anchor, Number = g.Number, Title = g.Title };
+                foreach (var def in g.Tables)
+                    group.Tables.Add(new PgSectionTable { Title = def.Title, Headers = def.Columns.Select(Label).ToList() });
+                result.Add(group);
+            }
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(facultyCode))
+                return result;
+
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            // Department names for this college (course code -> course name)
+            var deptNames = await LoadDepartmentNamesAsync(connection, collegeCode);
+
+            foreach (var g in Groups)
+            {
+                var group = result.First(x => x.Anchor == g.Anchor);
+                for (var i = 0; i < g.Tables.Length; i++)
+                {
+                    var def = g.Tables[i];
+                    var table = group.Tables[i];
+                    try
+                    {
+                        var (rows, rowCourses) = await ReadTableAsync(connection, def, collegeCode, facultyCode, typeKeys, courseCodes);
+                        ApplyRows(group, table, def, rows, rowCourses, deptNames);
+                    }
+                    catch (SqlException)
+                    {
+                        // Table / column missing in this deployment: leave this table empty
+                        // instead of breaking the whole preview.
+                        table.Rows.Clear();
+                    }
+                }
+
+                group.Departments = group.Departments
+                    .OrderBy(d => d.DepartmentName, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+
+            return result;
+        }
+
+        // Department names: Mst_MedicalCollegeCourseIntake (course) for this college,
+        // falling back to Mst_Course.CourseName, then to the code itself.
+        private static async Task<Dictionary<string, string>> LoadDepartmentNamesAsync(SqlConnection connection, string collegeCode)
+        {
+            var names = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                await using var cmd = new SqlCommand($@"
+                    SELECT CAST(CourseCode AS varchar(50)) AS Code, MAX(course) AS Name
+                    FROM {Db}[Mst_MedicalCollegeCourseIntake]
+                    WHERE LTRIM(RTRIM(coll_code)) = @c AND CourseCode IS NOT NULL
+                    GROUP BY CAST(CourseCode AS varchar(50))", connection);
+                cmd.Parameters.Add("@c", SqlDbType.VarChar, 50).Value = collegeCode;
+
+                await using var r = await cmd.ExecuteReaderAsync();
+                while (await r.ReadAsync())
+                {
+                    var code = r.IsDBNull(0) ? string.Empty : r.GetString(0).Trim();
+                    var name = r.IsDBNull(1) ? string.Empty : r.GetString(1).Trim();
+                    if (code.Length > 0 && name.Length > 0) names[code] = name;
+                }
+            }
+            catch (SqlException) { /* fall through to the fallback below */ }
+
+            try
+            {
+                await using var cmd = new SqlCommand($@"
+                    SELECT CAST(CourseCode AS varchar(50)) AS Code, MAX(CourseName) AS Name
+                    FROM {Db}[Mst_Course]
+                    GROUP BY CAST(CourseCode AS varchar(50))", connection);
+
+                await using var r = await cmd.ExecuteReaderAsync();
+                while (await r.ReadAsync())
+                {
+                    var code = r.IsDBNull(0) ? string.Empty : r.GetString(0).Trim();
+                    var name = r.IsDBNull(1) ? string.Empty : r.GetString(1).Trim();
+                    if (code.Length > 0 && name.Length > 0 && !names.ContainsKey(code)) names[code] = name;
+                }
+            }
+            catch (SqlException) { }
+
+            return names;
+        }
+
+        private static string DeptName(Dictionary<string, string> names, string code) =>
+            string.IsNullOrWhiteSpace(code) ? "General"
+            : names.TryGetValue(code.Trim(), out var n) && !string.IsNullOrWhiteSpace(n) ? n : code.Trim();
+
+        // Adds the rows to (1) the per-department blocks and (2) the flat table used by the PDF.
+        private static void ApplyRows(
+            PgSectionGroup group, PgSectionTable table, TableDef def,
+            List<List<string>> rows, List<string> rowCourses, Dictionary<string, string> deptNames)
+        {
+            // 1. grouped by department
+            for (var i = 0; i < rows.Count; i++)
+            {
+                var code = rowCourses[i];
+                var block = group.Departments.FirstOrDefault(d => d.CourseCode.Equals(code, StringComparison.OrdinalIgnoreCase));
+                if (block == null)
+                {
+                    block = new PgDepartmentBlock { CourseCode = code, DepartmentName = DeptName(deptNames, code) };
+                    group.Departments.Add(block);
+                }
+
+                var t = block.Tables.FirstOrDefault(x => x.Title == def.Title);
+                if (t == null)
+                {
+                    t = new PgSectionTable { Title = def.Title, Headers = def.Columns.Select(Label).ToList() };
+                    block.Tables.Add(t);
+                }
+                t.Rows.Add(new List<string>(rows[i]));
+            }
+
+            // 2. flat table (PDF): when several departments are present, prepend a Department column
+            var distinct = rowCourses.Where(c => c.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+            if (distinct > 1)
+            {
+                table.Headers.Insert(0, "Department");
+                for (var i = 0; i < rows.Count; i++)
+                    rows[i].Insert(0, DeptName(deptNames, rowCourses[i]));
+            }
+
+            table.Rows = rows;
+        }
+
+        private static async Task<(List<List<string>> rows, List<string> courses)> ReadTableAsync(
+            SqlConnection connection, TableDef def,
+            string collegeCode, string facultyCode, List<string> typeKeys, List<string> courseCodes)
+        {
+            var cols = string.Join(", ", def.Columns.Select(c => $"[{c}]"));
+            var orderCols = def.Order.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+            var where = new StringBuilder(@"
+LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = @c
+AND LTRIM(RTRIM(CAST(FacultyCode AS varchar(50)))) = @f");
+
+            await using var cmd = new SqlCommand { Connection = connection };
+            cmd.Parameters.Add("@c", SqlDbType.VarChar, 50).Value = collegeCode;
+            cmd.Parameters.Add("@f", SqlDbType.VarChar, 50).Value = facultyCode;
+
+            if (typeKeys.Count > 0)
+            {
+                var names = new List<string>();
+                for (var i = 0; i < typeKeys.Count; i++)
+                {
+                    names.Add("@t" + i);
+                    cmd.Parameters.Add("@t" + i, SqlDbType.VarChar, 100).Value = typeKeys[i];
+                }
+                where.Append($"\nAND LTRIM(RTRIM(CAST(TypeOfAffiliation AS varchar(100)))) IN ({string.Join(",", names)})");
+            }
+
+            if (courseCodes.Count > 0)
+            {
+                var names = new List<string>();
+                for (var i = 0; i < courseCodes.Count; i++)
+                {
+                    names.Add("@cc" + i);
+                    cmd.Parameters.Add("@cc" + i, SqlDbType.VarChar, 50).Value = courseCodes[i];
+                }
+                where.Append($"\nAND LTRIM(RTRIM(CAST(CourseCode AS varchar(50)))) IN ({string.Join(",", names)})");
+            }
+
+            if (def.Latest)
+            {
+                cmd.CommandText = $@"
+SELECT {cols}, CAST(CourseCode AS varchar(50)) AS __CourseCode
+FROM (
+    SELECT {cols}, CourseCode,
+           ROW_NUMBER() OVER (PARTITION BY CourseCode ORDER BY [{orderCols[0]}] DESC) AS rn
+    FROM {Db}[{def.Table}]
+    WHERE {where}
+) x
+WHERE rn = 1
+ORDER BY CourseCode";
+            }
+            else
+            {
+                var order = string.Join(", ", new[] { "CourseCode" }.Concat(orderCols.Select(o => $"[{o}]")));
+                cmd.CommandText = $@"
+SELECT {cols}, CAST(CourseCode AS varchar(50)) AS __CourseCode
+FROM {Db}[{def.Table}]
+WHERE {where}
+ORDER BY {order}";
+            }
+
+            var rows = new List<List<string>>();
+            var rowCourses = new List<string>();
+            await using var reader = await cmd.ExecuteReaderAsync();
+            var courseIndex = def.Columns.Length;
+            while (await reader.ReadAsync())
+            {
+                var row = new List<string>(def.Columns.Length);
+                for (var i = 0; i < def.Columns.Length; i++)
+                    row.Add(Format(reader.GetValue(i)));
+                rows.Add(row);
+                rowCourses.Add(reader.IsDBNull(courseIndex) ? string.Empty : reader.GetString(courseIndex).Trim());
+            }
+
+            return (rows, rowCourses);
+        }
+
+        private static string Label(string column)
+        {
+            if (Labels.TryGetValue(column, out var label))
+                return label;
+
+            var text = Regex.Replace(column, "(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
+            if (text.StartsWith("Is ", StringComparison.Ordinal))
+                text = text[3..];
+            return text;
+        }
+
+        private static string Format(object? value) => value switch
+        {
+            null => "—",
+            DBNull => "—",
+            bool b => b ? "Yes" : "No",
+            DateTime d => d.TimeOfDay == TimeSpan.Zero ? d.ToString("dd-MM-yyyy") : d.ToString("dd-MM-yyyy HH:mm"),
+            TimeSpan t => t.ToString(@"hh\:mm"),
+            decimal m => m.ToString("0.##", CultureInfo.InvariantCulture),
+            double d => d.ToString("0.##", CultureInfo.InvariantCulture),
+            float f => f.ToString("0.##", CultureInfo.InvariantCulture),
+            string s => string.IsNullOrWhiteSpace(s) ? "—" : s.Trim(),
+            _ => Convert.ToString(value, CultureInfo.InvariantCulture) ?? "—"
+        };
     }
 }

@@ -2,6 +2,30 @@
 @{
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     ViewData["Title"] = "Infrastructure Details";
+
+    // Selected department info bar
+    var departmentName = ViewBag.DepartmentName as string;
+    var courseLevel = ViewBag.CourseLevel as string;
+    var facultyCodeUsed = ViewBag.FacultyCodeUsed as string;
+    var collegeCodeUsed = ViewBag.CollegeCodeUsed as string;
+}
+@functions {
+    // Saved values may differ from the option text in case, spacing or wording
+    // (e.g. "adequate", "Not adequate ", "Y", "True", "Not available"). Both sides are reduced to a
+    // canonical key before comparing, so the saved choice is always preselected.
+    static string Canon(string? v)
+    {
+        var k = new string((v ?? "").Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+        return k switch
+        {
+            "y" or "yes" or "true" or "1" or "permitted" or "available" or "adequate" => "pos",
+            "n" or "no" or "false" or "0" or "notpermitted" or "notavailable" or "unavailable"
+                or "notadequate" or "inadequate" => "neg",
+            _ => k
+        };
+    }
+    static bool Is(string? current, string optionValue) =>
+        !string.IsNullOrWhiteSpace(current) && Canon(current) == Canon(optionValue);
 }
 
 <div class="container-fluid py-4">
@@ -12,6 +36,19 @@
             <small class="text-muted">Local Inspection Committee, fees, and infrastructure of the department</small>
         </div>
         <span class="badge bg-secondary">Section B &mdash; INFRASTRUCTURE</span>
+    </div>
+
+    <div class="alert alert-light border d-flex flex-wrap gap-2 gap-md-4 align-items-center py-2 mb-3">
+        <div>
+            <span class="text-muted">Selected department:</span>
+            <strong>@(string.IsNullOrWhiteSpace(departmentName) ? "(not found)" : departmentName)</strong>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(courseLevel))
+        {
+            <div><span class="text-muted">Course level:</span> <strong>@courseLevel</strong></div>
+        }
+        <div><span class="text-muted">College code:</span> <strong>@collegeCodeUsed</strong></div>
+        <div><span class="text-muted">Faculty code:</span> <strong>@facultyCodeUsed</strong></div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -121,10 +158,10 @@
                             <tr>
                                 <td><input name="OtherCourses[@i].NameOfQualificationCourse" value="@Model.OtherCourses[i].NameOfQualificationCourse" class="form-control form-control-sm" /></td>
                                 <td>
-                                    <select asp-for="OtherCourses[i].PermittedByMcinmc" class="form-select form-select-sm">
+                                    <select name="OtherCourses[@i].PermittedByMcinmc" id="OtherCourses_@(i)__PermittedByMcinmc" class="form-select form-select-sm">
                                         <option value="">--</option>
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
+                                        <option value="Yes" selected="@(Is(Model.OtherCourses[i].PermittedByMcinmc, "Yes"))">Yes</option>
+                                        <option value="No" selected="@(Is(Model.OtherCourses[i].PermittedByMcinmc, "No"))">No</option>
                                     </select>
                                 </td>
                                 <td><input name="OtherCourses[@i].NumberOfAdmissionsPerYear" value="@Model.OtherCourses[i].NumberOfAdmissionsPerYear" type="number" min="0" class="form-control form-control-sm" /></td>
@@ -179,10 +216,10 @@
                 <div class="row mb-2">
                     <label class="col-lg-5 col-form-label">Space and arrangements</label>
                     <div class="col-lg-3">
-                        <select asp-for="SpaceAndArrangements" class="form-select">
+                        <select name="SpaceAndArrangements" id="SpaceAndArrangements" class="form-select">
                             <option value="">--</option>
-                            <option value="Adequate">Adequate</option>
-                            <option value="Not Adequate">Not Adequate</option>
+                            <option value="Adequate" selected="@(Is(Model.SpaceAndArrangements, "Adequate"))">Adequate</option>
+                            <option value="Not Adequate" selected="@(Is(Model.SpaceAndArrangements, "Not Adequate"))">Not Adequate</option>
                         </select>
                     </div>
                 </div>
@@ -194,15 +231,13 @@
                     </div>
                 </div>
 
-                @{
-                    var availOptions = new[] { "Available", "Not available" };
-                }
-
                 <div class="row mb-2">
                     <label class="col-lg-5 col-form-label">Dressing Room</label>
                     <div class="col-lg-3">
-                        <select asp-for="DressingRoomAvailable" asp-items="@(new SelectList(availOptions))" class="form-select">
+                        <select name="DressingRoomAvailable" id="DressingRoomAvailable" class="form-select">
                             <option value="">--</option>
+                            <option value="Available" selected="@(Is(Model.DressingRoomAvailable, "Available"))">Available</option>
+                            <option value="Not available" selected="@(Is(Model.DressingRoomAvailable, "Not available"))">Not available</option>
                         </select>
                     </div>
                 </div>
@@ -210,8 +245,10 @@
                 <div class="row mb-2">
                     <label class="col-lg-5 col-form-label">Separate Minor OT Male &amp; Female</label>
                     <div class="col-lg-3">
-                        <select asp-for="SeparateMinorOtMaleFemale" asp-items="@(new SelectList(availOptions))" class="form-select">
+                        <select name="SeparateMinorOtMaleFemale" id="SeparateMinorOtMaleFemale" class="form-select">
                             <option value="">--</option>
+                            <option value="Available" selected="@(Is(Model.SeparateMinorOtMaleFemale, "Available"))">Available</option>
+                            <option value="Not available" selected="@(Is(Model.SeparateMinorOtMaleFemale, "Not available"))">Not available</option>
                         </select>
                     </div>
                 </div>
@@ -219,8 +256,10 @@
                 <div class="row mb-2">
                     <label class="col-lg-5 col-form-label">Per Rectal examination Room</label>
                     <div class="col-lg-3">
-                        <select asp-for="PerRectalExamRoomAvailable" asp-items="@(new SelectList(availOptions))" class="form-select">
+                        <select name="PerRectalExamRoomAvailable" id="PerRectalExamRoomAvailable" class="form-select">
                             <option value="">--</option>
+                            <option value="Available" selected="@(Is(Model.PerRectalExamRoomAvailable, "Available"))">Available</option>
+                            <option value="Not available" selected="@(Is(Model.PerRectalExamRoomAvailable, "Not available"))">Not available</option>
                         </select>
                     </div>
                 </div>
@@ -228,8 +267,10 @@
                 <div class="row mb-0">
                     <label class="col-lg-5 col-form-label">Dressing Room</label>
                     <div class="col-lg-3">
-                        <select asp-for="DressingRoom2Available" asp-items="@(new SelectList(availOptions))" class="form-select">
+                        <select name="DressingRoom2Available" id="DressingRoom2Available" class="form-select">
                             <option value="">--</option>
+                            <option value="Available" selected="@(Is(Model.DressingRoom2Available, "Available"))">Available</option>
+                            <option value="Not available" selected="@(Is(Model.DressingRoom2Available, "Not available"))">Not available</option>
                         </select>
                     </div>
                 </div>
@@ -331,20 +372,20 @@
                 <div class="row mb-2">
                     <label class="col-lg-4 col-form-label">Space and facility</label>
                     <div class="col-lg-4">
-                        <select asp-for="SeminarSpaceAndFacility" class="form-select">
+                        <select name="SeminarSpaceAndFacility" id="SeminarSpaceAndFacility" class="form-select">
                             <option value="">--</option>
-                            <option value="Adequate">Adequate</option>
-                            <option value="Not Adequate">Not Adequate</option>
+                            <option value="Adequate" selected="@(Is(Model.SeminarSpaceAndFacility, "Adequate"))">Adequate</option>
+                            <option value="Not Adequate" selected="@(Is(Model.SeminarSpaceAndFacility, "Not Adequate"))">Not Adequate</option>
                         </select>
                     </div>
                 </div>
                 <div class="row mb-2">
                     <label class="col-lg-4 col-form-label">Internet facility</label>
                     <div class="col-lg-4">
-                        <select asp-for="SeminarInternetFacility" class="form-select">
+                        <select name="SeminarInternetFacility" id="SeminarInternetFacility" class="form-select">
                             <option value="">--</option>
-                            <option value="Available">Available</option>
-                            <option value="Not Available">Not Available</option>
+                            <option value="Available" selected="@(Is(Model.SeminarInternetFacility, "Available"))">Available</option>
+                            <option value="Not Available" selected="@(Is(Model.SeminarInternetFacility, "Not Available"))">Not Available</option>
                         </select>
                     </div>
                 </div>
@@ -486,10 +527,10 @@
                                 <td><input asp-for="Equipment[i].NumbersAvailable" type="number" min="0" class="form-control form-control-sm" /></td>
                                 <td><input asp-for="Equipment[i].FunctionalStatus" class="form-control form-control-sm" /></td>
                                 <td>
-                                    <select asp-for="Equipment[i].IsAdequate" class="form-select form-select-sm">
+                                    <select name="Equipment[@i].IsAdequate" id="Equipment_@(i)__IsAdequate" class="form-select form-select-sm">
                                         <option value="">--</option>
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
+                                        <option value="Yes" selected="@(Is(Model.Equipment[i].IsAdequate, "Yes"))">Yes</option>
+                                        <option value="No" selected="@(Is(Model.Equipment[i].IsAdequate, "No"))">No</option>
                                     </select>
                                 </td>
                             </tr>

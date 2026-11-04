@@ -3,6 +3,14 @@
     ViewBag.Title = "Vehicle Registration & Documents";
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     var facultyCode = Context.Session.GetString("FacultyCode");
+
+    // Course level from session. Change "CourseLevel" to the exact key your app uses.
+    // Handles both "PG" and "PG — Post Graduate" style values.
+    var courseLevel = Context.Session.GetString("CourseLevel");
+    bool isPG = !string.IsNullOrWhiteSpace(courseLevel) &&
+                (courseLevel.Trim().Equals("PG", StringComparison.OrdinalIgnoreCase) ||
+                 courseLevel.Contains("Post Graduate", StringComparison.OrdinalIgnoreCase) ||
+                 courseLevel.Trim().StartsWith("PG", StringComparison.OrdinalIgnoreCase));
 }
 
 <style>
@@ -36,70 +44,20 @@
         min-height: 100vh;
     }
 
-    /* Page Shell & Container */
+    /* ── Page Shell & Container ── */
     .page-shell {
         background-color: var(--cream);
         min-height: 100vh;
-        /* padding: 36px 0 48px; */
     }
 
     .page-container {
-        width: 330% !important;
+        width: 100% !important;
         max-width: 1500px !important;
         margin: 0 auto !important;
         padding: 0 24px !important;
     }
 
-    /* Updated Header Content - Stacked Vertically on Left */
-    .header-content {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        max-width: 75%; /* Prevents overlapping with badge on smaller screens */
-    }
-
-    .header-title {
-        font-family: 'EB Garamond', serif;
-        font-size: 1.85rem;
-        font-weight: 500;
-        color: var(--white);
-        letter-spacing: 0.01em;
-        line-height: 1.2;
-    }
-
-    .header-subtitle {
-        font-size: 0.82rem;
-        color: rgba(255,255,255,0.75);
-        font-weight: 300;
-        line-height: 1.4;
-    }
-
-    /* Ensure eyebrow stays above */
-    .header-eyebrow {
-        font-size: 0.68rem;
-        font-weight: 500;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--gold-light);
-        margin-bottom: 10px;
-    }
-
-    /* Badge positioning */
-    .header-badge {
-        position: absolute;
-        top: 28px;
-        right: 36px;
-        background: rgba(184,136,42,0.15);
-        border: 1px solid rgba(184,136,42,0.4);
-        border-radius: 4px;
-        padding: 5px 14px;
-        font-size: 0.72rem;
-        font-weight: 500;
-        letter-spacing: 0.08em;
-        color: var(--gold-light);
-        text-transform: uppercase;
-    }
-    /* Header */
+    /* ── Header ── */
     .page-header {
         background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
         border-radius: 10px 10px 0 0;
@@ -125,11 +83,14 @@
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
 
-   
+    .header-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 75%;
+        position: relative;
+    }
 
-    
-
-    
     .header-eyebrow {
         font-family: 'DM Sans', sans-serif;
         font-size: 0.68rem;
@@ -138,7 +99,6 @@
         text-transform: uppercase;
         color: var(--gold-light);
         margin-bottom: 6px;
-        position: relative;
     }
 
     .header-title {
@@ -148,15 +108,13 @@
         color: var(--white);
         letter-spacing: 0.01em;
         line-height: 1.2;
-        position: relative;
     }
 
     .header-subtitle {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.55);
-        margin-top: 6px;
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.75);
         font-weight: 300;
-        position: relative;
+        line-height: 1.4;
     }
 
     .header-badge {
@@ -169,11 +127,12 @@
         padding: 5px 14px;
         font-size: 0.72rem;
         font-weight: 500;
+        letter-spacing: 0.08em;
         color: var(--gold-light);
         text-transform: uppercase;
     }
 
-    /* Form Card */
+    /* ── Form Card ── */
     .form-card {
         background: var(--white);
         border: 1px solid var(--border);
@@ -215,7 +174,8 @@
     #tableBody td:last-child {
         min-width: 180px;
     }
-    /* Table Wrapper with Scrollbar */
+
+    /* ── Table Wrapper ── */
     .table-wrap {
         border: 1px solid var(--border);
         border-radius: var(--radius);
@@ -225,15 +185,13 @@
         padding-bottom: 20px !important;
     }
 
-    /* Add New Vehicle Table - Horizontal Scroll Enabled */
     .add-new-table {
         width: 100%;
-        min-width: 1100px; /* Ensures horizontal scroll */
+        min-width: 1100px;
         border-collapse: collapse;
         font-size: 0.875rem;
     }
 
-    /* Existing Table */
     .data-table {
         width: 100%;
         border-collapse: collapse;
@@ -308,8 +266,6 @@
             border-color: var(--navy-mid);
             box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
         }
-            box-shadow: 0 0 0 3px rgba(26,58,107,0.1);
-        }
 
     select.form-select {
         cursor: pointer;
@@ -320,16 +276,7 @@
         padding-right: 30px;
     }
 
-    select.form-select {
-        cursor: pointer;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6358' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-        padding-right: 30px;
-    }
-
-    /* Buttons */
+    /* ── Buttons ── */
     .btn-save {
         display: inline-flex;
         align-items: center;
@@ -355,6 +302,7 @@
         border-radius: 4px;
         font-size: 0.8rem;
         border: none;
+        cursor: pointer;
     }
 
     .btn-warning {
@@ -372,7 +320,7 @@
         color: white;
     }
 
-    /* Search Box */
+    /* ── Search Box ── */
     #searchBox {
         width: 100%;
         max-width: 320px;
@@ -382,14 +330,11 @@
         font-size: 0.85rem;
     }
 
-    /* Navigation Buttons */
+    /* ── Navigation Buttons ── */
     .form-footer {
         margin-top: 32px;
         padding-top: 20px;
         border-top: 1px solid var(--border);
-    }
-
-    .navigation-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -401,8 +346,6 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-        color: var(--white);
         font-size: 0.82rem;
         font-weight: 600;
         padding: 9px 26px;
@@ -411,17 +354,18 @@
         transition: opacity 0.15s, box-shadow 0.15s;
     }
 
+    .btn-next {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+        color: var(--white);
+    }
+
     .btn-prev {
-        display: inline-flex;
-        align-items: center;
         gap: 6px;
         background: transparent;
         border: 1px solid var(--border);
         color: var(--text-muted);
-        font-size: 0.82rem;
         font-weight: 500;
         padding: 8px 20px;
-        border-radius: 4px;
         cursor: pointer;
         transition: background 0.15s, color 0.15s, border-color 0.15s;
         font-family: 'DM Sans', sans-serif;
@@ -433,6 +377,7 @@
         }
 </style>
 <link rel="stylesheet" href="~/css/common-form.css" />
+
 <div class="page-shell">
     <div class="page-container">
         <div class="page-header">
@@ -446,13 +391,14 @@
 
         <!-- Form Card -->
         <div class="form-card">
+
             <!-- Add New Vehicle Section -->
             <div class="section-label">
                 <span class="section-label-text">Add New Vehicle</span>
                 <span class="section-label-line"></span>
             </div>
             <div class="table-wrap" style="overflow-x: auto;">
-                <form asp-action="CA_VehicleDetails" method="post">
+                <form id="addVehicleForm" asp-action="CA_VehicleDetails" method="post">
                     @Html.AntiForgeryToken()
                     <table class="data-table add-new-table">
                         <thead>
@@ -501,7 +447,7 @@
                                     </select>
                                 </td>
                                 <td style="text-align:center;">
-                                   <button type="submit" id="btnAddVehicle" class="btn-save">Add</button>
+                                    <button type="submit" id="btnAddVehicle" class="btn-save">Add</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -582,9 +528,9 @@
                                     </select>
                                 </td>
                                 <td style="text-align:center;">
-                                    <button class="btn-warning btn-sm" onclick="editRow(@item.Id)">Edit</button>
-                                    <button id="saveBtn-@item.Id" class="btn-success btn-sm edit-mode d-none" onclick="saveEdit(@item.Id)">Save</button>
-                                    <button class="btn-danger btn-sm" onclick="confirmDelete(@item.Id)">Delete</button>
+                                    <button type="button" class="btn-warning btn-sm" onclick="editRow(@item.Id)">Edit</button>
+                                    <button type="button" id="saveBtn-@item.Id" class="btn-success btn-sm edit-mode d-none" onclick="saveEdit(@item.Id)">Save</button>
+                                    <button type="button" class="btn-danger btn-sm" onclick="confirmDelete(@item.Id)">Delete</button>
                                 </td>
                             </tr>
                         }
@@ -594,155 +540,151 @@
 
             <!-- Previous & Next Buttons -->
             <div class="form-footer">
-                @* <div class="navigation-bar"> *@
                 @if (facultyCode == "1")
                 {
                     <a asp-controller="ContinuationAffiliationClinicalFacilities"
-                    asp-action="ClinicalFacilities"
-                    class="btn-prev">← Previous</a>
+                       asp-action="ClinicalFacilities"
+                       class="btn-prev">← Previous</a>
                 }
-                @if (facultyCode == "2")
+                else if (facultyCode == "2")
                 {
                     <a asp-controller="Dental"
-                    asp-action="EquipmentList"
-                    class="btn-prev">← Previous</a>
+                       asp-action="EquipmentList"
+                       class="btn-prev">← Previous</a>
+                }
+                else
+                {
+                    <span></span>
                 }
 
-
-                @if (facultyCode == "1")
+                @if (facultyCode == "1" || facultyCode == "2")
                 {
                     <a asp-controller="CA_Aff_AcademicMatters"
-                       asp-action="AcademicMatters"
+                       asp-action="@(isPG ? "AcademicMattersPG" : "AcademicMatters")"
                        class="btn-next">Next →</a>
                 }
-
-                @if (facultyCode == "2")
-                {
-                    <a asp-controller="CA_Aff_AcademicMatters"
-                       asp-action="AcademicMatters"
-                       class="btn-next">Next →</a>
-                }
-
-                @* </div> *@
             </div>
         </div>
     </div>
 </div>
 
-@if (TempData["Error"] != null)
-{
-    <script>
-        Swal.fire({
-            icon: 'warning',
-            title: 'Rate Limit Exceeded',
-            text: '@TempData["Error"]'
-        });
-    </script>
-}
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Clear validation errors on input
         document.querySelectorAll('.track').forEach(el => {
-            el.addEventListener('input', () => el.classList.remove('is-invalid'));
-            el.addEventListener('change', () => el.classList.remove('is-invalid'));
+        el.addEventListener('input', () => el.classList.remove('is-invalid'));
+        el.addEventListener('change', () => el.classList.remove('is-invalid'));
         });
 
         // ====================== EDIT ROW ======================
         function editRow(id) {
-            document.querySelectorAll(`#row-${id} .view-mode`).forEach(el => el.classList.add("d-none"));
-            document.querySelectorAll(`#row-${id} .edit-mode`).forEach(el => el.classList.remove("d-none"));
+        document.querySelectorAll(`#row-${id} .view-mode`).forEach(el => el.classList.add("d-none"));
+        document.querySelectorAll(`#row-${id} .edit-mode`).forEach(el => el.classList.remove("d-none"));
         }
 
         // ====================== SAVE EDIT ======================
         function saveEdit(id) {
-            const token = document.querySelector("input[name='__RequestVerificationToken']").value;
+        const token = document.querySelector("input[name='__RequestVerificationToken']").value;
 
-            const model = {
-                Id: id,
-                VehicleRegNo: document.getElementById(`editRegNo-${id}`).value.trim(),
-                VehicleForCode: document.getElementById(`editVehicleFor-${id}`).value,
-                SeatingCapacity: parseInt(document.getElementById(`editSeat-${id}`).value) || 0,
-                ValidityDate: document.getElementById(`editValidity-${id}`).value,
-                RcBookStatus: document.getElementById(`editRc-${id}`).value,
-                InsuranceStatus: document.getElementById(`editIns-${id}`).value,
-                DrivingLicenseStatus: document.getElementById(`editDl-${id}`).value
-            };
+        const model = {
+        Id: id,
+        VehicleRegNo: document.getElementById(`editRegNo-${id}`).value.trim(),
+        VehicleForCode: document.getElementById(`editVehicleFor-${id}`).value,
+        SeatingCapacity: parseInt(document.getElementById(`editSeat-${id}`).value) || 0,
+        ValidityDate: document.getElementById(`editValidity-${id}`).value,
+        RcBookStatus: document.getElementById(`editRc-${id}`).value,
+        InsuranceStatus: document.getElementById(`editIns-${id}`).value,
+        DrivingLicenseStatus: document.getElementById(`editDl-${id}`).value
+        };
 
-            fetch('@Url.Action("CA_UpdateVehicleDetails", "Aff_AHS_ContinousApplication")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
-                },
-                body: JSON.stringify(model)
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Updated!',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message || 'Failed to update'
-                    });
-                }
-            })
-            .catch(() => {
-                Swal.fire('Error', 'Failed to save changes.', 'error');
-            });
+        fetch('@Url.Action("CA_UpdateVehicleDetails", "Aff_AHS_ContinousApplication")', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'RequestVerificationToken': token
+        },
+        body: JSON.stringify(model)
+        })
+        .then(r => r.json())
+        .then(data => {
+        if (data.success) {
+        Swal.fire({
+        icon: 'success',
+        title: 'Updated!',
+        timer: 1500,
+        showConfirmButton: false
+        }).then(() => location.reload());
+        } else {
+        Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || 'Failed to update'
+        });
+        }
+        })
+        .catch(() => {
+        Swal.fire('Error', 'Failed to save changes.', 'error');
+        });
         }
 
         // ====================== CONFIRM DELETE ======================
         function confirmDelete(id) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'This vehicle will be permanently deleted!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#c0392b',
-                cancelButtonColor: '#2563eb',
-                confirmButtonText: 'Yes, Delete'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '@Url.Action("CA_DeleteVehicleDetails", "Aff_AHS_ContinousApplication")/' + id;
-                }
-            });
+        Swal.fire({
+        title: 'Are you sure?',
+        text: 'This vehicle will be permanently deleted!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#c0392b',
+        cancelButtonColor: '#2563eb',
+        confirmButtonText: 'Yes, Delete'
+        }).then((result) => {
+        if (result.isConfirmed) {
+        window.location.href = '@Url.Action("CA_DeleteVehicleDetails", "Aff_AHS_ContinousApplication")/' + id;
+        }
+        });
         }
 
         // ====================== SEARCH FUNCTIONALITY ======================
         function normalize(t) {
-            return (t || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+        return (t || "").toLowerCase().replace(/[^a-z0-9]/g, '');
         }
 
         document.getElementById("searchBox").addEventListener("keyup", function () {
-            let val = normalize(this.value);
-            document.querySelectorAll("#tableBody tr").forEach(row => {
-                let txt = row.querySelector(".search-text")?.innerText || "";
-                row.style.display = normalize(txt).includes(val) ? "" : "none";
-            });
+        let val = normalize(this.value);
+        document.querySelectorAll("#tableBody tr").forEach(row => {
+        let txt = row.querySelector(".search-text")?.innerText || "";
+        row.style.display = normalize(txt).includes(val) ? "" : "none";
+        });
         });
 
-        document.querySelector("form").addEventListener("submit", function () {
-        document.getElementById("btnAddVehicle").disabled = true;
-        document.getElementById("btnAddVehicle").innerText = "Saving...";
+        // ====================== DISABLE ADD BUTTON ON SUBMIT ======================
+        document.getElementById("addVehicleForm").addEventListener("submit", function () {
+        const btn = document.getElementById("btnAddVehicle");
+        btn.disabled = true;
+        btn.innerText = "Saving...";
         });
     </script>
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            Swal.fire({
+            icon: 'warning',
+            title: 'Rate Limit Exceeded',
+            text: '@TempData["Error"]'
+            });
+        </script>
+    }
 
     @if (TempData["DuplicateVehicle"] != null)
     {
         <script>
             Swal.fire({
-                icon: 'error',
-                title: 'Duplicate Entry',
-                text: 'Vehicle number "@TempData["DuplicateVehicle"]" already exists.'
+            icon: 'error',
+            title: 'Duplicate Entry',
+            text: 'Vehicle number "@TempData["DuplicateVehicle"]" already exists.'
             });
         </script>
     }

@@ -11,6 +11,8 @@ public partial class DentalLibraryService
 
     public int ServiceId { get; set; }
 
+    public string? CourseLevel { get; set; }
+
     public bool IsAvailable { get; set; }
 
     public bool IsActive { get; set; }
@@ -22,8 +24,6 @@ public partial class DentalLibraryService
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-
-    public string? CourseLevel { get; set; }
 
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 

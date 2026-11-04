@@ -9,6 +9,8 @@ public partial class TxnDentalPayment
 
     public string CollegeCode { get; set; } = null!;
 
+    public string? CourseLevel { get; set; }
+
     public int FacultyCode { get; set; }
 
     public int AffiliationTypeId { get; set; }
@@ -28,8 +30,6 @@ public partial class TxnDentalPayment
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-
-    public string? CourseLevel { get; set; }
 
     public virtual ICollection<TxnDentalFeeStructure> TxnDentalFeeStructures { get; set; } = new List<TxnDentalFeeStructure>();
 }

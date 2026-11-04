@@ -11,6 +11,8 @@ public partial class MstDentalFeeType
 
     public string FeeType { get; set; } = null!;
 
+    public string CourseLevel { get; set; } = null!;
+
     public int DisplayOrder { get; set; }
 
     public bool IsActive { get; set; }
@@ -24,9 +26,8 @@ public partial class MstDentalFeeType
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-    public DateTime? ActivationDate { get; set; }
 
-    public string? CourseLevel { get; set; }
+    public DateTime? ActivationDate { get; set; }
 
     public virtual MstDentalAffiliationType AffiliationType { get; set; } = null!;
 

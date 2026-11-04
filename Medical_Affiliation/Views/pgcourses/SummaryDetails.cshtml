@@ -2,6 +2,24 @@
 @{
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     ViewData["Title"] = "PG Course Summary Details";
+
+    // Set by the controller when the value was fetched from the college records (field is then locked)
+    bool nameFetched = ViewBag.InstitutionNameFetched == true;
+    bool categoryFetched = ViewBag.InstitutionCategoryFetched == true;
+    bool headNameFetched = ViewBag.HeadNameFetched == true;
+    bool headDegreeFetched = ViewBag.HeadDegreeFetched == true;
+    bool ugSeatsFetched = ViewBag.UgSeatsFetched == true;
+
+    // Section A: fields of the Institution/College column that were fetched from AFF_InstitutionsDetails
+    int instRow = ViewBag.InstRowIndex is int ir ? ir : -1;
+    var instFetched = ViewBag.InstFetched as HashSet<string> ?? new HashSet<string>();
+    Func<int, string, bool> ro = (i, f) => i == instRow && instFetched.Contains(f);
+
+    // Selected department info bar
+    var departmentName = ViewBag.DepartmentName as string;
+    var courseLevel = ViewBag.CourseLevel as string;
+    var facultyCodeUsed = ViewBag.FacultyCodeUsed as string;
+    var collegeCodeUsed = ViewBag.CollegeCodeUsed as string;
 }
 
 <style>
@@ -98,6 +116,15 @@
                 background-color: #f8f9ff;
             }
 
+            table.formb-table .cell-input[readonly],
+            table.formb-table select.cell-input[disabled],
+            table.formb-table textarea.cell-input[readonly] {
+                background-color: #eef1f4;
+                color: #212529;
+                cursor: not-allowed;
+                opacity: 1;
+            }
+
     .section-title {
         font-weight: 700;
         margin: 25px 0 10px 0;
@@ -109,7 +136,7 @@
         font-style: italic;
         color: #6c757d;
         display: block;
-    }                                                                                                                                                                                               
+    }
 
     .signature-row {
         display: flex;
@@ -142,6 +169,19 @@
 </style>
 
 <div class="form-b-container">
+
+    <div class="alert alert-light border d-flex flex-wrap gap-2 gap-md-4 align-items-center py-2 mb-3">
+        <div>
+            <span class="text-muted">Selected department:</span>
+            <strong>@(string.IsNullOrWhiteSpace(departmentName) ? "(not found)" : departmentName)</strong>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(courseLevel))
+        {
+            <div><span class="text-muted">Course level:</span> <strong>@courseLevel</strong></div>
+        }
+        <div><span class="text-muted">College code:</span> <strong>@collegeCodeUsed</strong></div>
+        <div><span class="text-muted">Faculty code:</span> <strong>@facultyCodeUsed</strong></div>
+    </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -187,15 +227,21 @@
             <tbody>
                 <tr>
                     <td rowspan="5">
-                        <select asp-for="InstitutionCategory" class="cell-input">
-                            <option value="">-- Select --</option>
-                            <option value="P">Private</option>
-                            <option value="G">Government</option>
-                        </select>
-                        <input asp-for="InstitutionName" class="cell-input mt-2" placeholder="Institution Name" />
+                        @* Shown as plain text from PVT_GOVT (G = Government, P = Private); the code travels in a hidden field *@
+                        @{
+                            var categoryText = (Model.InstitutionCategory ?? "").Trim().ToUpperInvariant() switch
+                            {
+                                "G" => "Government",
+                                "P" => "Private",
+                                _ => "—"
+                            };
+                        }
+                        <div class="fw-semibold">@categoryText</div>
+                        <input type="hidden" asp-for="InstitutionCategory" />
+                        <input asp-for="InstitutionName" class="cell-input mt-2" placeholder="Institution Name" readonly="@nameFetched" />
                     </td>
                     <td class="row-label">Name</td>
-                    <td><input asp-for="HeadOfInstitutionName" class="cell-input" /></td>
+                    <td><input asp-for="HeadOfInstitutionName" class="cell-input" readonly="@headNameFetched" /></td>
                 </tr>
                 <tr>
                     <td class="row-label">Age &amp; Date of Birth</td>
@@ -207,7 +253,7 @@
                 </tr>
                 <tr>
                     <td class="row-label">PG Degree <span class="sub-note">(Recognized / Non-R)</span></td>
-                    <td><input asp-for="HeadOfInstitutionPgdegree" class="cell-input" /></td>
+                    <td><input asp-for="HeadOfInstitutionPgdegree" class="cell-input" readonly="@headDegreeFetched" /></td>
                 </tr>
                 <tr>
                     <td class="row-label">Subject</td>
@@ -256,7 +302,7 @@
                 <tr>
                     <td class="row-label" style="width:260px;">3. (a) Number of UG seats</td>
                     <td colspan="3">
-                        <input asp-for="NumberOfUgseats" type="number" min="0" class="cell-input" style="max-width:150px;" />
+                        <input asp-for="NumberOfUgseats" type="number" min="0" class="cell-input" style="max-width:150px;" readonly="@ugSeatsFetched" />
                     </td>
                 </tr>
                 <tr>
@@ -302,14 +348,14 @@
                     <td class="row-label">Name</td>
                     @for (int i = 0; i < Model.Contacts.Count; i++)
                     {
-                        <td><input asp-for="Contacts[i].Name" class="cell-input" /></td>
+                        <td><input asp-for="Contacts[i].Name" class="cell-input" readonly="@(ro(i, "Name"))" /></td>
                     }
                 </tr>
                 <tr>
                     <td class="row-label">Address</td>
                     @for (int i = 0; i < Model.Contacts.Count; i++)
                     {
-                        <td><textarea asp-for="Contacts[i].Address" class="cell-input" rows="2"></textarea></td>
+                        <td><textarea asp-for="Contacts[i].Address" class="cell-input" rows="2" readonly="@(ro(i, "Address"))"></textarea></td>
                     }
                 </tr>
                 <tr>
@@ -323,7 +369,7 @@
                     <td class="row-label">Pin Code</td>
                     @for (int i = 0; i < Model.Contacts.Count; i++)
                     {
-                        <td><input asp-for="Contacts[i].PinCode" class="cell-input" /></td>
+                        <td><input asp-for="Contacts[i].PinCode" class="cell-input" readonly="@(ro(i, "PinCode"))" /></td>
                     }
                 </tr>
                 <tr>
@@ -331,9 +377,9 @@
                     @for (int i = 0; i < Model.Contacts.Count; i++)
                     {
                         <td>
-                            <input asp-for="Contacts[i].PhoneOffice" class="cell-input mb-1" placeholder="Office" />
+                            <input asp-for="Contacts[i].PhoneOffice" class="cell-input mb-1" placeholder="Office" readonly="@(ro(i, "PhoneOffice"))" />
                             <input asp-for="Contacts[i].PhoneResidence" class="cell-input mb-1" placeholder="Residence" />
-                            <input asp-for="Contacts[i].Fax" class="cell-input" placeholder="Fax" />
+                            <input asp-for="Contacts[i].Fax" class="cell-input" placeholder="Fax" readonly="@(ro(i, "Fax"))" />
                         </td>
                     }
                 </tr>
@@ -341,14 +387,14 @@
                     <td class="row-label">Mobile No.</td>
                     @for (int i = 0; i < Model.Contacts.Count; i++)
                     {
-                        <td><input asp-for="Contacts[i].MobileNo" class="cell-input" /></td>
+                        <td><input asp-for="Contacts[i].MobileNo" class="cell-input" readonly="@(ro(i, "MobileNo"))" /></td>
                     }
                 </tr>
                 <tr>
                     <td class="row-label">E-mail</td>
                     @for (int i = 0; i < Model.Contacts.Count; i++)
                     {
-                        <td><input asp-for="Contacts[i].Email" type="email" class="cell-input" /></td>
+                        <td><input asp-for="Contacts[i].Email" type="email" class="cell-input" readonly="@(ro(i, "Email"))" /></td>
                     }
                 </tr>
             </tbody>

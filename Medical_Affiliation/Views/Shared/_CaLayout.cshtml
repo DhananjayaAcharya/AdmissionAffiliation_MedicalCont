@@ -120,47 +120,47 @@
                 box-sizing: border-box;
             }
 
-            /* Let every page use the full main column after the sidebar collapses. */
-            .ca-main,
-            .ca-body,
-            .ca-body > .page-shell,
-            .ca-body > .page-shell > .page-container {
-                width: 100% !important;
-                max-width: none !important;
-            }
+                /* Let every page use the full main column after the sidebar collapses. */
+                .ca-main,
+                .ca-body,
+                .ca-body > .page-shell,
+                .ca-body > .page-shell > .page-container {
+                    width: 100% !important;
+                    max-width: none !important;
+                }
 
             .ca-main,
             .ca-body {
                 align-self: stretch;
             }
 
-            .ca-body > .page-shell {
-                display: block !important;
-                grid-template-columns: none !important;
-                min-height: auto !important;
-                padding: 0 !important;
-                background: transparent !important;
-            }
+                .ca-body > .page-shell {
+                    display: block !important;
+                    grid-template-columns: none !important;
+                    min-height: auto !important;
+                    padding: 0 !important;
+                    background: transparent !important;
+                }
 
-            .ca-body > .page-shell > .page-container {
-                margin: 0 !important;
-                padding: 0 !important;
-            }
+                    .ca-body > .page-shell > .page-container {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
 
-            .ca-body .form-card,
-            .ca-body .section-card,
-            .ca-body .main-box,
-            .ca-body .table-wrap {
-                width: 100% !important;
-                max-width: none !important;
-            }
+                .ca-body .form-card,
+                .ca-body .section-card,
+                .ca-body .main-box,
+                .ca-body .table-wrap {
+                    width: 100% !important;
+                    max-width: none !important;
+                }
 
-            .ca-body .section-block,
-            .ca-body .section-block-body,
-            .ca-body .table-responsive {
-                width: 100%;
-                max-width: 100%;
-            }
+                .ca-body .section-block,
+                .ca-body .section-block-body,
+                .ca-body .table-responsive {
+                    width: 100%;
+                    max-width: 100%;
+                }
 
             /* ===== Official / modernized topbar ===== */
             .ca-topbar {
@@ -169,15 +169,16 @@
                 left: 0;
                 right: 0;
                 z-index: 1030;
-                background: linear-gradient(120deg, #173d56 0%, #176b87 52%, #25859a 100%);
+                background: linear-gradient(100deg, #0b2a6f 0%, #12399a 55%, #1d4ed8 100%);
                 color: #fff;
-                box-shadow: 0 10px 30px rgba(9, 40, 78, 0.22);
+                box-shadow: 0 10px 30px rgba(11, 42, 111, 0.28);
+                border-bottom: 3px solid #f5b301;
             }
 
             .ca-topbar-accent {
                 height: 4px;
                 width: 100%;
-                background: linear-gradient(90deg, #dcae3f 0%, #f1d27a 45%, #dcae3f 100%);
+                background: linear-gradient(90deg, #f5b301 0%, #fcd34d 50%, #f5b301 100%);
             }
 
             .ca-topbar-inner {
@@ -207,7 +208,7 @@
                 border-radius: 16px;
                 padding: 0.35rem;
                 flex-shrink: 0;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                box-shadow: 0 0 0 3px rgba(245,179,1,0.35), 0 4px 12px rgba(0,0,0,0.15);
             }
 
             .ca-topbar-college {
@@ -222,11 +223,11 @@
                 font-size: 0.78rem;
                 font-weight: 600;
                 letter-spacing: 0.02em;
-                color: #fff;
+                color: #0b2a6f;
                 padding: 0.28rem 0.75rem;
-                border: 1px solid rgba(255,255,255,0.28);
+                border: 1px solid #f5b301;
                 border-radius: 999px;
-                background: rgba(255,255,255,0.1);
+                background: #f5b301;
                 display: inline-block;
                 width: fit-content;
             }
@@ -267,7 +268,7 @@
                 align-items: center;
                 gap: 0.4rem;
                 background: rgba(255,255,255,0.1);
-                border: 1px solid rgba(255,255,255,0.24);
+                border: 1px solid rgba(245,179,1,0.5);
                 border-radius: 0.6rem;
                 padding: 0.35rem 0.85rem;
                 font-size: 0.82rem;
@@ -276,7 +277,7 @@
             }
 
             .ca-pill-label {
-                color: rgba(255,255,255,0.7);
+                color: #fcd34d;
                 font-weight: 500;
             }
 
@@ -403,11 +404,11 @@
                     text-overflow: ellipsis;
                 }
 
-                .ca-pill-label,
-                .ca-pill strong {
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
+                    .ca-pill-label,
+                    .ca-pill strong {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
 
                 .ca-shell {
                     flex-direction: column;
@@ -437,57 +438,57 @@
             }
     </style>
     <style>
-        /* Right-side scroll arrows */
-        .ca-scroll-controls {
-            position: fixed;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 1040;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            justify-content: space-between;
-            height: 20vh;
-        }
-
-        .ca-scroll-btn {
-            width: 44px;
-            height: 44px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0284c7, #0369a1);
-            color: #fff;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
-            transition: opacity 0.2s ease, transform 0.2s ease;
-        }
-
-        .ca-scroll-btn:hover:not(:disabled) {
-            transform: scale(1.08);
-        }
-
-        .ca-scroll-btn:disabled {
-            opacity: 0.25;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        @@media (max-width: 768px) {
+            /* Right-side scroll arrows */
             .ca-scroll-controls {
-                right: 7px;
-                gap: 8px;
+                position: fixed;
+                right: 18px;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 1040;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                justify-content: space-between;
+                height: 20vh;
             }
 
             .ca-scroll-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 17px;
+                width: 44px;
+                height: 44px;
+                border: 2px solid #f5b301;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #1d4ed8, #0b2a6f);
+                color: #fff;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(11, 42, 111, 0.3);
+                transition: opacity 0.2s ease, transform 0.2s ease;
             }
-        }
+
+                .ca-scroll-btn:hover:not(:disabled) {
+                    transform: scale(1.08);
+                }
+
+                .ca-scroll-btn:disabled {
+                    opacity: 0.25;
+                    cursor: not-allowed;
+                    box-shadow: none;
+                }
+
+            @@media (max-width: 768px) {
+                .ca-scroll-controls {
+                    right: 7px;
+                    gap: 8px;
+                }
+
+                .ca-scroll-btn {
+                    width: 36px;
+                    height: 36px;
+                    font-size: 17px;
+                }
+            }
     </style>
 
     <link rel="stylesheet" href="~/css/common-form.css" />
@@ -533,7 +534,8 @@
             </main>
 
             <!-- Preview Scroll Controls -->
-            @if(isDental){
+            @if (isDental)
+            {
 
                 <div class="ca-scroll-controls" id="caScrollControls">
                     <button type="button"
@@ -561,83 +563,84 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
-    @if(isDental){
+    @if (isDental)
+    {
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                const upButton = document.getElementById("caScrollUp");
-                const downButton = document.getElementById("caScrollDown");
+            const upButton = document.getElementById("caScrollUp");
+            const downButton = document.getElementById("caScrollDown");
 
-                if (!upButton || !downButton) {
-                    console.warn("CA scroll buttons not found.");
-                    return;
-                }
+            if (!upButton || !downButton) {
+            console.warn("CA scroll buttons not found.");
+            return;
+            }
 
-                // Use the document's actual scrolling element.
-                const scrollElement = document.scrollingElement || document.documentElement;
+            // Use the document's actual scrolling element.
+            const scrollElement = document.scrollingElement || document.documentElement;
 
-                function updateScrollButtons() {
-                    const currentScroll = scrollElement.scrollTop;
-                    const maxScroll =
-                        scrollElement.scrollHeight - scrollElement.clientHeight;
+            function updateScrollButtons() {
+            const currentScroll = scrollElement.scrollTop;
+            const maxScroll =
+            scrollElement.scrollHeight - scrollElement.clientHeight;
 
-                    upButton.disabled = currentScroll <= 3;
-                    downButton.disabled = currentScroll >= maxScroll - 3;
+            upButton.disabled = currentScroll <= 3;
+            downButton.disabled = currentScroll >= maxScroll - 3;
 
-                    upButton.classList.toggle(
-                        "is-disabled",
-                        upButton.disabled
-                    );
+            upButton.classList.toggle(
+            "is-disabled",
+            upButton.disabled
+            );
 
-                    downButton.classList.toggle(
-                        "is-disabled",
-                        downButton.disabled
-                    );
-                }
+            downButton.classList.toggle(
+            "is-disabled",
+            downButton.disabled
+            );
+            }
 
-                upButton.addEventListener("click", function (event) {
-                    event.preventDefault();
+            upButton.addEventListener("click", function (event) {
+            event.preventDefault();
 
-                    const header = document.getElementById("affiliation-header-wrapper");
+            const header = document.getElementById("affiliation-header-wrapper");
 
-                    if (header) {
-                        header.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
-                    }
-                });
+            if (header) {
+            header.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+            });
+            }
+            });
 
-                downButton.addEventListener("click", function (event) {
-                    event.preventDefault();
+            downButton.addEventListener("click", function (event) {
+            event.preventDefault();
 
-                    const submitSection = document.getElementById("submitSection");
+            const submitSection = document.getElementById("submitSection");
 
-                    if (submitSection) {
-                        submitSection.scrollIntoView({
-                            behavior: "smooth",
-                            block: "end"
-                        });
-                    } else {
-                        // Fallback if the submit section isn't found
-                        scrollElement.scrollBy({
-                            top: 400,
-                            behavior: "smooth"
-                        });
-                    }
-                });
+            if (submitSection) {
+            submitSection.scrollIntoView({
+            behavior: "smooth",
+            block: "end"
+            });
+            } else {
+            // Fallback if the submit section isn't found
+            scrollElement.scrollBy({
+            top: 400,
+            behavior: "smooth"
+            });
+            }
+            });
 
-                // Update button states while scrolling or resizing.
-                window.addEventListener("scroll", updateScrollButtons, {
-                    passive: true
-                });
+            // Update button states while scrolling or resizing.
+            window.addEventListener("scroll", updateScrollButtons, {
+            passive: true
+            });
 
-                window.addEventListener("resize", updateScrollButtons);
+            window.addEventListener("resize", updateScrollButtons);
 
-                // Recalculate after the page content finishes loading.
-                window.addEventListener("load", updateScrollButtons);
+            // Recalculate after the page content finishes loading.
+            window.addEventListener("load", updateScrollButtons);
 
-                updateScrollButtons();
+            updateScrollButtons();
             });
 
         </script>

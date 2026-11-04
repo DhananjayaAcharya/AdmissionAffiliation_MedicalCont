@@ -3,2560 +3,2277 @@
 @{
     ViewData["Title"] = "RGUHS – College Details Portal";
     Layout = null;
+    bool allActive = Model.ActiveFaculty == "ALL";
+    string allUrl = Url.Action("Rguhsdashboard", new { faculty = "ALL", search = Model.SearchTerm }) + "#colleges";
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Rajiv Gandhi University of Health Sciences – Affiliated College Details Portal" />
     <title>RGUHS – College Details | Karnataka</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
 
     <style>
-            /* ══════════════════════════════════
-                                           DESIGN TOKENS — LIGHT / OFFICIAL
-                                        ══════════════════════════════════ */
             :root {
-                /* Institutional navy — used sparingly, for header/footer/text only */
-                --navy-950: #0a1b33;
-                --navy-900: #0e2645;
-                --navy-800: #133257;
-                --navy-700: #1a4172;
-                --navy-600: #23528c;
-                --navy-500: #2f66a8;
-                --blue-400: #3b74b8;
-                --blue-300: #5c8fc9;
-                --blue-200: #9fbedd;
-                --blue-100: #dce9f6;
-                /* Maroon/crimson — Karnataka govt. seal accent, used as the single warm note */
-                --crimson-700: #7a1f2b;
-                --crimson-600: #932533;
-                --crimson-500: #ad2c3b;
-                --crimson-100: #f7e8ea;
-                /* Muted gold — official seal / medal tone, used only for thin rules & tiny marks */
-                --gold-600: #8a6a1f;
-                --gold-500: #a9832a;
-                --gold-300: #cba24a;
-                --gold-100: #f4ead0;
-                --white: #ffffff;
-                --paper: #fbfbfa;
-                --paper-alt: #f4f5f7;
-                --line: #e2e5eb;
-                --line-strong: #ccd2dc;
-                --ink-900: #12161f;
-                --ink-700: #2c3341;
-                --ink-500: #5b6472;
-                --ink-400: #8891a0;
-                --ink-300: #b6bcc7;
-                --green: #1a7a4a;
-                --red: #b3261e;
-                --fd: 'Source Serif 4', Georgia, serif;
-                --fb: 'Inter', system-ui, sans-serif;
-                --fm: 'IBM Plex Mono', 'Courier New', monospace;
-                --r-sm: 5px;
-                --r: 8px;
-                --r-lg: 12px;
-                --r-xl: 18px;
-                --shadow-xs: 0 1px 2px rgba(18,22,31,.04);
-                --shadow-sm: 0 2px 6px rgba(18,22,31,.06);
-                --shadow-md: 0 6px 20px rgba(18,22,31,.08);
-                --shadow-lg: 0 16px 44px rgba(18,22,31,.10);
+                --navy: #0b2a6f;
+                --navy-d: #061a4a;
+                --royal: #2563eb;
+                --gold: #f5b301;
+                --gold-2: #fcd34d;
+                --gold-d: #a87500;
+                --ink: #0b1220;
+                --text: #1e293b;
+                --sub: #52607a;
+                --muted: #8a97ae;
+                --line: rgba(15,35,90,.10);
+                --glass: rgba(255,255,255,.80);
+                --bg: #eef2f9;
+                --green: #059669;
+                --red: #e11d48;
+                --ease: cubic-bezier(.22,.8,.3,1);
+                --fd: 'Plus Jakarta Sans', system-ui, sans-serif;
+                --fb: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+                --sh: 0 1px 2px rgba(11,42,111,.05), 0 10px 30px -10px rgba(11,42,111,.18);
+                --sh-lg: 0 2px 4px rgba(11,42,111,.06), 0 24px 50px -16px rgba(11,42,111,.30);
             }
 
             *, *::before, *::after {
                 box-sizing: border-box;
                 margin: 0;
-                padding: 0;
+                padding: 0
+            }
+
+            [hidden] {
+                display: none !important
             }
 
             html {
                 scroll-behavior: smooth;
-                font-size: 15px;
+                font-size: 15px
             }
 
             body {
                 font-family: var(--fb);
-                background: var(--paper);
-                color: var(--ink-900);
-                overflow-x: hidden;
+                color: var(--text);
+                background: var(--bg);
                 -webkit-font-smoothing: antialiased;
+                overflow-x: hidden;
+                line-height: 1.5
             }
 
-            /* ══════════════ UTILITY BAR ══════════════ */
-            .util-bar {
-                background: var(--navy-950);
-                border-bottom: 1px solid rgba(255,255,255,.06);
+            a {
+                color: inherit
             }
 
-            .util-inner {
-                max-width: 100%;
-                padding: 0 40px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                height: 36px;
-                gap: 8px;
+            :focus-visible {
+                outline: 3px solid var(--gold);
+                outline-offset: 2px;
+                border-radius: 6px
             }
 
-            .util-links {
-                display: flex;
-                gap: 0;
-                align-items: center;
+            .wrap {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 28px
             }
 
-                .util-links a {
-                    color: rgba(255,255,255,.55);
-                    text-decoration: none;
-                    font-size: 11px;
-                    letter-spacing: .2px;
-                    font-weight: 400;
-                    transition: color .18s, background .18s;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding: 0 15px;
-                    height: 36px;
-                    border-right: 1px solid rgba(255,255,255,.08);
+            /* ═══ LOGO WATERMARK (whole page) ═══ */
+            .wm {
+                position: fixed;
+                inset: 0;
+                display: grid;
+                place-items: center;
+                pointer-events: none;
+                z-index: 0
+            }
+
+                .wm img {
+                    width: min(70vw, 720px);
+                    opacity: .08;
+                    mix-blend-mode: multiply;
+                    filter: saturate(.8)
                 }
 
-                    .util-links a:first-child {
-                        border-left: 1px solid rgba(255,255,255,.08);
-                    }
+                .wm::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: radial-gradient(60% 50% at 50% 50%, transparent 40%, var(--bg) 100%);
+                    opacity: .55
+                }
 
-                    .util-links a:hover {
-                        color: var(--gold-300);
-                        background: rgba(255,255,255,.04);
-                    }
+            header, section, main, footer, .ann {
+                position: relative;
+                z-index: 1
+            }
 
-                    .util-links a i {
-                        font-size: 11px;
-                    }
+            /* ═══ HEADER (floating glass) ═══ */
+            .top {
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                padding: 12px 0 0
+            }
 
-            .util-right {
+            .top-bar {
                 display: flex;
                 align-items: center;
                 gap: 16px;
+                padding: 10px 12px 10px 14px;
+                background: var(--glass);
+                backdrop-filter: blur(18px) saturate(1.4);
+                -webkit-backdrop-filter: blur(18px) saturate(1.4);
+                border: 1px solid rgba(255,255,255,.9);
+                border-radius: 20px;
+                box-shadow: var(--sh)
             }
 
-            .live-clock {
-                color: rgba(255,255,255,.45);
-                font-size: 11px;
-                font-family: var(--fm);
-                letter-spacing: .3px;
-            }
-
-            .lang-sel {
-                background: rgba(255,255,255,.08);
-                border: 1px solid rgba(255,255,255,.14);
-                color: rgba(255,255,255,.65);
-                padding: 4px 10px 4px 8px;
-                border-radius: 5px;
-                font-size: 11px;
-                font-family: var(--fb);
-                cursor: pointer;
-                outline: none;
-            }
-
-            /* ══════════════ HEADER (white, official) ══════════════ */
-            .site-header {
-                background: var(--white);
-                border-bottom: 1px solid var(--line);
-                position: relative;
-            }
-
-            .header-inner {
-                padding: 20px 40px;
+            .brand {
                 display: flex;
                 align-items: center;
-                gap: 24px;
-                position: relative;
+                gap: 12px;
+                text-decoration: none;
+                min-width: 0
             }
 
-            .header-rule {
-                width: 1px;
-                height: 60px;
-                background: var(--line-strong);
+            .brand-logo {
+                width: 46px;
+                height: 46px;
+                border-radius: 14px;
+                background: #fff;
+                border: 1px solid var(--line);
+                display: grid;
+                place-items: center;
+                overflow: hidden;
                 flex-shrink: 0;
+                box-shadow: 0 0 0 3px rgba(245,179,1,.22)
             }
 
-            .university-logo {
-                height: 68px;
-                width: auto;
-                object-fit: contain;
-                border-radius: var(--r-sm);
-                flex-shrink: 0;
-            }
-
-            .header-text {
-                flex: 1;
-                min-width: 0;
-            }
-
-            .univ-eyebrow {
-                font-size: 10px;
-                font-weight: 600;
-                letter-spacing: 2.4px;
-                text-transform: uppercase;
-                color: var(--crimson-600);
-                margin-bottom: 6px;
-            }
-
-            .univ-name {
-                font-family: var(--fd);
-                font-size: clamp(17px, 1.9vw, 26px);
-                color: var(--navy-900);
-                font-weight: 600;
-                line-height: 1.22;
-                letter-spacing: .1px;
-            }
-
-            .univ-sub {
-                font-size: 11.5px;
-                color: var(--ink-500);
-                margin-top: 7px;
-                letter-spacing: .1px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-
-                .univ-sub i {
-                    font-size: 10px;
-                    color: var(--blue-400);
+                .brand-logo img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain
                 }
 
-            .header-badges {
-                display: flex;
-                gap: 7px;
-                margin-top: 11px;
-                flex-wrap: wrap;
-            }
-
-            .hbadge {
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                padding: 3px 11px;
-                border-radius: 4px;
-                font-size: 9.5px;
+            .brand small {
+                display: block;
+                font-size: 11px;
                 font-weight: 600;
-                letter-spacing: .6px;
-                text-transform: uppercase;
-                border: 1px solid;
+                color: var(--gold-d)
+            }
+
+            .brand b {
+                display: block;
+                font: 800 16px/1.2 var(--fd);
+                color: var(--navy);
+                letter-spacing: -.2px;
                 white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis
             }
 
-            .hbadge-gold {
-                background: var(--gold-100);
-                border-color: #e4cf9a;
-                color: var(--gold-600);
-            }
-
-            .hbadge-blue {
-                background: var(--blue-100);
-                border-color: var(--blue-200);
-                color: var(--navy-600);
-            }
-
-            .header-cta {
-                flex-shrink: 0;
+            .nav {
                 display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 10px;
+                gap: 2px;
+                margin-left: auto
             }
 
-            .btn-portal {
+                .nav a {
+                    text-decoration: none;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: var(--sub);
+                    padding: 9px 13px;
+                    border-radius: 999px;
+                    transition: all .2s var(--ease);
+                    white-space: nowrap
+                }
+
+                    .nav a:hover {
+                        background: #eaf0ff;
+                        color: var(--navy)
+                    }
+
+            .btn-login {
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
-                padding: 12px 22px;
-                background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 100%);
-                color: var(--white);
-                border: 1px solid rgba(255,255,255,.18);
-                border-radius: 999px;
+                flex-shrink: 0;
+                background: linear-gradient(135deg, var(--navy), var(--royal));
+                color: #fff;
                 font-size: 13px;
                 font-weight: 700;
-                font-family: var(--fb);
-                letter-spacing: .22px;
                 text-decoration: none;
-                cursor: pointer;
-                transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-                white-space: nowrap;
-                box-shadow: 0 12px 28px rgba(10,27,51,.16);
+                padding: 11px 20px;
+                border-radius: 999px;
+                box-shadow: 0 10px 22px -6px rgba(37,99,235,.55);
+                transition: transform .25s var(--ease), box-shadow .25s var(--ease)
             }
 
-                .btn-portal:hover {
-                    background: linear-gradient(135deg, var(--navy-700) 0%, var(--navy-600) 100%);
+                .btn-login:hover {
                     transform: translateY(-2px);
-                    color: var(--white);
-                    box-shadow: 0 16px 32px rgba(10,27,51,.2);
+                    box-shadow: 0 16px 28px -6px rgba(37,99,235,.65)
                 }
 
-            .header-status {
-                font-size: 10.5px;
-                color: var(--ink-500);
+                .btn-login i {
+                    color: var(--gold-2)
+                }
+
+            /* ═══ ANNOUNCEMENT ═══ */
+            .ann {
+                margin-top: 12px
+            }
+
+            .ann-box {
                 display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-
-            .pulse-dot {
-                width: 7px;
-                height: 7px;
-                border-radius: 50%;
-                background: var(--green);
-                box-shadow: 0 0 0 3px rgba(26,122,74,.14);
-                animation: pulseAnim 2.4s ease-in-out infinite;
-            }
-
-            @@keyframes pulseAnim {
-                0%, 100% {
-                    opacity: 1;
-                    box-shadow: 0 0 0 3px rgba(26,122,74,.14);
-                }
-
-                50% {
-                    opacity: .6;
-                    box-shadow: 0 0 0 6px rgba(26,122,74,.04);
-                }
-            }
-
-            /* ══════════════ TOP RULE ══════════════ */
-            .header-stripe {
-                height: 3px;
-                background: linear-gradient(90deg, var(--navy-900) 0%, var(--crimson-600) 50%, var(--navy-900) 100%);
-            }
-
-            /* ══════════════ TICKER ══════════════ */
-            .ticker-bar {
-                background: var(--navy-900);
-                display: flex;
-                align-items: stretch;
+                height: 42px;
+                border-radius: 14px;
                 overflow: hidden;
-                height: 38px;
+                background: var(--glass);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+                border: 1px solid rgba(255,255,255,.9);
+                box-shadow: var(--sh)
             }
 
-            .ticker-label {
-                background: var(--crimson-600);
-                color: var(--white);
-                padding: 0 18px;
-                font-size: 9px;
-                font-weight: 700;
-                letter-spacing: 2px;
-                white-space: nowrap;
+            .ann-l {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                flex-shrink: 0;
-                text-transform: uppercase;
+                padding: 0 18px;
+                background: linear-gradient(135deg, var(--gold), var(--gold-2));
+                color: var(--navy);
+                font: 800 12px var(--fd);
+                flex-shrink: 0
             }
 
-            .blink-dot {
-                width: 5px;
-                height: 5px;
-                border-radius: 50%;
-                background: #fff;
-                animation: blinkAnim 1.1s ease-in-out infinite;
-            }
-
-            @@keyframes blinkAnim {
-                0%, 100% {
-                    opacity: 1
+                .ann-l .dot {
+                    width: 7px;
+                    height: 7px;
+                    border-radius: 50%;
+                    background: var(--navy);
+                    animation: blink 1.3s ease-in-out infinite
                 }
 
+            .ann-track {
+                flex: 1;
+                overflow: hidden;
+                display: flex;
+                align-items: center
+            }
+
+            .ann-in {
+                display: flex;
+                white-space: nowrap;
+                animation: scroll 55s linear infinite
+            }
+
+                .ann-in:hover {
+                    animation-play-state: paused
+                }
+
+                .ann-in a {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding-right: 64px;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                    color: var(--text);
+                    text-decoration: none
+                }
+
+                    .ann-in a i {
+                        color: var(--royal)
+                    }
+
+                    .ann-in a:hover {
+                        color: var(--royal)
+                    }
+
+            @@keyframes blink {
                 50% {
                     opacity: .2
                 }
             }
 
-            .ticker-track {
-                overflow: hidden;
-                flex: 1;
-                display: flex;
-                align-items: center;
-            }
-
-            .ticker-inner {
-                display: flex;
-                white-space: nowrap;
-                animation: tickerScroll 55s linear infinite;
-            }
-
-                .ticker-inner:hover {
-                    animation-play-state: paused;
-                }
-
-            @@keyframes tickerScroll {
-                0% {
-                    transform: translateX(0)
-                }
-
-                100% {
+            @@keyframes scroll {
+                to {
                     transform: translateX(-50%)
                 }
             }
 
-            .t-item {
+            /* ═══ HERO ═══ */
+            .hero {
+                margin-top: 12px
+            }
+
+            .hero-card {
+                position: relative;
+                isolation: isolate;
+                overflow: hidden;
+                border-radius: 34px;
+                color: #fff;
+                padding: 52px;
+                display: grid;
+                grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+                gap: 44px;
+                align-items: center;
+                background: linear-gradient(135deg, #051642, #0b2a6f 58%, #12399a);
+                box-shadow: var(--sh-lg)
+            }
+
+            .aur {
+                position: absolute;
+                inset: 0;
+                z-index: -1;
+                overflow: hidden;
+                pointer-events: none
+            }
+
+                .aur span {
+                    position: absolute;
+                    border-radius: 50%;
+                    filter: blur(70px);
+                    opacity: .55;
+                    animation: drift 16s ease-in-out infinite alternate
+                }
+
+                    .aur span:nth-child(1) {
+                        width: 420px;
+                        height: 420px;
+                        right: -80px;
+                        top: -140px;
+                        background: #3b82f6
+                    }
+
+                    .aur span:nth-child(2) {
+                        width: 340px;
+                        height: 340px;
+                        left: -90px;
+                        bottom: -150px;
+                        background: #f5b301;
+                        opacity: .30;
+                        animation-delay: -6s
+                    }
+
+                    .aur span:nth-child(3) {
+                        width: 260px;
+                        height: 260px;
+                        left: 42%;
+                        top: 55%;
+                        background: #7c3aed;
+                        opacity: .28;
+                        animation-delay: -11s
+                    }
+
+                .aur::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background-image: linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px);
+                    background-size: 44px 44px;
+                    -webkit-mask-image: radial-gradient(80% 90% at 70% 30%, #000 20%, transparent 75%);
+                    mask-image: radial-gradient(80% 90% at 70% 30%, #000 20%, transparent 75%)
+                }
+
+            @@keyframes drift {
+                to {
+                    transform: translate(50px, 36px) scale(1.15)
+                }
+            }
+
+            .hero-top {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap
+            }
+
+            .badge {
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
-                font-size: 11.5px;
-                font-weight: 500;
-                color: rgba(255,255,255,.65);
-                padding-right: 60px;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 7px 15px;
+                border-radius: 999px;
+                background: rgba(255,255,255,.10);
+                border: 1px solid rgba(255,255,255,.26);
+                color: var(--gold-2);
+                backdrop-filter: blur(8px)
             }
 
-                .t-item i {
-                    color: var(--gold-300);
-                    font-size: 10px;
+                .badge.alt {
+                    color: #fff;
+                    background: rgba(255,255,255,.06)
                 }
 
-                .t-item a {
-                    color: rgba(255,255,255,.85);
-                    text-decoration: none;
-                    transition: color .18s;
+            .hero h1 {
+                font: 800 clamp(30px, 4.2vw, 54px)/1.06 var(--fd);
+                letter-spacing: -1.6px;
+                margin-top: 22px;
+                max-width: 640px
+            }
+
+                .hero h1 span {
+                    background: linear-gradient(90deg, var(--gold), var(--gold-2));
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent
                 }
 
-                    .t-item a:hover {
-                        color: var(--gold-300);
-                    }
-
-            /* ══════════════ HERO STRIP (photo, subdued) ══════════════ */
-            .rguhs-carousel {
-                width: 100%;
-                overflow: hidden;
-                background: var(--navy-950);
-                line-height: 0;
-                border-bottom: 3px solid var(--gold-300);
+            .hero-l > p {
+                margin-top: 16px;
+                max-width: 540px;
+                color: rgba(255,255,255,.76);
+                font-size: 15.5px;
+                line-height: 1.7
             }
 
-            .carousel-img {
-                width: 100%;
-                height: clamp(180px, 26vw, 330px);
-                object-fit: cover;
-                object-position: center;
-                display: block;
-                filter: brightness(.7) saturate(.9);
-                transition: filter .5s;
+            .hs {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto auto;
+                align-items: center;
+                margin-top: 28px;
+                max-width: 660px;
+                background: #fff;
+                border-radius: 20px;
+                padding: 6px;
+                box-shadow: 0 28px 56px -14px rgba(0,0,0,.55), 0 0 0 4px rgba(255,255,255,.10)
             }
 
-            .rguhs-carousel:hover .carousel-img {
-                filter: brightness(.66) saturate(.9);
+            .hs-field {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding-left: 16px;
+                color: var(--muted);
+                min-width: 0
             }
 
-            .carousel-caption-custom {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                padding: clamp(16px,2.6vw,40px) clamp(24px,5vw,68px);
-                background: linear-gradient(to top, rgba(10,27,51,.90) 0%, rgba(10,27,51,.35) 65%, transparent 100%);
-                text-align: left;
-                line-height: 1;
+                .hs-field input {
+                    flex: 1;
+                    min-width: 0;
+                    border: 0;
+                    outline: 0;
+                    background: transparent;
+                    font: 500 14.5px var(--fb);
+                    color: var(--ink);
+                    padding: 14px 4px
+                }
+
+            .hs-sel {
+                position: relative;
+                display: flex;
+                align-items: center;
+                height: 44px;
+                margin: 0 6px;
+                padding-left: 14px;
+                border-left: 1px solid var(--line);
+                color: var(--sub)
             }
 
-            .cc-tag {
+                .hs-sel select {
+                    appearance: none;
+                    -webkit-appearance: none;
+                    border: 0;
+                    outline: 0;
+                    background: transparent;
+                    font: 600 13px var(--fb);
+                    color: var(--navy);
+                    padding: 0 26px 0 8px;
+                    max-width: 170px;
+                    text-overflow: ellipsis;
+                    cursor: pointer
+                }
+
+                .hs-sel::after {
+                    content: '\F282';
+                    font-family: 'bootstrap-icons';
+                    position: absolute;
+                    right: 6px;
+                    font-size: 11px;
+                    pointer-events: none
+                }
+
+            .hs button {
                 display: inline-flex;
                 align-items: center;
-                gap: 6px;
-                background: var(--white);
-                color: var(--navy-900);
-                font-size: 9px;
-                font-weight: 800;
-                letter-spacing: 1.6px;
-                text-transform: uppercase;
-                padding: 5px 14px;
-                border-radius: 3px;
-                margin-bottom: clamp(8px,1.5vw,16px);
+                gap: 8px;
+                border: 0;
+                cursor: pointer;
+                font: 700 13.5px var(--fb);
+                color: var(--navy);
+                background: linear-gradient(135deg, var(--gold), var(--gold-2));
+                padding: 14px 24px;
+                border-radius: 15px;
+                transition: transform .2s var(--ease), box-shadow .2s var(--ease)
             }
 
-            .cc-title {
-                font-family: var(--fd);
-                font-size: clamp(16px, 2.4vw, 34px);
-                font-weight: 600;
-                color: #fff;
-                line-height: 1.2;
-                margin-bottom: clamp(6px,1vw,11px);
-            }
-
-            .cc-sub {
-                font-size: clamp(10px, 1.1vw, 13px);
-                color: rgba(255,255,255,.65);
-                letter-spacing: .2px;
-            }
-
-            .rguhs-carousel .carousel-indicators {
-                margin-bottom: clamp(12px, 2vw, 22px);
-                gap: 4px;
-            }
-
-                .rguhs-carousel .carousel-indicators button {
-                    width: clamp(16px, 2vw, 26px);
-                    height: 3px;
-                    border-radius: 2px;
-                    background: rgba(255,255,255,.32);
-                    border: none;
-                    transition: background .25s, width .25s;
+                .hs button:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 10px 20px -6px rgba(245,179,1,.7)
                 }
 
-                    .rguhs-carousel .carousel-indicators button.active {
-                        background: var(--gold-300);
-                        width: clamp(24px, 3.4vw, 44px);
+            .pop {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-top: 18px;
+                font-size: 12.5px;
+                color: rgba(255,255,255,.62)
+            }
+
+                .pop a {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    text-decoration: none;
+                    color: #fff;
+                    font-weight: 500;
+                    padding: 6px 13px;
+                    border-radius: 999px;
+                    background: rgba(255,255,255,.09);
+                    border: 1px solid rgba(255,255,255,.18);
+                    transition: all .2s var(--ease)
+                }
+
+                    .pop a:hover {
+                        background: var(--gold);
+                        border-color: var(--gold);
+                        color: var(--navy);
+                        transform: translateY(-2px)
                     }
 
-            .rguhs-ctrl {
-                width: clamp(34px,3.6vw,46px);
-                opacity: 0;
-                transition: opacity .22s;
-            }
-
-            .rguhs-carousel:hover .rguhs-ctrl {
-                opacity: 1;
-            }
-
-            .rguhs-carousel .carousel-control-prev-icon,
-            .rguhs-carousel .carousel-control-next-icon {
-                background-color: rgba(10,27,51,.55);
-                border-radius: 50%;
-                padding: 13px;
-                background-size: 46%;
-                border: 1px solid rgba(255,255,255,.18);
-            }
-
-            /* ══════════════ STATS STRIP ══════════════ */
-            .stats-strip {
-                background: var(--white);
-                border-bottom: 1px solid var(--line);
-            }
-
-            .stats-inner {
+            .trust {
                 display: flex;
-                padding: 0 40px;
+                flex-wrap: wrap;
+                gap: 8px 22px;
+                margin-top: 24px;
+                padding-top: 20px;
+                border-top: 1px solid rgba(255,255,255,.14);
+                max-width: 660px
             }
 
-            .stat-item {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                gap: 16px;
-                padding: 20px 26px;
-                border-right: 1px solid var(--line);
-                transition: background .2s;
-            }
-
-                .stat-item:first-child {
-                    padding-left: 0;
+                .trust span {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 12.5px;
+                    color: rgba(255,255,255,.72)
                 }
 
-                .stat-item:last-child {
-                    border-right: none;
+                .trust i {
+                    color: var(--gold-2)
                 }
 
-                .stat-item:hover {
-                    background: var(--paper-alt);
-                }
-
-            .stat-icon {
-                width: 42px;
-                height: 42px;
-                border-radius: 10px;
-                background: var(--blue-100);
-                border: 1px solid var(--blue-200);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-            }
-
-                .stat-icon i {
-                    color: var(--navy-700);
-                    font-size: 17px;
-                }
-
-            .stat-num {
-                font-family: var(--fd);
-                font-size: 29px;
-                color: var(--navy-900);
-                font-weight: 600;
-                line-height: 1;
-                letter-spacing: -.3px;
-            }
-
-            .stat-lbl {
-                font-size: 9.5px;
-                color: var(--ink-400);
-                margin-top: 4px;
-                letter-spacing: 1.1px;
-                text-transform: uppercase;
-            }
-
-            /* ══════════════ STREAM SHOWCASE — SLIDESHOW ══════════════ */
-            .stream-showcase {
-                background: var(--white);
-                padding: 40px 40px 44px;
-                border-bottom: 1px solid var(--line);
-            }
-
-            .stream-showcase-inner {
-                max-width: 1500px;
-                margin: 0 auto;
-            }
-
-            .stream-showcase .sec-head {
-                margin-bottom: 24px;
-            }
-
-            .stream-carousel {
+            .glance {
                 position: relative;
-                border: 1px solid var(--line);
-                border-radius: var(--r-lg);
-                background: var(--paper-alt);
-                padding: 22px 54px 40px;
-                box-shadow: var(--shadow-xs);
-            }
-
-            .stream-grid {
-                display: grid;
-                grid-template-columns: repeat(6, 1fr);
-                gap: 14px;
-            }
-
-            .stream-card {
-                position: relative;
-                border-radius: var(--r-lg);
-                overflow: hidden;
-                aspect-ratio: 4 / 5;
-                background: linear-gradient(150deg, var(--navy-800) 0%, var(--navy-600) 100%);
-                box-shadow: var(--shadow-xs);
-                cursor: default;
-                transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s;
-                text-decoration: none;
-                display: block;
-            }
-
-                .stream-card:hover {
-                    transform: translateY(-4px);
-                    box-shadow: var(--shadow-md);
-                }
-
-                .stream-card img {
-                    position: absolute;
-                    inset: 0;
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    filter: brightness(.55) saturate(1.05);
-                    transition: filter .3s, transform .35s;
-                }
-
-                .stream-card:hover img {
-                    filter: brightness(.46) saturate(1.12);
-                    transform: scale(1.05);
-                }
-
-            .stream-overlay {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                padding: 14px 12px 12px;
-                background: linear-gradient(to top, rgba(10,27,51,.94) 10%, rgba(10,27,51,.15) 75%, transparent 100%);
-                z-index: 2;
-            }
-
-            .stream-icon-badge {
-                width: 28px;
-                height: 28px;
-                border-radius: 7px;
-                background: rgba(255,255,255,.14);
+                padding: 26px;
+                border-radius: 28px;
+                background: linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
                 border: 1px solid rgba(255,255,255,.26);
+                backdrop-filter: blur(20px) saturate(1.3);
+                -webkit-backdrop-filter: blur(20px) saturate(1.3);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 30px 60px -20px rgba(0,0,0,.5)
+            }
+
+            .gl-head {
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                margin-bottom: 8px;
-                font-size: 14px;
-                line-height: 1;
+                justify-content: space-between;
+                font: 700 13px var(--fd);
+                color: rgba(255,255,255,.85)
             }
 
-            .stream-name {
-                font-family: var(--fb);
-                font-size: 10.5px;
-                font-weight: 700;
-                color: #fff;
-                letter-spacing: .5px;
-                text-transform: uppercase;
-                line-height: 1.3;
-            }
-
-            .stream-tag {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                z-index: 2;
-                background: rgba(255,255,255,.92);
-                color: var(--navy-900);
-                font-size: 8px;
-                font-weight: 800;
-                letter-spacing: .8px;
-                text-transform: uppercase;
-                padding: 3px 8px;
-                border-radius: 4px;
-            }
-
-            /* carousel chrome */
-            .stream-carousel .carousel-control-prev,
-            .stream-carousel .carousel-control-next {
-                width: 40px;
-                opacity: 1;
-            }
-
-            .stream-carousel .carousel-control-prev-icon,
-            .stream-carousel .carousel-control-next-icon {
-                background-color: var(--navy-900);
-                border-radius: 50%;
-                padding: 16px;
-                background-size: 42%;
-                border: 1px solid var(--navy-900);
-                box-shadow: var(--shadow-sm);
-            }
-
-            .stream-carousel .carousel-control-prev:hover .carousel-control-prev-icon,
-            .stream-carousel .carousel-control-next:hover .carousel-control-next-icon {
-                background-color: var(--navy-700);
-            }
-
-            .stream-carousel .carousel-indicators {
-                bottom: 6px;
-                gap: 5px;
-                margin-bottom: 0;
-            }
-
-                .stream-carousel .carousel-indicators button {
-                    width: 22px;
-                    height: 3px;
-                    border-radius: 2px;
-                    background: var(--line-strong);
-                    border: none;
-                    opacity: 1;
-                    transition: background .25s, width .25s;
+                .gl-head em {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 7px;
+                    font: 600 11.5px var(--fb);
+                    color: #86efac;
+                    font-style: normal
                 }
 
-                    .stream-carousel .carousel-indicators button.active {
-                        background: var(--crimson-600);
-                        width: 32px;
+                    .gl-head em::before {
+                        content: '';
+                        width: 7px;
+                        height: 7px;
+                        border-radius: 50%;
+                        background: #4ade80;
+                        box-shadow: 0 0 0 4px rgba(74,222,128,.25);
+                        animation: blink 1.6s ease-in-out infinite
                     }
 
-            @@media (max-width: 1300px) {
-                .stream-grid {
-                    grid-template-columns: repeat(4, 1fr);
-                }
-            }
-
-            @@media (max-width: 767px) {
-                .stream-showcase {
-                    padding: 28px 16px 32px;
-                }
-
-                .stream-carousel {
-                    padding: 16px 40px 36px;
-                }
-
-                .stream-grid {
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 10px;
-                }
-            }
-
-            @@media (max-width: 480px) {
-                .stream-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-
-                .stream-carousel {
-                    padding: 14px 34px 34px;
-                }
-            }
-
-            /* ══════════════ BODY LAYOUT ══════════════ */
-            .body-layout {
+            .gl-num {
                 display: flex;
-                overflow: hidden;
-                width: 100%;
+                align-items: flex-end;
+                gap: 14px;
+                margin-top: 18px
             }
 
-            /* ══════════════ MAIN PANE ══════════════ */
-            .main-pane {
-                flex: 1;
-                min-width: 0;
-                overflow-y: auto;
-                padding: 32px 32px 60px;
-                scrollbar-width: thin;
-                scrollbar-color: var(--line-strong) transparent;
+                .gl-num b {
+                    font: 800 clamp(48px, 6vw, 72px)/.9 var(--fd);
+                    letter-spacing: -3px;
+                    font-variant-numeric: tabular-nums;
+                    background: linear-gradient(180deg, #fff, #cfe0ff);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent
+                }
+
+                .gl-num span {
+                    font-size: 13px;
+                    line-height: 1.35;
+                    color: rgba(255,255,255,.7);
+                    padding-bottom: 6px
+                }
+
+            .gl-mini {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-top: 20px
             }
 
-                .main-pane::-webkit-scrollbar {
-                    width: 5px;
+                .gl-mini div {
+                    display: flex;
+                    align-items: center;
+                    gap: 11px;
+                    padding: 12px 14px;
+                    border-radius: 16px;
+                    background: rgba(255,255,255,.08);
+                    border: 1px solid rgba(255,255,255,.14)
                 }
 
-                .main-pane::-webkit-scrollbar-thumb {
-                    background: var(--line-strong);
-                    border-radius: 4px;
+                .gl-mini i {
+                    width: 34px;
+                    height: 34px;
+                    display: grid;
+                    place-items: center;
+                    border-radius: 11px;
+                    background: rgba(252,211,77,.18);
+                    color: var(--gold-2);
+                    font-size: 15px;
+                    flex-shrink: 0
                 }
 
-            /* Section heading */
+                .gl-mini b {
+                    display: block;
+                    font: 800 17px/1.1 var(--fd)
+                }
+
+                .gl-mini small {
+                    font-size: 11px;
+                    color: rgba(255,255,255,.62)
+                }
+
+            .gl-list {
+                margin-top: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px
+            }
+
+                .gl-list h4 {
+                    font: 600 11.5px var(--fb);
+                    color: rgba(255,255,255,.55);
+                    margin-bottom: 6px
+                }
+
+            .gl-row {
+                display: grid;
+                grid-template-columns: 26px minmax(0, 1fr) auto;
+                gap: 4px 10px;
+                align-items: center;
+                padding: 8px 10px;
+                margin: 0 -10px;
+                border-radius: 12px;
+                text-decoration: none;
+                transition: background .2s
+            }
+
+                .gl-row:hover {
+                    background: rgba(255,255,255,.10)
+                }
+
+                .gl-row .ic {
+                    grid-row: span 2;
+                    font-size: 17px;
+                    text-align: center
+                }
+
+                .gl-row .nm {
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    color: #fff;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis
+                }
+
+                .gl-row .ct {
+                    font: 700 12px var(--fb);
+                    color: var(--gold-2);
+                    font-variant-numeric: tabular-nums
+                }
+
+            .bar {
+                grid-column: 2 / -1;
+                height: 5px;
+                border-radius: 999px;
+                background: rgba(255,255,255,.12);
+                overflow: hidden
+            }
+
+                .bar i {
+                    display: block;
+                    height: 100%;
+                    width: var(--w);
+                    border-radius: inherit;
+                    background: linear-gradient(90deg, var(--gold), var(--gold-2));
+                    animation: grow 1.1s var(--ease) .3s both
+                }
+
+            @@keyframes grow {
+                from {
+                    width: 0
+                }
+            }
+
+            @@media (max-width: 1100px) {
+                .hero-card {
+                    grid-template-columns: 1fr;
+                    padding: 40px 32px;
+                    gap: 34px
+                }
+            }
+
+            @@media (max-width: 720px) {
+                .hero-card {
+                    padding: 28px 18px;
+                    border-radius: 26px
+                }
+
+                .hs {
+                    grid-template-columns: 1fr;
+                    border-radius: 18px;
+                    gap: 4px
+                }
+
+                .hs-sel {
+                    margin: 0;
+                    border-left: 0;
+                    border-top: 1px solid var(--line);
+                    padding-left: 16px
+                }
+
+                    .hs-sel select {
+                        max-width: none;
+                        width: 100%
+                    }
+
+                .hs button {
+                    justify-content: center
+                }
+
+                .glance {
+                    padding: 20px
+                }
+
+                .gl-mini {
+                    grid-template-columns: 1fr
+                }
+            }
+
+            /* ═══ MAIN ═══ */
+            main {
+                padding: 44px 0 20px
+            }
+
             .sec-head {
                 display: flex;
                 align-items: center;
                 gap: 14px;
-                margin-bottom: 22px;
+                margin-bottom: 18px
             }
 
-                .sec-head h3 {
-                    font-family: var(--fd);
-                    font-size: 22px;
-                    color: var(--navy-900);
-                    font-weight: 600;
-                    white-space: nowrap;
-                    letter-spacing: .1px;
+                .sec-head h2 {
+                    font: 800 24px var(--fd);
+                    color: var(--ink);
+                    letter-spacing: -.6px;
+                    white-space: nowrap
                 }
 
             .sec-line {
                 flex: 1;
                 height: 1px;
-                background: var(--line);
+                background: var(--line)
             }
 
-            .sec-chip {
-                background: var(--navy-900);
-                color: var(--gold-300);
-                font-size: 9px;
+            .chip {
+                font-size: 12px;
                 font-weight: 700;
-                padding: 4px 13px;
-                border-radius: 4px;
-                letter-spacing: 1.1px;
-                text-transform: uppercase;
-                white-space: nowrap;
+                padding: 5px 14px;
+                border-radius: 999px;
+                background: var(--navy);
+                color: var(--gold-2);
+                white-space: nowrap
             }
 
-            /* ── Faculty Chips ── */
-            .faculty-scroll {
+            /* streams */
+            .streams {
                 display: flex;
-                gap: 7px;
+                gap: 10px;
                 overflow-x: auto;
-                padding-bottom: 4px;
-                margin-bottom: 22px;
-                scrollbar-width: none;
+                padding: 4px 2px 14px;
+                margin-bottom: 30px;
+                scroll-snap-type: x proximity;
+                scrollbar-width: thin
             }
 
-                .faculty-scroll::-webkit-scrollbar {
-                    display: none;
-                }
-
-            .fac-chip {
-                display: inline-flex;
-                align-items: center;
-                gap: 7px;
-                padding: 8px 16px;
-                border-radius: var(--r);
-                border: 1.5px solid var(--line);
-                background: var(--white);
-                color: var(--ink-700);
-                text-decoration: none;
-                font-size: 12.5px;
-                font-weight: 500;
-                white-space: nowrap;
-                flex-shrink: 0;
-                transition: all .2s;
-                box-shadow: var(--shadow-xs);
-            }
-
-                .fac-chip:hover {
-                    border-color: var(--blue-300);
-                    color: var(--navy-700);
-                    box-shadow: var(--shadow-sm);
-                }
-
-                .fac-chip.active {
-                    background: var(--navy-900);
-                    border-color: var(--navy-900);
-                    color: #fff;
-                    box-shadow: var(--shadow-sm);
-                }
-
-            .chip-cnt {
-                background: rgba(18,22,31,.06);
-                border-radius: 4px;
-                padding: 1px 7px;
-                font-size: 10.5px;
-                font-weight: 700;
-                font-family: var(--fm);
-            }
-
-            .fac-chip.active .chip-cnt {
-                background: rgba(255,255,255,.16);
-            }
-
-            /* ── Filter Bar ── */
-            .filter-bar {
+            .stream {
                 display: flex;
-                gap: 9px;
                 align-items: center;
-                margin-bottom: 24px;
-                flex-wrap: wrap;
+                gap: 10px;
+                flex-shrink: 0;
+                scroll-snap-align: start;
+                padding: 9px 16px 9px 10px;
+                text-decoration: none;
+                background: var(--glass);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,.9);
+                border-radius: 999px;
+                box-shadow: var(--sh);
+                transition: all .25s var(--ease)
             }
 
-            .search-field {
+                .stream:hover {
+                    transform: translateY(-3px);
+                    box-shadow: var(--sh-lg)
+                }
+
+                .stream .ic {
+                    width: 34px;
+                    height: 34px;
+                    border-radius: 50%;
+                    display: grid;
+                    place-items: center;
+                    background: #eaf0ff;
+                    font-size: 17px
+                }
+
+                .stream .nm {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--ink);
+                    white-space: nowrap
+                }
+
+                .stream .ct {
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    color: var(--sub);
+                    background: #eef2f9;
+                    border-radius: 999px;
+                    padding: 2px 9px
+                }
+
+                .stream.active {
+                    background: linear-gradient(135deg, var(--navy), var(--royal));
+                    border-color: transparent
+                }
+
+                    .stream.active .nm {
+                        color: #fff
+                    }
+
+                    .stream.active .ic {
+                        background: rgba(255,255,255,.18)
+                    }
+
+                    .stream.active .ct {
+                        background: var(--gold);
+                        color: var(--navy)
+                    }
+
+            .content {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 340px;
+                gap: 28px;
+                align-items: start
+            }
+
+            /* filter */
+            .filter {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                align-items: center;
+                margin-bottom: 20px
+            }
+
+            .search-f {
                 position: relative;
                 flex: 1;
-                min-width: 200px;
-                max-width: 420px;
+                min-width: 230px
             }
 
-                .search-field input {
-                    width: 100%;
-                    padding: 11px 14px 11px 40px;
-                    border: 1.5px solid var(--line);
-                    border-radius: var(--r);
-                    font-size: 13px;
-                    font-family: var(--fb);
-                    background: var(--white);
-                    color: var(--ink-900);
-                    outline: none;
-                    box-shadow: var(--shadow-xs);
-                    transition: border-color .2s, box-shadow .2s;
-                }
-
-                    .search-field input:focus {
-                        border-color: var(--blue-300);
-                        box-shadow: 0 0 0 3px rgba(59,116,184,.12);
-                    }
-
-                    .search-field input::placeholder {
-                        color: var(--ink-400);
-                    }
-
-                .search-field .si {
+                .search-f i {
                     position: absolute;
-                    left: 13px;
+                    left: 16px;
                     top: 50%;
                     transform: translateY(-50%);
-                    color: var(--ink-400);
-                    font-size: 13px;
-                    pointer-events: none;
+                    color: var(--muted);
+                    pointer-events: none
                 }
 
-            .btn-srch {
-                background: var(--navy-900);
-                color: #fff;
-                border: none;
-                padding: 11px 22px;
-                border-radius: var(--r);
-                font-size: 13px;
-                font-weight: 600;
-                font-family: var(--fb);
-                cursor: pointer;
-                transition: background .2s, transform .15s;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                letter-spacing: .2px;
-            }
-
-                .btn-srch:hover {
-                    background: var(--navy-700);
-                    transform: translateY(-1px);
+                .search-f input {
+                    width: 100%;
+                    height: 48px;
+                    padding: 0 16px 0 44px;
+                    border: 1.5px solid transparent;
+                    border-radius: 14px;
+                    background: var(--glass);
+                    backdrop-filter: blur(10px);
+                    box-shadow: var(--sh);
+                    font: 500 14px var(--fb);
+                    color: var(--ink);
+                    outline: 0;
+                    transition: all .2s var(--ease)
                 }
 
-            .btn-clr {
-                background: var(--white);
-                color: var(--ink-500);
-                border: 1.5px solid var(--line);
-                padding: 11px 16px;
-                border-radius: var(--r);
-                font-size: 13px;
-                font-family: var(--fb);
-                cursor: pointer;
-                text-decoration: none;
+                    .search-f input:focus {
+                        border-color: var(--gold);
+                        box-shadow: 0 0 0 4px rgba(245,179,1,.2)
+                    }
+
+            .btn {
+                height: 48px;
+                padding: 0 20px;
+                border-radius: 14px;
+                font: 700 13px var(--fb);
                 display: inline-flex;
                 align-items: center;
-                gap: 6px;
-                transition: border-color .2s, color .2s;
-            }
-
-                .btn-clr:hover {
-                    border-color: var(--blue-300);
-                    color: var(--ink-900);
-                }
-
-            .res-badge {
-                background: var(--white);
-                border: 1px solid var(--line);
-                border-radius: var(--r);
-                padding: 11px 16px;
-                font-size: 12px;
-                color: var(--ink-500);
-                white-space: nowrap;
-                box-shadow: var(--shadow-xs);
-                font-family: var(--fm);
-            }
-
-                .res-badge strong {
-                    color: var(--navy-800);
-                    font-weight: 700;
-                }
-
-            /* ── College Cards ── */
-            .college-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-                max-height: 540px;
-                overflow-y: auto;
-                scroll-behavior: smooth;
-                padding-right: 4px;
-            }
-
-                .college-grid::-webkit-scrollbar {
-                    width: 5px;
-                }
-
-                .college-grid::-webkit-scrollbar-thumb {
-                    background: var(--line-strong);
-                    border-radius: 4px;
-                }
-
-            .c-card {
-                background: var(--white);
-                border: 1px solid var(--line);
-                border-radius: var(--r-lg);
-                padding: 20px 22px 44px;
-                position: relative;
-                overflow: hidden;
-                box-shadow: var(--shadow-xs);
-                transition: transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s, border-color .22s;
-                animation: cardFadeUp .35s ease both;
+                gap: 8px;
                 cursor: pointer;
+                text-decoration: none;
+                transition: all .2s var(--ease)
             }
 
-                .c-card:hover {
-                    transform: translateY(-3px);
-                    box-shadow: var(--shadow-md);
-                    border-color: var(--line-strong);
-                }
-                /* Left accent on hover */
-                .c-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    bottom: 0;
-                    width: 3px;
-                    background: var(--crimson-600);
-                    opacity: 0;
-                    transition: opacity .22s;
+            .btn-p {
+                border: 0;
+                color: #fff;
+                background: linear-gradient(135deg, var(--navy), var(--royal));
+                box-shadow: 0 10px 20px -6px rgba(37,99,235,.5)
+            }
+
+                .btn-p:hover {
+                    transform: translateY(-2px)
                 }
 
-                .c-card:hover::before {
-                    opacity: 1;
+            .btn-g {
+                background: var(--glass);
+                border: 1.5px solid var(--line);
+                color: var(--sub)
+            }
+
+                .btn-g:hover {
+                    border-color: var(--royal);
+                    color: var(--navy)
                 }
 
-            @@keyframes cardFadeUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(12px);
+            .count {
+                height: 48px;
+                display: inline-flex;
+                align-items: center;
+                padding: 0 16px;
+                border-radius: 14px;
+                background: var(--glass);
+                box-shadow: var(--sh);
+                font-size: 12.5px;
+                color: var(--sub);
+                white-space: nowrap
+            }
+
+                .count b {
+                    color: var(--navy);
+                    margin-right: 5px;
+                    font-size: 15px
                 }
 
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
+            /* college cards */
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px
+            }
+
+            .card {
+                content-visibility: auto;
+                contain-intrinsic-size: 0 150px;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                padding: 20px;
+                text-align: left;
+                cursor: pointer;
+                font-family: inherit;
+                background: var(--glass);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,.9);
+                border-radius: 22px;
+                box-shadow: var(--sh);
+                transition: transform .3s var(--ease), box-shadow .3s var(--ease), background .3s
+            }
+
+                .card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: var(--sh-lg);
+                    background: rgba(255,255,255,.96)
                 }
+
+                .card:focus-visible {
+                    outline: 3px solid var(--gold)
+                }
+
+            .c-top {
+                display: flex;
+                gap: 14px;
+                align-items: flex-start
             }
 
-            .c-card:nth-child(1) {
-                animation-delay: .04s
-            }
-
-            .c-card:nth-child(2) {
-                animation-delay: .08s
-            }
-
-            .c-card:nth-child(3) {
-                animation-delay: .12s
-            }
-
-            .c-card:nth-child(4) {
-                animation-delay: .16s
-            }
-
-            .c-card:nth-child(5) {
-                animation-delay: .20s
-            }
-
-            .c-card:nth-child(6) {
-                animation-delay: .24s
-            }
-
-            .c-card:nth-child(n+7) {
-                animation-delay: .28s
+            .c-av {
+                width: 44px;
+                height: 44px;
+                border-radius: 14px;
+                display: grid;
+                place-items: center;
+                flex-shrink: 0;
+                font: 800 18px var(--fd);
+                color: var(--gold-2);
+                background: linear-gradient(135deg, var(--navy), var(--royal));
+                box-shadow: 0 8px 16px -6px rgba(37,99,235,.55)
             }
 
             .c-name {
-                font-size: 13px;
-                font-weight: 600;
-                color: var(--navy-800);
-                line-height: 1.55;
-                margin-bottom: 12px;
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--navy);
+                line-height: 1.45;
+                padding-right: 22px
             }
 
             .c-meta {
-                position: absolute;
-                bottom: 14px;
-                left: 22px;
-                right: 22px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 6px;
+                gap: 8px;
+                margin-top: auto;
+                padding-top: 14px;
+                border-top: 1px dashed var(--line)
             }
 
             .c-town {
                 display: flex;
                 align-items: center;
-                gap: 4px;
-                font-size: 10.5px;
-                color: var(--ink-500);
+                gap: 6px;
+                font-size: 12px;
+                font-weight: 500;
+                color: var(--sub)
             }
 
                 .c-town i {
-                    color: var(--blue-400);
-                    font-size: 10px;
+                    color: var(--royal)
                 }
 
             .c-fac {
-                display: inline-flex;
-                align-items: center;
-                gap: 3px;
-                background: var(--paper-alt);
-                border: 1px solid var(--line);
-                border-radius: 4px;
-                padding: 2px 9px;
-                font-size: 10px;
-                font-weight: 500;
-                color: var(--ink-500);
-            }
-
-            .c-arrow {
-                position: absolute;
-                bottom: 13px;
-                right: 18px;
                 font-size: 11px;
-                color: var(--navy-700);
                 font-weight: 600;
-                display: flex;
-                align-items: center;
-                gap: 3px;
-                opacity: 0;
-                transform: translateX(4px);
-                transition: opacity .2s, transform .2s;
+                color: var(--sub);
+                background: #eef2f9;
+                padding: 4px 11px;
+                border-radius: 999px;
+                white-space: nowrap
             }
 
-            .c-card:hover .c-arrow {
-                opacity: 1;
-                transform: translateX(0);
+            .c-go {
+                position: absolute;
+                top: 18px;
+                right: 18px;
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                font-size: 11px;
+                color: var(--muted);
+                background: #eef2f9;
+                transition: all .25s var(--ease)
             }
 
-            .empty-state {
+            .card:hover .c-go {
+                background: var(--gold);
+                color: var(--navy);
+                transform: rotate(45deg)
+            }
+
+            .card[hidden] {
+                display: none
+            }
+
+            .empty {
                 grid-column: 1/-1;
                 text-align: center;
-                padding: 64px 20px;
-                color: var(--ink-400);
+                padding: 60px 20px;
+                color: var(--muted);
+                background: var(--glass);
+                border: 1.5px dashed var(--line);
+                border-radius: 22px
             }
 
-                .empty-state .em-ico {
-                    font-size: 44px;
-                    opacity: .25;
-                    margin-bottom: 14px;
+                .empty i {
+                    font-size: 40px;
+                    opacity: .4
                 }
 
-                .empty-state h4 {
-                    font-size: 16px;
-                    font-weight: 600;
-                    margin-bottom: 6px;
-                    color: var(--navy-800);
+                .empty h4 {
+                    font: 800 18px var(--fd);
+                    color: var(--ink);
+                    margin: 10px 0 4px
                 }
 
-            /* ══════════════ SIDEBAR ══════════════ */
-            .side-pane {
-                width: 300px;
-                flex-shrink: 0;
-                background: var(--white);
-                border-left: 1px solid var(--line);
+                .empty .btn {
+                    margin-top: 16px
+                }
+
+            .live-empty {
+                display: none;
+                margin-top: 16px
+            }
+
+            /* sidebar */
+            aside {
+                position: sticky;
+                top: 98px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                max-height: calc(100vh - 116px);
                 overflow-y: auto;
                 scrollbar-width: thin;
-                scrollbar-color: var(--line-strong) transparent;
+                padding: 2px 2px 6px
             }
-
-                .side-pane::-webkit-scrollbar {
-                    width: 4px;
-                }
-
-                .side-pane::-webkit-scrollbar-thumb {
-                    background: var(--line-strong);
-                    border-radius: 4px;
-                }
 
             .widget {
-                border-bottom: 1px solid var(--line);
+                background: var(--glass);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255,255,255,.9);
+                border-radius: 22px;
+                box-shadow: var(--sh);
+                overflow: hidden
             }
-
-                .widget:last-child {
-                    border-bottom: none;
-                }
 
             .w-head {
-                padding: 13px 18px;
                 display: flex;
                 align-items: center;
-                gap: 9px;
-                background: var(--paper-alt);
-                border-bottom: 1px solid var(--line);
+                gap: 10px;
+                padding: 15px 18px;
+                border-bottom: 1px solid var(--line)
             }
-
-                .w-head h4 {
-                    font-family: var(--fd);
-                    color: var(--navy-800);
-                    font-size: 14.5px;
-                    font-weight: 600;
-                    letter-spacing: .1px;
-                }
 
                 .w-head i {
-                    color: var(--navy-700);
-                    font-size: 13.5px;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 9px;
+                    display: grid;
+                    place-items: center;
+                    font-size: 13px;
+                    background: linear-gradient(135deg, #fff8e1, #fdecb0);
+                    color: var(--gold-d)
                 }
 
-            /* Updates */
-            .upd-list {
-                list-style: none;
+                .w-head h3 {
+                    font: 800 14px var(--fd);
+                    color: var(--ink)
+                }
+
+            .upd {
+                list-style: none
             }
 
-            .upd-item {
-                border-bottom: 1px solid var(--line);
-                padding: 12px 18px;
-                transition: background .14s;
-            }
-
-                .upd-item:last-child {
-                    border-bottom: none;
+                .upd li {
+                    padding: 13px 18px;
+                    border-bottom: 1px solid var(--line);
+                    transition: background .2s
                 }
 
-                .upd-item:hover {
-                    background: var(--paper-alt);
-                }
-
-                .upd-item a {
-                    display: block;
-                    text-decoration: none;
-                    color: var(--ink-700);
-                    font-size: 12px;
-                    line-height: 1.6;
-                    font-weight: 500;
-                }
-
-                    .upd-item a:hover {
-                        color: var(--navy-700);
+                    .upd li:last-child {
+                        border-bottom: 0
                     }
 
-            .upd-date {
-                font-size: 10px;
-                color: var(--ink-400);
-                margin-top: 4px;
-                display: flex;
-                align-items: center;
-                gap: 4px;
-            }
+                    .upd li:hover {
+                        background: rgba(234,240,255,.7)
+                    }
 
-            .u-tag {
+                .upd a {
+                    display: block;
+                    font-size: 12.5px;
+                    font-weight: 500;
+                    line-height: 1.55;
+                    text-decoration: none;
+                    color: var(--text)
+                }
+
+                    .upd a:hover {
+                        color: var(--royal)
+                    }
+
+            .tag {
                 display: inline-block;
-                font-size: 8.5px;
+                font-size: 10.5px;
                 font-weight: 700;
-                padding: 2px 7px;
-                border-radius: 3px;
-                letter-spacing: .7px;
-                margin-bottom: 5px;
-                text-transform: uppercase;
+                padding: 2px 9px;
+                border-radius: 999px;
+                margin-bottom: 6px
             }
 
             .tag-new {
-                background: var(--crimson-100);
-                color: var(--crimson-700);
-                border: 1px solid #e8c3c8;
+                background: #fff1f2;
+                color: var(--red)
             }
 
             .tag-imp {
-                background: var(--gold-100);
-                color: var(--gold-600);
-                border: 1px solid #e4cf9a;
+                background: #fff8e1;
+                color: var(--gold-d)
             }
 
             .tag-info {
-                background: var(--blue-100);
-                color: var(--navy-700);
-                border: 1px solid var(--blue-200);
+                background: #eaf0ff;
+                color: var(--royal)
             }
 
-            /* Quick links */
-            .qlink-grid {
+            .upd small {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                margin-top: 4px;
+                font-size: 11px;
+                color: var(--muted)
+            }
+
+            .q-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 1px;
-                background: var(--line);
+                gap: 8px;
+                padding: 12px
             }
 
-            .qlink {
+            .q {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
-                gap: 6px;
+                gap: 7px;
                 padding: 15px 8px;
-                background: var(--white);
+                border-radius: 16px;
+                background: #f4f7fd;
                 text-decoration: none;
-                color: var(--ink-700);
-                font-size: 10.5px;
+                font-size: 11.5px;
                 font-weight: 600;
+                color: var(--text);
                 text-align: center;
-                transition: background .14s, color .14s;
+                transition: all .25s var(--ease)
             }
 
-                .qlink:hover {
-                    background: var(--paper-alt);
-                    color: var(--navy-700);
-                }
-
-                .qlink i {
+                .q i {
                     font-size: 20px;
-                    color: var(--navy-700);
+                    color: var(--royal)
                 }
 
-            /* Helpline */
-            .hl-body {
+                .q:hover {
+                    background: var(--navy);
+                    color: #fff;
+                    transform: translateY(-2px)
+                }
+
+                    .q:hover i {
+                        color: var(--gold-2)
+                    }
+
+            .hl {
                 padding: 14px 18px;
                 display: flex;
                 flex-direction: column;
-                gap: 13px;
+                gap: 14px
             }
 
             .hl-row {
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 12px
             }
 
-            .hl-icon {
-                width: 34px;
-                height: 34px;
-                border-radius: 9px;
-                background: var(--paper-alt);
-                border: 1px solid var(--line);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
+            .hl-ic {
+                width: 38px;
+                height: 38px;
+                border-radius: 12px;
+                background: #eaf0ff;
+                display: grid;
+                place-items: center;
+                color: var(--royal);
+                font-size: 15px;
+                flex-shrink: 0
             }
-
-                .hl-icon i {
-                    font-size: 13px;
-                    color: var(--navy-700);
-                }
 
             .hl-lbl {
-                font-size: 9.5px;
-                color: var(--ink-400);
-                margin-bottom: 2px;
-                letter-spacing: .4px;
+                font-size: 11px;
+                color: var(--muted)
             }
 
             .hl-val {
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: 600;
-                color: var(--navy-800);
+                color: var(--navy)
             }
 
                 .hl-val a {
-                    color: var(--navy-600);
-                    text-decoration: none;
+                    text-decoration: none
                 }
 
                     .hl-val a:hover {
-                        text-decoration: underline;
+                        text-decoration: underline
                     }
 
-            /* ══════════════ MODAL ══════════════ */
-            .modal-course-header {
-                background: var(--navy-900);
-                border: none;
-                padding: 24px 28px;
+            /* ═══ FOOTER ═══ */
+            footer {
+                margin-top: 40px;
+                color: #fff;
+                background: radial-gradient(500px 260px at 100% 0%, rgba(96,165,250,.25), transparent 70%), linear-gradient(180deg, var(--navy-d), #040f33);
+                border-radius: 36px 36px 0 0;
+                border-top: 3px solid var(--gold);
+                overflow: hidden
             }
 
-            .modal-summary-strip {
-                display: flex;
-                border-bottom: 1px solid var(--line);
-                background: var(--paper-alt);
+            .f-wm {
+                position: absolute;
+                left: -60px;
+                bottom: -80px;
+                width: 380px;
+                opacity: .06;
+                filter: grayscale(1) brightness(4);
+                pointer-events: none
             }
 
-            .modal-summary-pill {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                padding: 17px 24px;
-                border-right: 1px solid var(--line);
-            }
-
-                .modal-summary-pill:last-child {
-                    border-right: none;
-                }
-
-            .msp-icon {
-                width: 40px;
-                height: 40px;
-                border-radius: 10px;
-                background: var(--navy-900);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-            }
-
-                .msp-icon i {
-                    color: var(--gold-300);
-                    font-size: 16px;
-                }
-
-            .msp-num {
-                font-family: var(--fd);
-                font-size: 25px;
-                font-weight: 600;
-                color: var(--navy-800);
-                line-height: 1;
-            }
-
-            .msp-lbl {
-                font-size: 9px;
-                color: var(--ink-400);
-                letter-spacing: 1.1px;
-                text-transform: uppercase;
-                margin-top: 3px;
-            }
-
-            .course-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 12.5px;
-            }
-
-                .course-table thead tr {
-                    background: var(--navy-900);
-                }
-
-                .course-table thead th {
-                    padding: 11px 15px;
-                    color: rgba(255,255,255,.65);
-                    font-size: 9.5px;
-                    font-weight: 700;
-                    letter-spacing: 1px;
-                    text-transform: uppercase;
-                    border: none;
-                    white-space: nowrap;
-                }
-
-                    .course-table thead th:last-child {
-                        text-align: center;
-                    }
-
-                .course-table tbody tr {
-                    border-bottom: 1px solid var(--line);
-                    transition: background .12s;
-                }
-
-                    .course-table tbody tr:last-child {
-                        border-bottom: none;
-                    }
-
-                    .course-table tbody tr:nth-child(even) {
-                        background: var(--paper-alt);
-                    }
-
-                    .course-table tbody tr:nth-child(odd) {
-                        background: var(--white);
-                    }
-
-                    .course-table tbody tr:hover {
-                        background: var(--blue-100);
-                    }
-
-                .course-table tbody td {
-                    padding: 11px 15px;
-                    color: var(--ink-700);
-                    vertical-align: middle;
-                }
-
-            .td-num {
-                color: var(--ink-400);
-                font-size: 11px;
-                width: 36px;
-                font-family: var(--fm);
-            }
-
-            .col-course-code {
-                display: none;
-            }
-
-            .td-code {
-                font-family: var(--fm);
-                font-size: 10.5px;
-                color: var(--navy-700);
-                background: var(--blue-100);
-                padding: 3px 9px;
-                border-radius: 4px;
-                white-space: nowrap;
-                display: inline-block;
-                border: 1px solid var(--blue-200);
-            }
-
-            .intake-badge {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 44px;
-                height: 28px;
-                border-radius: 6px;
-                font-size: 13px;
-                font-weight: 700;
-                font-family: var(--fm);
-            }
-
-            .intake-badge-filled {
-                background: var(--blue-100);
-                color: var(--navy-700);
-                border: 1px solid var(--blue-200);
-            }
-
-            .intake-badge-zero {
-                background: var(--paper-alt);
-                color: var(--ink-400);
-                border: 1px solid var(--line);
-            }
-
-            /* ══════════════ FOOTER ══════════════ */
-            .site-footer {
-                background: var(--navy-950);
-                border-top: 3px solid var(--gold-300);
-            }
-
-            .footer-grid {
-                padding: 38px 40px 24px;
+            .f-grid {
+                position: relative;
                 display: grid;
                 grid-template-columns: 2.2fr 1fr 1fr 1fr;
-                gap: 32px;
+                gap: 36px;
+                padding-top: 48px;
+                padding-bottom: 28px
             }
 
-            .foot-brand {
+            .f-brand {
                 display: flex;
                 align-items: center;
                 gap: 13px;
-                margin-bottom: 13px;
+                margin-bottom: 14px
             }
 
-            .foot-monogram {
-                width: 48px;
-                height: 48px;
-                border-radius: 11px;
-                background: rgba(203,162,74,.12);
-                border: 1px solid rgba(203,162,74,.28);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-family: var(--fd);
-                font-size: 18px;
-                color: var(--gold-300);
-                font-weight: 700;
-                flex-shrink: 0;
+            .f-logo {
+                width: 50px;
+                height: 50px;
+                border-radius: 14px;
+                background: #fff;
+                padding: 4px;
+                object-fit: contain
             }
 
-            .foot-name {
-                font-family: var(--fd);
-                color: #fff;
-                font-size: 14px;
-                line-height: 1.3;
-                font-weight: 500;
+            .f-name {
+                font: 800 15px/1.3 var(--fd)
             }
 
-                .foot-name span {
+                .f-name span {
                     display: block;
-                    font-size: 10px;
-                    color: rgba(255,255,255,.4);
-                    font-family: var(--fb);
-                    margin-top: 3px;
-                    letter-spacing: .3px;
+                    font: 500 11px var(--fb);
+                    color: rgba(255,255,255,.5);
+                    margin-top: 3px
                 }
 
-            .foot-desc {
-                font-size: 11.5px;
-                color: rgba(255,255,255,.45);
+            .f-desc {
+                font-size: 12.5px;
+                color: rgba(255,255,255,.58);
                 line-height: 1.85;
+                max-width: 440px
             }
 
-            .foot-col h5 {
-                font-size: 9.5px;
-                font-weight: 700;
-                color: var(--gold-300);
-                letter-spacing: 1.6px;
-                text-transform: uppercase;
+            .f-col h5 {
+                font: 700 12.5px var(--fd);
+                color: var(--gold-2);
+                padding-bottom: 11px;
                 margin-bottom: 14px;
-                padding-bottom: 9px;
-                border-bottom: 1px solid rgba(203,162,74,.2);
+                border-bottom: 1px solid rgba(245,179,1,.28)
             }
 
-            .foot-col ul {
+            .f-col ul {
                 list-style: none;
                 display: flex;
                 flex-direction: column;
-                gap: 9px;
+                gap: 10px
             }
 
-                .foot-col ul li a {
-                    color: rgba(255,255,255,.5);
-                    text-decoration: none;
-                    font-size: 12px;
-                    transition: color .18s;
-                    display: flex;
-                    align-items: center;
-                    gap: 7px;
+            .f-col a {
+                display: inline-block;
+                font-size: 12.5px;
+                color: rgba(255,255,255,.62);
+                text-decoration: none;
+                transition: all .2s
+            }
+
+                .f-col a:hover {
+                    color: var(--gold-2);
+                    transform: translateX(3px)
                 }
 
-                    .foot-col ul li a::before {
-                        content: '';
-                        display: block;
-                        width: 3px;
-                        height: 3px;
-                        border-radius: 50%;
-                        background: rgba(203,162,74,.45);
-                        flex-shrink: 0;
+            .f-bar {
+                position: relative;
+                border-top: 1px solid rgba(255,255,255,.1)
+            }
+
+                .f-bar .wrap {
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 14px;
+                    flex-wrap: wrap;
+                    padding-top: 16px;
+                    padding-bottom: 16px
+                }
+
+                .f-bar p {
+                    font-size: 11.5px;
+                    color: rgba(255,255,255,.45)
+                }
+
+                .f-bar a {
+                    color: var(--gold-2);
+                    text-decoration: none
+                }
+
+                    .f-bar a:hover {
+                        text-decoration: underline
                     }
 
-                    .foot-col ul li a:hover {
-                        color: var(--gold-300);
-                    }
+            /* ═══ COURSE DRAWER ═══ */
+            dialog {
+                border: 0;
+                padding: 0;
+                margin: 12px 12px 12px auto;
+                height: calc(100dvh - 24px);
+                max-height: calc(100dvh - 24px);
+                width: min(500px, calc(100vw - 24px));
+                border-radius: 28px;
+                background: #fff;
+                overflow: hidden;
+                box-shadow: 0 40px 90px rgba(6,26,74,.45)
+            }
 
-            .footer-bar {
-                padding: 14px 40px;
-                border-top: 1px solid rgba(255,255,255,.08);
+                dialog[open] {
+                    display: flex;
+                    flex-direction: column;
+                    animation: slide .35s var(--ease) both
+                }
+
+                dialog::backdrop {
+                    background: rgba(6,26,74,.55);
+                    backdrop-filter: blur(5px)
+                }
+
+            @@keyframes slide {
+                from {
+                    opacity: 0;
+                    transform: translateX(36px)
+                }
+
+                to {
+                    opacity: 1;
+                    transform: none
+                }
+            }
+
+            .d-head {
+                position: relative;
+                padding: 26px 28px 22px;
+                color: #fff;
+                flex-shrink: 0;
+                background: radial-gradient(260px 160px at 100% 0%, rgba(245,179,1,.28), transparent 70%), linear-gradient(135deg, var(--navy-d), var(--navy))
+            }
+
+                .d-head img {
+                    position: absolute;
+                    right: -24px;
+                    bottom: -34px;
+                    width: 150px;
+                    opacity: .12;
+                    filter: grayscale(1) brightness(4);
+                    pointer-events: none
+                }
+
+            .d-eyebrow {
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
-                gap: 14px;
-                flex-wrap: wrap;
+                gap: 7px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--gold-2);
+                margin-bottom: 8px
             }
 
-                .footer-bar p {
-                    font-size: 10.5px;
-                    color: rgba(255,255,255,.35);
+            .d-title {
+                position: relative;
+                font: 800 20px/1.3 var(--fd);
+                letter-spacing: -.3px;
+                padding-right: 40px
+            }
+
+            .d-meta {
+                position: relative;
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-top: 14px
+            }
+
+                .d-meta span {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
+                    padding: 5px 12px;
+                    border-radius: 999px;
+                    background: rgba(255,255,255,.12);
+                    border: 1px solid rgba(255,255,255,.22)
                 }
 
-                .footer-bar a {
-                    color: var(--gold-300);
-                    text-decoration: none;
+                .d-meta i {
+                    color: var(--gold-2)
                 }
 
-                    .footer-bar a:hover {
-                        text-decoration: underline;
+            .d-close {
+                position: absolute;
+                top: 18px;
+                right: 18px;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                cursor: pointer;
+                border: 1px solid rgba(255,255,255,.3);
+                background: rgba(255,255,255,.1);
+                color: #fff;
+                transition: all .2s
+            }
+
+                .d-close:hover {
+                    background: var(--gold);
+                    border-color: var(--gold);
+                    color: var(--navy);
+                    transform: rotate(90deg)
+                }
+
+            .d-body {
+                flex: 1;
+                overflow-y: auto;
+                padding: 22px 28px
+            }
+
+            .d-sub {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 14px
+            }
+
+                .d-sub h4 {
+                    display: flex;
+                    align-items: center;
+                    gap: 9px;
+                    font: 800 16px var(--fd);
+                    color: var(--ink)
+                }
+
+                    .d-sub h4 i {
+                        color: var(--royal)
                     }
 
-            /* ══════════════ RESPONSIVE ══════════════ */
-            @@media (min-width: 1400px) {
-                .header-inner, .stats-inner, .footer-grid, .footer-bar {
-                    padding-left: 60px;
-                    padding-right: 60px;
-                }
-
-                .main-pane {
-                    padding: 36px 38px 64px;
-                }
-
-                .util-inner {
-                    padding: 0 60px;
-                }
+            .d-count {
+                font-size: 11.5px;
+                font-weight: 700;
+                padding: 4px 13px;
+                border-radius: 999px;
+                background: var(--navy);
+                color: var(--gold-2)
             }
 
-            @@media (max-width: 1199px) {
-                .body-layout {
-                    flex-direction: column;
-                    height: auto !important;
-                    overflow: visible;
-                }
-
-                .main-pane {
-                    overflow: visible;
-                }
-
-                .side-pane {
-                    width: 100%;
-                    border-left: none;
-                    border-top: 1px solid var(--line);
-                    overflow: visible;
-                }
-
-                .footer-grid {
-                    grid-template-columns: 1fr 1fr;
-                }
-
-                .stats-inner {
-                    padding: 0 24px;
-                }
-
-                .college-grid {
-                    grid-template-columns: 1fr 1fr 1fr;
-                }
+            .courses {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 8px
             }
 
-            @@media (max-width: 991px) {
-                .header-inner {
-                    padding: 16px 20px;
-                    flex-wrap: wrap;
-                }
-
-                .university-logo {
-                    height: 58px;
-                }
-
-                .univ-name {
-                    font-size: 18px;
-                }
-
-                .univ-sub {
-                    display: none;
-                }
-
-                .stats-inner {
-                    flex-wrap: wrap;
-                    padding: 0 20px;
-                }
-
-                .stat-item {
-                    min-width: 45%;
-                    border-bottom: 1px solid var(--line);
-                }
-
-                .footer-grid {
-                    padding: 24px 20px;
-                }
-
-                .footer-bar {
-                    padding: 12px 20px;
-                }
-
-                .college-grid {
-                    grid-template-columns: 1fr 1fr;
-                }
-
-                .modal-summary-strip {
-                    flex-wrap: wrap;
-                }
-
-                .modal-summary-pill {
-                    min-width: 50%;
-                    border-bottom: 1px solid var(--line);
-                }
-            }
-
-            @@media (max-width: 767px) {
-                .util-inner {
-                    padding: 0 16px;
-                }
-
-                .util-links a span {
-                    display: none;
-                }
-
-                .header-inner {
-                    padding: 14px 16px;
-                }
-
-                .university-logo {
-                    height: 52px;
-                }
-
-                .univ-name {
-                    font-size: 16px;
-                }
-
-                .main-pane {
-                    padding: 20px 14px 48px;
-                }
-
-                .college-grid {
-                    grid-template-columns: 1fr;
-                    max-height: none;
-                }
-
-                .footer-grid {
-                    grid-template-columns: 1fr;
-                    padding: 20px 16px;
-                }
-
-                .footer-bar {
-                    padding: 12px 16px;
-                    flex-direction: column;
-                    align-items: flex-start;
-                }
-
-                .carousel-img {
-                    height: clamp(170px,50vw,280px);
-                }
-            }
-
-            @@media (max-width: 599px) {
-                .header-inner {
-                    flex-direction: column;
-                    align-items: center;
-                    text-align: center;
-                    padding: 18px 16px;
-                }
-
-                .header-rule {
-                    display: none;
-                }
-
-                .university-logo {
-                    height: 64px;
-                }
-
-                .univ-name {
-                    font-size: 17px;
-                    text-align: center;
-                }
-
-                .univ-sub {
+                .courses li {
                     display: flex;
-                    justify-content: center;
-                    font-size: 10px;
-                }
-
-                .header-badges {
-                    justify-content: center;
-                }
-
-                .header-cta {
-                    width: 100%;
                     align-items: center;
+                    gap: 14px;
+                    padding: 12px 14px;
+                    border-radius: 14px;
+                    background: #f4f7fd;
+                    font-size: 13px;
+                    font-weight: 500;
+                    transition: all .2s var(--ease)
                 }
 
-                .btn-portal {
-                    width: 100%;
-                    justify-content: center;
-                    font-size: 14px;
-                    padding: 13px 20px;
+                    .courses li:hover {
+                        background: #eaf0ff;
+                        transform: translateX(3px)
+                    }
+
+                .courses .n {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 9px;
+                    background: #fff;
+                    display: grid;
+                    place-items: center;
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: var(--royal);
+                    flex-shrink: 0;
+                    box-shadow: 0 2px 6px rgba(11,42,111,.08)
                 }
 
-                .stats-inner {
-                    flex-direction: column;
+            .d-state {
+                text-align: center;
+                padding: 48px 0;
+                color: var(--muted);
+                font-size: 13px
+            }
+
+                .d-state i {
+                    display: block;
+                    font-size: 34px;
+                    margin-bottom: 12px;
+                    opacity: .5
                 }
 
-                .stat-item {
-                    width: 100%;
-                    border-right: none;
+            .spin {
+                width: 34px;
+                height: 34px;
+                margin: 0 auto 14px;
+                border-radius: 50%;
+                border: 3px solid #e5eaf4;
+                border-top-color: var(--royal);
+                animation: rot .7s linear infinite
+            }
+
+            @@keyframes rot {
+                to {
+                    transform: rotate(360deg)
+                }
+            }
+
+            .d-foot {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 13px 28px;
+                background: #f4f7fd;
+                border-top: 1px solid var(--line);
+                font-size: 11.5px;
+                color: var(--muted);
+                flex-shrink: 0
+            }
+
+                .d-foot i {
+                    color: var(--green)
+                }
+
+            /* ═══ RESPONSIVE ═══ */
+            @@media (max-width: 1100px) {
+                .nav {
+                    display: none
+                }
+
+                .btn-login {
+                    margin-left: auto
+                }
+
+                .content {
+                    grid-template-columns: 1fr
+                }
+
+                aside {
+                    position: static;
+                    max-height: none;
+                    overflow: visible;
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr))
+                }
+
+                .f-grid {
+                    grid-template-columns: 1fr 1fr
+                }
+            }
+
+            @@media (max-width: 720px) {
+                .wrap {
+                    padding: 0 14px
+                }
+
+                html {
+                    font-size: 14.5px
+                }
+
+                .brand small {
+                    display: none
+                }
+
+                .brand b {
+                    font-size: 13.5px;
+                    white-space: normal
+                }
+
+                .btn-login span {
+                    display: none
+                }
+
+                .btn-login {
+                    padding: 12px 14px
+                }
+
+                .ann-l span:last-child {
+                    display: none
+                }
+
+                .grid {
+                    grid-template-columns: 1fr
+                }
+
+                .f-grid {
+                    grid-template-columns: 1fr
+                }
+
+                footer {
+                    border-radius: 26px 26px 0 0
+                }
+
+                dialog {
+                    margin: 8px;
+                    width: calc(100vw - 16px);
+                    height: calc(100dvh - 16px);
+                    max-height: calc(100dvh - 16px)
+                }
+
+                .d-head, .d-body {
+                    padding-left: 18px;
+                    padding-right: 18px
+                }
+            }
+
+            @@media (prefers-reduced-motion: reduce) {
+                *, *::before, *::after {
+                    animation: none !important;
+                    transition: none !important
                 }
             }
     </style>
 </head>
 <body>
 
-    <!-- ════ UTILITY BAR ════ -->
-    <div class="util-bar">
-        <div class="util-inner">
-            <div class="util-links">
-                <a href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-globe2"></i><span>www.rguhs.ac.in</span></a>
-                <a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank"><i class="bi bi-file-earmark-check"></i><span>Eligibility Certificate</span></a>
-                <a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank"><i class="bi bi-bar-chart-line"></i><span>Results Portal</span></a>
-                <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank"><i class="bi bi-bell"></i><span>Notifications</span></a>
-                <a href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-headset"></i><span>Help Desk</span></a>
-            </div>
-            <div class="util-right">
-                <span class="live-clock" id="liveClock"></span>
-                <select class="lang-sel"><option>English</option><option>ಕನ್ನಡ</option></select>
-            </div>
-        </div>
-    </div>
+    <!-- LOGO WATERMARK -->
+    <div class="wm" aria-hidden="true"><img src="~/images/newLogo.jpeg" alt="" /></div>
 
     <!-- ════ HEADER ════ -->
-    <header class="site-header">
-        <div class="header-inner">
-            <div class="header-rule"></div>
-            <img src="~/images/newLogo.jpeg" alt="RGUHS Logo" class="university-logo" />
-            <div class="header-text">
-                <div class="univ-eyebrow">Government of Karnataka</div>
-                <div class="univ-name">Rajiv Gandhi University of Health Sciences, Karnataka</div>
-                <div class="univ-sub">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    4th 'T' Block, Jayanagar, Bangalore – 560 041 &nbsp;·&nbsp; Established 1996
-                </div>
-                @* <div class="header-badges">
-                    <span class="hbadge hbadge-gold"><i class="bi bi-patch-check-fill"></i> NAAC Accredited</span>
-                    <span class="hbadge hbadge-blue"><i class="bi bi-shield-check"></i> UGC · NMC Recognised</span>
-                </div> *@
-            </div>
-            <div class="header-cta">
-                <a asp-controller="MainDashboard" asp-action="MultiLogin" class="btn-portal" aria-label="Open official portal login">
-                    <i class="bi bi-shield-lock-fill"></i>
-                    <span>Official Portal Login</span>
+    <header class="top">
+        <div class="wrap">
+            <div class="top-bar">
+                <a class="brand" href="#">
+                    <div class="brand-logo"><img src="~/images/newLogo.jpeg" alt="RGUHS Logo" width="46" height="46" /></div>
+                    <div>
+                        <small>Government of Karnataka</small>
+                        <b>Rajiv Gandhi University of Health Sciences</b>
+                    </div>
                 </a>
-                <div class="header-status">
-                    <div class="pulse-dot"></div>
-                    Admission &amp; Affiliation System — Live
-                </div>
+                <nav class="nav" aria-label="Quick navigation">
+                    <a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">RGUHS Website</a>
+                    <a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank" rel="noopener">Eligibility</a>
+                    <a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank" rel="noopener">Results</a>
+                    <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank" rel="noopener">Notifications</a>
+                    <a href="https://www.rguhsaca.karnataka.gov.in/GuideRegistrationApplication/Home/Contact" target="_blank" rel="noopener">Help Desk</a>
+                </nav>
+                <a asp-controller="MainDashboard" asp-action="MultiLogin" class="btn-login" aria-label="Open official portal login">
+                    <i class="bi bi-shield-lock-fill"></i><span>Official Portal Login</span>
+                </a>
             </div>
         </div>
     </header>
-    <div class="header-stripe"></div>
 
-    <!-- ════ TICKER ════ -->
-    <div class="ticker-bar">
-        <div class="ticker-label"><div class="blink-dot"></div>Live Updates</div>
-        <div class="ticker-track">
-            <div class="ticker-inner">
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="http://www.rguhs.ac.in/">Visit Official RGUHS Website</a></span>
-                <span class="t-item"><i class="bi bi-info-circle-fill"></i><a href="https://rguhsaca.karnataka.gov.in/admissionaffiliation/MainDashboard/MultiLogin">Medical College Details Submission Has Commenced for Existing Colleges</a></span>
-                <span class="t-item"><i class="bi bi-megaphone-fill"></i><a href="http://www.rguhs.ac.in/">Visit Official RGUHS Website</a></span>
-                <span class="t-item"><i class="bi bi-info-circle-fill"></i><a href="https://rguhsaca.karnataka.gov.in/admissionaffiliation/MainDashboard/MultiLogin">Medical College Details Submission Has Commenced for Existing Colleges</a></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- ════ HERO CAROUSEL ════ -->
-    <div id="rguhsCarousel" class="carousel slide rguhs-carousel" data-bs-ride="carousel" data-bs-interval="4500">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="2"></button>
-            <button type="button" data-bs-target="#rguhsCarousel" data-bs-slide-to="3"></button>
-        </div>
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm (1).jpeg" class="carousel-img" alt="University Campus" />
-                <div class="carousel-caption-custom">
-                    <div class="cc-tag"><i class="bi bi-building"></i> Campus</div>
-                    <div class="cc-title">Rajiv Gandhi University of Health Sciences</div>
-                    <div class="cc-sub">4th 'T' Block, Jayanagar, Bangalore – 560 041</div>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="~/images/whatsapp image 2026-04-23 at 1.20.41 pm.jpeg" class="carousel-img" alt="Admissions 2026" />
-                <div class="carousel-caption-custom">
-                    <div class="cc-tag"><i class="bi bi-mortarboard-fill"></i> Admissions</div>
-                    <div class="cc-title">Admissions Open — Academic Year 2026–27</div>
-                    <div class="cc-sub">MBBS · BDS · B.Sc Nursing · B.Pharm · AYUSH · PG &amp; Ph.D programmes</div>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="https://images.unsplash.com/photo-1587351021355-a479a299d2f9?w=1600&q=80" class="carousel-img" alt="Medical Education" />
-                <div class="carousel-caption-custom">
-                    <div class="cc-tag"><i class="bi bi-heart-pulse-fill"></i> Medical</div>
-                    <div class="cc-title">Excellence in Medical Education</div>
-                    <div class="cc-sub">Shaping the future of healthcare across Karnataka</div>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="~/images/whatsapp image 2026-04-23 at 1.20.42 pm.jpeg" class="carousel-img" alt="Pharmacy and Nursing" />
-                <div class="carousel-caption-custom">
-                    <div class="cc-tag"><i class="bi bi-capsule-pill"></i> Pharmacy &amp; Nursing</div>
-                    <div class="cc-title">Affiliated Colleges Across Karnataka</div>
-                    <div class="cc-sub">Pharmacy, Nursing, Physiotherapy, AYUSH &amp; Allied Health Sciences</div>
-                </div>
-            </div>
-        </div>
-        <button class="carousel-control-prev rguhs-ctrl" type="button" data-bs-target="#rguhsCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next rguhs-ctrl" type="button" data-bs-target="#rguhsCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
-
-    <!-- ════ STATS STRIP ════ -->
-    <div class="stats-strip">
-        <div class="stats-inner">
-            <div class="stat-item">
-                <div class="stat-icon"><i class="bi bi-building-fill"></i></div>
-                <div>
-                    <div class="stat-num">@Model.TotalColleges</div>
-                    <div class="stat-lbl">Affiliated Colleges</div>
-                </div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-icon"><i class="bi bi-diagram-3-fill"></i></div>
-                <div>
-                    <div class="stat-num">@Model.Faculties.Count</div>
-                    <div class="stat-lbl">Streams</div>
-                </div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-icon"><i class="bi bi-mortarboard-fill"></i></div>
-                <div>
-                    <div class="stat-num">2026-27</div>
-                    <div class="stat-lbl">Academic Year</div>
-                </div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                <div>
-                    <div class="stat-num">KA</div>
-                    <div class="stat-lbl">Karnataka</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ════ STREAM SHOWCASE — SLIDESHOW ════ -->
-    <div class="stream-showcase">
-        <div class="stream-showcase-inner">
-            <div class="sec-head">
-                <h3>Our Academic Streams</h3>
-                <div class="sec-line"></div>
-                <span class="sec-chip"><i class="bi bi-collection"></i> 12 Disciplines</span>
-            </div>
-
-            <div id="streamCarousel" class="carousel slide stream-carousel" data-bs-ride="carousel" data-bs-interval="5000">
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#streamCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-                    <button type="button" data-bs-target="#streamCarousel" data-bs-slide-to="1"></button>
-                </div>
-
-                <div class="carousel-inner">
-
-                    <div class="carousel-item active">
-                        <div class="stream-grid">
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=500&q=80" alt="Medical" onerror="this.style.display='none'" />
-                                <span class="stream-tag">UG · PG</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">🩺</div>
-                                    <div class="stream-name">Medical</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=500&q=80" alt="Dental" onerror="this.style.display='none'" />
-                                <span class="stream-tag">UG · PG</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">🦷</div>
-                                    <div class="stream-name">Dental</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=500&q=80" alt="Nursing" onerror="this.style.display='none'" />
-                                <span class="stream-tag">UG · PG</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">💉</div>
-                                    <div class="stream-name">Nursing</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=500&q=80" alt="Ayurveda" onerror="this.style.display='none'" />
-                                <span class="stream-tag">AYUSH</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">🌿</div>
-                                    <div class="stream-name">Ayurveda</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&q=80" alt="Homeopathy" onerror="this.style.display='none'" />
-                                <span class="stream-tag">AYUSH</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">💊</div>
-                                    <div class="stream-name">Homeopathy</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=500&q=80" alt="Naturopathy" onerror="this.style.display='none'" />
-                                <span class="stream-tag">AYUSH</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">🍃</div>
-                                    <div class="stream-name">Naturopathy</div>
-                                </div>
-                            </div>
-                        </div>
+    <!-- ════ ANNOUNCEMENTS ════ -->
+    <div class="ann">
+        <div class="wrap">
+            <div class="ann-box" role="region" aria-label="Live updates">
+                <div class="ann-l"><span class="dot"></span><span>Live Updates</span></div>
+                <div class="ann-track">
+                    <div class="ann-in">
+                        <a href="http://www.rguhs.ac.in/"><i class="bi bi-megaphone-fill"></i>Visit the official RGUHS website</a>
+                        <a href="https://rguhsaca.karnataka.gov.in/admissionaffiliation/MainDashboard/MultiLogin"><i class="bi bi-info-circle-fill"></i>Medical college details submission has commenced for existing colleges</a>
+                        <a href="http://www.rguhs.ac.in/"><i class="bi bi-megaphone-fill"></i>Visit the official RGUHS website</a>
+                        <a href="https://rguhsaca.karnataka.gov.in/admissionaffiliation/MainDashboard/MultiLogin"><i class="bi bi-info-circle-fill"></i>Medical college details submission has commenced for existing colleges</a>
                     </div>
-
-                    <div class="carousel-item">
-                        <div class="stream-grid">
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=500&q=80" alt="Unani" onerror="this.style.display='none'" />
-                                <span class="stream-tag">AYUSH</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">🌾</div>
-                                    <div class="stream-name">Unani</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=500&q=80" alt="Pharmacy" onerror="this.style.display='none'" />
-                                <span class="stream-tag">UG · PG</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">💊</div>
-                                    <div class="stream-name">Pharmacy</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500&q=80" alt="Allied Health Sciences" onerror="this.style.display='none'" />
-                                <span class="stream-tag">UG · PG</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">🔬</div>
-                                    <div class="stream-name">Allied</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&q=80" alt="Physiotherapy" onerror="this.style.display='none'" />
-                                <span class="stream-tag">UG · PG</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">🏋️</div>
-                                    <div class="stream-name">Physiotherapy</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&q=80" alt="Sowa-Rigpa" onerror="this.style.display='none'" />
-                                <span class="stream-tag">AYUSH</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">☸️</div>
-                                    <div class="stream-name">Sowa-Rigpa</div>
-                                </div>
-                            </div>
-                            <div class="stream-card">
-                                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=500&q=80" alt="Fellowship" onerror="this.style.display='none'" />
-                                <span class="stream-tag">PG</span>
-                                <div class="stream-overlay">
-                                    <div class="stream-icon-badge">🎓</div>
-                                    <div class="stream-name">Fellowship</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
-
-                <button class="carousel-control-prev" type="button" data-bs-target="#streamCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#streamCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- ════ BODY LAYOUT ════ -->
-    <div class="body-layout" id="bodyLayout">
+    <!-- ════ HERO ════ -->
+    <section class="hero">
+        <div class="wrap">
+            @{
+                var topFac = Model.Faculties.OrderByDescending(f => f.CollegeCount).Take(5).ToList();
+                int maxCnt = topFac.Any() ? Math.Max(1, topFac.Max(f => Convert.ToInt32(f.CollegeCount))) : 1;
+            }
+            <div class="hero-card">
+                <div class="aur" aria-hidden="true"><span></span><span></span><span></span></div>
 
-        <!-- MAIN PANE -->
-        <div class="main-pane">
+                <div class="hero-l">
+                    <div class="hero-top">
+                        <span class="badge"><i class="bi bi-patch-check-fill"></i> Official Affiliation Portal</span>
+                        <span class="badge alt"><i class="bi bi-calendar-check"></i> Academic year 2026–27</span>
+                    </div>
+                    <h1>Find every <span>affiliated college</span> across Karnataka</h1>
+                    <p>Browse medical, dental, nursing, pharmacy, AYUSH and allied health institutions affiliated to RGUHS by stream, town or name.</p>
 
+                    <form method="get" action="@Url.Action("Rguhsdashboard")#colleges" class="hs" role="search">
+                        <label class="hs-field">
+                            <i class="bi bi-search"></i>
+                            <input type="text" name="search" value="@Model.SearchTerm" placeholder="Search college name or town" autocomplete="off" aria-label="Search colleges" />
+                        </label>
+                        <label class="hs-sel">
+                            <i class="bi bi-funnel"></i>
+                            <select name="faculty" aria-label="Stream">
+                                <option value="ALL" selected="@allActive">All streams</option>
+                                @foreach (var fac in Model.Faculties)
+                                {
+                                    <option value="@fac.FacultyId" selected="@(Model.ActiveFaculty == fac.FacultyId)">@fac.FacultyName</option>
+                                }
+                            </select>
+                        </label>
+                        <button type="submit"><i class="bi bi-search"></i> Search</button>
+                    </form>
+
+                    @if (topFac.Any())
+                    {
+                        <div class="pop">
+                            <span>Popular:</span>
+                            @foreach (var fac in topFac.Take(4))
+                            {
+                                <a href="@(Url.Action("Rguhsdashboard", new { faculty = fac.FacultyId }) + "#colleges")">@fac.Icon @fac.FacultyName</a>
+                            }
+                        </div>
+                    }
+
+                    <div class="trust">
+                        <span><i class="bi bi-shield-check"></i> Recognised by UGC, NMC &amp; ACU</span>
+                        <span><i class="bi bi-award"></i> NAAC accredited</span>
+                        <span><i class="bi bi-geo-alt-fill"></i> Jayanagar, Bangalore · Est. 1996</span>
+                    </div>
+                </div>
+
+                <div class="glance" role="region" aria-label="Portal statistics">
+                    <div class="gl-head"><span>Colleges at a glance</span><em>Live data</em></div>
+                    <div class="gl-num">
+                        <b data-count="@Model.TotalColleges">@Model.TotalColleges</b>
+                        <span>affiliated colleges<br>across Karnataka</span>
+                    </div>
+                    <div class="gl-mini">
+                        <div><i class="bi bi-diagram-3-fill"></i><span><b>@Model.Faculties.Count</b><small>Streams</small></span></div>
+                        <div><i class="bi bi-mortarboard-fill"></i><span><b>2026–27</b><small>Academic year</small></span></div>
+                    </div>
+                    @if (topFac.Any())
+                    {
+                        <div class="gl-list">
+                            <h4>Largest streams</h4>
+                            @foreach (var fac in topFac)
+                            {
+                                int pct = (int)Math.Round(100.0 * Convert.ToInt32(fac.CollegeCount) / maxCnt);
+                                <a class="gl-row" href="@(Url.Action("Rguhsdashboard", new { faculty = fac.FacultyId }) + "#colleges")">
+                                    <span class="ic">@fac.Icon</span>
+                                    <span class="nm">@fac.FacultyName</span>
+                                    <span class="ct">@fac.CollegeCount</span>
+                                    <span class="bar"><i style="--w:@(pct)%"></i></span>
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <div class="wrap">
+
+            <!-- ════ STREAMS ════ -->
             <div class="sec-head">
-                <h3>Streams &amp; Affiliated Colleges</h3>
+                <h2>Browse by Stream</h2>
                 <div class="sec-line"></div>
-                <span class="sec-chip"><i class="bi bi-calendar3"></i> 2026–27</span>
+                <span class="chip">2026–27</span>
             </div>
 
-            <!-- Faculty Chips -->
-            <div class="faculty-scroll">
-                @{
-                    bool allActive = Model.ActiveFaculty == "ALL";
-                    string allUrl = Url.Action("Rguhsdashboard", new { faculty = "ALL", search = Model.SearchTerm });
-                }
-                <a class="fac-chip @(allActive ? "active" : "")" href="@allUrl">
-                    <i class="bi bi-bank2"></i> All Streams <span class="chip-cnt">@Model.TotalColleges</span>
+            <nav class="streams" aria-label="Streams">
+                <a class="stream @(allActive ? "active" : "")" href="@allUrl" @(allActive ? "aria-current=page" : "")>
+                    <span class="ic"><i class="bi bi-bank2"></i></span>
+                    <span class="nm">All Streams</span>
+                    <span class="ct">@Model.TotalColleges</span>
                 </a>
                 @foreach (var fac in Model.Faculties)
                 {
                     bool isActive = Model.ActiveFaculty == fac.FacultyId;
-                    string facUrl = Url.Action("Rguhsdashboard", new { faculty = fac.FacultyId, search = Model.SearchTerm });
-                    <a class="fac-chip @(isActive ? "active" : "")" href="@facUrl">
-                        @fac.Icon @fac.FacultyName <span class="chip-cnt">@fac.CollegeCount</span>
+                    string facUrl = Url.Action("Rguhsdashboard", new { faculty = fac.FacultyId, search = Model.SearchTerm }) + "#colleges";
+                    <a class="stream @(isActive ? "active" : "")" href="@facUrl" @(isActive ? "aria-current=page" : "")>
+                        <span class="ic">@fac.Icon</span>
+                        <span class="nm">@fac.FacultyName</span>
+                        <span class="ct">@fac.CollegeCount</span>
                     </a>
                 }
-            </div>
+            </nav>
 
-            <!-- Search / Filter Bar -->
-            <form method="get" action="@Url.Action("Rguhsdashboard")" class="filter-bar">
-                <input type="hidden" name="faculty" value="@Model.ActiveFaculty" />
-                <div class="search-field">
-                    <i class="bi bi-search si"></i>
-                    <input type="text" name="search" id="searchInput" value="@Model.SearchTerm"
-                           placeholder="Search college name or town…" autocomplete="off" />
-                </div>
-                <button type="submit" class="btn-srch"><i class="bi bi-search"></i> Search</button>
-                @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
-                {
-                    <a class="btn-clr" href="@Url.Action("Rguhsdashboard", new { faculty = Model.ActiveFaculty })">
-                        <i class="bi bi-x-circle"></i> Clear
-                    </a>
-                }
-                <div class="res-badge">
-                    <strong>@Model.Colleges.Count</strong> college@(Model.Colleges.Count != 1 ? "s" : "") found
-                </div>
-            </form>
+            <div class="content">
 
-            <!-- College Cards -->
-            <div class="college-grid">
-                @if (Model.Colleges.Count == 0)
-                {
-                    <div class="empty-state">
-                        <div class="em-ico"><i class="bi bi-search"></i></div>
-                        <h4>No colleges found</h4>
-                        <p>No colleges match your current filter or search term.</p>
-                        @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.ActiveFaculty != "ALL")
+                <!-- ════ COLLEGES ════ -->
+                <div id="colleges" style="scroll-margin-top:96px">
+                    <div class="sec-head">
+                        <h2>Affiliated Colleges</h2>
+                        <div class="sec-line"></div>
+                    </div>
+
+                    <form method="get" action="@Url.Action("Rguhsdashboard")#colleges" class="filter">
+                        <input type="hidden" name="faculty" value="@Model.ActiveFaculty" />
+                        <div class="search-f">
+                            <i class="bi bi-search"></i>
+                            <input type="text" name="search" id="searchInput" value="@Model.SearchTerm" placeholder="Filter by college name or town" autocomplete="off" aria-label="Filter colleges" />
+                        </div>
+                        <button type="submit" class="btn btn-p"><i class="bi bi-search"></i> Search</button>
+                        @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
                         {
-                            <a href="@Url.Action("Rguhsdashboard")"
-                               style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:var(--navy-700);font-weight:600;text-decoration:none;font-size:13px;">
-                                <i class="bi bi-arrow-left"></i> Show all colleges
-                            </a>
+                            <a class="btn btn-g" href="@Url.Action("Rguhsdashboard", new { faculty = Model.ActiveFaculty })#colleges"><i class="bi bi-x-circle"></i> Clear</a>
+                        }
+                        <div class="count" aria-live="polite"><b id="countNum">@Model.Colleges.Count</b> <span id="countTxt">college@(Model.Colleges.Count != 1 ? "s" : "") found</span></div>
+                    </form>
+
+                    <div class="grid" id="collegeGrid">
+                        @if (Model.Colleges.Count == 0)
+                        {
+                            <div class="empty">
+                                <i class="bi bi-search"></i>
+                                <h4>No colleges found</h4>
+                                <p>No colleges match your current filter or search term.</p>
+                                @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.ActiveFaculty != "ALL")
+                                {
+                                    <a class="btn btn-g" href="@Url.Action("Rguhsdashboard")"><i class="bi bi-arrow-left"></i> Show all colleges</a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var c in Model.Colleges)
+                            {
+                                <button type="button" class="card"
+                                        data-code="@c.CollegeCode"
+                                        data-name="@c.CollegeName"
+                                        data-town="@c.CollegeTown"
+                                        data-fac="@(c.FacultyIcon + " " + c.FacultyName)"
+                                        data-s="@((c.CollegeName + " " + c.CollegeTown).ToLowerInvariant())"
+                                        title="Click to view courses">
+                                    <span class="c-go"><i class="bi bi-arrow-up-right"></i></span>
+                                    <div class="c-top">
+                                        <div class="c-av">@(string.IsNullOrWhiteSpace(c.CollegeName) ? "C" : c.CollegeName.Trim().Substring(0, 1).ToUpper())</div>
+                                        <div class="c-name">@c.CollegeName</div>
+                                    </div>
+                                    <div class="c-meta">
+                                        <span class="c-town"><i class="bi bi-geo-alt-fill"></i>@c.CollegeTown</span>
+                                        <span class="c-fac">@c.FacultyIcon @c.FacultyName</span>
+                                    </div>
+                                </button>
+                            }
                         }
                     </div>
-                }
-                else
-                {
-                    @foreach (var c in Model.Colleges)
-                    {
-                        var safeName = c.CollegeName.Replace("'", "\\'").Replace("\"", "&quot;");
-                        var safeFac = (c.FacultyIcon + " " + c.FacultyName).Replace("'", "\\'");
-                        var safeTown = c.CollegeTown.Replace("'", "\\'");
+                    <div class="empty live-empty" id="liveEmpty">
+                        <i class="bi bi-search"></i>
+                        <h4>No colleges match</h4>
+                        <p>Try a different name or town.</p>
+                    </div>
+                </div>
 
-                        <div class="c-card"
-                             onclick="openCollegeModal('@c.CollegeCode','@safeName','@safeTown','@safeFac')"
-                             title="Click to view courses">
-                            <div class="c-name">@c.CollegeName</div>
-                            <div class="c-meta">
-                                <span class="c-town">
-                                    <i class="bi bi-geo-alt-fill"></i>@c.CollegeTown
-                                </span>
-                                <span class="c-fac">@c.FacultyIcon @c.FacultyName</span>
+                <!-- ════ SIDEBAR ════ -->
+                <aside>
+                    <div class="widget">
+                        <div class="w-head"><i class="bi bi-bell-fill"></i><h3>Updates &amp; Notifications</h3></div>
+                        <ul class="upd">
+                            <li>
+                                <span class="tag tag-new">New</span>
+                                <a href="https://sscptumkur.org/wp-content/uploads/2025/12/Calender-of-Events-RGUHS-2025-26.pdf" target="_blank" rel="noopener">Calendar of Events for Academic Year 2025–26 Released</a>
+                                <small><i class="bi bi-calendar3"></i> March 2025</small>
+                            </li>
+                            <li>
+                                <span class="tag tag-imp">Important</span>
+                                <a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank" rel="noopener">NEET UG Counselling 2025 – Online Admission Statement Submission</a>
+                                <small><i class="bi bi-calendar3"></i> Registration Open</small>
+                            </li>
+                            <li>
+                                <span class="tag tag-imp">Circular</span>
+                                <a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank" rel="noopener">Eligibility Certificate Mandatory for Foreign / NRI Candidates 2025–26</a>
+                                <small><i class="bi bi-calendar3"></i> Dec 2025</small>
+                            </li>
+                            <li>
+                                <span class="tag tag-info">Info</span>
+                                <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank" rel="noopener">RGUHS AYUSH UG Cutoff 2025 Released – Round-wise</a>
+                                <small><i class="bi bi-calendar3"></i> 25 Nov 2025</small>
+                            </li>
+                            <li>
+                                <span class="tag tag-new">New</span>
+                                <a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank" rel="noopener">B.Sc / M.Sc / Ph.D Admissions 2026 – Applications Open</a>
+                                <small><i class="bi bi-calendar3"></i> 2026 Session</small>
+                            </li>
+                            <li>
+                                <span class="tag tag-imp">Directive</span>
+                                <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank" rel="noopener">Colleges must return original documents &amp; refund fees for withdrawing students</a>
+                                <small><i class="bi bi-calendar3"></i> University Order</small>
+                            </li>
+                            <li>
+                                <span class="tag tag-info">Results</span>
+                                <a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank" rel="noopener">Examination Results Portal – Check UG / PG Results Online</a>
+                                <small><i class="bi bi-calendar3"></i> Updated Regularly</small>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="widget">
+                        <div class="w-head"><i class="bi bi-grid-3x3-gap-fill"></i><h3>Quick Links</h3></div>
+                        <div class="q-grid">
+                            <a class="q" href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank" rel="noopener"><i class="bi bi-clipboard-check"></i>Admissions</a>
+                            <a class="q" href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank" rel="noopener"><i class="bi bi-mortarboard"></i>Eligibility</a>
+                            <a class="q" href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank" rel="noopener"><i class="bi bi-bar-chart"></i>Results</a>
+                            <a class="q" href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank" rel="noopener"><i class="bi bi-bell"></i>Circulars</a>
+                            <a class="q" href="https://www.rguhs.ac.in" target="_blank" rel="noopener"><i class="bi bi-bank2"></i>RGUHS Site</a>
+                            <a class="q" href="mailto:registrar@rguhs.ac.in"><i class="bi bi-envelope-at"></i>Email Reg.</a>
+                            <a class="q" href="https://www.rguhsaca.karnataka.gov.in/GuideRegistrationApplication/Home/Contact" target="_blank" rel="noopener"><i class="bi bi-life-preserver"></i>Help Desk</a>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <div class="w-head"><i class="bi bi-telephone-fill"></i><h3>Helpline &amp; Contact</h3></div>
+                        <div class="hl">
+                            <div class="hl-row">
+                                <div class="hl-ic"><i class="bi bi-telephone-fill"></i></div>
+                                <div><div class="hl-lbl">University Helpline</div><div class="hl-val"><a href="tel:+918026961943">080-2696 1943</a></div></div>
                             </div>
-                            <div class="c-arrow">
-                                View Courses <i class="bi bi-arrow-up-right"></i>
+                            <div class="hl-row">
+                                <div class="hl-ic"><i class="bi bi-envelope-fill"></i></div>
+                                <div><div class="hl-lbl">Registrar Email</div><div class="hl-val"><a href="mailto:registrar@rguhs.ac.in">registrar@rguhs.ac.in</a></div></div>
+                            </div>
+                            <div class="hl-row">
+                                <div class="hl-ic"><i class="bi bi-geo-alt-fill"></i></div>
+                                <div><div class="hl-lbl">Address</div><div class="hl-val" style="font-weight:400;font-size:12px">4th 'T' Block, Jayanagar,<br>Bangalore – 560 041</div></div>
+                            </div>
+                            <div class="hl-row">
+                                <div class="hl-ic"><i class="bi bi-globe2"></i></div>
+                                <div><div class="hl-lbl">Official Website</div><div class="hl-val"><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">www.rguhs.ac.in</a></div></div>
                             </div>
                         </div>
-                    }
-                }
-            </div>
-
-        </div><!-- /main-pane -->
-        <!-- ════ SIDEBAR ════ -->
-        <aside class="side-pane">
-
-            <div class="widget">
-                <div class="w-head"><i class="bi bi-bell-fill"></i><h4>Updates &amp; Notifications</h4></div>
-                <ul class="upd-list">
-                    <li class="upd-item">
-                        <span class="u-tag tag-new">New</span>
-                        <a href="https://sscptumkur.org/wp-content/uploads/2025/12/Calender-of-Events-RGUHS-2025-26.pdf" target="_blank">Calendar of Events for Academic Year 2025–26 Released</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> March 2025</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-imp">Important</span>
-                        <a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">NEET UG Counselling 2025 – Online Admission Statement Submission</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> Registration Open</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-imp">Circular</span>
-                        <a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank">Eligibility Certificate Mandatory for Foreign / NRI Candidates 2025–26</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> Dec 2025</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-info">Info</span>
-                        <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank">RGUHS AYUSH UG Cutoff 2025 Released – Round-wise</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> 25 Nov 2025</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-new">New</span>
-                        <a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">B.Sc / M.Sc / Ph.D Admissions 2026 – Applications Open</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> 2026 Session</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-imp">Directive</span>
-                        <a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank">Colleges must return original documents &amp; refund fees for withdrawing students</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> University Order</div>
-                    </li>
-                    <li class="upd-item">
-                        <span class="u-tag tag-info">Results</span>
-                        <a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank">Examination Results Portal – Check UG / PG Results Online</a>
-                        <div class="upd-date"><i class="bi bi-calendar3"></i> Updated Regularly</div>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="widget">
-                <div class="w-head"><i class="bi bi-grid-3x3-gap-fill"></i><h4>Quick Links</h4></div>
-                <div class="qlink-grid">
-                    <a class="qlink" href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank"><i class="bi bi-clipboard-check"></i>Admissions</a>
-                    <a class="qlink" href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank"><i class="bi bi-mortarboard"></i>Eligibility</a>
-                    <a class="qlink" href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank"><i class="bi bi-bar-chart"></i>Results</a>
-                    <a class="qlink" href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank"><i class="bi bi-bell"></i>Circulars</a>
-                    <a class="qlink" href="https://www.rguhs.ac.in" target="_blank"><i class="bi bi-bank2"></i>RGUHS Site</a>
-                    <a class="qlink" href="mailto:registrar@rguhs.ac.in"><i class="bi bi-envelope-at"></i>Email Reg.</a>
-                    <a class="qlink" href="https://www.rguhsaca.karnataka.gov.in/GuideRegistrationApplication/Home/Contact" target="_blank"><i class="bi bi-life-preserver"></i>Help Desk</a>
-                </div>
-            </div>
-
-            <div class="widget">
-                <div class="w-head"><i class="bi bi-telephone-fill"></i><h4>Helpline &amp; Contact</h4></div>
-                <div class="hl-body">
-                    <div class="hl-row">
-                        <div class="hl-icon"><i class="bi bi-telephone-fill"></i></div>
-                        <div><div class="hl-lbl">University Helpline</div><div class="hl-val"><a href="tel:+918026961943">080-2696 1943</a></div></div>
                     </div>
-                    <div class="hl-row">
-                        <div class="hl-icon"><i class="bi bi-envelope-fill"></i></div>
-                        <div><div class="hl-lbl">Registrar Email</div><div class="hl-val"><a href="mailto:registrar@rguhs.ac.in">registrar@rguhs.ac.in</a></div></div>
-                    </div>
-                    <div class="hl-row">
-                        <div class="hl-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                        <div><div class="hl-lbl">Address</div><div class="hl-val" style="font-weight:400;font-size:11.5px;">4th 'T' Block, Jayanagar,<br>Bangalore – 560 041</div></div>
-                    </div>
-                    <div class="hl-row">
-                        <div class="hl-icon"><i class="bi bi-globe2"></i></div>
-                        <div><div class="hl-lbl">Official Website</div><div class="hl-val"><a href="https://www.rguhs.ac.in" target="_blank">www.rguhs.ac.in</a></div></div>
-                    </div>
-                </div>
+                </aside>
             </div>
+        </div>
+    </main>
 
-        </aside>
-    </div><!-- /body-layout -->
     <!-- ════ FOOTER ════ -->
-    <footer class="site-footer">
-        <div class="footer-grid">
+    <footer>
+        <img class="f-wm" src="~/images/newLogo.jpeg" alt="" aria-hidden="true" />
+        <div class="wrap f-grid">
             <div>
-                <div class="foot-brand">
-                    <div class="foot-monogram">RG</div>
-                    <div class="foot-name">Rajiv Gandhi University of Health Sciences<span>Karnataka, India — Estd. 1996</span></div>
+                <div class="f-brand">
+                    <img class="f-logo" src="~/images/newLogo.jpeg" alt="RGUHS" loading="lazy" width="50" height="50" />
+                    <div class="f-name">Rajiv Gandhi University of Health Sciences<span>Karnataka, India — Estd. 1996</span></div>
                 </div>
-                <p class="foot-desc">RGUHS is the apex body for health sciences education in Karnataka, overseeing affiliated medical, dental, nursing, pharmacy and allied health colleges. Recognised by UGC, NMC &amp; ACU. NAAC Accredited.</p>
+                <p class="f-desc">RGUHS is the apex body for health sciences education in Karnataka, overseeing affiliated medical, dental, nursing, pharmacy and allied health colleges. Recognised by UGC, NMC &amp; ACU. NAAC Accredited.</p>
             </div>
-            <div class="foot-col">
+            <div class="f-col">
                 <h5>Admissions</h5>
                 <ul>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">MBBS / BDS</a></li>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">B.Sc Nursing</a></li>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">B.Pharm / D.Pharm</a></li>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">MD / MS / MDS</a></li>
-                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank">Ph.D Programmes</a></li>
-                    <li><a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank">Eligibility Certificate</a></li>
+                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank" rel="noopener">MBBS / BDS</a></li>
+                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank" rel="noopener">B.Sc Nursing</a></li>
+                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank" rel="noopener">B.Pharm / D.Pharm</a></li>
+                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank" rel="noopener">MD / MS / MDS</a></li>
+                    <li><a href="https://www.rguhs.ac.in/admission_rguhs.html" target="_blank" rel="noopener">Ph.D Programmes</a></li>
+                    <li><a href="https://rguhs.karnataka.gov.in/rguhsec/" target="_blank" rel="noopener">Eligibility Certificate</a></li>
                 </ul>
             </div>
-            <div class="foot-col">
+            <div class="f-col">
                 <h5>Services</h5>
                 <ul>
-                    <li><a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank">Examination Results</a></li>
-                    <li><a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank">Notifications &amp; Circulars</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Affiliation Process</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Anti-Ragging Cell</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Grievance Portal</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">IT Help Desk</a></li>
+                    <li><a href="https://rguhs.karnataka.gov.in/rguhs_online/" target="_blank" rel="noopener">Examination Results</a></li>
+                    <li><a href="https://www.rguhs.ac.in/notification_circulars_rguhs.html" target="_blank" rel="noopener">Notifications &amp; Circulars</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">Affiliation Process</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">Anti-Ragging Cell</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">Grievance Portal</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">IT Help Desk</a></li>
                 </ul>
             </div>
-            <div class="foot-col">
+            <div class="f-col">
                 <h5>Important</h5>
                 <ul>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">About RGUHS</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Vice Chancellor</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Registrar's Office</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">RTI Information</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Tender Notices</a></li>
-                    <li><a href="https://www.rguhs.ac.in" target="_blank">Annual Report</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">About RGUHS</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">Vice Chancellor</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">Registrar's Office</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">RTI Information</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">Tender Notices</a></li>
+                    <li><a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">Annual Report</a></li>
                 </ul>
             </div>
         </div>
-        <div class="footer-bar">
-            <p>© 2025 Rajiv Gandhi University of Health Sciences, Karnataka. All rights reserved. | <a href="https://www.rguhs.ac.in" target="_blank">www.rguhs.ac.in</a></p>
-            <p>Designed &amp; Maintained by RGUHS IT Cell &nbsp;·&nbsp; <a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Accessibility</a></p>
+        <div class="f-bar">
+            <div class="wrap">
+                <p>© @DateTime.Now.Year Rajiv Gandhi University of Health Sciences, Karnataka. All rights reserved. | <a href="https://www.rguhs.ac.in" target="_blank" rel="noopener">www.rguhs.ac.in</a></p>
+                <p>Designed &amp; Maintained by RGUHS IT Cell &nbsp;·&nbsp; <a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Accessibility</a></p>
+            </div>
         </div>
     </footer>
 
-    <!-- ════ COLLEGE COURSES MODAL ════ -->
-    <div class="modal fade" id="collegeModal" tabindex="-1" aria-labelledby="collegeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);">
-
-                <div class="modal-header modal-course-header">
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:9px;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:6px;">
-                            <i class="bi bi-building"></i> Affiliated College &nbsp;·&nbsp; RGUHS Karnataka
-                        </div>
-                        <h5 class="modal-title" id="collegeModalLabel"
-                            style="font-family:'Source Serif 4',Georgia,serif;color:#fff;font-size:21px;font-weight:600;line-height:1.3;margin:0;letter-spacing:.1px;">
-                            —
-                        </h5>
-                        <div id="modalMeta" style="font-size:11.5px;color:rgba(255,255,255,.55);margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"></div>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="modal" aria-label="Close" style="opacity:.55;flex-shrink:0;"></button>
-                </div>
-
-                <div class="modal-summary-strip" id="modalSummary"></div>
-
-                <div class="modal-body" style="padding:0;">
-                    <div style="padding:24px 28px 28px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px;">
-                            <div style="font-family:'Source Serif 4',Georgia,serif;font-size:17px;font-weight:600;color:var(--navy-900);display:flex;align-items:center;gap:9px;letter-spacing:.1px;">
-                                <i class="bi bi-journal-bookmark-fill" style="color:var(--navy-700);font-size:15px;"></i>
-                                Courses &amp; Intake Details
-                            </div>
-                            <div id="modalCourseCount"
-                                 style="background:var(--navy-900);color:var(--gold-300);font-size:9px;font-weight:700;padding:4px 14px;border-radius:4px;letter-spacing:1.2px;"></div>
-                        </div>
-
-                        <div id="modalSpinner" class="text-center py-5">
-                            <div class="spinner-border" role="status"
-                                 style="width:2.2rem;height:2.2rem;border-width:.2em;color:var(--navy-700);">
-                                <span class="visually-hidden">Loading…</span>
-                            </div>
-                            <div style="font-size:12px;color:var(--ink-400);margin-top:14px;letter-spacing:.3px;">Fetching course data…</div>
-                        </div>
-
-                        <div id="modalError" style="display:none;text-align:center;padding:44px 0;">
-                            <div style="font-size:36px;color:var(--red);opacity:.5;margin-bottom:14px;"><i class="bi bi-exclamation-triangle"></i></div>
-                            <div style="font-size:14px;font-weight:600;color:var(--navy-900);margin-bottom:5px;">Could not load data</div>
-                            <div style="font-size:12px;color:var(--ink-400);">Please check your connection and try again.</div>
-                        </div>
-
-                        <div id="modalEmpty" style="display:none;text-align:center;padding:44px 0;">
-                            <div style="font-size:36px;color:var(--ink-300);margin-bottom:14px;"><i class="bi bi-inbox"></i></div>
-                            <div style="font-size:14px;font-weight:600;color:var(--navy-900);margin-bottom:5px;">No courses found</div>
-                            <div style="font-size:12px;color:var(--ink-400);">No course records are available for this college.</div>
-                        </div>
-
-                        <div id="modalTableWrap" style="display:none;overflow-x:auto;border-radius:10px;border:1px solid var(--line);box-shadow:var(--shadow-sm);">
-                            <table class="course-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:40px;">Sl.</th>
-                                        <th class="col-course-code">Code</th>
-                                        <th>Course Name</th>
-                                        <th style="width:120px;text-align:center;">Intake</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="modalTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer" style="border-top:1px solid var(--line);padding:13px 28px;background:var(--paper-alt);justify-content:space-between;flex-wrap:wrap;gap:8px;">
-                    <div style="font-size:10.5px;color:var(--ink-400);display:flex;align-items:center;gap:5px;">
-                        <i class="bi bi-shield-check" style="color:var(--navy-700);"></i>
-                        Data sourced from RGUHS Affiliation Records
-                    </div>
-                    <button type="button" class="btn-clr" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle"></i> Close
-                    </button>
-                </div>
-            </div>
+    <!-- ════ COLLEGE COURSES DRAWER ════ -->
+    <dialog id="collegeDlg" aria-labelledby="dlgTitle">
+        <div class="d-head">
+            <img src="~/images/newLogo.jpeg" alt="" aria-hidden="true" />
+            <div class="d-eyebrow"><i class="bi bi-building"></i> Affiliated College · RGUHS Karnataka</div>
+            <h3 class="d-title" id="dlgTitle">—</h3>
+            <div class="d-meta" id="dlgMeta"></div>
+            <button type="button" class="d-close" id="dlgClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
         </div>
-    </div>
+        <div class="d-body">
+            <div class="d-sub">
+                <h4><i class="bi bi-journal-bookmark-fill"></i> Courses Offered</h4>
+                <span class="d-count" id="dlgCount" hidden></span>
+            </div>
+            <div class="d-state" id="dlgSpin"><div class="spin"></div>Fetching courses…</div>
+            <div class="d-state" id="dlgErr" hidden><i class="bi bi-exclamation-triangle"></i>Could not load data. Close this panel and try again.</div>
+            <div class="d-state" id="dlgEmpty" hidden><i class="bi bi-inbox"></i>No course records available for this college.</div>
+            <ol class="courses" id="dlgList" hidden></ol>
+        </div>
+        <div class="d-foot"><i class="bi bi-shield-check"></i> Data sourced from RGUHS Affiliation Records</div>
+    </dialog>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script>
-        /* ── Live clock ── */
-        function tick() {
-        var el = document.getElementById('liveClock');
-        if (!el) return;
-        var now = new Date();
-        el.textContent =
-        now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + '  ' +
-        now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        }
-        tick(); setInterval(tick, 1000);
+            (function () {
+                var grid = document.getElementById('collegeGrid');
+                var dlg = document.getElementById('collegeDlg');
+                var coursesUrl = '@Url.Action("CollegeCourses", "MainDashboard")';
+                var $ = function (id) { return document.getElementById(id); };
 
-        /* ── Body layout height (desktop) ── */
-        function fitLayout() {
-        var bl = document.getElementById('bodyLayout');
-        if (!bl) return;
-        if (window.innerWidth < 1200) { bl.style.height = 'auto'; return; }
-        var offsetTop = bl.getBoundingClientRect().top + window.scrollY;
-        var footerH   = document.querySelector('.site-footer').offsetHeight;
-        var totalH    = document.documentElement.scrollHeight;
-        bl.style.height = (totalH - offsetTop - footerH) + 'px';
-        }
-        fitLayout();
-        window.addEventListener('resize', fitLayout);
 
-        /* ── College modal ── */
-        var _modal = new bootstrap.Modal(document.getElementById('collegeModal'));
-        var _collegeCoursesUrl = '@Url.Action("CollegeCourses", "MainDashboard")';
+                /* ── Count-up for hero total ── */
+                var cn = document.querySelector('[data-count]');
+                if (cn && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    var target = parseInt(cn.getAttribute('data-count'), 10) || 0, t0 = null;
+                    if (target > 0) {
+                        cn.textContent = '0';
+                        requestAnimationFrame(function step(t) {
+                            if (!t0) t0 = t;
+                            var p = Math.min((t - t0) / 1100, 1);
+                            cn.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+                            if (p < 1) requestAnimationFrame(step);
+                        });
+                    }
+                }
 
-        function openCollegeModal(code, name, town, faculty) {
-        document.getElementById('collegeModalLabel').textContent = name;
-        document.getElementById('modalMeta').innerHTML =
-        '<span style="display:inline-flex;align-items:center;gap:4px;"><i class="bi bi-geo-alt-fill" style="color:#9fbedd;font-size:10px;"></i>' + town + '</span>' +
-        '<span style="opacity:.35;">·</span>' +
-        '<span style="display:inline-flex;align-items:center;gap:4px;"><i class="bi bi-mortarboard-fill" style="color:#9fbedd;font-size:10px;"></i>' + faculty + '</span>';
+                /* ── Instant client-side filter (on top of server search) ── */
+                var input = $('searchInput');
+                var cards = grid ? Array.prototype.slice.call(grid.querySelectorAll('.card')) : [];
+                if (input && cards.length) {
+                    var timer;
+                    input.addEventListener('input', function () {
+                        clearTimeout(timer);
+                        timer = setTimeout(function () {
+                            var q = input.value.trim().toLowerCase(), shown = 0;
+                            cards.forEach(function (c) {
+                                var hit = !q || c.getAttribute('data-s').indexOf(q) !== -1;
+                                c.hidden = !hit;
+                                if (hit) shown++;
+                            });
+                            $('countNum').textContent = shown;
+                            $('countTxt').textContent = 'college' + (shown !== 1 ? 's' : '') + ' found';
+                            $('liveEmpty').style.display = shown === 0 ? 'block' : 'none';
+                        }, 120);
+                    });
+                }
 
-        document.getElementById('modalSummary').innerHTML       = '';
-        document.getElementById('modalSpinner').style.display   = 'block';
-        document.getElementById('modalError').style.display     = 'none';
-        document.getElementById('modalEmpty').style.display     = 'none';
-        document.getElementById('modalTableWrap').style.display = 'none';
-        document.getElementById('modalCourseCount').textContent = '';
+                /* ── Course drawer ── */
+                function show(id, on) { $(id).hidden = !on; }
 
-        _modal.show();
+                function openCollege(card) {
+                    $('dlgTitle').textContent = card.getAttribute('data-name');
+                    var meta = $('dlgMeta');
+                    meta.textContent = '';
+                    [['bi-geo-alt-fill', card.getAttribute('data-town')], ['bi-mortarboard-fill', card.getAttribute('data-fac')]].forEach(function (m) {
+                        var s = document.createElement('span');
+                        var i = document.createElement('i'); i.className = 'bi ' + m[0];
+                        s.appendChild(i); s.appendChild(document.createTextNode(m[1]));
+                        meta.appendChild(s);
+                    });
 
-        fetch(_collegeCoursesUrl + '?collegeCode=' + encodeURIComponent(code))
-        .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-        .then(function(data) {
-        document.getElementById('modalSpinner').style.display = 'none';
-        if (!data || data.length === 0) {
-        document.getElementById('modalEmpty').style.display = 'block'; return;
-        }
-        var totalIntake = data.reduce(function(s,x) { return s + (x.existingIntake || 0); }, 0);
-        document.getElementById('modalSummary').innerHTML =
-        makePill('bi-journal-bookmark-fill', data.length, 'Total Courses') +
-        makePill('bi-people-fill', totalIntake, 'Total Intake');
-        document.getElementById('modalCourseCount').textContent = data.length + ' COURSE' + (data.length !== 1 ? 'S' : '');
+                    show('dlgSpin', true); show('dlgErr', false); show('dlgEmpty', false); show('dlgList', false); show('dlgCount', false);
+                    if (!dlg.open) dlg.showModal();
 
-        var rows = data.map(function(row, i) {
-        var intake = (row.existingIntake !== null && row.existingIntake !== undefined) ? row.existingIntake : null;
-        var cell = intake !== null && intake > 0
-        ? '<span class="intake-badge intake-badge-filled">' + intake + '</span>'
-        : '<span class="intake-badge intake-badge-zero">—</span>';
-        return '<tr>' +
-        '<td class="td-num">' + (i+1) + '</td>' +
-        '<td class="col-course-code"><span class="td-code">' + (row.courseCode||'—') + '</span></td>' +
-        '<td style="font-weight:500;line-height:1.6;color:var(--ink-700);">' + (row.courseName||'—') + '</td>' +
-        '<td style="text-align:center;">' + cell + '</td>' +
-        '</tr>';
-        }).join('');
+                    fetch(coursesUrl + '?collegeCode=' + encodeURIComponent(card.getAttribute('data-code')))
+                        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                        .then(function (data) {
+                            show('dlgSpin', false);
+                            if (!data || !data.length) { show('dlgEmpty', true); return; }
+                            var list = $('dlgList');
+                            list.textContent = '';
+                            var frag = document.createDocumentFragment();
+                            data.forEach(function (row, i) {
+                                var li = document.createElement('li');
+                                var n = document.createElement('span'); n.className = 'n'; n.textContent = i + 1;
+                                var t = document.createElement('span'); t.textContent = row.courseName || '—';
+                                li.appendChild(n); li.appendChild(t);
+                                frag.appendChild(li);
+                            });
+                            list.appendChild(frag);
+                            $('dlgCount').textContent = data.length + ' Course' + (data.length !== 1 ? 's' : '');
+                            show('dlgCount', true); show('dlgList', true);
+                        })
+                        .catch(function () { show('dlgSpin', false); show('dlgErr', true); });
+                }
 
-        document.getElementById('modalTableBody').innerHTML = rows;
-        document.getElementById('modalTableWrap').style.display = 'block';
-        })
-        .catch(function() {
-        document.getElementById('modalSpinner').style.display = 'none';
-        document.getElementById('modalError').style.display   = 'block';
-        });
-        }
-
-        function makePill(icon, value, label) {
-        return '<div class="modal-summary-pill">' +
-        '<div class="msp-icon"><i class="bi ' + icon + '"></i></div>' +
-        '<div><div class="msp-num">' + value + '</div><div class="msp-lbl">' + label + '</div></div>' +
-        '</div>';
-        }
+                if (grid) {
+                    grid.addEventListener('click', function (e) {
+                        var card = e.target.closest('.card');
+                        if (card) openCollege(card);
+                    });
+                }
+                $('dlgClose').addEventListener('click', function () { dlg.close(); });
+                dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+            })();
     </script>
 </body>
 </html>

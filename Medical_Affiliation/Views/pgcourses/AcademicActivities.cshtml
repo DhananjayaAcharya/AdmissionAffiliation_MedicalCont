@@ -2,6 +2,12 @@
 @{
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     ViewData["Title"] = "Academic Activities";
+
+    // Selected department info bar
+    var departmentName = ViewBag.DepartmentName as string;
+    var courseLevel = ViewBag.CourseLevel as string;
+    var facultyCodeUsed = ViewBag.FacultyCodeUsed as string;
+    var collegeCodeUsed = ViewBag.CollegeCodeUsed as string;
 }
 
 <div class="container-fluid py-4">
@@ -14,6 +20,19 @@
         <span class="badge bg-secondary">Section G &mdash; ACADEMIC ACTIVITIES</span>
     </div>
 
+    <div class="alert alert-light border d-flex flex-wrap gap-2 gap-md-4 align-items-center py-2 mb-3">
+        <div>
+            <span class="text-muted">Selected department:</span>
+            <strong>@(string.IsNullOrWhiteSpace(departmentName) ? "(not found)" : departmentName)</strong>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(courseLevel))
+        {
+            <div><span class="text-muted">Course level:</span> <strong>@courseLevel</strong></div>
+        }
+        <div><span class="text-muted">College code:</span> <strong>@collegeCodeUsed</strong></div>
+        <div><span class="text-muted">Faculty code:</span> <strong>@facultyCodeUsed</strong></div>
+    </div>
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -22,7 +41,7 @@
         </div>
     }
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+    
     <form asp-action="AcademicActivities" asp-controller="pgcourses" method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="FacultyCode" />
@@ -50,7 +69,7 @@
                                 <td class="align-middle text-center">
                                     @Model.AcademicActivities[i].SlNo
                                     <input type="hidden" asp-for="AcademicActivities[i].SlNo" />
-                                </td>
+                                </td>   
                                 <td class="align-middle">
                                     @Model.AcademicActivities[i].ActivityDetails
                                     <input type="hidden" asp-for="AcademicActivities[i].ActivityDetails" />
@@ -103,12 +122,13 @@
 
         <div class="d-flex justify-content-between align-items-center mt-4">
             <div>
-                <a asp-action="AcademicActivities" asp-controller="pgcourses"
+                @* Previous goes back to Staff Details (it used to point at this same page) *@
+                <a asp-action="StaffDetails" asp-controller="pgcourses"
                    asp-route-facultyCode="@Model.FacultyCode"
                    asp-route-collegeCode="@Model.CollegeCode"
                    asp-route-courseCode="@Model.CourseCode"
                    asp-route-typeOfAffiliation="@Model.TypeOfAffiliation"
-                   class="btn btn-outline-secondary px-4">  
+                   class="btn btn-outline-secondary px-4">
                     <i class="bi bi-arrow-left"></i> Previous
                 </a>
             </div>

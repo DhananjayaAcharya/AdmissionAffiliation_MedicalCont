@@ -36,7 +36,7 @@ public partial class AffiliationCollegeMaster
     public string? DistrictId { get; set; }
 
     public string? TalukId { get; set; }
-
+        
     public bool? Status { get; set; }
 
     public string? CollegeEmail { get; set; }

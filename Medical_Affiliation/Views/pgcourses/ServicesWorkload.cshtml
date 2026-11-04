@@ -2,16 +2,35 @@
 @{
     Layout = "~/Views/Shared/_CaLayout.cshtml";
     ViewData["Title"] = "Services & Clinical Material / Investigative Workload";
+
+    // Selected department info bar
+    var departmentName = ViewBag.DepartmentName as string;
+    var courseLevel = ViewBag.CourseLevel as string;
+    var facultyCodeUsed = ViewBag.FacultyCodeUsed as string;
+    var collegeCodeUsed = ViewBag.CollegeCodeUsed as string;
 }
 
 <div class="container-fluid py-4">
 
     <div class="d-flex justify-content-between align-items-start mb-3">
         <div>
-            <h4 class="mb-0">Services & Clinical Material / Investigative Workload</h4>
+            <h4 class="mb-0">Services &amp; Clinical Material / Investigative Workload</h4>
             <small class="text-muted">Section C &mdash; Clinical services, department workload and service availability</small>
         </div>
         <span class="badge bg-secondary">Section C &mdash; SERVICES</span>
+    </div>
+
+    <div class="alert alert-light border d-flex flex-wrap gap-2 gap-md-4 align-items-center py-2 mb-3">
+        <div>
+            <span class="text-muted">Selected department:</span>
+            <strong>@(string.IsNullOrWhiteSpace(departmentName) ? "(not found)" : departmentName)</strong>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(courseLevel))
+        {
+            <div><span class="text-muted">Course level:</span> <strong>@courseLevel</strong></div>
+        }
+        <div><span class="text-muted">College code:</span> <strong>@collegeCodeUsed</strong></div>
+        <div><span class="text-muted">Faculty code:</span> <strong>@facultyCodeUsed</strong></div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -23,8 +42,8 @@
     }
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+    @* The form tag helper adds the anti-forgery token automatically, so no manual @Html.AntiForgeryToken() *@
     <form asp-action="ServicesWorkload" asp-controller="pgcourses" method="post">
-        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="FacultyCode" />
         <input type="hidden" asp-for="CollegeCode" />
         <input type="hidden" asp-for="CourseCode" />
@@ -52,7 +71,9 @@
                     <tbody>
                         @for (int i = 0; i < Model.SpecialtyClinics.Count; i++)
                         {
-                            var isAnyOther = Model.SpecialtyClinics[i].ClinicName == "Any other Clinic";
+                            // last row ("Any other Clinic") stays editable even after a custom name is saved
+                            var isAnyOther = Model.SpecialtyClinics[i].ClinicName == "Any other Clinic"
+                                             || i == Model.SpecialtyClinics.Count - 1;
                             <tr>
                                 <td class="align-middle">
                                     @if (isAnyOther)
@@ -92,7 +113,9 @@
                     <tbody>
                         @for (int i = 0; i < Model.DepartmentServices.Count; i++)
                         {
-                            var isAnyOther = Model.DepartmentServices[i].ServiceName == "Any other";
+                            var isAnyOther = Model.DepartmentServices[i].ServiceName == "Any other"
+                                             || i == Model.DepartmentServices.Count - 1;
+                            var isAvailable = (Model.DepartmentServices[i].IsAvailable ?? string.Empty).Trim();
                             <tr>
                                 <td class="align-middle">
                                     @if (isAnyOther)
@@ -107,10 +130,13 @@
                                     <input type="hidden" asp-for="DepartmentServices[i].ServiceSequence" />
                                 </td>
                                 <td>
-                                    <select asp-for="DepartmentServices[i].IsAvailable" class="form-select form-select-sm">
-                                        <option value="">--</option>
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
+                                    @* Plain <select> with explicit name/id and explicit selected: always reflects the saved value *@
+                                    <select id="DepartmentServices_@(i)__IsAvailable"
+                                            name="DepartmentServices[@i].IsAvailable"
+                                            class="form-select form-select-sm">
+                                        <option value="" selected="@(isAvailable == "")">--</option>
+                                        <option value="Yes" selected="@(isAvailable == "Yes")">Yes</option>
+                                        <option value="No" selected="@(isAvailable == "No")">No</option>
                                     </select>
                                 </td>
                                 <td><input asp-for="DepartmentServices[i].Remarks" class="form-control form-control-sm" /></td>

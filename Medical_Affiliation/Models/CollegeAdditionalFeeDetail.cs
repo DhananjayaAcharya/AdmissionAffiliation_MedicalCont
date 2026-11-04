@@ -9,9 +9,9 @@ public partial class CollegeAdditionalFeeDetail
 
     public string CollegeCode { get; set; } = null!;
 
-    public string? CourseLevel { get; set; }
-
     public int FacultyId { get; set; }
+
+    public string? CourseLevel { get; set; }
 
     public bool IsFeeLevied { get; set; }
 

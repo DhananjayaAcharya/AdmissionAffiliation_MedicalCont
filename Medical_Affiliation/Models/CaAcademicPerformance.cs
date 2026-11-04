@@ -9,9 +9,9 @@ public partial class CaAcademicPerformance
 
     public string? CollegeCode { get; set; }
 
-    public int? FacultyId { get; set; }
+    public int FacultyId { get; set; }
 
-    public int? AffiliationType { get; set; }
+    public int AffiliationType { get; set; }
 
     public int? YearOfStudyId { get; set; }
 

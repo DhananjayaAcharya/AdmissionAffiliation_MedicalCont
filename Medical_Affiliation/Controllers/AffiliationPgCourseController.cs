@@ -17,11 +17,24 @@ namespace Medical_Affiliation.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IUserContext _userContext;
 
+        // ug_pg values used in Mst_MedicalCollegeCourseIntake
+        private const string LevelUG = "UG";
+        private const string LevelPG = "PG";
+
+        // Mst_MedicalCollegeCourseIntake has no course-prefix column, so the prefix is derived
+        // from the course name (see IsDiplomaCourse). Change that one method if the rule changes.
+        private const string DiplomaPrefix = "Diploma";
+        private const string DegreePrefix = "Degree";
+
+        // Per-request cache: every section of the page reads the same intake rows
+        private List<PgCourseVm>? _collegeCourses;
+
         public AffiliationPgCourseController(ApplicationDbContext context, IUserContext userContext) : base(context)
         {
             _context = context;
             _userContext = userContext;
         }
+
         public async Task<IActionResult> PgCourses()
         {
             var collegeCode = _userContext.CollegeCode;
@@ -76,94 +89,85 @@ namespace Medical_Affiliation.Controllers
             return View(result);
         }
 
-        public async Task<List<PgCourseVm>> GetDegreeCourses()
+        // ---------------------------------------------------------------
+        // Single source of course data: Mst_MedicalCollegeCourseIntake
+        // (coll_code + Facultycode of the logged-in college; ug_pg = course level)
+        // ---------------------------------------------------------------
+        // Course level chosen in the sidebar (stored in session by SetCourseLevel): "PG" or "SS".
+        // This page is never used for UG, so UG or an empty value falls back to PG.
+        private string CurrentCourseLevel()
         {
+            var level = (HttpContext.Session.GetString("CourseLevel")
+                         ?? HttpContext.Session.GetString("SelectedCourseLevel")
+                         ?? "").Trim().ToUpperInvariant();
+
+            return string.IsNullOrEmpty(level) || level == LevelUG ? LevelPG : level;
+        }
+
+        private static bool IsDiplomaCourse(string? courseName) =>
+            !string.IsNullOrWhiteSpace(courseName) &&
+            courseName.Contains("Diploma", StringComparison.OrdinalIgnoreCase);
+
+        private async Task<List<PgCourseVm>> GetCollegeCoursesAsync()
+        {
+            if (_collegeCourses != null)
+                return _collegeCourses;
+
             var collegeCode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
+            var level = CurrentCourseLevel();
 
-            var getDegreeCourses = await (from cc in _context.CollegeCourseIntakeDetails
-                                          join ms in _context.MstCourses
-                                          on cc.CourseCode equals ms.CourseCode.ToString()
-                                          where cc.CollegeCode == collegeCode && ms.CoursePrefix != "Diploma" && ms.CourseLevel != "UG"
-                                          select new PgCourseVm
-                                          {
-                                              CourseCode = cc.CourseCode,
-                                              CourseName = ms.CourseName,
-                                              CourseLevel = ms.CourseLevel,
-                                              CoursePrefix = ms.CoursePrefix,
-                                              CollegeIntake = cc.PresentIntake
-                                          }
-                                          ).ToListAsync();
-
-
-            // Fallback to AcademicIntake
-            if (!getDegreeCourses.Any())
-            {
-                getDegreeCourses = await (
-                    from ai in _context.AcademicIntakes
-                    join ms in _context.MstCourses
-                        on ai.Courses equals ms.CourseCode.ToString()
-                    where ai.CollegeCode == collegeCode
-                          && ai.FacultyCode == facultyCode.ToString()
-                          && ms.CoursePrefix != "Diploma"
-                          && ms.CourseLevel != "UG"
-                    select new PgCourseVm
-                    {
-                        CourseCode = ai.Courses ?? "",
-                        CourseName = ms.CourseName,
-                        CourseLevel = ms.CourseLevel,
-                        CoursePrefix = ms.CoursePrefix,
-                        CollegeIntake = ai.Ay2026TotalIntake // choose the appropriate intake field
-                    }
-                )
-                .Distinct()
+            var rows = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(i => i.CollCode == collegeCode
+                         && i.Facultycode == facultyCode
+                         && i.CourseCode != null
+                         && i.UgPg != null
+                         && i.UgPg.Trim().ToUpper() == level)
+                .Select(i => new
+                {
+                    i.CourseCode,
+                    i.Course,
+                    i.UgPg,
+                    i.Intake2627,
+                    i.Intake2025
+                })
                 .ToListAsync();
-            }
-            return getDegreeCourses;
+
+            _collegeCourses = rows
+                .GroupBy(r => r.CourseCode)          // one row per course code
+                .Select(g => g.First())
+                .Select(r => new PgCourseVm
+                {
+                    CourseCode = r.CourseCode?.ToString() ?? "",
+                    CourseName = r.Course,
+                    CourseLevel = (r.UgPg ?? "").Trim().ToUpperInvariant(),
+                    CoursePrefix = IsDiplomaCourse(r.Course) ? DiplomaPrefix : DegreePrefix,
+                    CollegeIntake = r.Intake2627 ?? 0,   // intake applied for 2026-27
+                    RguhsIntake = r.Intake2025 ?? 0      // existing (sanctioned) intake
+                })
+                .OrderBy(c => c.CourseName)
+                .ToList();
+
+            return _collegeCourses;
+        }
+
+        public async Task<List<PgCourseVm>> GetDegreeCourses()
+        {
+            var courses = await GetCollegeCoursesAsync();
+
+            return courses
+                .Where(c => c.CoursePrefix != DiplomaPrefix)
+                .ToList();
         }
 
         public async Task<List<PgCourseVm>> GetDiplomaCourses()
         {
-            var collegeCode = _userContext.CollegeCode;
-            var facultyCode = _userContext.FacultyId;
+            var courses = await GetCollegeCoursesAsync();
 
-            var getDiplomaCourses = await (from cc in _context.CollegeCourseIntakeDetails
-                                           join ms in _context.MstCourses
-                                           on cc.CourseCode equals ms.CourseCode.ToString()
-                                           where cc.CollegeCode == collegeCode && ms.CoursePrefix == "Diploma"
-                                           select new PgCourseVm
-                                           {
-                                               CourseCode = cc.CourseCode,
-                                               CourseName = ms.CourseName,
-                                               CourseLevel = ms.CourseLevel,
-                                               CoursePrefix = ms.CoursePrefix,
-                                               CollegeIntake = cc.PresentIntake
-                                           }
-                                          ).ToListAsync();
-
-            if (!getDiplomaCourses.Any())
-            {
-                getDiplomaCourses = await (
-                    from ai in _context.AcademicIntakes
-                    join ms in _context.MstCourses
-                        on ai.Courses equals ms.CourseCode.ToString()
-                    where ai.CollegeCode == collegeCode
-                          && ai.FacultyCode == facultyCode.ToString()
-                          && ms.CoursePrefix == "Diploma"
-                    select new PgCourseVm
-                    {
-                        CourseCode = ai.Courses ?? "",
-                        CourseName = ms.CourseName,
-                        CourseLevel = ms.CourseLevel,
-                        CoursePrefix = ms.CoursePrefix,
-                        CollegeIntake = ai.Ay2026TotalIntake // replace if another year is required
-                    }
-                )
-                .Distinct()
-                .ToListAsync();
-            }
-
-            return getDiplomaCourses;
+            return courses
+                .Where(c => c.CoursePrefix == DiplomaPrefix)
+                .ToList();
         }
 
         public async Task<List<PgCourseParticularsVm>> GetPgCoursesParticulars()
@@ -175,49 +179,10 @@ namespace Medical_Affiliation.Controllers
                 .Where(e => e.CollegeCode == collegeCode)
                 .ToDictionaryAsync(e => e.CourseCode);
 
+            // 2️⃣ All courses of the college (from the intake table)
+            var allCourses = await GetCollegeCoursesAsync();
 
-            // 2️⃣ All PG courses for the college
-            var allCourses = await (
-                from cc in _context.CollegeCourseIntakeDetails
-                join ms in _context.MstCourses
-                    on cc.CourseCode equals ms.CourseCode.ToString()
-                where cc.CollegeCode == collegeCode
-                select new PgCourseVm
-                {
-                    CourseCode = cc.CourseCode,
-                    CourseName = ms.CourseName,
-                    CourseLevel = ms.CourseLevel,
-                    CoursePrefix = ms.CoursePrefix,
-                    CollegeIntake = cc.PresentIntake,
-                    RguhsIntake = cc.ExistingIntake,
-                }
-            ).ToListAsync();
-
-            if (!allCourses.Any())
-            {
-                var facultyCode = _userContext.FacultyId;
-
-                allCourses = await (
-                    from ai in _context.AcademicIntakes
-                    join ms in _context.MstCourses
-                        on ai.Courses equals ms.CourseCode.ToString()
-                    where ai.CollegeCode == collegeCode
-                          && ai.FacultyCode == facultyCode.ToString()
-                    select new PgCourseVm
-                    {
-                        CourseCode = ai.Courses ?? "",
-                        CourseName = ms.CourseName,
-                        CourseLevel = ms.CourseLevel,
-                        CoursePrefix = ms.CoursePrefix,
-                        CollegeIntake = ai.Ay2026TotalIntake, // use required year
-                        RguhsIntake = ai.Ay2026ExistingIntake // use required year
-                    }
-                )
-                .Distinct()
-                .ToListAsync();
-            }
-
-                var result = new List<PgCourseParticularsVm>();
+            var result = new List<PgCourseParticularsVm>();
 
             // 3️⃣ Overlay existing data (if any)
             foreach (var course in allCourses)
@@ -266,81 +231,40 @@ namespace Medical_Affiliation.Controllers
         public async Task<List<PgCoursesGokVM>> GetPgCoursesForGOK()
         {
             var collegeCode = _userContext.CollegeCode;
-            var facultyCode = _userContext.FacultyId;
-            var pgCoursesQuery =
-                from ci in _context.CollegeCourseIntakeDetails
-                where ci.CollegeCode == collegeCode
 
-                join cm in _context.MstCourses
-                 on ci.CourseCode equals cm.CourseCode.ToString()
+            // Courses of the college at the selected level, from the intake table
+            var pgCourses = (await GetCollegeCoursesAsync()).ToList();
 
-                where cm.CourseLevel == "PG"
-
-                join gok in _context.AffiliationPgSsCourseDetailsForGoks
+            // Saved GOK rows for this college, keyed by course code
+            var gokRows = (await _context.AffiliationPgSsCourseDetailsForGoks
+                    .AsNoTracking()
                     .Where(e => e.CollegeCode == collegeCode)
-                    on ci.CourseCode equals gok.CourseCode into gokGroup
+                    .ToListAsync())
+                .Where(g => g.CourseCode != null)
+                .GroupBy(g => g.CourseCode)
+                .ToDictionary(g => g.Key!, g => g.First());
 
-                from gok in gokGroup.DefaultIfEmpty()
-
-                select new PgCoursesGokVM
+            var result = pgCourses
+                .Select(ci =>
                 {
-                    CollegeCode = collegeCode,
-                    CourseCode = gok != null ? gok.CourseCode : ci.CourseCode,
-                    CourseName = gok != null ? gok.CourseName : cm.CourseName,
-                    CourseLevel = gok != null ? gok.CourseLevel : cm.CourseLevel,
-                    CoursePrefix = gok != null ? gok.CoursePrefix : cm.CoursePrefix,
-                    CollegeIntake = gok != null ? gok.PresentIntake : ci.PresentIntake,
-                    RguhsIntake = gok != null ? gok.PresentIntake : ci.ExistingIntake,
-                    HasGOKDocument = gok != null && gok.DocumentofGokpath != null && gok.DocumentofGokpath.Length > 0,
-                    AcademicYear = gok != null ? gok.AcademicYear : null,
-                    DateofGOK = gok != null ? gok.Gokdate : null,
+                    gokRows.TryGetValue(ci.CourseCode, out var gok);
 
-
-                };
-
-            var result = await pgCoursesQuery.ToListAsync();
-            if (!result.Any() && facultyCode == 2)
-            {
-                result = await (
-                    from ai in _context.AcademicIntakes
-                    join cm in _context.MstCourses
-                        on ai.Courses equals cm.CourseCode.ToString()
-
-                    join gok in _context.AffiliationPgSsCourseDetailsForGoks
-                        .Where(e => e.CollegeCode == collegeCode)
-                        on ai.Courses equals gok.CourseCode into gokGroup
-
-                    from gok in gokGroup.DefaultIfEmpty()
-
-                    where ai.CollegeCode == collegeCode
-                          && ai.FacultyCode == facultyCode.ToString()
-                          && cm.CourseLevel == "PG"
-
-                    select new PgCoursesGokVM
+                    return new PgCoursesGokVM
                     {
                         CollegeCode = collegeCode,
-                        CourseCode = ai.Courses ?? "",
-                        CourseName = gok != null ? gok.CourseName : cm.CourseName,
-                        CourseLevel = gok != null ? gok.CourseLevel : cm.CourseLevel,
-                        CoursePrefix = gok != null ? gok.CoursePrefix : cm.CoursePrefix,
-
-                        CollegeIntake = gok != null
-                            ? gok.PresentIntake
-                            : ai.Ay2026TotalIntake,
-
-                        RguhsIntake = gok != null
-                            ? gok.PresentIntake
-                            : ai.Ay2026ExistingIntake,
-
-                        HasGOKDocument = gok != null
-                            && gok.DocumentofGokpath != null
-                            && gok.DocumentofGokpath.Length > 0,
-
+                        CourseCode = gok != null ? gok.CourseCode : ci.CourseCode,
+                        CourseName = gok != null ? gok.CourseName : ci.CourseName,
+                        CourseLevel = gok != null ? gok.CourseLevel : ci.CourseLevel,
+                        CoursePrefix = gok != null ? gok.CoursePrefix : ci.CoursePrefix,
+                        CollegeIntake = gok != null ? gok.PresentIntake : ci.CollegeIntake,
+                        RguhsIntake = gok != null ? gok.PresentIntake : ci.RguhsIntake,
+                        HasGOKDocument = gok != null && gok.DocumentofGokpath != null && gok.DocumentofGokpath.Length > 0,
                         AcademicYear = gok != null ? gok.AcademicYear : null,
                         DateofGOK = gok != null ? gok.Gokdate : null
-                    }
-                ).ToListAsync();
-            }
+                    };
+                })
+                .ToList();
+
             return result;
         }
 
@@ -348,103 +272,109 @@ namespace Medical_Affiliation.Controllers
         public async Task<List<PgCoursesWithRGUHSPermission>> GetPgCoursesWithRguhsPermission()
         {
             var collegeCode = _userContext.CollegeCode;
-            var facultyCode = _userContext.FacultyId.ToString();
 
-            var pgCourseswithRguhs =
-                from ci in _context.CollegeCourseIntakeDetails
-                where ci.CollegeCode == collegeCode
+            // Courses of the college at the selected level, from the intake table
+            var pgCourses = (await GetCollegeCoursesAsync()).ToList();
 
-                join mst in _context.MstCourses
-                on ci.CourseCode equals mst.CourseCode.ToString()
+            // Saved RGUHS rows for this college, keyed by course code
+            var rguhsRows = (await _context.AffiliationPgSsCourseDetailsRguhs
+                    .AsNoTracking()
+                    .Where(e => e.CollegeCode == collegeCode)
+                    .ToListAsync())
+                .Where(r => r.CourseCode != null)
+                .GroupBy(r => r.CourseCode)
+                .ToDictionary(g => g.Key!, g => g.First());
 
-                where mst.CourseLevel == "PG"
-
-                join rguhsCourses in _context.AffiliationPgSsCourseDetailsRguhs.Where(e => e.CollegeCode == collegeCode)
-                on ci.CourseCode equals rguhsCourses.CourseCode into rguhsCoursesGroup
-
-                from rguhsCourses in rguhsCoursesGroup.DefaultIfEmpty()
-
-                select new PgCoursesWithRGUHSPermission
+            var result = pgCourses
+                .Select(ci =>
                 {
-                    CollegeCode = collegeCode,
-                    CourseCode = rguhsCourses != null ? rguhsCourses.CourseCode : ci.CourseCode,
-                    CourseName = mst.CourseName,
-                    CourseLevel = mst.CourseLevel,
-                    CoursePrefix = mst.CoursePrefix,
-                    RguhsIntake = rguhsCourses != null ? rguhsCourses.RguhsIntake : ci.ExistingIntake,
-                    HasRguhsDocument = rguhsCourses != null && rguhsCourses.RguhssupportingDocumentPath != null && rguhsCourses.RguhssupportingDocumentPath.Length > 0,
-                };
+                    rguhsRows.TryGetValue(ci.CourseCode, out var rguhsCourses);
 
-            var result = await pgCourseswithRguhs.ToListAsync();
-            if (!result.Any() && facultyCode == "2")
-            {
-                result = await (
-                    from ai in _context.AcademicIntakes
-                    join mst in _context.MstCourses
-                        on ai.Courses equals mst.CourseCode.ToString()
-
-                    join rguhsCourses in _context.AffiliationPgSsCourseDetailsRguhs
-                        .Where(e => e.CollegeCode == collegeCode)
-                        on ai.Courses equals rguhsCourses.CourseCode into rguhsCoursesGroup
-
-                    from rguhsCourses in rguhsCoursesGroup.DefaultIfEmpty()
-
-                    where ai.CollegeCode == collegeCode
-                          && ai.FacultyCode == facultyCode
-                          && mst.CourseLevel == "PG"
-
-                    select new PgCoursesWithRGUHSPermission
+                    return new PgCoursesWithRGUHSPermission
                     {
                         CollegeCode = collegeCode,
+                        CourseCode = rguhsCourses != null ? rguhsCourses.CourseCode : ci.CourseCode,
+                        CourseName = ci.CourseName,
+                        CourseLevel = ci.CourseLevel,
+                        CoursePrefix = ci.CoursePrefix,
+                        RguhsIntake = rguhsCourses != null ? rguhsCourses.RguhsIntake : ci.RguhsIntake,
+                        HasRguhsDocument = rguhsCourses != null && rguhsCourses.RguhssupportingDocumentPath != null && rguhsCourses.RguhssupportingDocumentPath.Length > 0,
+                    };
+                })
+                .ToList();
 
-                        CourseCode = rguhsCourses != null
-                            ? rguhsCourses.CourseCode
-                            : ai.Courses!,
-
-                        CourseName = mst.CourseName,
-                        CourseLevel = mst.CourseLevel,
-                        CoursePrefix = mst.CoursePrefix,
-
-                        RguhsIntake = rguhsCourses != null
-                            ? rguhsCourses.RguhsIntake
-                            : ai.Ay2026ExistingIntake, // change year if needed
-
-                        HasRguhsDocument =
-                            rguhsCourses != null &&
-                            rguhsCourses.RguhssupportingDocumentPath != null &&
-                            rguhsCourses.RguhssupportingDocumentPath.Length > 0
-                    }
-                ).ToListAsync();
-            }
             return result;
         }
 
         public async Task<List<OtherCoursesPermittedByNMC>> GetOtherDeptCoursesPermittedByNmc()
         {
             var collegeCode = _userContext.CollegeCode;
-            var facultyCode = _userContext.FacultyId;
 
-            var otherCourses = await (
-                from mst in _context.MstCourses
-                where mst.FacultyCode != facultyCode && mst.CourseLevel == "PG"
-                join ot in _context.AffiliationOtherCoursesPermittedByNmcs.Where(e => e.CollegeCode == collegeCode)
-                    on mst.CourseCode.ToString() equals ot.CourseCode into otGroup
+            // 1) Every PG course in the intake table (any college, any faculty) is a candidate
+            var catalogue = await _context.MstMedicalCollegeCourseIntakes
+                .AsNoTracking()
+                .Where(i => i.CourseCode != null
+                         && i.UgPg != null
+                         && i.UgPg.Trim().ToUpper() == LevelPG)
+                .Select(i => new { i.CourseCode, i.Course, i.Facultycode })
+                .Distinct()
+                .ToListAsync();
 
-                from ot in otGroup.DefaultIfEmpty()
+            // 2) Courses this college already runs (any level) are not "other" courses
+            var ownCodes = (await _context.MstMedicalCollegeCourseIntakes
+                    .AsNoTracking()
+                    .Where(i => i.CollCode == collegeCode && i.CourseCode != null)
+                    .Select(i => i.CourseCode)
+                    .ToListAsync())
+                .Select(c => c?.ToString() ?? "")
+                .ToHashSet();
 
-                select new OtherCoursesPermittedByNMC
+            // 3) Rows this college has already saved, keyed by course code
+            var nmcRows = (await _context.AffiliationOtherCoursesPermittedByNmcs
+                    .AsNoTracking()
+                    .Where(e => e.CollegeCode == collegeCode)
+                    .ToListAsync())
+                .Where(o => o.CourseCode != null)
+                .GroupBy(o => o.CourseCode)
+                .ToDictionary(g => g.Key!, g => g.First());
+
+            static OtherCoursesPermittedByNMC Build(
+                string code, string? name, string facultyCode, AffiliationOtherCoursesPermittedByNmc? ot) =>
+                new OtherCoursesPermittedByNMC
                 {
-                    CourseLevel = mst.CourseLevel,
-                    CourseCode = mst.CourseCode.ToString(),
-                    CourseName = mst.CourseName,
+                    CourseLevel = LevelPG,
+                    CourseCode = code,
+                    CourseName = ot?.CourseName ?? name ?? "",
                     PermissionByNMC = ot != null && ot.PermissionByNmc == 1,
-                    HasNMCdocument = ot.NmcsupportingDocumentPath != null && ot.NmcsupportingDocumentPath.Length > 0,
-                    AdmissionsPerYear = ot.NumberOfAdmissionsPerYear ?? 0,
-                    FacultyCode = ot != null ? ot.FacultyCode : mst.FacultyCode.ToString()
-                }
-                ).ToListAsync();
+                    HasNMCdocument = ot != null && !string.IsNullOrEmpty(ot.NmcsupportingDocumentPath),
+                    AdmissionsPerYear = ot?.NumberOfAdmissionsPerYear ?? 0,
+                    FacultyCode = ot?.FacultyCode ?? facultyCode
+                };
 
-            return otherCourses;
+            var result = new Dictionary<string, OtherCoursesPermittedByNMC>();
+
+            foreach (var r in catalogue.GroupBy(x => x.CourseCode).Select(g => g.First()))
+            {
+                var code = r.CourseCode?.ToString() ?? "";
+                nmcRows.TryGetValue(code, out var ot);
+
+                // Skip the college's own courses, unless a row was already saved for them
+                if (ownCodes.Contains(code) && ot == null)
+                    continue;
+
+                result[code] = Build(code, r.Course, r.Facultycode?.ToString() ?? "", ot);
+            }
+
+            // Saved rows must never disappear, even if their course is no longer in the catalogue
+            foreach (var kv in nmcRows)
+            {
+                if (!result.ContainsKey(kv.Key))
+                    result[kv.Key] = Build(kv.Key, kv.Value.CourseName, kv.Value.FacultyCode ?? "", kv.Value);
+            }
+
+            return result.Values
+                .OrderBy(c => c.CourseName)
+                .ToList();
         }
 
         public async Task<LICinspectionVM> GetLicInspectionDetails()
@@ -689,6 +619,10 @@ namespace Medical_Affiliation.Controllers
             var collegecode = _userContext.CollegeCode;
             var facultyCode = _userContext.FacultyId;
             var afftype = _userContext.TypeOfAffiliation;
+
+            // Nothing posted (for example, no row was added): nothing to save
+            if (model.OtherCoursesPermittedByNMC == null)
+                return RedirectToAction(nameof(PgCourses));
 
             foreach (var course in model.OtherCoursesPermittedByNMC)
             {

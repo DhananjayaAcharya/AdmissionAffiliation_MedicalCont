@@ -1,16 +1,18 @@
+/* Palette: Emerald + Coral */
 :root {
-  --page-bg: #f4f6fb;
+  --page-bg: #eef6f3;
   --surface: #ffffff;
-  --surface-soft: #eef4fb;
-  --text: #1e2d45;
-  --text-muted: #6b7a92;
-  --accent: #0d47a1;
-  --accent-strong: #1565c0;
-  --accent-soft: #dde7fb;
-  --sidebar-bg: #0f3f81;
+  --surface-soft: #ecf5f1;
+  --text: #14302a;
+  --text-muted: #5b7a70;
+  --accent: #047857;
+  --accent-strong: #059669;
+  --accent-soft: #d5f0e5;
+  --coral: #f97360;
+  --sidebar-bg: #064e3b;
   --sidebar-surface: rgba(255,255,255,0.08);
-  --border: #d8e2ec;
-  --shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+  --border: #d3e3dc;
+  --shadow: 0 14px 36px rgba(6, 50, 40, 0.12);
   --radius: 1rem;
 }
 
@@ -30,7 +32,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #f4f7fc 0%, #eef4fb 100%);
+  background: linear-gradient(180deg, #f3f9f6 0%, #ecf5f1 100%);
   color: var(--text);
   font-family: 'Segoe UI', 'Arial', sans-serif;
   overflow-x: hidden;
@@ -43,7 +45,7 @@ button, input, select, textarea {
 .btn {
   border-radius: 0.75rem;
   font-weight: 600;
-  box-shadow: 0 8px 18px rgba(13, 71, 161, 0.12);
+  box-shadow: 0 8px 18px rgba(4, 120, 87, 0.14);
 }
 
 .btn-primary {
@@ -59,7 +61,7 @@ button, input, select, textarea {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.15rem rgba(13, 71, 161, 0.2);
+  box-shadow: 0 0 0 0.15rem rgba(4, 120, 87, 0.22);
 }
 
 .navbar, .navbar-nav .nav-link, .navbar-light .navbar-nav .nav-link {
@@ -74,12 +76,12 @@ button, input, select, textarea {
 .card, .modal-content, .dropdown-menu, .offcanvas {
   background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba(6, 50, 40, 0.07);
   border-radius: 1rem;
 }
 
 .card-header {
-  background: linear-gradient(120deg, #f7fafd 0%, #eef4fb 100%);
+  background: linear-gradient(120deg, #f6fbf9 0%, #ecf5f1 100%);
   color: var(--accent);
   border-bottom: 1px solid var(--border);
   font-weight: 700;
@@ -122,7 +124,7 @@ button, input, select, textarea {
 }
 
 .btn-outline-primary:hover {
-  background: rgba(13, 71, 161, 0.08);
+  background: rgba(4, 120, 87, 0.08);
   color: var(--accent-strong);
 }
 
@@ -208,15 +210,15 @@ a:focus {
 
 .modern-header {
   width: 100%;
-  background: linear-gradient(135deg, #0d47a1 0%, #0f4b95 45%, #0f5bb7 100%);
+  background: linear-gradient(135deg, #064e3b 0%, #047857 45%, #0d9488 100%);
   color: #fff;
-  box-shadow: 0 12px 42px rgba(11, 54, 93, 0.16);
+  box-shadow: 0 12px 42px rgba(4, 47, 36, 0.20);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1030;
-  border-bottom: 1px solid rgba(255,255,255,0.16);
+  border-bottom: 3px solid var(--coral);
 }
 
 .modern-header-inner {
@@ -258,9 +260,9 @@ body.ca-sidebar-collapsed .page-shell {
   min-width: 0;
   min-height: auto;
   height: auto;
-  border: 1px solid rgba(13, 71, 161, 0.12);
+  border: 1px solid rgba(4, 120, 87, 0.16);
   border-radius: 1rem;
-  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 34px rgba(6, 50, 40, 0.09);
 }
 
 .page-content {
@@ -271,7 +273,7 @@ body.ca-sidebar-collapsed .page-shell {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 1.15rem;
-  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 34px rgba(6, 50, 40, 0.09);
   padding: 1.25rem;
   min-width: 0;
   width: 100%;
@@ -302,7 +304,7 @@ body.ca-sidebar-collapsed .page-shell {
 }
 
 .portal-footer {
-  background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(239,244,251,0.95) 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(236,245,241,0.95) 100%);
   border-top: 1px solid var(--border);
   color: var(--text-muted);
   padding: 1rem 0 1.25rem;
@@ -400,11 +402,11 @@ main {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(249, 115, 96, 0.28);
   padding: 0.45rem 0.8rem;
   border-radius: 999px;
   font-size: 0.88rem;
-  color: #f8fbff;
+  color: #fffaf8;
 }
 
 .header-actions {
@@ -436,7 +438,7 @@ main {
 }
 
 .logout-btn:hover {
-  background-color: rgba(255,255,255,0.18) !important;
+  background-color: rgba(249,115,96,0.35) !important;
   color: #fff !important;
 }
 
@@ -471,7 +473,7 @@ main {
 .nav-link:hover,
 .nav-link:focus,
 .nav-link.active {
-  color: #dcecff !important;
+  color: #ffe3dd !important;
   text-decoration: none;
 }
 
@@ -491,7 +493,7 @@ main .container-fluid {
   border: 1px solid var(--border);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 22px rgba(6, 50, 40, 0.07);
   background: var(--surface);
 }
 

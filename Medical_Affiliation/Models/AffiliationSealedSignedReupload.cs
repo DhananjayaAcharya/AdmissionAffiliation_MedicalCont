@@ -1,23 +1,19 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Medical_Affiliation.Models
+namespace Medical_Affiliation.Models;
+
+public partial class AffiliationSealedSignedReupload
 {
-    [Table("AffiliationSealedSignedReupload")]
-    public class AffiliationSealedSignedReupload
-    {
-        [Key]
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string? FacultyCode { get; set; }
+    public string FacultyCode { get; set; } = null!;
 
-        public string? CollegeCode { get; set; }
+    public string CollegeCode { get; set; } = null!;
 
-        public string? TypeOfApplication { get; set; }
+    public string TypeOfApplication { get; set; } = null!;
 
-        public string? ReuploadedDoc { get; set; }
+    public string ReuploadedDoc { get; set; } = null!;
 
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
-    }
+    public DateTime CreatedOn { get; set; }
 }

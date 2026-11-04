@@ -11,6 +11,8 @@ public partial class MstDentalAffiliationType
 
     public string AffiliationCategory { get; set; } = null!;
 
+    public int? TypeId { get; set; }
+
     public string AcademicYear { get; set; } = null!;
 
     public bool IsActive { get; set; }
@@ -24,8 +26,6 @@ public partial class MstDentalAffiliationType
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-
-    public int? TypeId { get; set; }
 
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;
 

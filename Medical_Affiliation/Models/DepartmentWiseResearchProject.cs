@@ -13,6 +13,8 @@ public partial class DepartmentWiseResearchProject
 
     public string? CourseLevel { get; set; }
 
+    public int? TypeId { get; set; }
+
     public string? DepartmentCode { get; set; }
 
     public int NoOfResearchProjectsLast3Years { get; set; }
@@ -28,8 +30,6 @@ public partial class DepartmentWiseResearchProject
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-
-    public int? TypeId { get; set; }
 
     public virtual AffiliationCollegeMaster CollegeCodeNavigation { get; set; } = null!;
 

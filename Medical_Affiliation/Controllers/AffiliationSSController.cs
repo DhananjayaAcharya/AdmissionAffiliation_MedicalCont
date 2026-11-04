@@ -97,7 +97,7 @@ namespace Medical_Affiliation.Controllers
             .ToList();
 
 
-
+            //var colleges = new collegeWiseReportViewModel.count;
             // 4️⃣ Build result
             var result = new List<SScourseVM>(allCourseCodes.Count);
 

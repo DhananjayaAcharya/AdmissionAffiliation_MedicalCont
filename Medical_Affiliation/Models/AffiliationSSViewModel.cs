@@ -61,6 +61,12 @@ namespace Medical_Affiliation.Models
     {
         public string FacultyCode { get; set; }
         public string FacultyName { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Designation { get; set; }
+        public string? DepartmentCode { get; set; }
+        public string? JoiningDate { get; set; }   // yyyy-MM-dd, ready for <input type="date">
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
     }
 
 

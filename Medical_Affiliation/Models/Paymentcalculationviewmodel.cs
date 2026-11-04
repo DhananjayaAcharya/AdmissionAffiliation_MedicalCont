@@ -30,6 +30,12 @@ namespace Medical_Affiliation.Models
         public List<MatchedCourseVM> MatchedCourses { get; set; } = new List<MatchedCourseVM>();
         public List<FeeLineVM> FeeLines { get; set; } = new List<FeeLineVM>();
         public PaymentSummaryVM Summary { get; set; }
+        public bool HasFineSchedule { get; set; }
+        public decimal FineAmount { get; set; }
+        public DateTime LastDate { get; set; }          // last day without fine
+        public DateTime? FineLastDate { get; set; }     // last day with fine (null = never closes)
+        public long LateFineStartMs { get; set; }
+        public long? PaymentClosedMs { get; set; }
 
     }
 

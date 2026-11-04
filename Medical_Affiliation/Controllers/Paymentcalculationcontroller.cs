@@ -24,15 +24,24 @@ namespace Medical_Affiliation.Controllers
         private const decimal GovernmentCollegeFee = 3010m;
 
         // ---------------------------------------------------------------------
-        // Late fine: Rs. 1,00,000 added automatically once the last date has passed.
+        // Late fine / payment window.
         //
-        // Non-UG (PG / SS): unchanged. Last date = 13 Oct 2026 (whole day, up to
-        //   11:59 PM IST). Fine applies from 14 Oct 2026, 12:00 AM IST onwards.
+        // The live values now come from [dbo].[Mst_CourseLevelSchedule]
+        // (FacultyCode + CourseLevel):
+        //   LastDate     = last day WITHOUT fine (whole day, up to 11:59 PM IST).
+        //                  Fine applies from 12:00 AM IST the next day.
+        //   FineLastDate = last day WITH fine. Payment closes from 12:00 AM IST
+        //                  the next day. NULL = payment never closes.
+        //   FineAmount   = late fine amount.
         //
-        // UG, per Revised Notification-1 (RGUHS/MEDICAL/AFF/81180/2026-27):
-        //   - Without fine : up to 22 Oct 2026 (whole day, 11:59 PM IST)
+        // The constants below are ONLY the fallback used when the table has no
+        // matching row for the faculty + course level.
+        //
+        // Non-UG (PG / SS): last date 13 Oct 2026; fine from 14 Oct 2026, 12:00 AM IST.
+        // UG (Revised Notification-1, RGUHS/MEDICAL/AFF/81180/2026-27):
+        //   - Without fine : up to 22 Oct 2026
         //   - With fine    : 23 Oct 2026 to 31 Oct 2026
-        //   - After 31 Oct 2026 (from 1 Nov 2026, 12:00 AM IST) payment is closed.
+        //   - Closed from 1 Nov 2026, 12:00 AM IST.
         //
         // Keep these cut-offs identical in the view (PaymentCalculation/Index.cshtml)
         // and in PaymentDocumentController.SavePaymentDocument.
@@ -41,11 +50,11 @@ namespace Medical_Affiliation.Controllers
         private const string LateFineFeeHeadPrefix = "Late fine";
         private static readonly TimeSpan Ist = TimeSpan.FromHours(5.5);
 
-        // Non-UG
+        // Non-UG fallback
         private static readonly DateTimeOffset LateFineStart =
             new DateTimeOffset(2026, 10, 14, 0, 0, 0, Ist);
 
-        // UG
+        // UG fallback
         private static readonly DateTimeOffset UgLateFineStart =
             new DateTimeOffset(2026, 10, 23, 0, 0, 0, Ist);
         private static readonly DateTimeOffset UgPaymentClosed =
@@ -103,7 +112,7 @@ namespace Medical_Affiliation.Controllers
             vm.CourseLevelGroup = sessionDetails.CourseLevelGroup;
             vm.AcademicYear = PaymentAcademicYear;
             vm.AffiliationTypeList = sessionDetails.AffiliationTypeList;
-
+            //new database added here 
             if (string.IsNullOrWhiteSpace(vm.CollegeCode))
             {
                 vm.ErrorMessage = "College code is required.";
@@ -189,16 +198,19 @@ namespace Medical_Affiliation.Controllers
                 return;
             }
 
-            // UG only: payment window is closed after 31 Oct 2026 (Revised Notification-1).
-            if (IsPaymentClosed(vm))
-            {
-                vm.ErrorMessage = "The last date for UG affiliation payment (31 Oct 2026) has passed. Payment is no longer accepted.";
-                vm.HasResult = false;
-                return;
-            }
-
             try
             {
+                // Fine dates, fine amount and payment close date come from
+                // Mst_CourseLevelSchedule (falls back to the constants above).
+                var schedule = await GetFineScheduleAsync(vm);
+
+                if (schedule.IsClosed)
+                {
+                    vm.ErrorMessage = $"The last date for affiliation payment ({schedule.FineLastDate:dd MMM yyyy}) has passed. Payment is no longer accepted.";
+                    vm.HasResult = false;
+                    return;
+                }
+
                 if (await IsGovernmentCollegeAsync(vm.CollegeCode))
                 {
                     // Government college: flat fee, stored procedure is not used.
@@ -210,7 +222,7 @@ namespace Medical_Affiliation.Controllers
                     await RunPaymentCalculationAsync(vm);
                 }
 
-                ApplyLateFine(vm);
+                ApplyLateFine(vm, schedule);
 
                 vm.HasResult = true;
             }
@@ -222,46 +234,113 @@ namespace Medical_Affiliation.Controllers
         }
 
         // ---------------------------------------------------------------------
-        // Late fine / payment window
-        // Adds Rs. 1,00,000 to the fee lines and the grand total for all colleges
-        // and all application types once the applicable cut-off passes:
-        //   UG     : from 23 Oct 2026 00:00 IST (22 Oct is the last date without fine)
-        //   Non-UG : from 14 Oct 2026 00:00 IST (13 Oct is the last date without fine)
-        // For UG, payment is closed from 1 Nov 2026 00:00 IST.
-        // It is evaluated every time the calculation runs, so it switches on by
-        // itself at the cut-off with no deployment or manual step.
+        // Late fine / payment window - driven by [dbo].[Mst_CourseLevelSchedule]
+        // (FacultyCode + CourseLevel). Falls back to the constants above when no
+        // row exists. Evaluated every time the calculation runs, so it switches
+        // on by itself at the cut-off with no deployment or manual step.
         // ---------------------------------------------------------------------
         private static bool IsUg(PaymentCalculationViewModel vm) =>
             NormalizeCourseLevel(vm.CourseLevelGroup ?? vm.CourseLevel) == "UG";
 
-        private static bool IsPaymentClosed(PaymentCalculationViewModel vm) =>
-            IsUg(vm) && DateTimeOffset.UtcNow >= UgPaymentClosed;
-
-        private static bool IsLateFineActive(PaymentCalculationViewModel vm) =>
-            DateTimeOffset.UtcNow >= (IsUg(vm) ? UgLateFineStart : LateFineStart);
-
-        private static void ApplyLateFine(PaymentCalculationViewModel vm)
+        private sealed record FineSchedule(
+            DateTimeOffset FineStart,
+            DateTimeOffset? ClosedFrom,
+            decimal Amount,
+            DateTime LastDate,
+            DateTime? FineLastDate)
         {
-            if (!IsLateFineActive(vm))
+            public bool IsFineActive => DateTimeOffset.UtcNow >= FineStart;
+            public bool IsClosed => ClosedFrom.HasValue && DateTimeOffset.UtcNow >= ClosedFrom.Value;
+        }
+
+        private static DateTimeOffset StartOfNextDayIst(DateTime date) =>
+            new DateTimeOffset(DateTime.SpecifyKind(date.Date.AddDays(1), DateTimeKind.Unspecified), Ist);
+
+        private static FineSchedule DefaultFineSchedule(PaymentCalculationViewModel vm) =>
+            IsUg(vm)
+                ? new FineSchedule(UgLateFineStart, UgPaymentClosed, LateFine,
+                    new DateTime(2026, 10, 22), new DateTime(2026, 10, 31))
+                : new FineSchedule(LateFineStart, null, LateFine,
+                    new DateTime(2026, 10, 13), null);
+
+        private async Task<FineSchedule> GetFineScheduleAsync(PaymentCalculationViewModel vm)
+        {
+            var level = NormalizeCourseLevel(vm.CourseLevelGroup ?? vm.CourseLevel);
+
+            const string sql = @"
+                SELECT CourseLevel, LastDate, FineLastDate, FineAmount
+                FROM dbo.Mst_CourseLevelSchedule
+                WHERE FacultyCode = @FacultyCode
+                ORDER BY UpdatedOn DESC, Id DESC";
+
+            using var conn = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@FacultyCode", vm.FacultyCode);
+            await conn.OpenAsync();
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                // Compare levels in C# so "PG", "PG Broad", "pg" etc. all match.
+                if (NormalizeCourseLevel(ReadString(reader, "CourseLevel")) != level)
+                {
+                    continue;
+                }
+
+                var lastDateOrdinal = reader.GetOrdinal("LastDate");
+                if (reader.IsDBNull(lastDateOrdinal))
+                {
+                    break; // incomplete row -> use defaults
+                }
+
+                var lastDate = reader.GetDateTime(lastDateOrdinal);
+                var fineLastOrdinal = reader.GetOrdinal("FineLastDate");
+                DateTime? fineLastDate = reader.IsDBNull(fineLastOrdinal)
+                    ? null
+                    : reader.GetDateTime(fineLastOrdinal);
+                var amount = reader.IsDBNull(reader.GetOrdinal("FineAmount"))
+                    ? LateFine
+                    : ReadDecimal(reader, "FineAmount");
+
+                return new FineSchedule(
+                    StartOfNextDayIst(lastDate),
+                    fineLastDate.HasValue ? StartOfNextDayIst(fineLastDate.Value) : null,
+                    amount,
+                    lastDate,
+                    fineLastDate);
+            }
+
+            return DefaultFineSchedule(vm);
+        }
+
+        private static void ApplyLateFine(PaymentCalculationViewModel vm, FineSchedule schedule)
+        {
+            if (!schedule.IsFineActive)
             {
                 return;
             }
 
-            var feeHead = IsUg(vm)
-                ? "Late fine (applicable after 22 Oct 2026)"
-                : "Late fine (applicable after 13 Oct 2026)";
+            var feeHead = $"Late fine (applicable after {schedule.LastDate:dd MMM yyyy})";
 
             // Never add it twice if the view model already carries the line.
             vm.FeeLines.RemoveAll(f => (f.FeeHeadName ?? string.Empty)
                 .StartsWith(LateFineFeeHeadPrefix, StringComparison.OrdinalIgnoreCase));
-            vm.FeeLines.Add(FixedFee(feeHead, LateFine));
+            vm.FeeLines.Add(FixedFee(feeHead, schedule.Amount));
 
             if (vm.Summary != null)
             {
                 vm.Summary.GrandTotal = vm.FeeLines.Sum(f => f.LineAmount);
             }
         }
-
+        private static void CopyScheduleToViewModel(PaymentCalculationViewModel vm, FineSchedule s)
+        {
+            vm.HasFineSchedule = true;
+            vm.FineAmount = s.Amount;
+            vm.LastDate = s.LastDate;
+            vm.FineLastDate = s.FineLastDate;
+            vm.LateFineStartMs = s.FineStart.ToUnixTimeMilliseconds();
+            vm.PaymentClosedMs = s.ClosedFrom?.ToUnixTimeMilliseconds();
+        }
         // ---------------------------------------------------------------------
         // Government / Private detection
         // Reads PVT_GOVT from [dbo].[Mst_MedicalCollegeCourseIntake].

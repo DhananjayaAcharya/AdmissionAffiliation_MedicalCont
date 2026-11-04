@@ -11,6 +11,8 @@ public partial class HospitalTieUpDetail
 
     public string? CollegeCode { get; set; }
 
+    public string? CourseLevel { get; set; }
+
     public int FacultyCode { get; set; }
 
     public string TieUpType { get; set; } = null!;
@@ -32,8 +34,6 @@ public partial class HospitalTieUpDetail
     public DateTime CreatedOn { get; set; }
 
     public DateTime? ModifiedOn { get; set; }
-
-    public string? CourseLevel { get; set; }
 
     public virtual Faculty FacultyCodeNavigation { get; set; } = null!;
 

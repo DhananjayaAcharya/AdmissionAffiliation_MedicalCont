@@ -77,8 +77,6 @@ namespace Medical_Affiliation.Controllers
             return Json(new { newCaptcha });
         }
 
-     
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -137,8 +135,10 @@ namespace Medical_Affiliation.Controllers
                     Text = f.FacultyName ?? "Unnamed Faculty"
                 }).ToList();
 
+            // ✅ CHANGED: only active colleges (Status = 1)
             model.Colleges = _context.AffiliationCollegeMasters
-                .Where(c => string.IsNullOrWhiteSpace(model.FacultyId) || c.FacultyCode.ToString() == model.FacultyId)
+                .Where(c => c.Status == true &&
+    (string.IsNullOrWhiteSpace(model.FacultyId) || c.FacultyCode.ToString() == model.FacultyId))
                 .OrderBy(c => c.CollegeName)
                 .Select(c => new SelectListItem
                 {
@@ -186,6 +186,15 @@ namespace Medical_Affiliation.Controllers
             {
                 SetCaptcha(model);
                 TempData["LoginError"] = "Incorrect password.";
+                return RedirectToAction("MultiLogin", "MainDashboard");
+            }
+
+            // ✅ NEW: only Status = 1 can log in. Status = 0 or NULL is blocked.
+            // (If Status is bool?, use: user.Status != true | if string, use: user.Status != "1")
+            if (user.Status != true)
+            {
+                SetCaptcha(model);
+                TempData["LoginError"] = "Your college account is not active. Please contact RGUHS.";
                 return RedirectToAction("MultiLogin", "MainDashboard");
             }
 
@@ -298,8 +307,9 @@ namespace Medical_Affiliation.Controllers
         [HttpGet]
         public JsonResult GetCollegesByFaculty(string facultyId)
         {
+            // ✅ CHANGED: only active colleges (Status = 1)
             var colleges = _context.AffiliationCollegeMasters
-                .Where(c => c.FacultyCode.ToString() == facultyId)
+                .Where(c => c.FacultyCode.ToString() == facultyId && c.Status == true)
                 .Select(c => new
                 {
                     Value = c.CollegeCode,
@@ -398,7 +408,6 @@ namespace Medical_Affiliation.Controllers
                 case "2":
                     routeInfo = ("Aff_Dental", "Dental_BasicDetails");
                     break;
-
 
                 case "3":
                     routeInfo = ("Aff_Nursing", "Nursing_BasicDetails");
@@ -558,10 +567,6 @@ namespace Medical_Affiliation.Controllers
                 .ToListAsync();
 
 
-
-
-
-
             var model = new NodalOfficersList
             {
                 NodalOfficerDetail = officerDetailsList, // only DB officers
@@ -704,8 +709,6 @@ namespace Medical_Affiliation.Controllers
 
             return Ok(new { success = true, message = "Principal/Dean name declared successfully." });
         }
-
-
 
 
         [HttpPost]
@@ -983,7 +986,7 @@ namespace Medical_Affiliation.Controllers
 
             if (nodalOfficerDetail == null) return NotFound();
 
-            var nodalOfficerInitiativeDetails = await _context.NodalOfficerInitiatives.Where(e => e.NodalOfficerId == model.Id).ToListAsync();             
+            var nodalOfficerInitiativeDetails = await _context.NodalOfficerInitiatives.Where(e => e.NodalOfficerId == model.Id).ToListAsync();
             if (nodalOfficerInitiativeDetails.Any())
             {
                 _context.NodalOfficerInitiatives.RemoveRange(nodalOfficerInitiativeDetails);

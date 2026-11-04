@@ -948,7 +948,7 @@ namespace Admission_Affiliation.Controllers
                 return NotFound();
             }
 
-            college.Status = !(college.Status ?? false);
+            college.Status = college.Status != true;
 
             await _context.SaveChangesAsync();
 

@@ -19,11 +19,11 @@ public partial class LibraryStaffDetail
 
     public string? Qualification { get; set; }
 
+    public string? CourseLevel { get; set; }
+
     public DateOnly? ExperienceFrom { get; set; }
 
     public DateOnly? ExperienceTo { get; set; }
-
-    public string? CourseLevel { get; set; }
 
     public string? PayScale { get; set; }
 
