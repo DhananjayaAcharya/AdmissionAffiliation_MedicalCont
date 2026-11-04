@@ -79,14 +79,16 @@ builder.Services.AddControllersWithViews(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // Document only the payment API so the existing MVC controllers
+    // Document only the medical and dental payment APIs so the existing MVC controllers
     // can never cause Swagger "conflicting action" errors.
     options.DocInclusionPredicate((_, api) =>
-        api.RelativePath?.StartsWith("api/payment-calculation", StringComparison.OrdinalIgnoreCase) == true);
+        api.RelativePath?.StartsWith("api/payment-calculation", StringComparison.OrdinalIgnoreCase) == true
+        || api.RelativePath?.StartsWith("api/dental-payment-calculation", StringComparison.OrdinalIgnoreCase) == true);
 
-    // NEW: adds the "Authorize" button + padlock on each payment-calculation endpoint.
+    // Adds the "Authorize" button + padlock on each payment-calculation endpoint.
     // Enter the Basic auth username / password once and every request sends them.
     options.AddBasicAuthSecurity();
+    options.OperationFilter<DentalBasicAuthSwaggerFilter>();
 });
 
 
@@ -562,5 +564,6 @@ static bool IsAjaxRequest(HttpRequest request)
 static bool IsPublicApiPath(PathString path)
 {
     return path.StartsWithSegments("/api/payment-calculation", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWithSegments("/api/dental-payment-calculation", StringComparison.OrdinalIgnoreCase)
         || path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase);
 }
