@@ -1,0 +1,270 @@
+﻿
+@{
+    ViewData["Title"] = "Dental Admin Dashboard";
+    Layout = "~/Views/Shared/_DentalAdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="col-12">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <!-- Manage College Status -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("ManageCollegeStatus", "Admin")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-building-gear"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage College Status
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Manage college status
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+
+                    <!-- Manage Other Colleges -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("ManageOtherCollegeStatus", "Admin")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-building-gear"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage Other Colleges
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Colleges outside Karnataka
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+
+                    <!-- Manage College Email -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("Index", "AdminCollegeManageEmail")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-file-earmark-text-fill"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage College Email
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Manage college email details
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+
+                    <!-- Manage Bindery Status -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("BinderyColleges", "Admin")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage Bindery Status
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Manage bindery status
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+
+                    <!-- Manage Dental Fee Structure -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("Index", "AdminDentalFeeStructure")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-cash-coin"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage Dental Fee Structure
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Manage dental fee structure
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+                    <!-- Manage Admin Dental Fee Calculation -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("Index", "AdminDentalFee")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-cash-coin"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Admin Dental Fee Calculation
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Admin Dental Fee Calculation
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+
+                    <!-- Manage Application Progress -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("Index", "CAProgress")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-clipboard-check-fill"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage Application Progress
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Manage application progress
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+                    <!-- Manage Dental Teaching Staff Department-wise -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("FacultyExperienceAdmin", "Admin")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-clipboard-check-fill"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage Dental Teaching Staff Department-wise
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Manage Dental Teaching Staff Department-wise
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+                    <!-- Manage Dental Submission Report -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("Index", "DentalSubmissionReport")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-clipboard-check-fill"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage Dental Submission Report
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Manage Dental Submission Report
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+                    <!-- Manage Dental Submission Lock -->
+                    <div class="col-xl-4 col-md-6">
+                        <a class="dental-admin-action"
+                           href="@Url.Action("Index", "DentalSubmissionStatusAdmin")">
+
+                            <div class="dental-admin-action-icon">
+                                <i class="bi bi-clipboard-check-fill"></i>
+                            </div>
+
+                            <div class="dental-admin-action-content">
+                                <span class="dental-admin-action-title">
+                                    Manage Dental Submission Lock
+                                </span>
+
+                                <span class="dental-admin-action-description">
+                                    Manage Dental Submission Lock
+                                </span>
+                            </div>
+
+                            <i class="bi bi-chevron-right dental-admin-action-arrow"></i>
+
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

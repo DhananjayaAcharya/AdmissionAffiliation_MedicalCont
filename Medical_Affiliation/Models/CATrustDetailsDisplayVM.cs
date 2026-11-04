@@ -56,9 +56,11 @@
         public bool HasAmendedDoc { get; set; }
         public bool HasGokOrderExistingCoursesFile { get; set; }
         public bool HasRegisteredTrustMemberDetails { get; set; }
+        public bool HasRegisteredDentalTrustMemberDetails { get; set; }
         public bool HasAadhaarFile { get; set; }
         public bool HasGovAutonomousCertFile { get; set; }
         public bool HasGovCouncilMembershipFile { get; set; }
+        public bool HasGoverningCouncilMermbership { get; set; }
         public bool HasFirstAffiliationNotifFile { get; set; }
         public bool HasContinuationAffiliationFile { get; set; }
         public bool HasKncCertificateFile { get; set; }

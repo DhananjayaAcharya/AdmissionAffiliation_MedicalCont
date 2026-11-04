@@ -1,4 +1,5 @@
 ﻿using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Client;
 using System.ComponentModel.DataAnnotations;
@@ -560,11 +561,16 @@ public class InstitutionViewModel
     public bool hasGovAutoCertFile { get; set; }
     public bool hasGoverningBodyFile { get; set; }
 
+    public IFormFile? AadhaarFile { get; set; }
+    public bool hasAadhaarFile { get; set; }
+
+
 
     [StringLength(250)]
     public string? NameOfAdministrativeAuthority { get; set; }
 
     public string? AddressOfAdministrativeAuthority { get; set; }
+    public bool hasMembersOfGoverningBodyOrCouncilDocument { get; set; }
 
     [StringLength(500)]
     public string? MembersOfGoverningBodyOrCouncilFilePath { get; set; }
@@ -589,11 +595,20 @@ public class OtherHealthScienceCollegeVM
     // Faculty selected from Faculty master
     public int? OtherFacultyId { get; set; }
 
+    [ValidateNever]
+    public string FacultyName { get; set; }
+
     // Other Health Science College
     public string? OtherCollegeCode { get; set; }
 
+    [ValidateNever]
+    public string OtherCollegeName { get; set; }
+
     // Course selected from MstCourse
     public int? OtherCourseCode { get; set; }
+
+    [ValidateNever]
+    public string CourseName { get; set; }
 
     // Dropdown data
     public List<SelectListItem> FacultyList { get; set; }

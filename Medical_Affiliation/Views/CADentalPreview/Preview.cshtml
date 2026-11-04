@@ -10,6 +10,8 @@
         TempData["SubmittedApplicationNumber"] as string;
 
     var submissionError = TempData["Error"] as string;
+
+    bool isLocked = Context.Session.GetInt32("DentalLock") == 1;
 }
 
 <style>

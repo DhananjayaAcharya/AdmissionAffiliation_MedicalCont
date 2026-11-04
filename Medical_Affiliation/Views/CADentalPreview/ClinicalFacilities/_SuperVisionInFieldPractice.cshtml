@@ -3,6 +3,7 @@
 @{
     var FacultyCode = Context.Session.GetString("FacultyCode");
     var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+    bool isLocked = Context.Session.GetInt32("DentalLock") == 1;
 
 }
 
@@ -19,19 +20,22 @@
                 Department-wise Equipment
             </h2>
 
-            <a class="preview-section-edit"
-               href="@Url.Action(
-                    "Index",
-                    "DentalFieldPracticeArea",
-                    new
-                    {
-                        typeOfAffiliation = @AffiliationType
-                    })">
+            @if (!isLocked)
+            {
+                <a class="preview-section-edit"
+                   href="@Url.Action(
+                        "Index",
+                        "DentalFieldPracticeArea",
+                        new
+                        {
+                            typeOfAffiliation = @AffiliationType
+                        })">
 
-                <i class="bi bi-pencil-square"></i>
-                <span>Edit section</span>
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
 
-            </a>
+                </a>
+            }
 
         </div>
 

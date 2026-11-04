@@ -98,6 +98,9 @@ namespace Medical_Affiliation.Services.Faculty
                 HasRegisteredTrustMemberDetails =
                     !string.IsNullOrWhiteSpace(trust.RegisteredTrustMemberDetailsPath),
 
+                HasRegisteredDentalTrustMemberDetails =
+                    !string.IsNullOrWhiteSpace(trust.RegistrationCertificateFilePath),
+
                 HasAadhaarFile =
                     !string.IsNullOrWhiteSpace(trust.AadhaarFilePath),
 

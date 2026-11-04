@@ -90,6 +90,35 @@ namespace Medical_Affiliation.Controllers
             Response.Cookies.Append("SelectedLevel", level, cookieOptions);
             Response.Cookies.Append("FacultyCode", facultyCode, cookieOptions);
 
+            bool isLocked = false;
+
+            if (facultyCode == "2")
+            {
+                var academicYear = "2027-28";
+
+                var collegeCode = HttpContext.Session.GetString("CollegeCode");
+
+                var finalSubmissionStatus = await _context.FinalDentalSubmissions
+                    .FirstOrDefaultAsync(e =>
+                        e.CollegeCode == collegeCode &&
+                        e.FacultyCode == 2 &&
+                        e.AffiliationTypeId == affiliationTypeId &&
+                        e.CourseLevel == level.ToUpperInvariant() 
+                        //&&
+                        //e.AcademicYear == academicYear
+                        );
+
+                isLocked = finalSubmissionStatus?.IsLocked ?? false;
+            }
+
+            // Available outside the if block
+            HttpContext.Session.SetInt32("DentalLock", isLocked ? 1 : 0);
+
+            if(facultyCode == "2" && isLocked)
+            {
+                return RedirectToAction("Preview", "CADentalPreview", new { level });
+            }
+
             // NEW: redirect to the correct destination page based on affiliationTypeId
             // (mirrors affiliationBaseUrlMap in the sidebar JS)
             switch (affiliationTypeId)
@@ -927,6 +956,80 @@ namespace Medical_Affiliation.Controllers
             };
 
             // Stream inline
+            var stream = new FileStream(
+                absolutePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read);
+
+            return new FileStreamResult(stream, contentType)
+            {
+                FileDownloadName = null
+            };
+        }
+
+        public async Task<IActionResult> DownloadDentalTrustAdhar()
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrWhiteSpace(collegeCode) ||
+                string.IsNullOrWhiteSpace(facultyCode))
+            {
+                return Unauthorized();
+            }
+
+            var entity = await _context.InstitutionBasicDetails
+                .FirstOrDefaultAsync(x =>
+                    x.CollegeCode == collegeCode &&
+                    x.FacultyCode == facultyCode);
+
+            // Check whether institution details exist
+            if (entity == null)
+                return NotFound("Institution details not found.");
+
+            // Get Aadhaar file path
+            var rawPath = entity.AadhaarFilePath;
+
+            if (string.IsNullOrWhiteSpace(rawPath))
+                return NotFound("No Aadhaar file uploaded.");
+
+            string absolutePath;
+
+            if (Path.IsPathRooted(rawPath.Trim()))
+            {
+                // Support existing absolute file paths
+                absolutePath = rawPath.Trim();
+            }
+            else
+            {
+                // Select root path based on faculty
+                string rootPath = facultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
+
+                var normalized = rawPath.Trim()
+                    .Replace("/", Path.DirectorySeparatorChar.ToString());
+
+                absolutePath = Path.Combine(rootPath, normalized);
+            }
+
+            // Check whether file exists
+            if (!System.IO.File.Exists(absolutePath))
+                return NotFound("Aadhaar file not found.");
+
+            // Detect content type
+            var ext = Path.GetExtension(absolutePath).ToLowerInvariant();
+
+            var contentType = ext switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".pdf" => "application/pdf",
+                _ => "application/octet-stream"
+            };
+
+            // Display file in browser
             var stream = new FileStream(
                 absolutePath,
                 FileMode.Open,
@@ -3048,7 +3151,6 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> GetFacultiesForOtherHealthScienceColleges()
         {
             var faculties = await _context.Faculties
-                .Where(x => x.Status == "Active")
                 .OrderBy(x => x.FacultyName)
                 .Select(x => new
                 {
@@ -3169,7 +3271,6 @@ namespace Medical_Affiliation.Controllers
                     // Faculty dropdown
                     // -----------------------------
                     row.FacultyList = _context.Faculties
-                        .Where(f => f.Status == "Active")
                         .Select(f => new SelectListItem
                         {
                             Value = f.FacultyId.ToString(),
@@ -3228,6 +3329,18 @@ namespace Medical_Affiliation.Controllers
                 "ExistingCourseLevels",
                 JsonSerializer.Serialize(existingLevels)
             );
+
+
+            var existingTrustDetails = _context.InstitutionBasicDetails
+                    .Where(x => (x.FacultyCode ?? "").Trim().ToLower() == (facultyCode ?? "").Trim().ToLower()
+                    &&
+                    (x.CollegeCode ?? "").Trim().ToLower() == (collegeCode ?? "").Trim().ToLower()).FirstOrDefault();
+
+            if(existingTrustDetails != null && facultyCode == "2")
+            {
+                vm.hasAadhaarFile = !string.IsNullOrWhiteSpace(existingTrustDetails.AadhaarFilePath);
+            }
+
             return View(vm);
         }
 
@@ -3238,7 +3351,7 @@ namespace Medical_Affiliation.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestFormLimits(ValueCountLimit = 100000)]
-        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile, IFormFile? GovAutonomousCertFile, IFormFile? MembersOfGoverningBodyOrCouncilFile)
+        public async Task<IActionResult> Institution_Details(InstitutionViewModel vm, IFormFile? documentFile, IFormFile? GovAutonomousCertFile, IFormFile? MembersOfGoverningBodyOrCouncilFile, IFormFile? AadhaarFile)
         {
             // 1. Re-apply session codes (never trust hidden fields for security)
             var courseLevel = CourseLevel;
@@ -3384,6 +3497,42 @@ namespace Medical_Affiliation.Controllers
                 entity.GovAutonomousCertPath = fullPath;
             }
 
+            var existingTrustDetails = await _context.InstitutionBasicDetails
+                    .Where(x => (x.FacultyCode ?? "").Trim().ToLower() == (vm.FacultyCode ?? "").Trim().ToLower()
+                    &&
+                    (x.CollegeCode ?? "").Trim().ToLower() == (vm.CollegeCode ?? "").Trim().ToLower()).FirstOrDefaultAsync();
+
+            // ================================
+            // Gov Autonomous Certificate Upload
+            // ================================
+            if (existingTrustDetails != null && AadhaarFile != null && AadhaarFile.Length > 0)
+            {
+                string rootPath = existingTrustDetails.FacultyCode == "2"
+                    ? BaseDentalPath
+                    : BaseMedicalPath;
+
+                string basePath = Path.Combine(rootPath, "InstitutionDetails", "TrustAadhar");
+
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+
+                if (!string.IsNullOrWhiteSpace(existingTrustDetails.AadhaarFilePath) &&
+                    System.IO.File.Exists(existingTrustDetails.AadhaarFilePath))
+                {
+                    System.IO.File.Delete(existingTrustDetails.AadhaarFilePath);
+                }
+
+                string fileName = Guid.NewGuid() + Path.GetExtension(AadhaarFile.FileName);
+                string fullPath = Path.Combine(basePath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await AadhaarFile.CopyToAsync(stream);
+                }
+
+                existingTrustDetails.AadhaarFilePath = fullPath;
+            }
+
             // ================================
             // Governing Council pdf
             // ================================
@@ -3429,15 +3578,15 @@ namespace Medical_Affiliation.Controllers
             // ============================================================
 
             // First remove existing records for this institution
-            var existingOtherColleges = await _context.OtherHealthScienceColleges
-                .Where(x =>
-                    x.CollegeCode == collegeCode)
-                .ToListAsync();
+            //var existingOtherColleges = await _context.OtherHealthScienceColleges
+            //    .Where(x =>
+            //        x.CollegeCode == collegeCode)
+            //    .ToListAsync();
 
-            if (existingOtherColleges.Any())
-            {
-                _context.OtherHealthScienceColleges.RemoveRange(existingOtherColleges);
-            }
+            //if (existingOtherColleges.Any())
+            //{
+            //    _context.OtherHealthScienceColleges.RemoveRange(existingOtherColleges);
+            //}
 
 
             // Save new records only when YES is selected
@@ -3510,6 +3659,30 @@ namespace Medical_Affiliation.Controllers
             {
                 return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
             }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteOtherHealthScienceCollege(int id)
+        {
+            var entity = await _context.OtherHealthScienceColleges.FirstOrDefaultAsync(e => e.Id == id);
+
+            if(entity == null)
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    message = "Other health science college not found."
+                });
+            }
+
+            _context.OtherHealthScienceColleges.Remove(entity);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                message = "Other health science college deleted successfullly."
+            });
         }
 
         private static InstitutionViewModel MapEntityToViewModel(AffInstitutionsDetail e)

@@ -249,6 +249,7 @@ namespace Admission_Affiliation.Controllers
                     return RedirectToAction("MultiLogin", "MainDashboard");
                 }
 
+                model.LateSubmissionFees = GetDentalLateSubmissionFees(facultyCode);
                 // Session exists → load affiliation types
                 var affiliationTypes = _context.TypeOfAffiliations
                     .AsNoTracking()
@@ -281,6 +282,26 @@ namespace Admission_Affiliation.Controllers
             ViewBag.ShowAffiliationNotification = true;
 
             return View(model);
+        }
+
+
+        private List<DashboardLateSubmissionFeeViewModel> GetDentalLateSubmissionFees(string facultyCode)
+        {
+            return _context.MstDentalFeeTypes
+                .AsNoTracking()
+                .Where(x =>
+                    x.FacultyCode.ToString() == facultyCode &&
+                    x.FeeType == "Late Submission Fee")
+                .OrderBy(x => x.CourseLevel)
+                .Select(x => new DashboardLateSubmissionFeeViewModel
+                {
+                    Id = x.Id,
+                    AffiliationTypeId = x.AffiliationTypeId,
+                    CourseLevel = x.CourseLevel,
+                    ActivationDate = x.ActivationDate,
+                    IsActive = x.IsActive
+                })
+                .ToList();
         }
 
         [Authorize(AuthenticationSchemes = "CollegeAuth")]
@@ -425,13 +446,13 @@ namespace Admission_Affiliation.Controllers
                 var totalSteps = new HashSet<string>(
                     new[]
                     {
+                "IntakeDetails",
                 "Institution",
                 "TrustDetails",
                 "TrustMemberDetails",
                 "DeanDetails",
                 "PrincipalDetails",
 
-                "IntakeDetails",
                 "BDSDetails",
                 "PgCourses",
                 "SsCoursesApplied",
@@ -446,29 +467,38 @@ namespace Admission_Affiliation.Controllers
                 "CourseStaffDetails",
 
                 "ClinicalFacilities",
-                "LandBuilding",
-                "DentalSkillsLab",
                 "ChairDistribution",
                 "BedDistribution",
-                "DepartmentUnits",
+                "FacultyDetails",
+                "LandBuilding",
                 "Hostel",
+                "DepartmentUnits",
+                "DentalSkillsLab",
                 "DentalEquipmentDetails",
-                "Vehicle",
+                "NonTeachingStaff",
+                "TeachingStaff",
 
                 "AcademicMatters",
-                "PGAcademicMatters",
                 "Finance",
-                "StaffDetails",
+                "PGAcademicMatters",
 
                 "LibraryServices",
-                "Research",
                 "Library",
+                "DentalLibrary",
+                "DentalLibraryStaff",
+                "DentalLibraryUser",
 
-                "FacultyDetails",
-                "NonTeachingStaff",
+                "Vehicle",
+                "StaffDetails",
 
-                "PaymentCalculation",
-                "GeoPhoto"
+                "Research",
+                "WorkshopDetails",
+                "AnimalHouseDetails",
+                "DentalFieldPracticeArea",
+
+                "AdditionalInformationInAcademicActivities",
+                "PaymentDetails",
+                "ActionTakenReport",
                     },
                     StringComparer.OrdinalIgnoreCase);
 
@@ -491,6 +521,7 @@ namespace Admission_Affiliation.Controllers
                     totalSteps.Remove("CourseStaffDetails");
 
                     totalSteps.Remove("SsCoursesApplied");
+                    totalSteps.Remove("AdditionalInformationInAcademicActivities");
                 }
                 else if (courseLevel == "PG")
                 {
@@ -499,15 +530,6 @@ namespace Admission_Affiliation.Controllers
                     totalSteps.Remove("BedDistribution");
 
                     totalSteps.Remove("SsCoursesApplied");
-                }
-                else if (courseLevel == "SS")
-                {
-                    totalSteps.Remove("BDSDetails");
-                    totalSteps.Remove("PgCourses");
-                    totalSteps.Remove("AcademicMatters");
-                    totalSteps.Remove("PGAcademicMatters");
-                    totalSteps.Remove("BedDistribution");
-
                     totalSteps.Remove("CourseSubjectSelection");
                     totalSteps.Remove("CourseGeneralDetails");
                     totalSteps.Remove("CourseInfrastructureDetails");

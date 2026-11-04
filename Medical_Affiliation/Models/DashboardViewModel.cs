@@ -22,5 +22,16 @@
         public decimal? Longitude { get; set; }
 
         public List<DistrictMaster> Districts { get; set; } = new();
+
+        public List<DashboardLateSubmissionFeeViewModel> LateSubmissionFees { get; set; } = new();
+    }
+
+    public class DashboardLateSubmissionFeeViewModel
+    {
+        public int Id { get; set; }
+        public int AffiliationTypeId { get; set; }
+        public string? CourseLevel { get; set; }
+        public DateTime? ActivationDate { get; set; }
+        public bool IsActive { get; set; }
     }
 }

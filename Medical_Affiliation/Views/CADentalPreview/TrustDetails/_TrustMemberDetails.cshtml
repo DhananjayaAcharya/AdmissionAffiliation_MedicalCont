@@ -3,11 +3,30 @@
 @{
     var FacultyCode = Context.Session.GetString("FacultyCode");
     var AffiliationType = Context.Session.GetString("TypeOfAffiliation");
+    bool isLocked = Context.Session.GetInt32("DentalLock") == 1;
 
 }
 
 <link rel="stylesheet"
       href="~/css/preview-section-header.css" />
+
+<style>
+    .data-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.data-table-wrapper .table-responsive {
+    overflow-x: auto;
+}
+
+.data-table-wrapper table {
+    min-width: 1000px;
+    white-space: nowrap;
+}
+</style>
 
 <div class="preview-section" id="trust-member-details">
 
@@ -26,22 +45,24 @@
                 <span>Trust Member Details</span>
 
             </h2>
+            @if (!isLocked)
+            {
+                <!-- EDIT BUTTON -->
+                <a class="preview-section-edit"
+                   href="@Url.Action(
+                        "Aff_TrustMemberDetails",
+                        "ContinuesAffiliation_Facultybased",
+                        new
+                        {
+                            typeOfAffiliation = "Continuation of Affiliation"
+                        })">
 
-            <!-- EDIT BUTTON -->
-            <a class="preview-section-edit"
-               href="@Url.Action(
-                    "Aff_TrustMemberDetails",
-                    "ContinuesAffiliation_Facultybased",
-                    new
-                    {
-                        typeOfAffiliation = "Continuation of Affiliation"
-                    })">
+                    <i class="bi bi-pencil-square"></i>
 
-                <i class="bi bi-pencil-square"></i>
+                    <span>Edit section</span>
 
-                <span>Edit section</span>
-
-            </a>
+                </a>
+            }
 
         </div>
 
@@ -163,7 +184,7 @@
         <!-- REGISTERED TRUST MEMBER DOCUMENT -->
         <!-- ========================= -->
 
-        @if (Model?.HasRegisteredTrustMemberDetails == true)
+        @if (Model?.HasRegisteredTrustMemberDetails == true || Model?.HasRegisteredDentalTrustMemeberDetails == true)
         {
             <div class="section-block mt-4">
 

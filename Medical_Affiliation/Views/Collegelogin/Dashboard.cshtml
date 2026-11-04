@@ -3197,6 +3197,11 @@
     @* One notification for every faculty: the table is built from dbo.Mst_CourseLevelSchedule by course-schedule.js *@
     @if (!string.IsNullOrEmpty(facultyCode) && ((TempData["ShowAffiliationNotification"] != null && (bool)TempData["ShowAffiliationNotification"]) || ViewBag.ShowAffiliationNotification == true))
     {
+
+        var ugLateFee = Model.LateSubmissionFees.FirstOrDefault(x => string.Equals(x.CourseLevel,"UG", StringComparison.OrdinalIgnoreCase));
+
+        var pgLateFee = Model.LateSubmissionFees.FirstOrDefault(x => string.Equals(x.CourseLevel,"PG",StringComparison.OrdinalIgnoreCase));
+
         <div class="modal fade" id="affiliationNotificationModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">

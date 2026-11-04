@@ -1085,6 +1085,8 @@
                             <div class="field-wrap">
                                 <label>Gov Autonomous Cert Number</label>
                                 <input asp-for="GovAutonomousCertNumber" maxlength="100" placeholder="Enter Certificate Number" />
+
+                                <span asp-validation-for="GovAutonomousCertNumber" class="text-danger"></span>
                             </div>
                             <div class="field-wrap">
                                 <label><i class="fas fa-file-shield"></i> Gov Autonomous Certificate</label>
@@ -1103,6 +1105,41 @@
                                 @if (Model.hasGovAutoCertFile)
                                 {
                                     <span class="file-badge"><i class="fas fa-circle-check"></i> File already uploaded</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aadhaar Card Section -->
+                    <div id="aadhaarSection" style="margin-top:16px; display:none;">
+                        <div class="field-grid col-2">
+                            <div class="field-wrap">
+                                <label>
+                                    <i class="fas fa-id-card"></i> Aadhaar Card
+                                </label>
+
+                                <div class="file-row">
+                                    <input id="AadhaarFile"
+                                            name="AadhaarFile"
+                                            type="file"
+                                            accept=".pdf" />
+                                </div>
+
+                                @if (Model.hasAadhaarFile)
+                                {
+                                    <div style="margin-top:8px;">
+                                        <a asp-action="DownloadDentalTrustAdhar"
+                                            asp-controller="ContinuesAffiliation_Facultybased"
+                                            class="btn-view"
+                                            target="_blank">
+                                            <i class="fas fa-eye"></i> View Aadhaar
+                                        </a>
+
+                                        <span class="file-badge">
+                                            <i class="fas fa-circle-check"></i>
+                                            File already uploaded
+                                        </span>
+                                    </div>
                                 }
                             </div>
                         </div>
@@ -1669,7 +1706,12 @@
                                         {
                                             for (int i = 0; i < Model.OtherHealthScienceColleges.Count; i++)
                                             {
-                                                <div class="other-college-row border rounded p-3 mb-3">
+                                                <div class="other-college-row border rounded p-3 mb-3"
+                                                     data-id="@Model.OtherHealthScienceColleges[i].Id">
+
+                                                     <input type="hidden" 
+                                                            name="OtherHealthScienceColleges[@i].Id" 
+                                                            value="@Model.OtherHealthScienceColleges[i].Id"/>
 
                                                     <div class="row g-3">
 
@@ -1764,7 +1806,10 @@
                                                         <div class="col-md-1 d-flex align-items-end">
 
                                                             <button type="button"
-                                                                    class="btn btn-outline-danger remove-other-college">
+                                                                    class="btn btn-outline-danger remove-other-college"
+                                                                    data-id ="@Model.OtherHealthScienceColleges[i].Id"
+                                                                    title="Remove"
+                                                            >
 
                                                                 <i class="fas fa-trash"></i>
 
@@ -2184,6 +2229,7 @@
                                 <button
                                     type="button"
                                     class="btn btn-outline-danger remove-other-college"
+                                    data-id=""
                                     title="Remove">
 
                                     <i class="fas fa-trash"></i>
@@ -2395,29 +2441,87 @@
                 // REMOVE COLLEGE
                 // =========================================================
 
-                document.addEventListener("click", function (e) {
+                const deleteOtherCollegeUrl = '@Url.Action("DeleteOtherHealthScienceCollege", "ContinuesAffiliation_Facultybased" )';
 
-                    const removeButton =
-                        e.target.closest(
-                            ".remove-other-college"
-                        );
+                document.addEventListener("click", async function (e) {
+
+                    const removeButton = e.target.closest(".remove-other-college");
 
                     if (!removeButton) {
                         return;
                     }
 
-                    const row =
-                        removeButton.closest(
-                            ".other-college-row"
-                        );
+                    const row = removeButton.closest(".other-college-row");
 
                     if (!row) {
                         return;
                     }
 
-                    row.remove();
+                    const id = removeButton.dataset.id;
 
-                    reindexRows();
+                    if (!id || id === "0") {
+                        row.remove();
+                        reindexRows();
+                        return;
+                    }
+
+                    const confirmation = await Swal.fire({
+                        title: "Are you sure?",
+                        text: "This college will be permanently deleted.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, delete it",
+                        cancelButtonText: "Cancel",
+                        reverseButtons: true
+                    });
+
+
+                    if (!confirmation.isConfirmed) {
+                        return;
+                    }
+
+
+                    try {
+
+                        removeButton.disabled = true;
+
+                        const response = await fetch(
+                            `${deleteOtherCollegeUrl}?id=${encodeURIComponent(id)}`,
+                            {
+                                method: "DELETE"
+                            }
+                        );
+
+
+                        const result = await response.json();
+
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.message || "Unable to delete other health science college.");
+                        }
+
+
+                        row.remove();
+                        reindexRows();
+
+                        await Swal.fire({
+                            title: "Deleted!",
+                            text: result.message || "Other health science college deleted successfully.",
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        });
+
+
+                    } catch (error) {
+
+                        console.error(error);
+                        removeButton.disabled = false;
+                        Swal.fire({
+                            title: "Error",
+                            text: error.message || "Unable to delete other health science college.",
+                            icon: "error",
+                            confirmButtonText: "OK"
+                        });
+                    }
 
                 });
 
@@ -2503,13 +2607,32 @@
             </script>
 
         <script>
-            $(document).ready(function () {
-                function toggleGovAutoSection() {
-                    var id = $("#typeOfInstitutionDropdown").val();
-                    (id === "1" || id === "11") ? $("#govAutoSection").show() : $("#govAutoSection").hide();
+            var facultyCode = '@facultyCode';
+
+            function toggleGovAutoSection() {
+                var id = $("#typeOfInstitutionDropdown").val();
+
+                // Aadhaar section: only for Faculty Code 2
+                if (facultyCode === "2" && id !== "1" && id !== "11") {
+                    $("#aadhaarSection").show();
+                } else {
+                    $("#aadhaarSection").hide();
                 }
+
+                // Government Autonomous section
+                if (id === "1" || id === "11") {
+                    $("#govAutoSection").show();
+                } else {
+                    $("#govAutoSection").hide();
+                }
+            }
+
+            $(document).ready(function () {
                 toggleGovAutoSection();
-                $("#typeOfInstitutionDropdown").on("change", toggleGovAutoSection);
+
+                $("#typeOfInstitutionDropdown").on("change", function () {
+                    toggleGovAutoSection();
+                });
             });
         </script>
     }

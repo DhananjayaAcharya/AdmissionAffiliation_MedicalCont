@@ -24,6 +24,8 @@ namespace Medical_Affiliation.Models
 
         public List<SelectListItem> CourseLevels { get; set; } = new();
 
+        public List<AdminDentalFeeTypeViewModel> DentalFeeTypes { get; set; } = new();
+
         public List<AdminDentalFeeItemViewModel> FeeItems { get; set; }
             = new();
 
@@ -134,4 +136,43 @@ namespace Medical_Affiliation.Models
         public DateTime ModifiedDate { get; set; }
     }
 
+    public class AdminDentalFeeTypeViewModel
+    {
+        public int Id { get; set; }
+
+        public int FacultyCode { get; set; }
+
+        public string FeeType { get; set; } = null!;
+
+        public string? CourseLevel { get; set; }
+
+        public int DisplayOrder { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public int AffiliationTypeId { get; set; }
+
+        public DateTime? ActivationDate { get; set; }
+
+        public bool IsCurrentlyApplicable { get; set; }
+
+        public string? ApplicabilityReason { get; set; }
+    }
+
+
+    public class UpdateDentalLateSubmissionFeeViewModel
+    {
+        public int Id { get; set; }
+
+        public int FacultyCode { get; set; }
+
+        public int AffiliationTypeId { get; set; }
+
+        public string? CourseLevel { get; set; }
+        public string? CollegeCode { get; set; }
+
+        public DateTime? ActivationDate { get; set; }
+
+        public bool IsActive { get; set; }
+    }
 }

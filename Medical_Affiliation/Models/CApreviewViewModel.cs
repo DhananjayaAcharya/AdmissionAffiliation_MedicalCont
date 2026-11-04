@@ -907,7 +907,7 @@ namespace Medical_Affiliation.Models
         public string RecognizedByMci { get; set; } = "—";
     }
 
-
+    
     public class AdminTeachAndHostelDisplayVM
     {
         public string CollegeCode { get; set; }

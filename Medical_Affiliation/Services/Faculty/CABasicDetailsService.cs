@@ -1,6 +1,7 @@
 ﻿using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
 using Medical_Affiliation.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -51,7 +52,13 @@ namespace Medical_Affiliation.Services.Faculty
             var deanOrDeanDetails = await GetDentalDeanOrDirectorDetails();
             var principalDetails = await GetDentalPrincipalDetails();
             var institutionDetails = await GetInstitutionDetails();
+            var administrativeAuthorityDetails = await GetAdministrativeAuthorityDetails();
+            var otherHealthSciencesDetails = await GetOtherHealthColleges();
 
+            if (otherHealthSciencesDetails != null)
+            {
+                institutionDetails.OtherHealthScienceColleges = otherHealthSciencesDetails.OtherHealthScienceColleges;
+            }
 
             return new DentalInstitutionBasicDetailsDisplayVM
             {
@@ -61,7 +68,11 @@ namespace Medical_Affiliation.Services.Faculty
                 AffCoursesVM = CourseDetails,
                 AffiliationCourseDetailVM = ugCourseDetails,
                 DeanOrDirectorDetailDisplayVM = deanOrDeanDetails,
-                PrincipalDetailDisplayVM = principalDetails
+                PrincipalDetailDisplayVM = principalDetails,
+                AdministrativeAuthorityVM = administrativeAuthorityDetails,
+
+                
+                CollegeCode = collegeCode,
             };
         }
 
@@ -348,6 +359,116 @@ namespace Medical_Affiliation.Services.Faculty
                 .FirstOrDefaultAsync();
 
             return data;
+        }
+
+        public async Task<InstitutionViewModel?> GetAdministrativeAuthorityDetails()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId;
+
+            var data = await _context.AffInstitutionsDetails
+                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode.ToString())
+                .Select(x => new InstitutionViewModel
+                {
+                    AddressOfAdministrativeAuthority = x.AddressOfAdministrativeAuthority,
+                    NameOfAdministrativeAuthority = x.NameOfAdministrativeAuthority,
+                    hasMembersOfGoverningBodyOrCouncilDocument = !string.IsNullOrWhiteSpace(x.MembersOfGoverningBodyOrCouncilFilePath)
+                })
+                .FirstOrDefaultAsync();
+
+            return data;
+        }
+
+        
+        public async Task<InstitutionViewModel> GetOtherHealthColleges()
+        {
+            var collegeCode = _userContext.CollegeCode;
+            var facultyId = _userContext.FacultyId;
+
+            var model = new InstitutionViewModel();
+
+
+            // ----------------------------------------------------
+            // Saved Other Health Science College records
+            // ----------------------------------------------------
+            model.OtherHealthScienceColleges =
+                await _context.OtherHealthScienceColleges
+                    .Where(x =>
+                        x.CollegeCode == collegeCode &&
+                        x.FacultyId == facultyId)
+                    .Select(x => new OtherHealthScienceCollegeVM
+                    {
+                        Id = x.Id,
+
+                        // Parent college
+                        CollegeCode = x.CollegeCode,
+
+                        // Faculty
+                        OtherFacultyId = x.FacultyId,
+                        FacultyName = x.Faculty.FacultyName,
+
+                        // Other Health Science College
+                        OtherCollegeCode = x.OtherCollegeCode,
+                        OtherCollegeName = x.OtherCollegeCodeNavigation.CollegeName,
+
+                        // Course
+                        OtherCourseCode = x.CourseCode,
+
+                        // Course name
+                        CourseName = _context.MstCourses
+                            .Where(c => c.CourseCode == x.CourseCode)
+                            .Select(c => c.CourseName)
+                            .FirstOrDefault()
+                    })
+                    .ToListAsync();
+
+            // ----------------------------------------------------
+            // Faculty dropdown
+            // ----------------------------------------------------
+            var facultyList = await _context.Faculties
+                .OrderBy(x => x.FacultyName)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.FacultyId.ToString(),
+                    Text = x.FacultyName
+                })
+                .ToListAsync();
+
+            // ----------------------------------------------------
+            // College dropdown
+            // ----------------------------------------------------
+            var collegeList = await _context.AffiliationCollegeMasters
+                .OrderBy(x => x.CollegeName)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.CollegeCode,
+                    Text = x.CollegeName
+                })
+                .ToListAsync();
+
+            // ----------------------------------------------------
+            // Course dropdown
+            // ----------------------------------------------------
+            var courseList = await _context.MstCourses
+                .OrderBy(x => x.CourseName)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.CourseCode.ToString(),
+                    Text = x.CourseName
+                })
+                .ToListAsync();
+
+            // ----------------------------------------------------
+            // Assign dropdowns to every row
+            // ----------------------------------------------------
+            foreach (var item in model.OtherHealthScienceColleges)
+            {
+                item.FacultyList = facultyList;
+                item.CollegeList = collegeList;
+                item.CourseList = courseList;
+            }
+
+            return model;
         }
 
         public async Task<InstitutionViewModel?> GetDentalPrincipalDetails()

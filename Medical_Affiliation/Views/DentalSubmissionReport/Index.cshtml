@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Dental Final Submission Report";
+    Layout = "~/Views/Shared/_DentalAdminLayout.cshtml";
 }
 
 <link rel="stylesheet"
@@ -92,7 +93,7 @@
                         </div>
 
                         <h2 class="dr-summary-number">
-                            @Model.SubmittedColleges.ToString("N0")
+                            @Model.TotalSubmissions.ToString("N0")
                         </h2>
 
                         <div class="dr-summary-description">

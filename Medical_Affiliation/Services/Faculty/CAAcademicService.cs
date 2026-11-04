@@ -54,7 +54,7 @@ namespace Medical_Affiliation.Services.Faculty
 
             var curriculums = await _context.CaCourseCurricula
                 .AsNoTracking()
-                .Where(x => x.FacultyId == facultyId && x.CollegeCode == collegeCode)
+                .Where(x => x.FacultyId == facultyId && x.CollegeCode == collegeCode && x.AffiliationType == affTypeId && x.CourseLevel == courseLevel)
                 .Select(x => new CourseCurriculumDisplayViewModel
                 {
                     CourseCurriculumId = x.CourseCurriculumId,
@@ -79,7 +79,7 @@ namespace Medical_Affiliation.Services.Faculty
 
             var studentRecords = await _context.CaStudentRegisterRecords
                 .AsNoTracking()
-                .Where(x => x.FacultyId == facultyId && x.CollegeCode == collegeCode)
+                .Where(x => x.FacultyId == facultyId && x.CollegeCode == collegeCode && x.AffiliationType == affTypeId && x.CourseLevel == courseLevel)
                 .Select(x => new StudentRegisterRecordViewModel
                 {
                     RegisterName = x.RegisterRecordNavigation != null ? x.RegisterRecordNavigation.RegisterName : "N/A",

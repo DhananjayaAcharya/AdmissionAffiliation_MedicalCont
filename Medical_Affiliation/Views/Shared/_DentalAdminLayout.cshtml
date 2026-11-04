@@ -1,0 +1,261 @@
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title> @ViewData["Title"] - Dental Admin Panel </title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Dental Admin CSS -->
+    <link rel="stylesheet" href="~/css/dental-admin.css" asp-append-version="true" />
+
+</head>
+
+<body>
+
+    <div class="dental-admin-layout">
+
+        <!-- =====================================================
+             SIDEBAR
+        ====================================================== -->
+        <aside class="dental-sidebar" id="dentalSidebar">
+
+
+            <!-- Logo -->
+            <div class="dental-sidebar-header">
+
+                <a href="#" class="dental-logo">
+
+                    <div class="dental-logo-icon">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+
+                    <div class="dental-logo-content">
+                        <span class="dental-logo-title">Dental Faculty</span>
+                        <span class="dental-logo-subtitle"> Admin Portal </span>
+
+                    </div>
+
+                </a>
+
+                <button id="dentalSidebarCollapse" class="dental-sidebar-collapse" type="button" title="Collapse sidebar">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+            </div>
+
+
+            <!-- Navigation -->
+            <nav class="dental-sidebar-nav">
+
+                    
+                <!-- MAIN -->
+                <div class="dental-nav-section">
+                    <div class="dental-nav-title"> MAIN</div>
+                    <a href="@Url.Action("Index", "DentalAdmin")" class="dental-nav-item @(controller == "Dashboard" ? "active" : "")">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span> Dental Admin Dashboard </span>
+                    </a>
+                </div>
+
+
+                <div class="dental-nav-section">
+                    <div class="dental-nav-title"> BACK TO MAIN DASHBOARD </div>
+                    <a href="@Url.Action("AdminDashboard", "Admin")" class="dental-nav-item @(controller == "Admin" ? "active" : "")">
+                        <i class="bi bi-bar-chart-fill"></i>
+                        <span> Main Dashboard </span>
+                    </a>
+
+                </div>
+
+            </nav>
+
+
+            <!-- Sidebar User -->
+            <div class="dental-sidebar-footer">
+
+                <!-- User Information -->
+                <div class="dental-user">
+
+                    <div class="dental-user-avatar">
+                        AD
+                    </div>
+
+                    <div class="dental-user-details">
+
+                        <div class="dental-user-name">
+                            Admin User
+                        </div>
+
+                        <div class="dental-user-role">
+                            Administrator
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Logout -->
+                <form asp-controller="Admin"
+                      asp-action="Logout"
+                      method="post"
+                      class="dental-logout-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="dental-logout-button">
+
+                        <i class="bi bi-box-arrow-right"></i>
+
+                        <span>Logout</span>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =====================================================
+             MAIN CONTENT AREA
+        ====================================================== -->
+        <div class="dental-main">
+
+
+            <!-- =================================================
+                 HEADER
+            ================================================== -->
+            <header class="dental-header">
+
+
+                <!-- Header Left -->
+                <div class="dental-header-left">
+
+
+                    <!-- Sidebar Toggle -->
+                    <button type="button" class="dental-sidebar-toggle" id="dentalSidebarToggle">
+
+                        <i class="bi bi-list"></i>
+
+                    </button>
+
+
+                    <!-- Page Title -->
+                    <div class="dental-page-heading">
+
+                        <div class="dental-page-title">
+
+                            @(ViewData["Title"] ?? "Dashboard")
+
+                        </div>
+
+                        <div class="dental-page-subtitle">
+                            Dental Administration
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Header Right -->
+                <div class="dental-header-right">
+
+                    <!-- Admin Profile -->
+                    <div class="dental-header-profile">
+
+                        <div class="dental-profile-avatar">
+                            AD
+                        </div>
+
+                        <div class="dental-profile-info">
+
+                            <div class="dental-profile-name">
+                                Admin User
+                            </div>
+
+                            <div class="dental-profile-role">
+                                Administrator
+                            </div>
+
+                        </div>
+
+                        <i class="bi bi-chevron-down"></i>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 PAGE CONTENT
+            ================================================== -->
+            <main class="dental-content">
+
+                @RenderBody()
+
+            </main>
+
+
+            <!-- =================================================
+                 FOOTER
+            ================================================== -->
+            <footer class="dental-footer">
+
+                <span>
+                    © @DateTime.Now.Year Dental Admin
+                </span>
+
+                <span>
+                    Dental Administration System
+                </span>
+
+            </footer>
+
+
+        </div>
+
+
+        <!-- =====================================================
+             MOBILE SIDEBAR OVERLAY
+        ====================================================== -->
+        <div class="dental-sidebar-overlay" id="dentalSidebarOverlay">
+        </div>
+
+
+    </div>
+
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <!-- Dental Admin JavaScript -->
+    <script src="~/js/dental-admin.js" asp-append-version="true"></script>
+
+
+    <!-- Optional page-specific scripts -->
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

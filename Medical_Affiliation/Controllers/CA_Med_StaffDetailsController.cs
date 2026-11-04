@@ -186,8 +186,29 @@ namespace Medical_Affiliation.Controllers
                 string.IsNullOrEmpty(facultyCode))
                 return RedirectToAction(nameof(CA_Med_StaffDetails));
 
+            IFormFile? ExaminerDetailsPdf2 = null;
+            IFormFile? ExaminerDetailsPdf3 = null;
+            IFormFile? ExaminerDetailsPdf4 = null;
+            IFormFile? ExaminerDetailsPdf5 = null;
+            IFormFile? TeachersUpdatedPdf = null;
+
+            if (facultyCode == "2")
+            {
+                ExaminerDetailsPdf2 = model.ExaminerDetailsPdf2;
+                ExaminerDetailsPdf3 = model.ExaminerDetailsPdf3;
+                ExaminerDetailsPdf4 = model.ExaminerDetailsPdf4;
+                ExaminerDetailsPdf5 = model.ExaminerDetailsPdf5;
+                TeachersUpdatedPdf = model.TeachersUpdatedPdf;
+            }
+
+            /*
+            OLD:
+            var levels = new[]{"UG","PG","SS"};
+            */
+
             // Changes by Ram on 23/04/2026
             var levels = await GetSortedCourseLevels();
+            var courseLevel = HttpContext.Session.GetString("CourseLevel");
 
             // Changes by Ram on 24/04/26
             // Validate only if file not newly uploaded AND no old file exists
@@ -242,23 +263,26 @@ namespace Medical_Affiliation.Controllers
                 }
             }
 
-            foreach (var level in levels)
+            if(facultyCode == "1")
             {
-                var entity =
-                    await _context.CaMedStaffParticularsOthers
-                    .FirstOrDefaultAsync(x =>
-                        x.CollegeCode == collegeCode &&
-                        x.FacultyCode == facultyCode &&
-                        x.CourseLevel == level);
 
-                if (entity == null)
+                foreach (var level in levels)
                 {
-                    entity = new CaMedStaffParticularsOther
+                    var entity =
+                        await _context.CaMedStaffParticularsOthers
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            x.CourseLevel == level);
+
+                    if (entity == null)
                     {
-                        CollegeCode = collegeCode,
-                        FacultyCode = facultyCode,
-                        CourseLevel = level
-                    };
+                        entity = new CaMedStaffParticularsOther
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyCode = facultyCode,
+                            CourseLevel = level
+                        };
 
                     _context.CaMedStaffParticularsOthers.Add(entity);
                 }
@@ -275,8 +299,226 @@ namespace Medical_Affiliation.Controllers
                     var path = await SaveStaffFileAsync(
                         ExaminerDetailsPdf, "ExaminerDocs", facultyCode);
 
+                        entity.ExaminerDetailsPdfPath = path;
+                        entity.ExaminerDetailsPdfName =
+                            ExaminerDetailsPdf.FileName;
+                    }
+
+                    if (TeachersUpdatedPdf != null)
+                    {
+                        var path =
+                         await SaveStaffFileAsync(
+                            TeachersUpdatedPdf,
+                            "EmsList", FacultyCode);
+
+                        entity.TeachersUpdatedPdfPath = path;
+                        entity.TeachersUpdatedPdfName =
+                            TeachersUpdatedPdf.FileName;
+                    }
+                    if (ExaminerDetailsPdf2 != null)
+                    {
+                        var path = await SaveStaffFileAsync(
+                            ExaminerDetailsPdf2,
+                            "ExaminerDocs",
+                            FacultyCode);
+
+                        entity.ExaminerDetailsPdfPath2 = path;
+                        entity.ExaminerDetailsPdfName2 = ExaminerDetailsPdf2.FileName;
+                    }
+
+                    if (ExaminerDetailsPdf3 != null)
+                    {
+                        var path = await SaveStaffFileAsync(
+                            ExaminerDetailsPdf3,
+                            "ExaminerDocs",
+                            FacultyCode);
+
+                        entity.ExaminerDetailsPdfPath3 = path;
+                        entity.ExaminerDetailsPdfName3 = ExaminerDetailsPdf3.FileName;
+                    }
+
+                    if (ExaminerDetailsPdf4 != null)
+                    {
+                        var path = await SaveStaffFileAsync(
+                            ExaminerDetailsPdf4,
+                            "ExaminerDocs",
+                            FacultyCode);
+
+                        entity.ExaminerDetailsPdfPath4 = path;
+                        entity.ExaminerDetailsPdfName4 = ExaminerDetailsPdf4.FileName;
+                    }
+
+                    if (ExaminerDetailsPdf5 != null)
+                    {
+                        var path = await SaveStaffFileAsync(
+                            ExaminerDetailsPdf5,
+                            "ExaminerDocs",
+                            FacultyCode);
+
+                        entity.ExaminerDetailsPdfPath5 = path;
+                        entity.ExaminerDetailsPdfName5 = ExaminerDetailsPdf5.FileName;
+                    }
+
+
+                    if (AEBASLastThreeMonthsPdf != null)
+                    {
+                        var path =
+                         await SaveStaffFileAsync(
+                            AEBASLastThreeMonthsPdf,
+                            "AEBAS3Months", FacultyCode);
+
+                        entity.AebaslastThreeMonthsPdfPath = path;
+                        entity.AebaslastThreeMonthsPdfName =
+                            AEBASLastThreeMonthsPdf.FileName;
+                    }
+
+
+                    if (AEBASInspectionDayPdf != null)
+                    {
+                        var path =
+                         await SaveStaffFileAsync(
+                            AEBASInspectionDayPdf,
+                            "AEBASInspection", facultyCode);
+
+                        entity.AebasinspectionDayPdfPath = path;
+                        entity.AebasinspectionDayPdfName =
+                            AEBASInspectionDayPdf.FileName;
+                    }
+
+
+                    if (ProvidentFundPdf != null)
+                    {
+                        var path =
+                         await SaveStaffFileAsync(
+                            ProvidentFundPdf,
+                            "PFDocs",
+                            FacultyCode);
+
+                        entity.ProvidentFundPdfPath = path;
+                        entity.ProvidentFundPdfName =
+                            ProvidentFundPdf.FileName;
+                    }
+
+               
+
+
+
+                    // UG ONLY
+                    if (courseLevel == "UG" && ESIPdf != null)
+                    {
+                        var path =
+                          await SaveStaffFileAsync(
+                            ESIPdf,
+                            "ESIDocs",
+                            FacultyCode);
+
+                        entity.EsipdfPath = path;
+                        entity.EsipdfName = ESIPdf.FileName;
+                    }
+                }
+            }
+            else if(facultyCode == "2")
+            {
+                var entity =
+                        await _context.CaMedStaffParticularsOthers
+                        .FirstOrDefaultAsync(x =>
+                            x.CollegeCode == collegeCode &&
+                            x.FacultyCode == facultyCode &&
+                            x.CourseLevel == courseLevel);
+
+                if (entity == null)
+                {
+                    entity = new CaMedStaffParticularsOther
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyCode = facultyCode,
+                        CourseLevel = courseLevel
+                    };
+
+                    _context.CaMedStaffParticularsOthers.Add(entity);
+                }
+
+
+                // common b-g
+
+                entity.TeachersUpdatedInEms =
+                    staffOther.TeachersUpdatedInEMS;
+
+                entity.ExaminerDetailsAttached =
+                    staffOther.ExaminerDetailsAttached;
+
+                entity.ServiceRegisterMaintained =
+                    staffOther.ServiceRegisterMaintained;
+
+                entity.AcquittanceRegisterMaintained =
+                    staffOther.AcquittanceRegisterMaintained;
+
+
+                if (ExaminerDetailsPdf != null)
+                {
+                    var path =
+                     await SaveStaffFileAsync(
+                        ExaminerDetailsPdf,
+                        "ExaminerDocs", FacultyCode);
+
                     entity.ExaminerDetailsPdfPath = path;
-                    entity.ExaminerDetailsPdfName = ExaminerDetailsPdf.FileName;
+                    entity.ExaminerDetailsPdfName =
+                        ExaminerDetailsPdf.FileName;
+                }
+
+                if (TeachersUpdatedPdf != null)
+                {
+                    var path =
+                     await SaveStaffFileAsync(
+                        TeachersUpdatedPdf,
+                        "EmsList", FacultyCode);
+
+                    entity.TeachersUpdatedPdfPath = path;
+                    entity.TeachersUpdatedPdfName =
+                        TeachersUpdatedPdf.FileName;
+                }
+                if (ExaminerDetailsPdf2 != null)
+                {
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf2,
+                        "ExaminerDocs",
+                        FacultyCode);
+
+                    entity.ExaminerDetailsPdfPath2 = path;
+                    entity.ExaminerDetailsPdfName2 = ExaminerDetailsPdf2.FileName;
+                }
+
+                if (ExaminerDetailsPdf3 != null)
+                {
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf3,
+                        "ExaminerDocs",
+                        FacultyCode);
+
+                    entity.ExaminerDetailsPdfPath3 = path;
+                    entity.ExaminerDetailsPdfName3 = ExaminerDetailsPdf3.FileName;
+                }
+
+                if (ExaminerDetailsPdf4 != null)
+                {
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf4,
+                        "ExaminerDocs",
+                        FacultyCode);
+
+                    entity.ExaminerDetailsPdfPath4 = path;
+                    entity.ExaminerDetailsPdfName4 = ExaminerDetailsPdf4.FileName;
+                }
+
+                if (ExaminerDetailsPdf5 != null)
+                {
+                    var path = await SaveStaffFileAsync(
+                        ExaminerDetailsPdf5,
+                        "ExaminerDocs",
+                        FacultyCode);
+
+                    entity.ExaminerDetailsPdfPath5 = path;
+                    entity.ExaminerDetailsPdfName5 = ExaminerDetailsPdf5.FileName;
                 }
 
                 // d - AEBAS last three months
@@ -309,8 +551,12 @@ namespace Medical_Affiliation.Controllers
                     entity.ProvidentFundPdfName = ProvidentFundPdf.FileName;
                 }
 
+
+
+
+
                 // h - ESI (UG ONLY)
-                if (level == "UG" && ESIPdf != null)
+                if (courseLevel == "UG" && ESIPdf != null)
                 {
                     var path = await SaveStaffFileAsync(
                         ESIPdf, "ESIDocs", facultyCode);
@@ -401,6 +647,12 @@ namespace Medical_Affiliation.Controllers
                 staffOther.AcquittanceRegisterMaintained = commonEntity.AcquittanceRegisterMaintained;
 
                 staffOther.ExaminerDetailsPdfName = commonEntity.ExaminerDetailsPdfName;
+                staffOther.TeachersUpdatedPdfName = commonEntity.TeachersUpdatedPdfName;
+                staffOther.ExaminerDetailsPdfName2 = commonEntity.ExaminerDetailsPdfName2;
+                staffOther.ExaminerDetailsPdfName3 = commonEntity.ExaminerDetailsPdfName3;
+                staffOther.ExaminerDetailsPdfName4 = commonEntity.ExaminerDetailsPdfName4;
+                staffOther.ExaminerDetailsPdfName5 = commonEntity.ExaminerDetailsPdfName5;
+
                 staffOther.AEBASLastThreeMonthsPdfName = commonEntity.AebaslastThreeMonthsPdfName;
                 staffOther.AEBASInspectionDayPdfName = commonEntity.AebasinspectionDayPdfName;
                 staffOther.ProvidentFundPdfName = commonEntity.ProvidentFundPdfName;
@@ -468,9 +720,159 @@ namespace Medical_Affiliation.Controllers
 
             switch (type)
             {
+
+                case "Ems":
+                    filePath = record.TeachersUpdatedPdfPath;
+                    fileName = record.TeachersUpdatedPdfName;
+                    break;
+
                 case "Examiner":
                     filePath = record.ExaminerDetailsPdfPath;
                     fileName = record.ExaminerDetailsPdfName;
+                    break;
+
+
+                case "Examiner2":
+                    filePath = record.ExaminerDetailsPdfPath2;
+                    fileName = record.ExaminerDetailsPdfName2;
+                    break;
+
+                case "Examiner3":
+                    filePath = record.ExaminerDetailsPdfPath3;
+                    fileName = record.ExaminerDetailsPdfName3;
+                    break;
+
+                case "Examiner4":
+                    filePath = record.ExaminerDetailsPdfPath4;
+                    fileName = record.ExaminerDetailsPdfName4;
+                    break;
+
+                case "Examiner5":
+                    filePath = record.ExaminerDetailsPdfPath5;
+                    fileName = record.ExaminerDetailsPdfName5;
+                    break;
+
+                case "AEBAS3Months":
+                    filePath = record.AebaslastThreeMonthsPdfPath;
+                    fileName = record.AebaslastThreeMonthsPdfName;
+                    break;
+
+                case "AEBASInspection":
+                    filePath = record.AebasinspectionDayPdfPath;
+                    fileName = record.AebasinspectionDayPdfName;
+                    break;
+
+                case "PF":
+                    filePath = record.ProvidentFundPdfPath;
+                    fileName = record.ProvidentFundPdfName;
+                    break;
+
+                case "ESI":
+                    filePath = record.EsipdfPath;
+                    fileName = record.EsipdfName;
+                    break;
+
+                default:
+                    return NotFound();
+            }
+
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                return NotFound("File not found");
+
+            var finalName =
+                string.IsNullOrEmpty(fileName)
+                ? Path.GetFileName(filePath)
+                : fileName;
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+
+            if (!provider.TryGetContentType(filePath, out string? contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+
+            if (mode == "download")
+            {
+                return PhysicalFile(filePath, contentType, finalName);
+            }
+
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{finalName}\"";
+
+            return PhysicalFile(filePath, contentType);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewDentalStaffOtherPdf(string type, string mode = "view")
+        {
+            var collegeCode = HttpContext.Session.GetString("CollegeCode");
+            var facultyCode = HttpContext.Session.GetString("FacultyCode");
+
+            if (string.IsNullOrEmpty(collegeCode) || string.IsNullOrEmpty(facultyCode))
+                return NotFound();
+
+            // Do not let the browser reuse a cached copy of a different document
+            Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+
+            // Block b - stored on disk at a fixed path
+            if (type == "TeachersEms")
+            {
+                var emsPath = GetTeachersEmsFilePath(facultyCode, collegeCode);
+                if (!System.IO.File.Exists(emsPath))
+                    return NotFound("File not found");
+
+                if (mode == "download")
+                    return PhysicalFile(emsPath, "application/pdf", "EMS_Teachers_Document.pdf");
+
+                Response.Headers["Content-Disposition"] = "inline; filename=\"EMS_Teachers_Document.pdf\"";
+                return PhysicalFile(emsPath, "application/pdf");
+            }
+
+            // Other documents - prefer the UG record, otherwise any level
+            var record = await _context.CaMedStaffParticularsOthers
+                .Where(x => x.CollegeCode == collegeCode && x.FacultyCode == facultyCode)
+                .OrderBy(x => x.CourseLevel == "UG" ? 0 : 1)
+                .FirstOrDefaultAsync();
+
+            if (record == null)
+                return NotFound();
+
+            string? filePath = null;
+            string? fileName = null;
+
+            switch (type)
+            {
+
+                case "Ems":
+                    filePath = record.TeachersUpdatedPdfPath;
+                    fileName = record.TeachersUpdatedPdfName;
+                    break;
+
+                case "Examiner":
+                    filePath = record.ExaminerDetailsPdfPath;
+                    fileName = record.ExaminerDetailsPdfName;
+                    break;
+
+
+                case "Examiner2":
+                    filePath = record.ExaminerDetailsPdfPath2;
+                    fileName = record.ExaminerDetailsPdfName2;
+                    break;
+
+                case "Examiner3":
+                    filePath = record.ExaminerDetailsPdfPath3;
+                    fileName = record.ExaminerDetailsPdfName3;
+                    break;
+
+                case "Examiner4":
+                    filePath = record.ExaminerDetailsPdfPath4;
+                    fileName = record.ExaminerDetailsPdfName4;
+                    break;
+
+                case "Examiner5":
+                    filePath = record.ExaminerDetailsPdfPath5;
+                    fileName = record.ExaminerDetailsPdfName5;
                     break;
 
                 case "AEBAS3Months":
