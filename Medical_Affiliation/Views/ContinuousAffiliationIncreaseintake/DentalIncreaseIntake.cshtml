@@ -1103,6 +1103,7 @@
                                 @* ── 2026-27 Existing (auto from 2025-26 Total) ── *@
                                 <td class="cc">
                                     <input type="number" class="ni" name="@(p).AY2026_ExistingIntake"
+                                            data-r="e26"
                                            value="@c.AY2026_ExistingIntake" />
                                 </td>
 
@@ -1316,17 +1317,10 @@
 
         // ---------------------------------
         // AY 2026-27
-        // Existing = AY2025 Total
+        // Total = AY2026 Existing
         // ---------------------------------
-        set('e26', t25);
-
-        /*
-           AY2026 Add Requested is currently
-           not rendered in your Razor table.
-
-           Therefore total = existing.
-        */
-        const t26 = t25;
+        const e26 = val('e26');
+        const t26 = e26;
 
         set('t26', t26);
     }
