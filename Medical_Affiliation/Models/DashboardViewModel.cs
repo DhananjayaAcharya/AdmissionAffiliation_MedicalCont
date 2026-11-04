@@ -24,6 +24,9 @@
         public List<DistrictMaster> Districts { get; set; } = new();
 
         public List<DashboardLateSubmissionFeeViewModel> LateSubmissionFees { get; set; } = new();
+
+        // Application Overview panel (applied / progress / payments)
+        public ApplicationOverviewViewModel ApplicationOverview { get; set; } = new();
     }
 
     public class DashboardLateSubmissionFeeViewModel
@@ -33,5 +36,41 @@
         public string? CourseLevel { get; set; }
         public DateTime? ActivationDate { get; set; }
         public bool IsActive { get; set; }
+    }
+
+    public class ApplicationOverviewItem
+    {
+        public string TypeId { get; set; } = "";
+        public string TypeName { get; set; } = "";
+        public string CourseLevel { get; set; } = "";
+        public int CourseCount { get; set; }
+        public string? RegistrationNumber { get; set; }
+        public DateTime? SubmittedOn { get; set; }
+
+        public bool IsSubmitted { get; set; }
+        public bool IsPaid { get; set; }
+        public decimal AmountPaid { get; set; }
+        public string? TransactionId { get; set; }
+        public DateTime? PaymentDate { get; set; }
+
+        // 0 = nothing done, 50 = only one of submitted/paid, 100 = both
+        public int Percent => IsSubmitted && IsPaid ? 100 : (IsSubmitted || IsPaid) ? 50 : 0;
+
+        public string StatusText =>
+            IsSubmitted && IsPaid ? "Completed" :
+            IsSubmitted ? "Payment pending" :
+            IsPaid ? "Paid, not submitted" : "Not started";
+
+        public string StatusCss =>
+            IsSubmitted && IsPaid ? "ok" : IsSubmitted ? "warn" : "bad";
+    }
+
+    public class ApplicationOverviewViewModel
+    {
+        public List<ApplicationOverviewItem> Items { get; set; } = new();
+        public int TotalApplications => Items.Count;
+        public int CompletedCount => Items.Count(i => i.IsSubmitted && i.IsPaid);
+        public int PendingCount => Items.Count - CompletedCount;
+        public decimal TotalPaid => Items.Sum(i => i.AmountPaid);
     }
 }

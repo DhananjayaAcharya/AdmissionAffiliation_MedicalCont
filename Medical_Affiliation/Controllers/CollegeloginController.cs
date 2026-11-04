@@ -27,7 +27,6 @@ namespace Admission_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        
 
         public CollegeloginController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment) : base(context)
         {
@@ -44,7 +43,6 @@ namespace Admission_Affiliation.Controllers
             return View();
         }
 
-        //[Authorize(AuthenticationSchemes = "CollegeAuth")]
         // ✅ POST: Handle Login
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -111,20 +109,6 @@ namespace Admission_Affiliation.Controllers
                     IsPersistent = true,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
                 });
-
-
-
-            //bool isPasswordValid = string.IsNullOrEmpty(user.ChangedPassword)
-            //    ? user.Password == model.Password
-            //    : user.ChangedPassword == model.Password;
-
-            //if (!isPasswordValid)
-            //{
-            //    ModelState.AddModelError("", "Invalid College Code or Password.");
-            //    return View(model);
-            //}
-
-            // ✅ Store session
 
             return RedirectToAction("Dashboard");
         }
@@ -264,6 +248,9 @@ namespace Admission_Affiliation.Controllers
                 ViewBag.AffiliationTypes = affiliationTypes;
             }
 
+            // Application Overview: what was applied for, how far each is, and what was paid
+            model.ApplicationOverview = BuildApplicationOverview(collegeCode, facultyCode);
+
             // Surface profile values to the viewbag for backwards compatibility in the view
             ViewBag.CollegeCode = college.CollegeCode;
             ViewBag.CollegeName = college.CollegeName;
@@ -284,6 +271,105 @@ namespace Admission_Affiliation.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Builds the dashboard "Application Overview" from dbo.ApplicationSubmission
+        /// (what was applied for) and dbo.PaymentAffiliationDocuments (what was paid),
+        /// joined on college + type of affiliation + course level.
+        /// </summary>
+        private ApplicationOverviewViewModel BuildApplicationOverview(string collegeCode, string? facultyCode)
+        {
+            // Type of affiliation names come from dbo.MstAffiliationType.
+            // If an id appears for more than one faculty, prefer this college's faculty, then active rows.
+            var typeNames = _context.MstAffiliationTypes
+                .AsNoTracking()
+                .Select(t => new
+                {
+                    Id = t.AffiliationTypeId.ToString(),
+                    Faculty = t.FacultyCode.ToString(),
+                    t.AffiliationCategory,
+                    Active = t.IsActive == true
+                })
+                .ToList()
+                .GroupBy(t => t.Id)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.OrderByDescending(x => x.Faculty == facultyCode)
+                          .ThenByDescending(x => x.Active)
+                          .Select(x => x.AffiliationCategory)
+                          .FirstOrDefault() ?? "");
+
+            // One row per course submitted; collapse to (type, level)
+            var submissions = _context.ApplicationSubmissions
+                .AsNoTracking()
+                .Where(s => s.CollegeCode == collegeCode)
+                .Select(s => new
+                {
+                    Type = s.TypeOfAffiliation.ToString(),
+                    Level = (s.CourseLevel ?? "").Trim().ToUpper(),
+                    s.CourseCode,
+                    s.RegistrationNumber,
+                    s.CreatedOn
+                })
+                .ToList()
+                .GroupBy(s => new { s.Type, s.Level })
+                .ToDictionary(
+                    g => (g.Key.Type, g.Key.Level),
+                    g => new
+                    {
+                        Courses = g.Select(x => x.CourseCode).Distinct().Count(),
+                        Reg = g.Select(x => x.RegistrationNumber).FirstOrDefault(r => !string.IsNullOrWhiteSpace(r)),
+                        On = g.Max(x => (DateTime?)x.CreatedOn)
+                    });
+
+            // Payments for the same (type, level)
+            var payments = _context.PaymentAffiliationDocuments
+                .AsNoTracking()
+                .Where(p => p.CollegeCode == collegeCode)
+                .Select(p => new
+                {
+                    Type = p.AffiliationTypeId.ToString(),
+                    Level = (p.CourseLevel ?? "").Trim().ToUpper(),
+                    p.PaymentAmount,
+                    p.TransactionId,
+                    p.PaymentDate
+                })
+                .ToList()
+                .GroupBy(p => new { p.Type, p.Level })
+                .ToDictionary(
+                    g => (g.Key.Type, g.Key.Level),
+                    g => new
+                    {
+                        Amount = g.Sum(x => (decimal)(x.PaymentAmount ?? 0)),
+                        Txn = g.OrderByDescending(x => x.PaymentDate).Select(x => x.TransactionId).FirstOrDefault(),
+                        On = g.Max(x => (DateTime?)x.PaymentDate)
+                    });
+
+            var keys = submissions.Keys.Union(payments.Keys)
+                .OrderBy(k => k.Level).ThenBy(k => k.Type);
+
+            var vm = new ApplicationOverviewViewModel();
+            foreach (var key in keys)
+            {
+                submissions.TryGetValue(key, out var s);
+                payments.TryGetValue(key, out var p);
+
+                vm.Items.Add(new ApplicationOverviewItem
+                {
+                    TypeId = key.Type,
+                    TypeName = typeNames.TryGetValue(key.Type, out var n) && n.Length > 0 ? n : $"Type {key.Type}",
+                    CourseLevel = key.Level,
+                    CourseCount = s?.Courses ?? 0,
+                    RegistrationNumber = s?.Reg,
+                    SubmittedOn = s?.On,
+                    IsSubmitted = s != null,
+                    IsPaid = p != null && p.Amount > 0,
+                    AmountPaid = p?.Amount ?? 0,
+                    TransactionId = p?.Txn,
+                    PaymentDate = p?.On
+                });
+            }
+            return vm;
+        }
 
         private List<DashboardLateSubmissionFeeViewModel> GetDentalLateSubmissionFees(string facultyCode)
         {
@@ -306,25 +392,18 @@ namespace Admission_Affiliation.Controllers
 
         [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [HttpGet]
-        public async Task<IActionResult> GetDentalApplicationReport( int affiliationTypeId, string courseLevel)
+        public async Task<IActionResult> GetDentalApplicationReport(int affiliationTypeId, string courseLevel)
         {
             try
             {
-                // -------------------------------------------------
                 // Get logged-in college
-                // -------------------------------------------------
-
                 var collegeCode =
                     User.FindFirst("CollegeCode")?.Value?.Trim();
 
                 var facultyCode =
                     User.FindFirst("FacultyCode")?.Value?.Trim();
 
-
-                // -------------------------------------------------
                 // Dental only
-                // -------------------------------------------------
-
                 if (facultyCode != "2")
                 {
                     return Json(new
@@ -334,11 +413,7 @@ namespace Admission_Affiliation.Controllers
                     });
                 }
 
-
-                // -------------------------------------------------
                 // Validate CollegeCode
-                // -------------------------------------------------
-
                 if (string.IsNullOrWhiteSpace(collegeCode))
                 {
                     return Json(new
@@ -348,11 +423,7 @@ namespace Admission_Affiliation.Controllers
                     });
                 }
 
-
-                // -------------------------------------------------
                 // Validate Affiliation Type
-                // -------------------------------------------------
-
                 if (affiliationTypeId <= 0)
                 {
                     return Json(new
@@ -362,13 +433,11 @@ namespace Admission_Affiliation.Controllers
                     });
                 }
 
-
                 var affiliationTypeExists =
                     await _context.TypeOfAffiliations
                         .AsNoTracking()
                         .AnyAsync(x =>
                             x.TypeId == affiliationTypeId);
-
 
                 if (!affiliationTypeExists)
                 {
@@ -379,22 +448,16 @@ namespace Admission_Affiliation.Controllers
                     });
                 }
 
-
-                // -------------------------------------------------
                 // Validate Course Level
-                // -------------------------------------------------
-
                 courseLevel =
                     courseLevel?.Trim().ToUpperInvariant();
 
-
                 var allowedCourseLevels = new[]
                 {
-            "UG",
-            "PG",
-            "SS"
-        };
-
+                    "UG",
+                    "PG",
+                    "SS"
+                };
 
                 if (!allowedCourseLevels.Contains(courseLevel))
                 {
@@ -405,11 +468,7 @@ namespace Admission_Affiliation.Controllers
                     });
                 }
 
-
-                // -------------------------------------------------
                 // Get CaProgress records
-                // -------------------------------------------------
-
                 var progressRecords =
                     await _context.CaProgresses
                         .AsNoTracking()
@@ -424,11 +483,7 @@ namespace Admission_Affiliation.Controllers
                         })
                         .ToListAsync();
 
-
-                // -------------------------------------------------
                 // Get unique completed steps
-                // -------------------------------------------------
-
                 var completedSteps =
                     progressRecords
                         .Where(x =>
@@ -438,75 +493,67 @@ namespace Admission_Affiliation.Controllers
                         .Distinct(StringComparer.OrdinalIgnoreCase)
                         .ToList();
 
-
-                // -------------------------------------------------
                 // Define Dental application steps
-                // -------------------------------------------------
-
                 var totalSteps = new HashSet<string>(
                     new[]
                     {
-                "IntakeDetails",
-                "Institution",
-                "TrustDetails",
-                "TrustMemberDetails",
-                "DeanDetails",
-                "PrincipalDetails",
+                        "IntakeDetails",
+                        "Institution",
+                        "TrustDetails",
+                        "TrustMemberDetails",
+                        "DeanDetails",
+                        "PrincipalDetails",
 
-                "BDSDetails",
-                "PgCourses",
-                "SsCoursesApplied",
-                "DentalFacultyDetails",
+                        "BDSDetails",
+                        "PgCourses",
+                        "SsCoursesApplied",
+                        "DentalFacultyDetails",
 
-                "CourseSubjectSelection",
-                "CourseGeneralDetails",
-                "CourseInfrastructureDetails",
-                "CourseSummaryDetails",
-                "CourseAcademicActivities",
-                "CourseServicesWorkload",
-                "CourseStaffDetails",
+                        "CourseSubjectSelection",
+                        "CourseGeneralDetails",
+                        "CourseInfrastructureDetails",
+                        "CourseSummaryDetails",
+                        "CourseAcademicActivities",
+                        "CourseServicesWorkload",
+                        "CourseStaffDetails",
 
-                "ClinicalFacilities",
-                "ChairDistribution",
-                "BedDistribution",
-                "FacultyDetails",
-                "LandBuilding",
-                "Hostel",
-                "DepartmentUnits",
-                "DentalSkillsLab",
-                "DentalEquipmentDetails",
-                "NonTeachingStaff",
-                "TeachingStaff",
+                        "ClinicalFacilities",
+                        "ChairDistribution",
+                        "BedDistribution",
+                        "FacultyDetails",
+                        "LandBuilding",
+                        "Hostel",
+                        "DepartmentUnits",
+                        "DentalSkillsLab",
+                        "DentalEquipmentDetails",
+                        "NonTeachingStaff",
+                        "TeachingStaff",
 
-                "AcademicMatters",
-                "Finance",
-                "PGAcademicMatters",
+                        "AcademicMatters",
+                        "Finance",
+                        "PGAcademicMatters",
 
-                "LibraryServices",
-                "Library",
-                "DentalLibrary",
-                "DentalLibraryStaff",
-                "DentalLibraryUser",
+                        "LibraryServices",
+                        "Library",
+                        "DentalLibrary",
+                        "DentalLibraryStaff",
+                        "DentalLibraryUser",
 
-                "Vehicle",
-                "StaffDetails",
+                        "Vehicle",
+                        "StaffDetails",
 
-                "Research",
-                "WorkshopDetails",
-                "AnimalHouseDetails",
-                "DentalFieldPracticeArea",
+                        "Research",
+                        "WorkshopDetails",
+                        "AnimalHouseDetails",
+                        "DentalFieldPracticeArea",
 
-                "AdditionalInformationInAcademicActivities",
-                "PaymentDetails",
-                "ActionTakenReport",
+                        "AdditionalInformationInAcademicActivities",
+                        "PaymentDetails",
+                        "ActionTakenReport",
                     },
                     StringComparer.OrdinalIgnoreCase);
 
-
-                // -------------------------------------------------
                 // Course-level specific steps
-                // -------------------------------------------------
-
                 if (courseLevel == "UG")
                 {
                     totalSteps.Remove("PgCourses");
@@ -539,21 +586,15 @@ namespace Admission_Affiliation.Controllers
                     totalSteps.Remove("CourseStaffDetails");
                 }
 
-
-                // -------------------------------------------------
                 // Calculate completed count
-                // -------------------------------------------------
-
                 var completedCount =
                     totalSteps.Count(step =>
                         completedSteps.Contains(
                             step,
                             StringComparer.OrdinalIgnoreCase));
 
-
                 var totalCount =
                     totalSteps.Count;
-
 
                 var percentage =
                     totalCount > 0
@@ -562,15 +603,10 @@ namespace Admission_Affiliation.Controllers
                             totalCount * 100)
                         : 0;
 
-
                 percentage =
                     Math.Clamp(percentage, 0, 100);
 
-
-                // -------------------------------------------------
                 // Return response
-                // -------------------------------------------------
-
                 return Json(new
                 {
                     success = true,
@@ -605,9 +641,7 @@ namespace Admission_Affiliation.Controllers
             decimal? Latitude,          // <-- from the visible <input> fields
             decimal? Longitude)         // <-- from the visible <input> fields
         {
-            // -------------------------------------------------
             // 1️⃣  Basic validation
-            // -------------------------------------------------
             if (string.IsNullOrWhiteSpace(CollegeCode))
             {
                 TempData["Error"] = "Invalid College.";
@@ -628,9 +662,7 @@ namespace Admission_Affiliation.Controllers
                 return RedirectToAction("Dashboard", "CollegeLogin");
             }
 
-            // -------------------------------------------------
             // 2️⃣  Load the college (AffiliationCollegeMaster)
-            // -------------------------------------------------
             var college = await _context.AffiliationCollegeMasters
                 .FirstOrDefaultAsync(x => x.CollegeCode == CollegeCode);
 
@@ -640,15 +672,11 @@ namespace Admission_Affiliation.Controllers
                 return RedirectToAction("Dashboard", "CollegeLogin");
             }
 
-            // -------------------------------------------------
             // 3️⃣  Update the college’s administrative data
-            // -------------------------------------------------
             college.DistrictId = DistrictId;
             college.TalukId = TalukId;
 
-            // -------------------------------------------------
             // 4️⃣  Load (or create) the DentalCollegeLandBuildingDetail
-            // -------------------------------------------------
             var detail = await _context.DentalCollegeLandBuildingDetails
                 .FirstOrDefaultAsync(d => d.CollegeCode == CollegeCode);
 
@@ -663,26 +691,16 @@ namespace Admission_Affiliation.Controllers
                 _context.DentalCollegeLandBuildingDetails.Add(detail);
             }
 
-            // -------------------------------------------------
-            // 5️⃣  Store the latitude / longitude (and keep the
-            //     district/taluk values in sync if you wish)
-            // -------------------------------------------------
+            // 5️⃣  Store the latitude / longitude
             detail.Latitude = Latitude.Value;
             detail.Longitude = Longitude.Value;
 
-            // Optional: keep the district/taluk also on the detail record
-            // (uncomment if you store them there as well)
-            // detail.DistrictId = int.Parse(DistrictId);
-            // detail.TalukId    = int.Parse(TalukId);
-
-            // -------------------------------------------------
             // 6️⃣  Persist changes
-            // -------------------------------------------------
             await _context.SaveChangesAsync();
 
-            //TempData["Success"] = "Location details (coordinates, district & taluk) updated successfully.";l
             return RedirectToAction("Dashboard", "CollegeLogin");
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken] // optional for Logout
         public async Task<IActionResult> Logout()
@@ -695,16 +713,9 @@ namespace Admission_Affiliation.Controllers
 
             // Redirect back to login page
             return RedirectToAction("Login", "Login");
-
-           // return RedirectToAction("MultiLogin", "MainDashboard");
-
         }
 
-
-
-
-        //✅ GET: Change Password
-        //[HttpGet]
+        // ✅ GET: Change Password
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult ChangePassword()
         {
@@ -753,7 +764,6 @@ namespace Admission_Affiliation.Controllers
             return RedirectToAction("GetExpectedDetails", "Collegelogin", new { collegeCode = model.CollegeCode });
         }
 
-
         private string ComputeSha256Hash(string rawData)
         {
             using (SHA256 sha256Hash = SHA256.Create())
@@ -770,58 +780,6 @@ namespace Admission_Affiliation.Controllers
                 return builder.ToString();
             }
         }
-
-        // ✅ GET: Update Institute
-        //[HttpGet]
-        //[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        //public IActionResult UpdateInstitute()
-        //{
-        //    if (!IsLoggedIn()) return RedirectToAction("ClgLogin");
-
-        //    var collegeCode = HttpContext.Session.GetString("CollegeCode");
-
-        //    var model = _context.AffiliationCollegeMasters
-        //        .Where(c => c.CollegeCode == collegeCode)
-        //        .Select(c => new InstituteUpdateViewModel
-        //        {
-        //            PrincipalName = c.PrincipalName,
-        //            PrincipalMobileNo = c.PrincipalMobileNo,
-        //            CollegeEmail = c.CollegeEmail,
-        //            CollegeMobileNo = c.CollegeMobileNo
-        //        }).FirstOrDefault();
-
-        //    if (model == null) return NotFound();
-
-        //    return View(model);
-        //}
-
-        // ✅ POST: Update Institute
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult UpdateInstitute(InstituteUpdateViewModel model)
-        //{
-        //    if (!IsLoggedIn()) return RedirectToAction("ClgLogin");
-
-        //    if (!ModelState.IsValid)
-        //        return View(model);
-
-        //    var collegeCode = HttpContext.Session.GetString("CollegeCode");
-
-        //    var college = _context.AffiliationCollegeMasters
-        //        .FirstOrDefault(c => c.CollegeCode == collegeCode);
-
-        //    if (college == null) return NotFound();
-
-        //    college.PrincipalName = model.PrincipalName;
-        //    college.PrincipalMobileNo = model.PrincipalMobileNo;
-        //    college.CollegeEmail = model.CollegeEmail;
-        //    college.CollegeMobileNo = model.CollegeMobileNo;
-
-        //    _context.SaveChanges();
-
-        //    TempData["Success"] = "Institute details updated successfully!";
-        //    return View(model);
-        //}
 
         // ✅ Shared session check helper
         private bool IsLoggedIn()
@@ -868,74 +826,6 @@ namespace Admission_Affiliation.Controllers
 
             return Json(result);
         }
-
-
-        //public async Task<IActionResult> CollegeDetails(string code)
-        //{
-        //    var college = await _context.AffiliationCollegeMasters
-        //        .FirstOrDefaultAsync(e => e.CollegeCode == code);
-
-        //    if (college == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    // Get intake details for this college
-        //    var intakeDetails = await _context.CollegeCourseIntakeDetails
-        //        .Where(i => i.CollegeCode == code)
-        //        .ToListAsync();
-
-        //    var courses = await _context.CourseMasters.ToListAsync();
-        //    //var freshTypes = await _context.FreshOrIncreaseMasters.ToListAsync();
-        //    var faculties = await _context.Faculties.ToListAsync();
-        //    var freshOrContinuation = await _context.FreshOrIncreaseMasters.ToListAsync();
-        //    var distinctCourseLevels = courses
-        //        .OrderBy(e => e.DisplayOrder)
-        //        .Select(e => e.CourseLevel)
-        //        .Distinct()
-        //        .ToList();
-
-        //    // Map intake details to CollegeIntakeDetailViewModel
-        //    var intakeViewModels = intakeDetails.Select(i => new CollegeIntakeDetailViewModel
-        //    {
-        //        Id = i.Id,
-        //        CourseCode = i.CourseCode,
-        //        CourseName = courses.FirstOrDefault(c => c.CourseCode == i.CourseCode)?.CourseName,
-        //        SelectedCourse = i.CourseCode,
-        //        Courses = courses,
-        //        //FreshOrIncreaseMasters = freshOrContinuation,
-        //        CourseLevels = distinctCourseLevels,
-        //        IsCorrect = i.IsRemarksExist==false,
-        //        IsIncorrect = i.IsRemarksExist==true,
-        //        ExistingIntake = i.SanctionedIntakeFirstYear,
-        //        FacultyCode = i.FacultyCode,
-        //        //DocumentBytes = i.Document,
-        //    }).ToList();
-
-        //    // If no records, add one blank row
-        //    if (!intakeViewModels.Any())
-        //    {
-        //        intakeViewModels.Add(new CollegeIntakeDetailViewModel
-        //        {
-        //            CourseLevels = distinctCourseLevels,
-        //            //Courses = courses,
-        //            FreshOrIncreaseMasters = freshOrContinuation
-        //        });
-        //    }
-
-        //    var viewModel = new CollegeDetailsViewModel
-        //    {
-        //        FacultyMaster = faculties,
-        //        CollegeCode = college.CollegeCode,
-        //        CollegeName = college.CollegeName,
-        //        CollegeIntakeDetailViewModel = intakeViewModels,
-        //        CourseLevels = distinctCourseLevels,
-        //        FreshOrIncreaseMasters = freshOrContinuation
-        //    };
-
-        //    return View("CollegeDetails", viewModel);
-        //}
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1012,626 +902,6 @@ namespace Admission_Affiliation.Controllers
             TempData["Success"] = "College intake data saved successfully.";
             return RedirectToAction("CollegeDetails");
         }
-
-        //[Authorize(AuthenticationSchemes = "CollegeAuth")]
-        //[HttpGet]
-        //public async Task<IActionResult> GetExpectedDetails(string collegeCode, string courseLevel, bool showPasswordPopup = false)
-        //{
-        //    ViewBag.ShowPasswordPopup = showPasswordPopup;
-
-        //    // 1. Resolve collegeCode (query > session)
-        //    if (string.IsNullOrWhiteSpace(collegeCode))
-        //    {
-        //        collegeCode = HttpContext.Session.GetString("CollegeCode");
-        //        if (string.IsNullOrWhiteSpace(collegeCode))
-        //        {
-        //            HttpContext.Session.Clear();
-        //            await HttpContext.SignOutAsync("CollegeAuth");
-        //            return RedirectToAction("Login", "Login");
-        //        }
-        //    }
-
-        //    // 2. Default course level
-        //    if (string.IsNullOrWhiteSpace(courseLevel))
-        //    {
-        //        courseLevel = "PG";
-        //    }
-
-        //    // 3. Load base data
-        //    var collegeDetails = await _context.CollegeCourseIntakeDetails
-        //        .FirstOrDefaultAsync(e => e.CollegeCode == collegeCode);
-
-        //    var affiliationDetails = await _context.AffiliationCollegeMasters
-        //        .FirstOrDefaultAsync(e => e.CollegeCode == collegeCode);
-
-        //    // 4. Courses for selected level
-        //    var courses = await (
-        //            from c in _context.CollegeCourseIntakeDetails
-        //            join m in _context.MstCourses
-        //                on c.CourseCode equals m.CourseCode.ToString()
-        //            where c.CollegeCode == collegeCode
-        //                  && m.CourseLevel == courseLevel
-        //            orderby c.CourseName
-        //            select new CourseDetail
-        //            {
-        //                CourseCode = c.CourseCode,
-        //                CourseName = m.CourseName,
-        //                ExistingIntake = c.ExistingIntake,
-        //                PresentIntake = c.PresentIntake,
-        //                RguhsIntake202526 = c.RguhsIntake202526,
-        //                CollegeIntake202526 = c.CollegeIntake202526,
-
-        //                // UI HIDDEN NOW – still computed if you need view flags
-        //                IsDocument1Available = c.DocumentAffiliation != null && c.DocumentAffiliation.Length > 0,
-        //                IsDocument2Available = c.DocumentLop != null && c.DocumentLop.Length > 0,
-
-        //                // for disabling some inputs in view (but NOT LOP/NMC 2026-27)
-        //                freezeStatus = c.FreezeFlag == 1,
-        //                CourseLevel = courseLevel,
-
-        //                // NEW docs flags if needed
-        //                IsDocumentLop202627Available = c.DocumentLop202627 != null && c.DocumentLop202627.Length > 0,
-        //                IsDocumentNmc202627Available = c.DocumentNmc202627 != null && c.DocumentNmc202627.Length > 0
-        //            })
-        //        .ToListAsync();
-
-        //    // 5. Submit display flags per level
-        //    var ugSubmitStatus = courses.Any(e => e.CourseLevel == "UG" && e.freezeStatus);
-        //    var pgSubmitStatus = courses.Any(c => c.CourseLevel == "PG" && c.freezeStatus);
-        //    var supSubmitStatus = courses.Any(c => c.CourseLevel == "SS" && c.freezeStatus);
-
-        //    ViewBag.UgSubmitDisplay = !ugSubmitStatus;
-        //    ViewBag.PgSubmitDisplay = !pgSubmitStatus;
-        //    ViewBag.SupSubmitDisplay = !supSubmitStatus;
-
-        //    HttpContext.Session.SetString("IsSubmitDisplay", ugSubmitStatus.ToString());
-
-        //    // 6. Principal name existence flag (if you still need it)
-        //    ViewBag.IsPrincipalNameExists = await (
-        //        from cc in _context.CollegeCourseIntakeDetails
-        //        join acm in _context.AffiliationCollegeMasters on cc.CollegeCode equals acm.CollegeCode
-        //        where cc.PresentIntake > 0
-        //        select acm.CollegeCode
-        //    ).AnyAsync();
-
-        //    // 7. Build view model
-        //    var model = new CollegeCourseViewModel
-        //    {
-        //        CollegeCode = collegeCode,
-        //        CollegeName = collegeDetails?.CollegeName,
-        //        SelectedCourseLevel = courseLevel,
-        //        CollegeAddress = collegeDetails?.CollegeAddress,
-        //        PrincipalNameUG = affiliationDetails?.PrincipalNameDeclared,
-        //        PrincipalNamePG = affiliationDetails?.PrincipalNameDeclared,
-        //        PrincipalNameSS = affiliationDetails?.PrincipalNameDeclared,
-        //        Courses = courses,
-        //        DocumentUpload = await _context.AffiliationCollegeMasters
-        //            .Where(e => e.CollegeCode == collegeCode)
-        //            .Select(e => new DocumentUploadViewModel
-        //            {
-        //                IsDocsALlUploaded = e.AllDocsForCourse != null && e.AllDocsForCourse.Length > 0,
-        //                CollegeCode = e.CollegeCode
-        //            })
-        //            .FirstOrDefaultAsync(),
-        //        CourseLevelList = await _context.MstCourses
-        //            .Select(e => e.CourseLevel.Trim())
-        //            .Distinct()
-        //            .Select(cl => new SelectListItem
-        //            {
-        //                Value = cl,
-        //                Text = cl
-        //            })
-        //            .OrderBy(e => e.Value)
-        //            .ToListAsync(),
-        //    };
-
-        //    return View(model);
-        //}
-
-        //[HttpPost]
-        //[ActionName("GetExpectedDetails")]
-        //[RequestFormLimits(ValueCountLimit = 100000)]
-        //public async Task<IActionResult> GetExpectedDetails(CollegeCourseViewModel model, List<IFormFile> AllDocuments)
-        //{
-        //    const long maxFileSize = 2 * 1024 * 1024; // 2 MB
-
-        //    if (model == null || model.Courses == null || !model.Courses.Any())
-        //    {
-        //        TempData["ValidationErrors"] = JsonSerializer.Serialize(
-        //            new List<string> { "No course data submitted." });
-        //        return RedirectToAction("GetExpectedDetails",
-        //            new { collegeCode = model?.CollegeCode, courseLevel = model?.SelectedCourseLevel });
-        //    }
-
-        //    // 0. Determine which level was submitted (UG/PG/SS) from the clicked button
-        //    var submitLevel = Request.Form["SubmitLevel"].FirstOrDefault() ?? model.SelectedCourseLevel;
-
-        //    // 1. VALIDATE COURSE-LEVEL FILES (incl. new 2026-27 docs)
-        //    foreach (var course in model.Courses)
-        //    {
-        //        // Document1: RGUHS Affiliation Notification
-        //        if (course.Document1 != null && course.Document1.Length > 0)
-        //        {
-        //            if (course.Document1.Length > maxFileSize)
-        //                ModelState.AddModelError("", $"RGUHS Affiliation Notification for {course.CourseName} exceeds 2 MB.");
-        //            if (course.Document1.ContentType != "application/pdf")
-        //                ModelState.AddModelError("", $"RGUHS Affiliation Notification for {course.CourseName} must be a PDF.");
-        //        }
-
-        //        // Document2: NMC LOP (Current)
-        //        if (course.Document2 != null && course.Document2.Length > 0)
-        //        {
-        //            if (course.Document2.Length > maxFileSize)
-        //                ModelState.AddModelError("", $"NMC LOP for {course.CourseName} exceeds 2 MB.");
-        //            if (course.Document2.ContentType != "application/pdf")
-        //                ModelState.AddModelError("", $"NMC LOP for {course.CourseName} must be a PDF.");
-        //        }
-
-        //        // NEW DocumentLop202627: LOP 2026-27
-        //        if (course.DocumentLop202627 != null && course.DocumentLop202627.Length > 0)
-        //        {
-        //            if (course.DocumentLop202627.Length > maxFileSize)
-        //                ModelState.AddModelError("", $"LOP 2026-27 for {course.CourseName} exceeds 2 MB.");
-        //            if (course.DocumentLop202627.ContentType != "application/pdf")
-        //                ModelState.AddModelError("", $"LOP 2026-27 for {course.CourseName} must be a PDF.");
-        //        }
-
-        //        // NEW DocumentNmc202627: NMC 2026-27
-        //        if (course.DocumentNmc202627 != null && course.DocumentNmc202627.Length > 0)
-        //        {
-        //            if (course.DocumentNmc202627.Length > maxFileSize)
-        //                ModelState.AddModelError("", $"NMC 2026-27 for {course.CourseName} exceeds 2 MB.");
-        //            if (course.DocumentNmc202627.ContentType != "application/pdf")
-        //                ModelState.AddModelError("", $"NMC 2026-27 for {course.CourseName} must be a PDF.");
-        //        }
-        //    }
-
-        //    // *** REMOVE COURSE-LEVEL / ROUTE CONFLICT KEYS FROM MODELSTATE ***
-        //    var keysToRemove = ModelState.Keys.Where(k =>
-        //        k.Contains("CourseLevel", StringComparison.OrdinalIgnoreCase) ||
-        //        k.Contains("courseLevel", StringComparison.OrdinalIgnoreCase) ||
-        //        k.Contains("collegeCode", StringComparison.OrdinalIgnoreCase) ||
-        //        k.Contains("SelectedCourseLevel", StringComparison.OrdinalIgnoreCase)
-        //    ).ToList();
-
-        //    foreach (var key in keysToRemove)
-        //        ModelState.Remove(key);
-
-        //    // 2. Validate ModelState (only file errors remain)
-        //    if (!ModelState.IsValid)
-        //    {
-        //        TempData["ValidationErrors"] = JsonSerializer.Serialize(
-        //            ModelState.Values
-        //                .SelectMany(v => v.Errors)
-        //                .Select(e => e.ErrorMessage)
-        //                .Where(e => !string.IsNullOrEmpty(e)));
-
-        //        return RedirectToAction("GetExpectedDetails",
-        //            new { collegeCode = model.CollegeCode, courseLevel = model.SelectedCourseLevel });
-        //    }
-
-        //    // 3. Validate Principal Name (any level)
-        //    var principalName = model.PrincipalNamePG ?? model.PrincipalNameUG ?? model.PrincipalNameSS;
-        //    if (string.IsNullOrWhiteSpace(principalName))
-        //    {
-        //        TempData["PrincipalErrorMessage"] = "Principal Name is required.";
-        //        return RedirectToAction("GetExpectedDetails",
-        //            new { collegeCode = model.CollegeCode, courseLevel = model.SelectedCourseLevel });
-        //    }
-
-        //    // 4. Update College Declaration Status
-        //    var collegeMaster = await _context.AffiliationCollegeMasters
-        //        .FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode);
-
-        //    if (collegeMaster != null)
-        //    {
-        //        string isDeclaredValue = (model.DeclarationAcceptedUG ||
-        //                                  model.DeclarationAcceptedPG ||
-        //                                  model.DeclarationAcceptedSS) ? "Y" : "N";
-
-        //        collegeMaster.IsDeclared = isDeclaredValue;
-        //        collegeMaster.PrincipalNameDeclared = principalName;
-        //        _context.Entry(collegeMaster).State = EntityState.Modified;
-        //    }
-
-        //    // 5. Load college info once
-        //    var collegeInfo = await _context.CollegeCourseIntakeDetails
-        //        .FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode);
-
-        //    int courseAffectedRows = 0;
-
-        //    // 6. Process EACH COURSE (CREATE/UPDATE)
-        //    foreach (var course in model.Courses)
-        //    {
-        //        var dbCourse = await _context.CollegeCourseIntakeDetails
-        //            .FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode && c.CourseCode == course.CourseCode);
-
-        //        if (dbCourse == null)
-        //        {
-        //            // CREATE NEW COURSE RECORD
-        //            var newCourse = new CollegeCourseIntakeDetail
-        //            {
-        //                CollegeCode = model.CollegeCode,
-        //                CollegeName = collegeInfo?.CollegeName?.Trim(),
-        //                CollegeAddress = collegeInfo?.CollegeAddress,
-        //                CourseCode = course.CourseCode,
-        //                CourseName = course.CourseName,
-        //                ExistingIntake = course.ExistingIntake,
-        //                PresentIntake = course.PresentIntake,
-
-        //                // nvarchar fields copied as string
-        //                RguhsIntake202526 = course.RguhsIntake202526,
-        //                CollegeIntake202526 = course.CollegeIntake202526,
-
-        //                FreezeFlag = submitLevel == course.CourseLevel ? 1 : 0
-        //            };
-
-        //            if (course.Document1 != null && course.Document1.Length > 0)
-        //            {
-        //                using var ms1 = new MemoryStream();
-        //                await course.Document1.CopyToAsync(ms1);
-        //                newCourse.DocumentAffiliation = ms1.ToArray();
-        //            }
-
-        //            if (course.Document2 != null && course.Document2.Length > 0)
-        //            {
-        //                using var ms2 = new MemoryStream();
-        //                await course.Document2.CopyToAsync(ms2);
-        //                newCourse.DocumentLop = ms2.ToArray();
-        //            }
-
-        //            if (course.DocumentLop202627 != null && course.DocumentLop202627.Length > 0)
-        //            {
-        //                using var msLop = new MemoryStream();
-        //                await course.DocumentLop202627.CopyToAsync(msLop);
-        //                newCourse.DocumentLop202627 = msLop.ToArray();
-        //            }
-
-        //            if (course.DocumentNmc202627 != null && course.DocumentNmc202627.Length > 0)
-        //            {
-        //                using var msNmc = new MemoryStream();
-        //                await course.DocumentNmc202627.CopyToAsync(msNmc);
-        //                newCourse.DocumentNmc202627 = msNmc.ToArray();
-        //            }
-
-        //            await _context.CollegeCourseIntakeDetails.AddAsync(newCourse);
-        //        }
-        //        else
-        //        {
-        //            // UPDATE EXISTING COURSE
-        //            // IMPORTANT: Do NOT touch dbCourse.RguhsIntake202526 here
-
-        //            // 1) CollegeIntake202526 (nvarchar, from form)
-        //            dbCourse.CollegeIntake202526 = course.CollegeIntake202526;
-
-        //            // Mark ONLY CollegeIntake202526 as modified
-        //            _context.Entry(dbCourse).Property(x => x.CollegeIntake202526).IsModified = true;
-
-        //            // Explicitly ensure RguhsIntake202526 is not modified
-        //            _context.Entry(dbCourse).Property(x => x.RguhsIntake202526).IsModified = false;
-
-        //            // Freeze flag only for submitted level
-        //            if (submitLevel == course.CourseLevel)
-        //            {
-        //                dbCourse.FreezeFlag = 1;
-        //                _context.Entry(dbCourse).Property(x => x.FreezeFlag).IsModified = true;
-        //            }
-
-        //            // Existing & Present intake (if you want them editable)
-        //            if (course.ExistingIntake.HasValue && course.ExistingIntake.Value > 0)
-        //            {
-        //                dbCourse.ExistingIntake = course.ExistingIntake.Value;
-        //                _context.Entry(dbCourse).Property(x => x.ExistingIntake).IsModified = true;
-        //            }
-
-        //            if (course.PresentIntake.HasValue && course.PresentIntake.Value > 0)
-        //            {
-        //                dbCourse.PresentIntake = course.PresentIntake.Value;
-        //                _context.Entry(dbCourse).Property(x => x.PresentIntake).IsModified = true;
-        //            }
-
-        //            // Documents – update only when new file uploaded
-        //            if (course.Document1 != null && course.Document1.Length > 0)
-        //            {
-        //                using var ms1 = new MemoryStream();
-        //                await course.Document1.CopyToAsync(ms1);
-        //                dbCourse.DocumentAffiliation = ms1.ToArray();
-        //                _context.Entry(dbCourse).Property(x => x.DocumentAffiliation).IsModified = true;
-        //            }
-
-        //            if (course.Document2 != null && course.Document2.Length > 0)
-        //            {
-        //                using var ms2 = new MemoryStream();
-        //                await course.Document2.CopyToAsync(ms2);
-        //                dbCourse.DocumentLop = ms2.ToArray();
-        //                _context.Entry(dbCourse).Property(x => x.DocumentLop).IsModified = true;
-        //            }
-
-        //            if (course.DocumentLop202627 != null && course.DocumentLop202627.Length > 0)
-        //            {
-        //                using var msLop = new MemoryStream();
-        //                await course.DocumentLop202627.CopyToAsync(msLop);
-        //                dbCourse.DocumentLop202627 = msLop.ToArray();
-        //                _context.Entry(dbCourse).Property(x => x.DocumentLop202627).IsModified = true;
-        //            }
-
-        //            if (course.DocumentNmc202627 != null && course.DocumentNmc202627.Length > 0)
-        //            {
-        //                using var msNmc = new MemoryStream();
-        //                await course.DocumentNmc202627.CopyToAsync(msNmc);
-        //                dbCourse.DocumentNmc202627 = msNmc.ToArray();
-        //                _context.Entry(dbCourse).Property(x => x.DocumentNmc202627).IsModified = true;
-        //            }
-        //        }
-        //    }
-
-        //    // 7. Save course changes
-        //    courseAffectedRows = await _context.SaveChangesAsync();
-
-        //    // 8. Handle AllDocuments (PG level combined upload)
-        //    if (AllDocuments != null && AllDocuments.Count > 0 && model.SelectedCourseLevel == "PG")
-        //    {
-        //        foreach (var file in AllDocuments)
-        //        {
-        //            if (file.Length > maxFileSize)
-        //            {
-        //                TempData["ValidationErrors"] = JsonSerializer.Serialize(
-        //                    new List<string> { $"File {file.FileName} exceeds 2 MB." });
-        //                return RedirectToAction("GetExpectedDetails",
-        //                    new { collegeCode = model.CollegeCode, courseLevel = model.SelectedCourseLevel });
-        //            }
-        //            if (file.ContentType != "application/pdf")
-        //            {
-        //                TempData["ValidationErrors"] = JsonSerializer.Serialize(
-        //                    new List<string> { $"File {file.FileName} must be PDF." });
-        //                return RedirectToAction("GetExpectedDetails",
-        //                    new { collegeCode = model.CollegeCode, courseLevel = model.SelectedCourseLevel });
-        //            }
-        //        }
-
-        //        var college = await _context.AffiliationCollegeMasters
-        //            .FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode);
-
-        //        if (college != null)
-        //        {
-        //            try
-        //            {
-        //                using var msZip = new MemoryStream();
-        //                using (var archive = new ZipArchive(msZip, ZipArchiveMode.Create, true))
-        //                {
-        //                    foreach (var file in AllDocuments)
-        //                    {
-        //                        var zipEntry = archive.CreateEntry(file.FileName);
-        //                        using var entryStream = zipEntry.Open();
-        //                        await file.CopyToAsync(entryStream);
-        //                    }
-        //                }
-
-        //                college.AllDocsForCourse = msZip.ToArray();
-        //                _context.Entry(college).State = EntityState.Modified;
-        //                await _context.SaveChangesAsync();
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                TempData["ValidationErrors"] = JsonSerializer.Serialize(
-        //                    new List<string> { $"ZIP creation failed: {ex.Message}" });
-        //                return RedirectToAction("GetExpectedDetails",
-        //                    new { collegeCode = model.CollegeCode, courseLevel = model.SelectedCourseLevel });
-        //            }
-        //        }
-        //    }
-
-        //    // 9. Success message
-        //    TempData["Success"] =
-        //        $"Course details saved successfully! {courseAffectedRows} course record(s) updated with 2025-26 & 2026-27 intake data.";
-
-        //    return RedirectToAction("GetExpectedDetails",
-        //        new { collegeCode = model.CollegeCode, courseLevel = model.SelectedCourseLevel });
-        //}
-
-
-        //[HttpPost]
-        //public async Task<IActionResult> GetExpectedDetails(CollegeCourseViewModel model)
-        //{
-        //    const long maxFileSize = 2 * 1024 * 1024; // 2 MB
-
-        //    // Validate files before any saving
-        //    foreach (var course in model.Courses)
-        //    {
-        //        if (course.Document1 == null || course.Document1.Length == 0)
-        //        {
-        //            ModelState.AddModelError("", $"Document1 is required for course {course.CourseName}.");
-        //        }
-        //        else
-        //        {
-        //            if (course.Document1.Length > maxFileSize)
-        //                ModelState.AddModelError("", $"Document1 for {course.CourseName} exceeds 2 MB.");
-        //            if (course.Document1.ContentType != "application/pdf")
-        //                ModelState.AddModelError("", $"Document1 for {course.CourseName} must be a PDF.");
-        //        }
-
-        //        if (course.Document2 == null || course.Document2.Length == 0)
-        //        {
-        //            ModelState.AddModelError("", $"Document2 is required for course {course.CourseName}.");
-        //        }
-        //        else
-        //        {
-        //            if (course.Document2.Length > maxFileSize)
-        //                ModelState.AddModelError("", $"Document2 for {course.CourseName} exceeds 2 MB.");
-        //            if (course.Document2.ContentType != "application/pdf")
-        //                ModelState.AddModelError("", $"Document2 for {course.CourseName} must be a PDF.");
-        //        }
-        //    }
-
-        //    //if (!ModelState.IsValid)
-        //    //{
-        //    //    // Prepare errors and reload data
-        //    //    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-        //    //    TempData["ValidationErrors"] = JsonSerializer.Serialize(errors);
-
-        //    //    model.Courses = await _context.CollegeCourseIntakeDetails
-        //    //        .Where(c => c.CollegeCode == model.CollegeCode)
-        //    //        .Select(c => new CourseDetail
-        //    //        {
-        //    //            CourseName = c.CourseName,
-        //    //            ExistingIntake = c.ExistingIntake ?? 0,
-        //    //            PresentIntake = c.PresentIntake,
-        //    //            IsDocument1Available = c.DocumentAffiliation != null && c.DocumentAffiliation.Length > 0,
-        //    //            IsDocument2Available = c.DocumentLop != null && c.DocumentLop.Length > 0
-        //    //        })
-        //    //        .ToListAsync();
-
-        //    //    model.DocumentUpload = await _context.AffiliationCollegeMasters
-        //    //        .Where(e => e.CollegeCode == model.CollegeCode)
-        //    //        .Select(e => new DocumentUploadViewModel
-        //    //        {
-        //    //            IsDocsALlUploaded = e.AllDocsForCourse != null && e.AllDocsForCourse.Length > 0,
-        //    //            CollegeCode = e.CollegeCode
-        //    //        })
-        //    //        .FirstOrDefaultAsync();
-
-        //    //    return View(model);
-        //    //}
-
-        //    // Now save/update records
-        //    foreach (var course in model.Courses)
-        //    {
-        //        var dbCourse = await _context.CollegeCourseIntakeDetails
-        //            .FirstOrDefaultAsync(c => c.CollegeCode == model.CollegeCode && c.CourseName == course.CourseName);
-
-        //        if (dbCourse == null)
-        //        {
-        //            var newCourse = new CollegeCourseIntakeDetail
-        //            {
-        //                CollegeCode = model.CollegeCode,
-        //                CourseName = course.CourseName,
-        //                ExistingIntake = course.ExistingIntake ?? 0,
-        //                PresentIntake = course.PresentIntake
-        //            };
-
-        //            if (course.Document1 != null && course.Document1.Length > 0)
-        //            {
-        //                using (var ms = new MemoryStream())
-        //                {
-        //                    await course.Document1.CopyToAsync(ms);
-        //                    newCourse.DocumentAffiliation = ms.ToArray();
-        //                }
-        //            }
-
-        //            if (course.Document2 != null && course.Document2.Length > 0)
-        //            {
-        //                using (var ms = new MemoryStream())
-        //                {
-        //                    await course.Document2.CopyToAsync(ms);
-        //                    newCourse.DocumentLop = ms.ToArray();
-        //                }
-        //            }
-
-        //            await _context.CollegeCourseIntakeDetails.AddAsync(newCourse);
-        //        }
-        //        else
-        //        {
-        //            dbCourse.PresentIntake = course.PresentIntake;
-
-        //            if (course.Document1 != null && course.Document1.Length > 0)
-        //            {
-        //                using (var ms = new MemoryStream())
-        //                {
-        //                    await course.Document1.CopyToAsync(ms);
-        //                    dbCourse.DocumentAffiliation = ms.ToArray();
-        //                }
-        //            }
-
-        //            if (course.Document2 != null && course.Document2.Length > 0)
-        //            {
-        //                using (var ms = new MemoryStream())
-        //                {
-        //                    await course.Document2.CopyToAsync(ms);
-        //                    dbCourse.DocumentLop = ms.ToArray();
-        //                }
-        //            }
-
-        //            _context.Entry(dbCourse).State = EntityState.Modified;
-        //        }
-        //    }
-
-        //    int affectedRows = await _context.SaveChangesAsync();
-        //    if (affectedRows == 0)
-        //    {
-        //        throw new Exception("SaveChangesAsync returned 0. Nothing was saved.");
-        //    }
-
-        //    TempData["Success"] = "Details saved successfully!";
-        //    return RedirectToAction("GetExpectedDetails", new { collegeCode = model.CollegeCode });
-        //}
-        //[HttpGet]
-        //public async Task<IActionResult> ViewDocument(string collegeCode, string courseName, string documentType)
-        //{
-        //    if (string.IsNullOrWhiteSpace(collegeCode) ||
-        //        string.IsNullOrWhiteSpace(courseName) ||
-        //        string.IsNullOrWhiteSpace(documentType))
-        //    {
-        //        return BadRequest("Invalid request parameters.");
-        //    }
-
-        //    // courseName is actually CourseCode in your links
-        //    var course = await _context.CollegeCourseIntakeDetails
-        //        .FirstOrDefaultAsync(c => c.CollegeCode == collegeCode && c.CourseCode == courseName);
-
-        //    if (course == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    byte[] fileBytes = null;
-        //    string fileName = "document.pdf";
-        //    const string contentType = "application/pdf";
-
-        //    switch (documentType)
-        //    {
-        //        case "Document1":   // RGUHS Affiliation Notification
-        //            if (course.DocumentAffiliation != null && course.DocumentAffiliation.Length > 0)
-        //            {
-        //                fileBytes = course.DocumentAffiliation;
-        //                fileName = "RGUHS_Affiliation.pdf";
-        //            }
-        //            break;
-
-        //        case "Document2":   // NMC LOP (Current)
-        //            if (course.DocumentLop != null && course.DocumentLop.Length > 0)
-        //            {
-        //                fileBytes = course.DocumentLop;
-        //                fileName = "NMC_LOP_Current.pdf";
-        //            }
-        //            break;
-
-        //        case "DocumentLop202627":   // LOP 2026-27
-        //            if (course.DocumentLop202627 != null && course.DocumentLop202627.Length > 0)
-        //            {
-        //                fileBytes = course.DocumentLop202627;
-        //                fileName = "LOP_2026_27.pdf";
-        //            }
-        //            break;
-
-        //        case "DocumentNmc202627":   // NMC 2026-27
-        //            if (course.DocumentNmc202627 != null && course.DocumentNmc202627.Length > 0)
-        //            {
-        //                fileBytes = course.DocumentNmc202627;
-        //                fileName = "NMC_2026_27.pdf";
-        //            }
-        //            break;
-
-        //        default:
-        //            return BadRequest("Unknown document type.");
-        //    }
-
-        //    if (fileBytes == null)
-        //    {
-        //        return NotFound("Document not found.");
-        //    }
-
-        //    return File(fileBytes, contentType, fileName);
-        //}
 
         [HttpPost]
         public async Task<IActionResult> UploadAllDocuments(string CollegeCode, List<IFormFile> AllDocuments)
@@ -1740,38 +1010,6 @@ namespace Admission_Affiliation.Controllers
 
             return NotFound("Document not found.");
         }
-
-
-
-        //[HttpGet]
-        //public async Task<IActionResult> ViewDocument1(string collegeCode, string documentType)
-        //{
-        //    var course = await _context.AffiliationCollegeMasters
-        //        .FirstOrDefaultAsync(c => c.CollegeCode == collegeCode);
-
-        //    if (course == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    byte[] fileBytes = null;
-        //    string fileName = "";
-        //    string contentType = "application/pdf"; // or "application/octet-stream"
-
-        //    if (documentType == "AllDocuments" && course.AllDocsForCourse != null)
-        //    {
-        //        fileBytes = course.AllDocsForCourse;
-        //        fileName = "AllDocs.pdf";
-        //    }
-
-
-        //    if (fileBytes == null)
-        //    {
-        //        return NotFound("Document not found.");
-        //    }
-
-        //    return File(fileBytes, contentType, fileName);
-        //}
 
         [HttpGet]
         public async Task<IActionResult> AHSCollegeVerification()
@@ -1932,13 +1170,11 @@ namespace Admission_Affiliation.Controllers
                 }
             }
 
-
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Verification data and documents saved successfully.";
             return RedirectToAction("AHSCollegeVerification");
         }
-
 
         [HttpGet]
         public async Task<IActionResult> ViewCollegeDocument(string collegeCode)
@@ -1954,38 +1190,6 @@ namespace Admission_Affiliation.Controllers
             // Assuming it's PDF. Change MIME type if Word/Image/etc.
             return File(document, "application/pdf", "CollegeDocument.pdf");
         }
-
-        //[HttpGet]
-        //public async Task<IActionResult> DownloadCollegeDoc(string collegeCode)
-        //{
-        //    //var college = await _context.CollegeCourseIntakeDetails
-        //    //    .Where(c => c.CollegeCode == collegeCode)
-        //    //    .Select(c => new { c.DocumentAffiliation })
-        //    //    .FirstOrDefaultAsync();
-
-        //    //if (college == null || college.DocumentAffiliation == null || college.DocumentAffiliation.Length == 0)
-        //    //{
-        //    //    return NotFound("No document found for this college.");
-        //    //}
-
-        //    //// Send file as application/pdf (or application/octet-stream for generic)
-        //    //return File(college.DocumentAffiliation, "application/pdf", "CollegeDocument.pdf");
-
-        //    var college = await _context.CollegeCourseIntakeDetails
-        //        .FirstOrDefaultAsync(c => c.CollegeCode == collegeCode);
-
-        //    if (college == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    if (college.DocumentAffiliation != null)
-        //    {
-        //        return File(college.DocumentAffiliation, "application/zip", "AllDocs.zip");
-        //    }
-
-        //    return NotFound("Document not found.");
-        //}
 
         [HttpGet]
         public async Task<IActionResult> DownloadCollegeDoc(string collegeCode)
@@ -2136,6 +1340,5 @@ namespace Admission_Affiliation.Controllers
             TempData["SuccessMessage"] = "College logo updated successfully.";
             return RedirectToAction("Dashboard");
         }
-
     }
 }
