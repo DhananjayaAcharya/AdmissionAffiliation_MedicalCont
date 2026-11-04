@@ -39,18 +39,25 @@ public class CourseLevelScheduleController : Controller
         {
             var items = await _schedule.GetAsync(faculty, ct);
 
-            // Levels this college offers (Mst_MedicalCollegeCourseIntake.ug_pg). A failure here must not
-            // hide the deadline data, so it is reported with a flag instead of a 500.
+            // Levels this college offers. Medical colleges are read from Mst_MedicalCollegeCourseIntake.ug_pg;
+            // dental colleges (faculty 2) are not there, so their levels come from AcademicIntake.Courses
+            // joined through Mst_Course.CourseLevel. A failure here must not hide the deadline data, so it
+            // is reported with a flag instead of a 500.
             IReadOnlyList<string> collegeLevels = Array.Empty<string>();
             var collegeLevelsFailed = false;
+            var collegeCode = HttpContext.Session.GetString("CollegeCode") ?? "";
             try
             {
-                collegeLevels = await _schedule.GetCollegeLevelsAsync(HttpContext.Session.GetString("CollegeCode") ?? "", ct);
+                collegeLevels =  await _schedule.GetCollegeLevelsAsync(collegeCode, ct);
+                if(faculty == 2)
+                {
+                    collegeLevels = await _schedule.GetDentalCollegeLevelsAsync(collegeCode, ct);
+                }
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 collegeLevelsFailed = true;
-                _logger.LogError(ex, "Failed to load course levels for college {College}", HttpContext.Session.GetString("CollegeCode"));
+                _logger.LogError(ex, "Failed to load course levels for college {College}", collegeCode);
             }
 
             Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
