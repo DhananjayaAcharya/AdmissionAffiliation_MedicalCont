@@ -692,7 +692,15 @@
                 body: formData
             })
             .then(function (response) {
-                return response.json().then(function (result) {
+                // Read as text first so an HTML error page (500, login redirect, etc.)
+                // shows a readable message instead of "Unexpected token '<'".
+                return response.text().then(function (text) {
+                    var result;
+                    try {
+                        result = JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('The server returned an unexpected response (HTTP ' + response.status + '). Please try again, or contact support if it continues.');
+                    }
                     if (!response.ok) {
                         var msg = result.errors
                             ? result.errors.map(function (e) { return e.Messages.join(', '); }).join(' | ')
@@ -705,9 +713,9 @@
             .then(function (result) {
                 if (result.success) {
                     showAlert({
-                        icon: result.whatsAppSent ? "success" : "warning",
-                        title: result.whatsAppSent ? "Saved and Sent" : "Saved, WhatsApp Not Sent",
-                        text: (result.message || 'Payment details saved successfully') + "\n" + (result.whatsAppStatus || result.whatsAppMessage || ''),
+                        icon: "success",
+                        title: "Saved",
+                        text: result.message || 'Payment details saved successfully',
                         confirmButtonText: 'OK'
                     }).then(function () { window.location.reload(); });
                 } else {

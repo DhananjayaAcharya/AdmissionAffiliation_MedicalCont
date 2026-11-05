@@ -179,7 +179,7 @@ namespace Admission_Affiliation.Controllers
                     .ToList();
                 Console.WriteLine("[Dashboard] All CGP_CollegeCode values in DB: " + string.Join(", ", allCodes));
             }
-
+            
             // Ensure faculty name in session (best-effort)
             var facultyName = HttpContext.Session.GetString("FacultyName");
             if (string.IsNullOrWhiteSpace(facultyName) && !string.IsNullOrWhiteSpace(college.FacultyCode))
@@ -806,6 +806,7 @@ namespace Admission_Affiliation.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetCourseLevels(int facultyId)
+
         {
             var courseLevels = await _context.CourseMasters
                 .Where(c => c.FacultyId == facultyId)
