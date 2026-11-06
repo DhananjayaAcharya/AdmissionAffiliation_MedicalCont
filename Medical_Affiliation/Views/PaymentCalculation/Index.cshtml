@@ -684,21 +684,31 @@
 
             fetch(form.action, {
                 method: 'POST',
+                redirect: 'manual', // never silently follow a login redirect
+                credentials: 'same-origin',
                 headers: {
-                    'RequestVerificationToken': token
-                    // Do NOT set Content-Type manually — the browser sets the
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                    // Do NOT set Content-Type manually - the browser sets the
                     // multipart/form-data boundary automatically for FormData.
                 },
                 body: formData
             })
             .then(function (response) {
-                // Read as text first so an HTML error page (500, login redirect, etc.)
-                // shows a readable message instead of "Unexpected token '<'".
+                // A redirect (usually to the login page) means the session/cookie expired.
+                if (response.type === 'opaqueredirect' || response.redirected || response.status === 401 || response.status === 403) {
+                    throw new Error('Your session has expired. Please log in again and retry.');
+                }
+                // Read as text first so an HTML error page shows a readable message
+                // instead of "Unexpected token '<'".
                 return response.text().then(function (text) {
                     var result;
                     try {
                         result = JSON.parse(text);
                     } catch (e) {
+                        console.error('Non-JSON response (HTTP ' + response.status + ', '
+                            + response.headers.get('content-type') + '):', text.substring(0, 500));
                         throw new Error('The server returned an unexpected response (HTTP ' + response.status + '). Please try again, or contact support if it continues.');
                     }
                     if (!response.ok) {
