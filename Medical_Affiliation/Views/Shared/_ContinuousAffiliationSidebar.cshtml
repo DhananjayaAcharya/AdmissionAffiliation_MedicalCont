@@ -242,6 +242,7 @@
         new StepItem{ Key="FacultyDetails", Label="Faculty Details", Group="Human Resources", Ctrl="FacultyDetails", Act="Repo_FacultyDetails" },
         new StepItem{ Key="NonTeachingStaff", Label="Non-Teaching Staff Dept Wise", Group="Human Resources", Ctrl="ContinuesAffiliation_Facultybased", Act="NonTeachingStaffDepartmentwise" },
 
+
         // ---- Payment ----
         new StepItem{ Key="PaymentCalculation", Label="Payment Calculation", Group="Payment", Ctrl="PaymentCalculation", Act="Index" },
 
@@ -251,6 +252,33 @@
         // ---- Final Preview ----
         new StepItem{ Key="PreviewMode", Label="Preview", Group="Final Preview", Ctrl="CAPreview", Act="Preview" },
     };
+
+    // ============================================================
+    // AYURVEDA PG - TEACHING DEPARTMENT STAFF
+    // Add under Human Resources
+    // ============================================================
+
+    if (facultyCode?.Trim() == "4" && ShowPgTab)
+    {
+        var nonTeachingStaffIndex =
+            allSteps.FindIndex(x => x != null && x.Key == "NonTeachingStaff");
+
+        if (nonTeachingStaffIndex >= 0)
+        {
+            allSteps.Insert(
+                nonTeachingStaffIndex + 1,
+                new StepItem
+                {
+                    Key = "AyurvedaStaffAvailability",
+                    Label = "Teaching Department Staff",
+                    Group = "Human Resources",
+                    Ctrl = "AyurvedaStaff",
+                    Act = "AyurvedaStaffAvailability",
+                    Levels = new List<string> { "PG" }
+                }
+            );
+        }
+    }
 
     // ------------------------------------------------------------------
     // FIX: Remove any null entries (from the conditional TrustDetails /
@@ -305,6 +333,87 @@
     allSteps.Insert(equipmentIndex, isDental
         ? new StepItem { Key = "DentalEquipmentDetails", Label = "Equipment List", Group = "Physical Infrastructure", Ctrl = "Dental", Act = "EquipmentList" }
         : new StepItem { Key = "EquipmentDetails", Label = "Equipment Details", Group = "Physical Infrastructure", Ctrl = "Medical_ContinuousAffiliation", Act = "Medical_EquimentDetails" });
+
+    // Ayurveda PG - Other Equipment Availability -- code added by ram for Ayurveda PG Other Equipment Availability step in sidebar
+    // Display only for Ayurveda faculty (FacultyCode = 4)
+    // and only when PG is selected.
+
+    // if (facultyCode?.Trim() == "4" && ShowPgTab)
+    // {
+    //     var ayurvedaEquipmentIndex =
+    //         allSteps.FindIndex(x => x.Key == "EquipmentDetails");
+
+    //     if (ayurvedaEquipmentIndex >= 0)
+    //     {
+    //         allSteps.Insert(
+    //             ayurvedaEquipmentIndex + 1,
+    //             new StepItem
+    //             {
+    //                 Key = "AyurvedaOtherEquipmentAvailability",
+    //                 Label = "Other Equipment Availability",
+    //                 Group = "Physical Infrastructure",
+    //                 Ctrl = "AyurvedaOtherEquipment",
+    //                 Act = "AyurvedaOtherEquipmentAvailability",
+    //                 Levels = new List<string> { "PG" }
+    //             });
+    //     }
+    // }
+
+    
+    // Ayurveda PG - Other Equipment Availability
+    // and Minimum Constructed Area
+    // Visible only for FacultyCode = 4 and PG course level.
+
+    if (facultyCode?.Trim() == "4" && ShowPgTab)
+    {
+        // ---------------------------------------------
+        // 1. Other Equipment Availability
+        // ---------------------------------------------
+        var ayurvedaEquipmentIndex =
+            allSteps.FindIndex(x => x.Key == "EquipmentDetails");
+
+        if (ayurvedaEquipmentIndex >= 0)
+        {
+            allSteps.Insert(
+                ayurvedaEquipmentIndex + 1,
+                new StepItem
+                {
+                    Key = "AyurvedaOtherEquipmentAvailability",
+                    Label = "Other Equipment Availability",
+                    Group = "Physical Infrastructure",
+                    Ctrl = "AyurvedaOtherEquipment",
+                    Act = "AyurvedaOtherEquipmentAvailability",
+                    Levels = new List<string> { "PG" }
+                });
+        }
+
+        // ---------------------------------------------
+        // 2. Minimum Constructed Area
+        // ---------------------------------------------
+        var otherEquipmentIndex =
+            allSteps.FindIndex(
+                x => x.Key == "AyurvedaOtherEquipmentAvailability");
+
+        if (otherEquipmentIndex >= 0)
+        {
+            allSteps.Insert(
+                otherEquipmentIndex + 1,
+                new StepItem
+                {
+                    Key = "MinimumConstructedArea",
+                    Label = "Minimum Constructed Area",
+                    Group = "Physical Infrastructure",
+                    Ctrl = "AyurvedaMinimumConstructedArea",
+                    Act = "MinimumConstructedAreaAvailability",
+                    Levels = new List<string> { "PG" }
+                });
+        }
+    }
+
+    
+
+
+
 
     // UG course-details step (MBBS for Medical, BDS for Dental)
     if (levels.Contains("UG") && facultyCode == "1" && ShowUgTab)

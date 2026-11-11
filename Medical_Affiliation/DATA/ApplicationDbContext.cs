@@ -15,7 +15,21 @@ public partial class ApplicationDbContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<MstAyurvedaStaff> MstAyurvedaStaffs { get; set; }
 
+    public virtual DbSet<MstAyurvedaStaffDetail> MstAyurvedaStaffDetails { get; set; }
+
+    public virtual DbSet<TblAyurvedaStaffAvailability> TblAyurvedaStaffAvailabilities { get; set; }
+    public virtual DbSet<MstAyurvedaConstructedAreaDetail> MstAyurvedaConstructedAreaDetails { get; set; }
+
+    public virtual DbSet<MstAyurvedaConstructedArea> MstAyurvedaConstructedAreas { get; set; }
+
+    public virtual DbSet<TblAyurvedaConstructedAreaAvailability> TblAyurvedaConstructedAreaAvailabilities { get; set; }
+    public virtual DbSet<MstAyurvedaOtherEquipmentsDetail> MstAyurvedaOtherEquipmentsDetails { get; set; }
+
+    public virtual DbSet<MstAyurvedaOtherEquipmentsSubject> MstAyurvedaOtherEquipmentsSubjects { get; set; }
+
+    public virtual DbSet<TblAyurvedaOtherEquipmentAvailability> TblAyurvedaOtherEquipmentAvailabilities { get; set; }
     public virtual DbSet<AcademicActivityDetail> AcademicActivityDetails { get; set; }
 
     public virtual DbSet<AcademicIntake> AcademicIntakes { get; set; }
@@ -630,6 +644,185 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<MstAyurvedaStaff>(entity =>
+        {
+            entity.HasKey(e => e.StaffId).HasName("PK__MST_Ayur__96D4AAF76E84BB9E");
+
+            entity.ToTable("MST_AyurvedaStaff");
+
+            entity.Property(e => e.StaffId)
+                .ValueGeneratedNever()
+                .HasColumnName("StaffID");
+            entity.Property(e => e.FacultyId).HasDefaultValue(4);
+            entity.Property(e => e.StaffName).HasMaxLength(150);
+        });
+
+        modelBuilder.Entity<MstAyurvedaStaffDetail>(entity =>
+        {
+            entity.HasKey(e => e.StaffDetailId)
+                .HasName("PK__MST_Ayur__56818E83662FFFB5");
+
+            entity.ToTable("MST_AyurvedaStaffDetails");
+
+            entity.HasIndex(
+                e => new { e.StaffId, e.StaffDepartments, e.FacultyId },
+                "IX_MST_AyurvedaStaffDetails_Staff_Department");
+
+            entity.Property(e => e.StaffDetailId)
+                .HasColumnName("StaffDetailID");
+
+            entity.Property(e => e.FacultyId)
+                .HasDefaultValue(4);
+
+            entity.Property(e => e.IntakeCapacity100)
+                .HasMaxLength(100);
+
+            entity.Property(e => e.IntakeCapacity150)
+                .HasMaxLength(100);
+
+            entity.Property(e => e.IntakeCapacity200)
+                .HasMaxLength(100);
+
+            entity.Property(e => e.IntakeCapacity60)
+                .HasMaxLength(100);
+
+            entity.Property(e => e.StaffCadre)
+                .HasMaxLength(50)
+                .IsRequired(false);
+
+            entity.Property(e => e.StaffDepartments)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(e => e.StaffId)
+                .HasColumnName("StaffID");
+
+            entity.Property(e => e.StaffSubDepartments)
+                .HasMaxLength(500)
+                .IsRequired(false);
+        });
+
+        modelBuilder.Entity<TblAyurvedaStaffAvailability>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Tbl_Ayur__3214EC0752D731C0");
+
+            entity.ToTable("Tbl_AyurvedaStaffAvailability");
+
+            entity.HasIndex(e => new { e.FacultyId, e.CollegeCode, e.CourseLevel, e.AcademicYear, e.StaffId, e.StaffDetailId }, "IX_Tbl_AyurvedaStaffAvailability_Lookup");
+
+            entity.Property(e => e.AcademicYear).HasMaxLength(20);
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CourseLevel).HasMaxLength(20);
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.StaffCadre).HasMaxLength(50);
+            entity.Property(e => e.StaffDepartments).HasMaxLength(200);
+            entity.Property(e => e.StaffDetailId).HasColumnName("StaffDetailID");
+            entity.Property(e => e.StaffId).HasColumnName("StaffID");
+            entity.Property(e => e.StaffSubDepartments).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<MstAyurvedaConstructedAreaDetail>(entity =>
+        {
+            entity.HasKey(e => e.ConstructedAreaDetailId).HasName("PK__MST_Ayur__A15288D210ECCAE5");
+
+            entity.ToTable("MST_AyurvedaConstructedAreaDetails");
+
+            entity.HasIndex(e => new { e.ConstructedAreaId, e.FacultyId }, "IX_MST_AyurvedaConstructedAreaDetails_Area");
+
+            entity.Property(e => e.ConstructedAreaDetailId).HasColumnName("ConstructedAreaDetailID");
+            entity.Property(e => e.ConstructedAreaId).HasColumnName("ConstructedAreaID");
+            entity.Property(e => e.FacultyId).HasDefaultValue(4);
+            entity.Property(e => e.IntakeCapacity100).HasMaxLength(200);
+            entity.Property(e => e.IntakeCapacity150).HasMaxLength(200);
+            entity.Property(e => e.IntakeCapacity200).HasMaxLength(200);
+            entity.Property(e => e.IntakeCapacity60).HasMaxLength(200);
+            entity.Property(e => e.MegaSectionName).HasMaxLength(200);
+            entity.Property(e => e.SectionName).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<MstAyurvedaConstructedArea>(entity =>
+        {
+            entity.HasKey(e => e.ConstructedAreaId).HasName("PK__MST_Ayur__0C66687FFC366777");
+
+            entity.ToTable("MST_AyurvedaConstructedAreas");
+
+            entity.Property(e => e.ConstructedAreaId)
+                .ValueGeneratedNever()
+                .HasColumnName("ConstructedAreaID");
+            entity.Property(e => e.ConstructedAreaName).HasMaxLength(200);
+            entity.Property(e => e.FacultyId).HasDefaultValue(4);
+        });
+
+        modelBuilder.Entity<TblAyurvedaConstructedAreaAvailability>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Tbl_Ayur__3214EC073E9D47B9");
+
+            entity.ToTable("Tbl_AyurvedaConstructedAreaAvailability");
+
+            entity.HasIndex(e => new { e.FacultyId, e.CollegeCode, e.CourseLevel, e.AcademicYear, e.ConstructedAreaId, e.ConstructedAreaDetailId }, "IX_Tbl_AyurvedaConstructedAreaAvailability_Lookup");
+
+            entity.Property(e => e.AcademicYear).HasMaxLength(20);
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.ConstructedAreaDetailId).HasColumnName("ConstructedAreaDetailID");
+            entity.Property(e => e.ConstructedAreaId).HasColumnName("ConstructedAreaID");
+            entity.Property(e => e.CourseLevel).HasMaxLength(20);
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IntakeCapacity100).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.IntakeCapacity150).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.IntakeCapacity200).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.IntakeCapacity60).HasColumnType("decimal(10, 2)");
+        });
+
+        modelBuilder.Entity<MstAyurvedaOtherEquipmentsDetail>(entity =>
+        {
+            entity.HasKey(e => e.EquipmentDetailId);
+
+            entity.ToTable("MST_AyurvedaOtherEquipmentsDetails");
+
+            entity.Property(e => e.EquipmentDetailId).HasColumnName("EquipmentDetailID");
+            entity.Property(e => e.EquipmentId).HasColumnName("EquipmentID");
+            entity.Property(e => e.EquipmentName).HasMaxLength(300);
+            entity.Property(e => e.FacultyId).HasDefaultValue(4);
+            entity.Property(e => e.MinimumNum100).HasMaxLength(200);
+            entity.Property(e => e.MinimumNum150).HasMaxLength(200);
+            entity.Property(e => e.MinimumNum200).HasMaxLength(200);
+            entity.Property(e => e.MinimumNum60).HasMaxLength(200);
+            entity.Property(e => e.MinimumNumberRequired).HasMaxLength(200);
+            entity.Property(e => e.SubSectionName).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<MstAyurvedaOtherEquipmentsSubject>(entity =>
+        {
+            entity.HasKey(e => e.EquipmentId);
+
+            entity.ToTable("MST_AyurvedaOtherEquipmentsSubjects");
+
+            entity.Property(e => e.EquipmentId).HasColumnName("EquipmentID");
+            entity.Property(e => e.EquipmentName).HasMaxLength(200);
+            entity.Property(e => e.FacultyId).HasDefaultValue(4);
+        });
+
+        modelBuilder.Entity<TblAyurvedaOtherEquipmentAvailability>(entity =>
+        {
+            entity.ToTable("Tbl_AyurvedaOtherEquipmentAvailability");
+
+            entity.HasIndex(e => new { e.FacultyId, e.CollegeCode, e.CourseCode, e.EquipmentId, e.AcademicYear }, "UX_Tbl_AyurvedaOtherEquipmentAvailability_CollegeEquipmentYear").IsUnique();
+
+            entity.Property(e => e.AcademicYear)
+                .HasMaxLength(9)
+                .IsUnicode(false);
+            entity.Property(e => e.CollegeCode)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.EquipmentSectionId).HasColumnName("EquipmentSectionID");
+        });
+
         modelBuilder.Entity<AcademicActivityDetail>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Academic__3214EC07380A1724");

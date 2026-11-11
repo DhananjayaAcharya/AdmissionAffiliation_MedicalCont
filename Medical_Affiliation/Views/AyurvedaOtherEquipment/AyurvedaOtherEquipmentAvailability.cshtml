@@ -1,0 +1,754 @@
+﻿@model Medical_Affiliation.Models.AyurvedaOtherEquipmentAvailabilityViewModel
+
+@{
+    ViewData["Title"] = "Ayurveda PG Other Equipment Availability";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+
+    string? previousSubSection = null;
+}
+
+<style>
+    .equipment-page {
+        padding: 24px;
+        background: #f7f8fc;
+        min-height: 80vh;
+    }
+
+    .equipment-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .equipment-header {
+        background: #172b4d;
+        color: #ffffff;
+        padding: 22px 26px;
+        border-bottom: 4px solid #c8a951;
+    }
+
+        .equipment-header h2 {
+            margin: 0;
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        .equipment-header p {
+            margin: 8px 0 0;
+            color: #e7eaf0;
+            font-size: 15px;
+        }
+
+    .equipment-body {
+        padding: 26px;
+    }
+
+    /* Dropdown label */
+    .section-label {
+        display: block;
+        margin-bottom: 11px;
+        font-size: 17px;
+        font-weight: 700;
+        color: #172b4d;
+    }
+
+    /* Dropdown */
+    .equipment-select {
+        width: 100%;
+        min-height: 52px;
+        font-size: 16px;
+        font-weight: 500;
+        padding: 10px 14px;
+        border: 1px solid #cbd3df;
+        border-radius: 8px;
+        background-color: #ffffff;
+    }
+
+        .equipment-select:focus {
+            border-color: #172b4d;
+            box-shadow: 0 0 0 3px rgba(23, 43, 77, 0.12);
+            outline: none;
+        }
+
+    /* Selected section heading */
+    .selected-section-heading {
+        background: #172b4d;
+        color: #ffffff;
+        border-left: 6px solid #c8a951;
+        border-radius: 7px;
+        padding: 15px 20px;
+        margin-top: 25px;
+        margin-bottom: 20px;
+        font-size: 19px;
+        font-weight: 700;
+    }
+
+        .selected-section-heading span {
+            color: #f1d98d;
+        }
+
+    .equipment-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .equipment-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        background: #ffffff;
+    }
+
+        .equipment-table thead th {
+            background: #172b4d;
+            color: #ffffff;
+            padding: 13px 11px;
+            border: 1px solid #d9dee8;
+            vertical-align: middle;
+            text-align: center;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .equipment-table tbody td {
+            padding: 12px;
+            border: 1px solid #d9dee8;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .equipment-table tbody tr:nth-child(even) {
+            background: #f8f9fc;
+        }
+
+        .equipment-table .department-cell {
+            background: #edf1f8;
+            color: #172b4d;
+            font-weight: 700;
+            min-width: 190px;
+            text-align: left;
+        }
+
+    /* Alternating subsection bands: same pattern for both tables */
+    .subsection-row td,
+    .department-cell {
+        color: #172b4d;
+        font-weight: 700;
+    }
+
+    /* Distinct colors for the whole row (mega row) */
+    /* Band 0: Light Blue */
+    .equipment-table tbody tr.subsection-band-0 > td {
+        background-color: #e3f2fd !important;
+    }
+
+    /* Band 1: Light Grey/White */
+    .equipment-table tbody tr.subsection-band-1 > td {
+        background-color: #f8f9fa !important;
+    }
+
+    /* Keep the department text bold and dark */
+    .department-cell {
+        min-width: 190px;
+        text-align: left;
+        color: #172b4d !important;
+        font-weight: 700 !important;
+    }
+
+    .subsection-row td {
+        padding: 12px 15px;
+    }
+
+    .department-cell {
+        min-width: 190px;
+        text-align: left;
+    }
+
+    .requirement-cell {
+        text-align: center;
+        min-width: 105px;
+        font-weight: 500;
+    }
+
+    .capacity-cell {
+        min-width: 185px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+        .capacity-cell .minimum-value {
+            display: block;
+            margin-bottom: 10px;
+            color: #172b4d;
+            font-weight: 700;
+        }
+
+    /* Bordered box keeps the availability label and input visually together. */
+    .availability-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: 100%;
+        padding: 7px;
+        border: 1px solid #b9c9dc;
+        border-radius: 6px;
+        background: #f8fbff;
+        box-sizing: border-box;
+    }
+
+        .availability-box label {
+            flex: 0 0 auto;
+            margin: 0;
+            color: #172b4d;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .availability-box .quantity-input {
+            flex: 1 1 auto;
+            width: 70px;
+            min-width: 0;
+            max-width: 100px;
+            padding: 5px 6px;
+            text-align: center;
+        }
+
+    .equipment-name-cell {
+        min-width: 230px;
+    }
+
+    .quantity-input {
+        min-width: 100px;
+        text-align: center;
+    }
+
+    .btn-equipment {
+        background: #172b4d;
+        color: #ffffff;
+        border: none;
+        border-radius: 7px;
+        padding: 11px 24px;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+        .btn-equipment:hover {
+            background: #243e68;
+            color: #ffffff;
+        }
+
+    .btn-reset {
+        background: #e8eaf0;
+        color: #172b4d;
+        border: 1px solid #cfd5df;
+        border-radius: 7px;
+        padding: 11px 24px;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .notice-text {
+        color: #596579;
+        font-size: 13px;
+        margin-top: 13px;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 30px;
+        color: #657085;
+    }
+
+    @@media (max-width: 768px) {
+        .equipment-page {
+            padding: 12px;
+        }
+
+        .equipment-body {
+            padding: 14px;
+        }
+
+        .equipment-header {
+            padding: 17px;
+        }
+
+            .equipment-header h2 {
+                font-size: 19px;
+            }
+
+        .selected-section-heading {
+            font-size: 16px;
+        }
+
+        .availability-box {
+            justify-content: space-between;
+        }
+
+            .availability-box label {
+                font-size: 10px;
+            }
+    }
+</style>
+
+<div class="equipment-page">
+
+    <div class="equipment-card">
+
+        <!-- PAGE HEADER -->
+
+        <div class="equipment-header">
+
+            <h2>Ayurveda PG — Other Equipment Availability</h2>
+
+            <p>
+                Academic Year: @Model.AcademicYear
+            </p>
+
+        </div>
+
+        <div class="equipment-body">
+
+            <!-- SUCCESS MESSAGE -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["Success"]
+                </div>
+            }
+
+            <!-- ERROR MESSAGE -->
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <!-- SECTION DROPDOWN -->
+
+            <form method="get"
+                  asp-controller="AyurvedaOtherEquipment"
+                  asp-action="AyurvedaOtherEquipmentAvailability">
+
+                <div class="row">
+
+                    <div class="col-md-10 mb-3">
+
+                        <label class="section-label"
+                               for="equipmentID">
+
+                            Select Equipment Section
+
+                        </label>
+
+                        <select id="equipmentID"
+                                name="equipmentID"
+                                class="form-select equipment-select"
+                                asp-items="Model.Sections"
+                                onchange="this.form.submit()">
+
+                            <option value="">
+                                -- Select Equipment Section --
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <!-- EQUIPMENT DETAILS -->
+            @if (Model.SelectedEquipmentID > 0)
+            {
+                <div class="selected-section-heading">
+
+                    Section:
+                    <span>@Model.SelectedSectionName</span>
+
+                </div>
+
+                <form method="post"
+                      asp-controller="AyurvedaOtherEquipment"
+                      asp-action="AyurvedaOtherEquipmentAvailability">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           asp-for="SelectedEquipmentID" />
+
+                    @if (Model.Equipments.Count > 0)
+                    {
+                        <div class="equipment-table-wrapper">
+
+                            <!-- ================================= -->
+                            <!-- NORMAL SECTION: OPD (SECTION ID 1) -->
+                            <!-- ================================= -->
+                            <!-- ================================= -->
+                            <!-- NORMAL SECTION: OPD (SECTION ID 1) -->
+                            <!-- ================================= -->
+                            @if (!Model.IsCapacitySpecificSection)
+                            {
+                                <table class="equipment-table">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th style="width: 65px;">
+                                                Sl. No.
+                                            </th>
+
+                                            <th>
+                                                Name of Outpatient Department
+                                            </th>
+
+                                            <th>
+                                                Instrument or Equipment
+                                            </th>
+
+                                            <th>
+                                                Minimum Number Required
+                                            </th>
+
+                                            <th>
+                                                Available Quantity
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+                                    <tbody>
+
+                                        @{
+                                            // Initialize the band counter
+                                            int opSubSectionBand = -1;
+                                        }
+
+                                        @for (int i = 0;
+                                              i < Model.Equipments.Count;
+                                              i++)
+                                        {
+                                            var item = Model.Equipments[i];
+
+                                            bool isNewSubSection =
+                                                i == 0 ||
+                                                !string.Equals(
+                                                    Model.Equipments[i - 1].SubSectionName,
+                                                    item.SubSectionName,
+                                                    StringComparison.OrdinalIgnoreCase);
+
+                                            int subSectionRowCount = 0;
+
+                                            if (isNewSubSection)
+                                            {
+                                                // Increment band when a new section starts
+                                                opSubSectionBand++;
+
+                                                subSectionRowCount =
+                                                    Model.Equipments
+                                                        .Skip(i)
+                                                        .TakeWhile(x =>
+                                                            string.Equals(
+                                                                x.SubSectionName,
+                                                                item.SubSectionName,
+                                                                StringComparison.OrdinalIgnoreCase))
+                                                        .Count();
+                                            }
+
+                                            // APPLY THE CLASS TO THE ENTIRE ROW HERE
+                                            <tr class="subsection-band-@(opSubSectionBand % 2)">
+
+                                                <td class="text-center">
+                                                    @(i + 1)
+
+                                                    <input type="hidden"
+                                                           asp-for="Equipments[i].EquipmentDetailID" />
+                                                </td>
+
+                                                @if (isNewSubSection)
+                                                {
+                                                    <td class="department-cell"
+                                                        rowspan="@subSectionRowCount">
+
+                                                        @item.SubSectionName
+
+                                                    </td>
+                                                }
+
+                                                <td class="equipment-name-cell">
+
+                                                    @item.EquipmentName
+
+                                                </td>
+
+                                                <td class="requirement-cell">
+
+                                                    @item.MinimumNumberRequired
+
+                                                </td>
+
+                                                <td>
+
+                                                    <input type="number"
+                                                           min="0"
+                                                           class="form-control quantity-input"
+                                                           asp-for="Equipments[i].AvailableQuantity"
+                                                           placeholder="Enter quantity" />
+
+                                                </td>
+
+                                            </tr>
+                                        }
+
+                                    </tbody>
+
+                                </table>
+                            }
+
+                            <!-- ===================================== -->
+                            <!-- CAPACITY SECTION: OPD AND ICU (ID 8) -->
+                            <!-- ===================================== -->
+                            @if (Model.IsCapacitySpecificSection)
+                            {
+                                <table class="equipment-table">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th style="width: 65px;">
+                                                Sl. No.
+                                            </th>
+
+                                            <th>
+                                                Equipment Name
+                                            </th>
+
+                                            <th>
+                                                Minimum Required
+                                                <br />
+                                                (60 Intake)
+                                            </th>
+
+                                            <th>
+                                                Minimum Required
+                                                <br />
+                                                (100 Intake)
+                                            </th>
+
+                                            <th>
+                                                Minimum Required
+                                                <br />
+                                                (150 Intake)
+                                            </th>
+
+                                            <th>
+                                                Minimum Required
+                                                <br />
+                                                (200 Intake)
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        @{
+                                            previousSubSection = null;
+                                            int capacitySubSectionBand = -1;
+                                        }
+
+                                        @for (int i = 0;
+                                              i < Model.Equipments.Count;
+                                              i++)
+                                        {
+                                            var item = Model.Equipments[i];
+
+                                            if (!string.Equals(
+                                                previousSubSection,
+                                                item.SubSectionName,
+                                                StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                previousSubSection = item.SubSectionName;
+                                                capacitySubSectionBand++;
+
+                                                <tr class="subsection-row subsection-band-@(capacitySubSectionBand % 2)">
+
+                                                    <td colspan="6">
+                                                        @item.SubSectionName
+                                                    </td>
+
+                                                </tr>
+                                            }
+
+                                            <tr>
+
+                                                <td class="text-center">
+
+                                                    @(i + 1)
+
+                                                    <input type="hidden"
+                                                           asp-for="Equipments[i].EquipmentDetailID" />
+
+                                                </td>
+
+                                                <td class="equipment-name-cell">
+
+                                                    @item.EquipmentName
+
+                                                </td>
+
+                                                <!-- 60 INTAKE: REQUIREMENT + ACTUAL AVAILABILITY -->
+
+                                                <td class="capacity-cell">
+
+                                                    <span class="minimum-value">
+                                                        @item.MinimumNumberRequired
+                                                    </span>
+
+                                                    <div class="availability-box">
+                                                        <label for="Equipments_@(i)__AvailableQuantity60">
+                                                            Available Quantity :
+                                                        </label>
+
+                                                        <input type="number"
+                                                               min="0"
+                                                               class="form-control quantity-input"
+                                                               asp-for="Equipments[i].AvailableQuantity60"
+                                                               placeholder="Enter" />
+                                                    </div>
+
+                                                </td>
+
+                                                <!-- 100 INTAKE: REQUIREMENT + ACTUAL AVAILABILITY -->
+
+                                                <td class="capacity-cell">
+
+                                                    <span class="minimum-value">
+                                                        @(string.IsNullOrWhiteSpace(item.MinimumNum100)
+                                                            ? "—"
+                                                            : item.MinimumNum100)
+                                                    </span>
+
+                                                    <div class="availability-box">
+                                                        <label for="Equipments_@(i)__AvailableQuantity100">
+                                                            Available Quantity :
+                                                        </label>
+
+                                                        <input type="number"
+                                                               min="0"
+                                                               class="form-control quantity-input"
+                                                               asp-for="Equipments[i].AvailableQuantity100"
+                                                               placeholder="Enter" />
+                                                    </div>
+
+                                                </td>
+
+                                                <!-- 150 INTAKE: REQUIREMENT + ACTUAL AVAILABILITY -->
+
+                                                <td class="capacity-cell">
+
+                                                    <span class="minimum-value">
+                                                        @(string.IsNullOrWhiteSpace(item.MinimumNum150)
+                                                            ? "—"
+                                                            : item.MinimumNum150)
+                                                    </span>
+
+                                                    <div class="availability-box">
+                                                        <label for="Equipments_@(i)__AvailableQuantity150">
+                                                            Available Quantity :
+                                                        </label>
+
+                                                        <input type="number"
+                                                               min="0"
+                                                               class="form-control quantity-input"
+                                                               asp-for="Equipments[i].AvailableQuantity150"
+                                                               placeholder="Enter" />
+                                                    </div>
+
+                                                </td>
+
+                                                <!-- 200 INTAKE: REQUIREMENT + ACTUAL AVAILABILITY -->
+
+                                                <td class="capacity-cell">
+
+                                                    <span class="minimum-value">
+                                                        @(string.IsNullOrWhiteSpace(item.MinimumNum200)
+                                                            ? "—"
+                                                            : item.MinimumNum200)
+                                                    </span>
+
+                                                    <div class="availability-box">
+                                                        <label for="Equipments_@(i)__AvailableQuantity200">
+                                                            Available Quantity :
+                                                        </label>
+
+                                                        <input type="number"
+                                                               min="0"
+                                                               class="form-control quantity-input"
+                                                               asp-for="Equipments[i].AvailableQuantity200"
+                                                               placeholder="Enter" />
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
+                                        }
+
+                                    </tbody>
+
+                                </table>
+                            }
+
+                        </div>
+
+                        <div class="equipment-notice">
+    <p>
+        Enter the actual available quantity for each
+        equipment item. Leave a field blank or enter zero
+        if the equipment is unavailable.
+    </p>
+</div>
+
+                        <!-- SAVE AND RESET BUTTONS -->
+
+                        <div class="d-flex gap-2 mt-4">
+
+                            <button type="submit"
+                                    class="btn-equipment">
+
+                                Save Availability
+
+                            </button>
+
+                            <button type="reset"
+                                    class="btn-reset">
+
+                                Reset Changes
+
+                            </button>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="no-data">
+
+                            No equipment records were found for this section.
+
+                        </div>
+                    }
+
+                </form>
+            }
+
+        </div>
+    </div>
+</div>

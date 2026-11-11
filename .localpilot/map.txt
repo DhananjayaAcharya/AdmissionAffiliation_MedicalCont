@@ -1,0 +1,1988 @@
+## WORKSPACE EXECUTIVE SUMMARY (YAML)
+# Generated: 2026-11-11T16:06:33.3926684+05:30
+# Root: D:\0310_Ayurveda_MedSoln
+Architecture:
+  Type: Backend (C#/.NET)
+  Scale: 713 relevant source files
+  Components: 0
+  Controllers: 73
+  Models: 520
+  Services: 34
+---
+- File: Medical_Affiliation.sln
+  Preview: " Microsoft Visual Studio Solution File, Format Version 12.00 # Visual Studio Version 17 VisualStudioVersion = 17.14.37012.4 d17.14 MinimumVisualStudio..."
+- File: Medical_Affiliation\Medical_Affiliation.csproj
+  Preview: "<Project Sdk='Microsoft.NET.Sdk.Web'>  <PropertyGroup>   <TargetFramework>net8.0</TargetFramework>   <Nullable>enable</Nullable>   <ImplicitUsings>ena..."
+- File: AUDIT_LOGGING_COMPLETE.md
+  Preview: "# 🎉 Comprehensive Audit Logging - Complete Implementation ## 📌 Overview Your Medical Affiliation application now has a **complete, production-ready ..."
+- File: build_output.txt
+  Preview: " Determining projects to restore...  All projects are up-to-date for restore. C:\Users\HP\Downloads\Medical\Medical_Affiliation\DATA\ApplicationDbCont..."
+- File: build_output2.txt
+  Preview: " Determining projects to restore...  All projects are up-to-date for restore. C:\Users\HP\Downloads\Medical\Medical_Affiliation\DATA\ApplicationDbCont..."
+- File: build_output3.txt
+  Preview: " Determining projects to restore...  All projects are up-to-date for restore. C:\Users\HP\Downloads\Medical\Medical_Affiliation\DATA\ApplicationDbCont..."
+- File: build_output4.txt
+  Preview: " Determining projects to restore...  All projects are up-to-date for restore.  Medical_Affiliation -> C:\Users\HP\Downloads\Medical\Medical_Affiliatio..."
+- File: build_output_after_changes.txt
+  Preview: " Determining projects to restore...  All projects are up-to-date for restore. C:\Users\HP\Downloads\Medical\Medical_Affiliation\DATA\ApplicationDbCont..."
+- File: WHATSAPP_SETUP.md
+  Preview: "# WhatsApp Integration Setup Guide ## Current Status The payment calculation flow is now configured to send payment details and PDF receipts via Whats..."
+- File: .github\copilot-instructions.md
+  Preview: "- @azure Rule - Use Azure Tools - When handling requests related to Azure, always use your tools. - @azure Rule - Use Azure Best Practices - When hand..."
+- File: DataBase\02_AuditLogsMigration.sql
+  Preview: "-- SQL Migration: Verify and Create AuditLogs Table -- Execute this script to ensure the AuditLogs table exists with the correct structure -- Check if..."
+- File: DataBase\03_AuditLog_Analysis_Queries.sql
+  Preview: "-- ============================================================================ -- SQL QUERIES FOR AUDIT LOG ANALYSIS -- Use these queries to analyze ..."
+- File: DataBase\2_AlterScript.sql
+  Preview: " ALTER TABLE [dbo].[Affiliation_College_Master] ADD Status bit default 1;  UPDATE Affiliation_College_Master set status = 0 where CollegeCode not in (..."
+- File: DataBase\2_Dental_Script.sql
+  Preview: " --------- DENTAL SCRIPT 2 ---------- CREATE TABLE DentalPreClinicalAndSkillsLabAreaReq (   Id INT IDENTITY(1,1) PRIMARY KEY,   CollegeCode NVARCHAR(2..."
+- File: DataBase\3_Dental_Script.sql
+  Preview: " INSERT INTO CA_MST_VD_VehicleFor (FacultyCode, VehicleForCode, VehicleForName) VALUES (2,	'INT',	'For Interns'), (2,	'STU', 'For Students'), (2,	'AMB..."
+- File: DataBase\4_Dental_Script.sql
+  Preview: "CREATE TABLE AffiliationOthersCollegeMaster (   Id INT IDENTITY(1,1) PRIMARY KEY,   CollegeCode VARCHAR(20) NOT NULL UNIQUE, -- OTH001, OTH002...   Fa..."
+- File: DataBase\5_Dental_Script.sql
+  Preview: " --UPDATE DepartmentMaster --SET DepartmentName = 'Orthodontics' --WHERE DepartmentCode = 'DE006' AND FacultyCode = 2;  --UPDATE DepartmentMaster --SE..."
+- File: DataBase\6_dental_land_building.sql
+  Preview: "ALTER TABLE DentalCollegeLandBuildingDetail ADD Latitude decimal(9,6) NULL,   Longitude decimal(9,6) NULL;"
+- File: DataBase\7_Dental_AffTypeId_Script.sql
+  Preview: "ALTER TABLE DentalCollegeLandBuildingDetail ADD Latitude decimal(9,6) NULL,   Longitude decimal(9,6) NULL; ALTER TABLE DentalCollegeLandBuildingDetail..."
+- File: DataBase\8_Medical_CA_Script.sql
+  Preview: "ALTER TABLE DepartmentMaster ADD CONSTRAINT UQ_DepartmentMaster_DepartmentCode UNIQUE (DepartmentCode);  CREATE TABLE MstDepartmentConfiguration (   I..."
+- File: DataBase\AffiliationPayment.sql
+  Preview: "USE [Admission_Affiliation] GO -- ===================== CREATE TABLE ===================== CREATE TABLE [dbo].[Affiliation_Payment] (   Id INT IDENTIT..."
+- File: DataBase\AlterScript.sql
+  Preview: " ALTER TABLE [dbo].[TblRguhsFacultyUser] ADD IsFinance BIT NULL; ALTER TABLE [dbo].[TblRguhsFacultyUser] ADD FinanceDesignation VARCHAR(10) NULL;  ALT..."
+- File: DataBase\CA_Progress.sql
+  Preview: "USE [Admission_Affiliation] GO /****** Object: Table [dbo].[CA_Progress]  Script Date: 13-04-2026 16:13:13 ******/ SET ANSI_NULLS ON GO SET QUOTED_IDE..."
+- File: DataBase\DeclarationScript.sql
+  Preview: "USE Admission_Affiliation GO CREATE TABLE AffiliationFinalDeclarations (   Id INT IDENTITY(1,1) PRIMARY KEY,   CollegeCode NVARCHAR(100) NOT NULL,   F..."
+- File: DataBase\DentalChairs_AlterScript.sql
+  Preview: " --SELECT * FROM [dbo].[Mst_Course] --where FacultyCode = 2 and CourseName = 'PhD' --WHERE CourseCode = 2014; UPDATE [Mst_Course] SET CourseCode = 201..."
+- File: DataBase\DhananjayaAlterScript.sql
+  Preview: "-- Add new columns ALTER TABLE [dbo].[AFF_InstitutionsDetails] ADD DocumentDataPath NVARCHAR(500); ALTER TABLE [dbo].[CA_Med_StaffParticularsOther] DR..."
+- File: DataBase\medicalqueries17062025.sql
+  Preview: "CREATE TABLE ContinuationTrustMemberDocuments (   Id INT IDENTITY(1,1) PRIMARY KEY,   FacultyCode VARCHAR(10) NOT NULL,   CollegeCode VARCHAR(20) NOT ..."
+- File: DataBase\NursingAlterScript.sql
+  Preview: "ALTER TABLE HospitalDetailForAffiliation ADD parentHospitalExists BIT NULL; ALTER TABLE HospitalDetailForAffiliation ALTER COLUMN HospitalParentSuppor..."
+- File: DataBase\startscript.sql
+  Preview: "SELECT TOP (1000) [YearOfStudyId]    ,[YearName]  FROM [Admission_Affiliation].[dbo].[CA_MST_YearOfStudy]  SELECT * FROM [dbo].[CA_AcademicPerformance..."
+- File: DataBase\TADAFINANce.sql
+  Preview: "CREATE TABLE [dbo].[LIC_TA_DA_Edit_Log](   [LogId] [int] IDENTITY(1,1) NOT NULL,   [ApprovalId] [int] NOT NULL,   [AcademicYear] [nvarchar](20) NULL, ..."
+- File: DataBase\TeachingStaffDepartmentWiseDetails_Alterquerry.sql
+  Preview: " alter table [dbo].[TeachingStaffDepartmentWiseDetails]  add NameOfFaculty varchar(50)"
+- File: Medical_Affiliation\appsettings.Development.json
+  Preview: "{  'Logging': {   'LogLevel': {    'Default': 'Information',    'Microsoft.AspNetCore': 'Warning'   }  } } "
+- File: Medical_Affiliation\appsettings.json
+  Preview: "{  'Logging': {   'LogLevel': {    'Default': 'Information',    'Microsoft.AspNetCore': 'Warning'   }  },  'ConnectionStrings': {   'DefaultConnection..."
+- File: Medical_Affiliation\AUDIT_LOGGING_GUIDE.md
+  Preview: "# 🔒 Comprehensive Audit Logging Implementation Guide ## Overview Your Medical Affiliation application now has a complete audit logging system that ca..."
+- File: Medical_Affiliation\IMPLEMENTATION_SUMMARY.md
+  Preview: "# ✅ Comprehensive Audit Logging Implementation Summary ## 🎯 What Has Been Implemented Your Medical Affiliation application now has a **complete, prod..."
+- File: Medical_Affiliation\Program.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Controllers; using Medical_Affiliation.Middleware; using Medical_Affiliation.Models; using M..."
+- File: Medical_Affiliation\VERIFICATION_CHECKLIST.md
+  Preview: "# ✅ Audit Logging Implementation Checklist Use this checklist to verify that your audit logging system is properly set up and working. --- ## 📋 Step ..."
+- File: Medical_Affiliation\.config\dotnet-tools.json
+  Preview: "{  'version': 1,  'isRoot': true,  'tools': {   'dotnet-ef': {    'version': '9.0.9',    'commands': [     'dotnet-ef'    ],    'rollForward': false  ..."
+- File: Medical_Affiliation\Controllers\AcademicIntakeController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\AccountController.cs
+  Symbols: [AccountController]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; na..."
+- File: Medical_Affiliation\Controllers\AdminController.cs
+  Preview: "using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authentication.Cookies; using Microsoft.AspNetCore.Authentication; using Microsoft.AspNet..."
+- File: Medical_Affiliation\Controllers\AffiliationAdminController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.Utilities; using Microsoft.AspNetCore.Authori..."
+- File: Medical_Affiliation\Controllers\AffiliationDeclarationController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using..."
+- File: Medical_Affiliation\Controllers\AffiliationDirController.cs
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.AspNetCore.Authentication; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Identi..."
+- File: Medical_Affiliation\Controllers\AffiliationNotificationsController.cs
+  Symbols: [AffiliationNotificationsController]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; namespace Medic..."
+- File: Medical_Affiliation\Controllers\AffiliationPaymentController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.Services.Us..."
+- File: Medical_Affiliation\Controllers\AffiliationPgCourseController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Authorizat..."
+- File: Medical_Affiliation\Controllers\AffiliationSSController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using..."
+- File: Medical_Affiliation\Controllers\Aff_AHSController.cs
+  Preview: "using Medical_Affiliation.Controllers; using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microso..."
+- File: Medical_Affiliation\Controllers\Aff_AHS_ContinousApplicationController.cs
+  Preview: "using Medical_Affiliation.Controllers; using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authorization; usi..."
+- File: Medical_Affiliation\Controllers\Aff_CA_FinanceDetailsController.cs
+  Preview: "//using Medical_Affiliation.DATA; //using Medical_Affiliation.Models; //using Microsoft.AspNetCore.Authorization; //using Microsoft.AspNetCore.Http; /..."
+- File: Medical_Affiliation\Controllers\Aff_CA_MedicalLibraryController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; using Microsoft..."
+- File: Medical_Affiliation\Controllers\Aff_CA_Med_FinanceDetailsController.cs
+  Symbols: [Aff]
+  Preview: "using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; using Medical_Affiliation.Models; using Medical_Affiliation.DATA; using System.IO..."
+- File: Medical_Affiliation\Controllers\Aff_CA_SS_CoursesAppliedSSController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using..."
+- File: Medical_Affiliation\Controllers\Aff_DentalController.cs
+  Symbols: [Aff]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\Aff_HomeopathyController.cs
+  Symbols: [Aff]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\Aff_MedicalController.cs
+  Symbols: [Aff_MedicalController]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; using Microsoft.AspNetCore.Mvc; using Medical_Affiliation.DATA; using Medical_Affiliation.Models;  using Mic..."
+- File: Medical_Affiliation\Controllers\Aff_NaturopathyController.cs
+  Symbols: [Aff]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\Aff_NursingController.cs
+  Preview: "using Medical_Affiliation.Controllers; using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microso..."
+- File: Medical_Affiliation\Controllers\Aff_PharmacyController.cs
+  Symbols: [Aff]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\Aff_PhysioTherapyController.cs
+  Symbols: [Aff]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\Aff_SowaRigPaiController.cs
+  Symbols: [Aff]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\Aff_UnaniController.cs
+  Symbols: [Aff]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\AuditLogExampleController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.Utilities; using Microsoft.AspNetCore.Mvc; us..."
+- File: Medical_Affiliation\Controllers\AyurvedaMinimumConstructedAreaController.cs
+  Symbols: [Ayu]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\AyurvedaOtherEquipmentController.cs
+  Symbols: [Ayu]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\AyurvedaStaffController.cs
+  Symbols: [Ayu]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\AyurvedhaRepositoryController.cs
+  Symbols: [Ayu]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\BaseController.cs
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.AspNetCore.Authentication; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc; u..."
+- File: Medical_Affiliation\Controllers\CAPreviewController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Services.Faculty; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.M..."
+- File: Medical_Affiliation\Controllers\CA_Aff_AcademicMattersController.cs
+  Preview: "using Medical_Affiliation.Controllers; using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microso..."
+- File: Medical_Affiliation\Controllers\CA_Aff_MedicalLibraryController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; using System; u..."
+- File: Medical_Affiliation\Controllers\CA_ApplicationStatusReportController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc; using Micr..."
+- File: Medical_Affiliation\Controllers\CA_Med_ResearchPublicationsController.cs
+  Symbols: [CA_]
+  Preview: "using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; using Medical_Affiliation.Models; using Medical_Affiliation.DATA; using System.IO..."
+- File: Medical_Affiliation\Controllers\CA_Med_StaffDetailsController.cs
+  Symbols: [CA_Med_StaffDetailsController]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; namespace Medic..."
+- File: Medical_Affiliation\Controllers\ClinicalFacilitiesForAffiliationController.cs
+  Symbols: [ClinicalF]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; using Microsoft..."
+- File: Medical_Affiliation\Controllers\CollegeBasicDetailsController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.Services.Us..."
+- File: Medical_Affiliation\Controllers\CollegeDetailsController.cs
+  Symbols: [Index, CollegeDetailsController]
+  Preview: "using Microsoft.AspNetCore.Mvc; namespace Medical_Affiliation.Controllers {   public class CollegeDetailsController : Controller   {     public IActio..."
+- File: Medical_Affiliation\Controllers\CollegeloginController.cs
+  Preview: "//using Admission_Affiliation.Data; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Http; using Microsoft.AspNetCore.Identity; using Micr..."
+- File: Medical_Affiliation\Controllers\ContinuationAffiliationClinicalFacilitiesController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Authorizat..."
+- File: Medical_Affiliation\Controllers\ContinuesAffiliation_FacultybasedController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.Services.Us..."
+- File: Medical_Affiliation\Controllers\ContinuousAffiliationController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.Services.Us..."
+- File: Medical_Affiliation\Controllers\ContinuousAffiliationIncreaseintakeController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc; using Micr..."
+- File: Medical_Affiliation\Controllers\CourseAffiliationController.cs
+  Symbols: [CourseAffiliationController]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; namespace Medic..."
+- File: Medical_Affiliation\Controllers\CourseDropdown.cs
+  Symbols: [CourseDropdown]
+  Preview: "internal class CourseDropdown {   public int CourseCode { get; set; }   public string CourseName { get; set; } }"
+- File: Medical_Affiliation\Controllers\DashboardModel.cs
+  Symbols: [Dash]
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.RazorPages; using Microsoft.EntityFrameworkCore; using ..."
+- File: Medical_Affiliation\Controllers\DentalApplicationStatusReportController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc; using Micr..."
+- File: Medical_Affiliation\Controllers\DentalController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.ViewModels;..."
+- File: Medical_Affiliation\Controllers\DentalRepositoryController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\DentalSuperAdminController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; using System; u..."
+- File: Medical_Affiliation\Controllers\FacultyCollegesModel.cs
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.RazorPages; using Microsoft.EntityFrameworkCore; using ..."
+- File: Medical_Affiliation\Controllers\FacultyDetailsController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc; using Micr..."
+- File: Medical_Affiliation\Controllers\FellowshipController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authentication; using Microsoft.AspNetCore.Authorization;..."
+- File: Medical_Affiliation\Controllers\Geophotocontroller.cs
+  Preview: "using System.Text.RegularExpressions; using Medical_Affiliation.DATA; using GeoPhotoModule.Models; using GeoPhotoModule.Services; using Microsoft.AspN..."
+- File: Medical_Affiliation\Controllers\HomeController.cs
+  Preview: "using System.Diagnostics; using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authorization; using Microsoft...."
+- File: Medical_Affiliation\Controllers\LatestMedicalAffiliationController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\LatestMedicalIntakeReportController.cs
+  Preview: "//using Medical_Affiliation.DATA; //using Medical_Affiliation.Models; // ← for AcademicReportViewModel //using Microsoft.AspNetCore.Mvc; //using Micro..."
+- File: Medical_Affiliation\Controllers\LICInspectionController.cs
+  Preview: "using BCrypt.Net; using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authentication; using Microsoft.AspNetC..."
+- File: Medical_Affiliation\Controllers\LICInspectionEditMemberController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.ViewModels; using Microsoft.AspNetCore.Mvc; using Microsof..."
+- File: Medical_Affiliation\Controllers\LicTadaController.cs
+  Symbols: [LicTadaController]
+  Preview: "using Medical_Affiliation.Models; using Medical_Affiliation.Services; using Microsoft.AspNetCore.Mvc; using static Medical_Affiliation.Services.LicTad..."
+- File: Medical_Affiliation\Controllers\LIC_DirectorController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authentication; using Microsoft.AspNetCore.Authorization;..."
+- File: Medical_Affiliation\Controllers\LoginController.cs
+  Preview: "//using Admission_Affiliation.Data; using Azure; using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authenti..."
+- File: Medical_Affiliation\Controllers\MainDashboardController.cs
+  Symbols: [MainDashboardController]
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Microsoft.EntityFrameworkCore; namespa..."
+- File: Medical_Affiliation\Controllers\MedicalContinuesAffiliationController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\MedicalRepositoryController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Micr..."
+- File: Medical_Affiliation\Controllers\MedicalSuperAdminController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; using System; u..."
+- File: Medical_Affiliation\Controllers\Medical_ContinuousAffiliationController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authorization; using ClosedXML.Excel; using Microsoft.Asp..."
+- File: Medical_Affiliation\Controllers\NursingContinuesAffiliationController.cs
+  Preview: "//using Medical_Affiliation.DATA; //using Medical_Affiliation.Models; //using Microsoft.AspNetCore.Mvc; //using Microsoft.AspNetCore.Mvc.Rendering; //..."
+- File: Medical_Affiliation\Controllers\Paymentcalculationcontroller.cs
+  Preview: "using System; using System.Collections.Generic; using System.Data; using System.IO; using System.Linq; using System.Text.Json; using System.Threading...."
+- File: Medical_Affiliation\Controllers\Paymentdocumentcontroller.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services; using Medical_Affiliation.Services.Interfaces; u..."
+- File: Medical_Affiliation\Controllers\pgcoursesController.cs
+  Preview: "using Admission_Affiliation.Models; using Medical_Affiliation.DATA; using Medical_Affiliation.Models; //using Medical_Affiliation.Models.ViewModels; u..."
+- File: Medical_Affiliation\Controllers\PhysicalInfrastructureController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Medical_Affiliation.ViewModels;..."
+- File: Medical_Affiliation\Controllers\Publicdocumentcontroller.cs
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore; namespa..."
+- File: Medical_Affiliation\Controllers\RepoController.cs
+  Preview: "//using Medical_Affiliation.DATA; //using Medical_Affiliation.Models; //using Microsoft.AspNetCore.Mvc; //using Microsoft.AspNetCore.Mvc.Rendering; //..."
+- File: Medical_Affiliation\Controllers\RepositoryAdminReportController.cs
+  Symbols: [RepositoryAdminReportController]
+  Preview: "using Microsoft.AspNetCore.Mvc; using Medical_Affiliation.DATA; namespace Medical_Affiliation.Controllers {   public class RepositoryAdminReportContro..."
+- File: Medical_Affiliation\Controllers\SectionOfficerController.cs
+  Preview: "using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authentication.Cookies; using Microsoft.AspNetCore.Authentication; using Microsoft.AspNet..."
+- File: Medical_Affiliation\Controllers\UGFacultyController.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Http; using Mic..."
+- File: Medical_Affiliation\Controllers\ValuesController.cs
+  Symbols: [ValuesController]
+  Preview: "using Microsoft.AspNetCore.Authentication; using Microsoft.AspNetCore.Http; using Microsoft.AspNetCore.Mvc; namespace Medical_Affiliation.Controllers ..."
+- File: Medical_Affiliation\DATA\ApplicationDbContext.cs
+  Symbols: [ApplicationDbContext]
+  Preview: "using System; using System.Collections.Generic; using Medical_Affiliation.Models; using Microsoft.EntityFrameworkCore; namespace Medical_Affiliation.D..."
+- File: Medical_Affiliation\DataProtection-Keys\key-2bdd5421-1417-409a-9f9c-dd20a1fea774.xml
+  Preview: "<?xml version='1.0' encoding='utf-8'?> <key id='2bdd5421-1417-409a-9f9c-dd20a1fea774' version='1'>  <creationDate>2026-10-06T04:44:04.0114014Z</creati..."
+- File: Medical_Affiliation\DataProtection-Keys\key-2c227703-4cf8-4249-9ceb-304af6fdff37.xml
+  Preview: "<?xml version='1.0' encoding='utf-8'?> <key id='2c227703-4cf8-4249-9ceb-304af6fdff37' version='1'>  <creationDate>2026-04-10T10:20:46.3902951Z</creati..."
+- File: Medical_Affiliation\DataProtection-Keys\key-36b679c1-ff45-4d57-bcf6-d1f7aaf68372.xml
+  Preview: "<?xml version='1.0' encoding='utf-8'?> <key id='36b679c1-ff45-4d57-bcf6-d1f7aaf68372' version='1'>  <creationDate>2026-07-08T05:57:16.4512021Z</creati..."
+- File: Medical_Affiliation\DataProtection-Keys\key-aa4cc428-443a-4059-ba32-2143181d4c29.xml
+  Preview: "<?xml version='1.0' encoding='utf-8'?> <key id='aa4cc428-443a-4059-ba32-2143181d4c29' version='1'>  <creationDate>2026-07-08T05:47:13.3314018Z</creati..."
+- File: Medical_Affiliation\Filters\AutoProgressFilter.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Filters; using Micros..."
+- File: Medical_Affiliation\Middleware\RequestResponseLoggingMiddleware.cs
+  Preview: "using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Http; using Microsoft.Extensions.Logging; using System; using System.IO; usi..."
+- File: Medical_Affiliation\Middleware\SessionTrackingMiddleware.cs
+  Preview: "using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Http; using Microsoft.Extensions.Logging; using System; using System.Threadi..."
+- File: Medical_Affiliation\Middleware\SessionValidationMiddleware.cs
+  Symbols: [AdminSessionMiddleware]
+  Preview: "using Microsoft.AspNetCore.Authentication; namespace Medical_Affiliation.Utilities {   // ================= ADMIN MIDDLEWARE =================   publi..."
+- File: Medical_Affiliation\Models\Academicactivitiesviewmodel.cs
+  Symbols: [AcademicActivitiesViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class AcademicActivitiesViewModel   {     public string F..."
+- File: Medical_Affiliation\Models\AcademicActivityDetail.cs
+  Symbols: [AcademicActivityDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AcademicActivityDetail {   public int Id { ..."
+- File: Medical_Affiliation\Models\AcademicIntake.cs
+  Symbols: [AcademicIntake]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AcademicIntake {   public int Id { get; set..."
+- File: Medical_Affiliation\Models\AcademicIntakeViewModel.cs
+  Symbols: [CourseIntakeViewModel, AcademicIntakeViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class AcademicIntakeViewModel   {     public List<CourseIntakeViewModel> Courses { get; set; } = new()..."
+- File: Medical_Affiliation\Models\AcademicIntakeYearWise.cs
+  Symbols: [AcademicIntakeYearWise]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AcademicIntakeYearWise {   public int Id { ..."
+- File: Medical_Affiliation\Models\AcademicSummaryDetail.cs
+  Symbols: [AcademicSummaryDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AcademicSummaryDetail {   public int Id { g..."
+- File: Medical_Affiliation\Models\AcademicYear.cs
+  Symbols: [AcademicYear]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AcademicYear {   public Guid AcademicYearId..."
+- File: Medical_Affiliation\Models\AcademicYearMaster.cs
+  Symbols: [AcademicYearMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AcademicYearMaster {   public int Id { get;..."
+- File: Medical_Affiliation\Models\Acmember.cs
+  Symbols: [Acmember]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Acmember {   public int Id { get; set; }   ..."
+- File: Medical_Affiliation\Models\AddCoursedetail.cs
+  Symbols: [AddCoursedetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AddCoursedetail {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\AddCourseToMstCourseViewModel.cs
+  Symbols: [AddCourseToMstCourseView]
+  Preview: "using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc.Rendering; using Microsoft.Identity.Client; using System.ComponentModel.DataAnnotatio..."
+- File: Medical_Affiliation\Models\AddDepartmentToDepartmentMaster.cs
+  Symbols: [AddDepartmentToDepartmentMaster]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class AddDepartmentToDepartmentMaster   {     public int? Se..."
+- File: Medical_Affiliation\Models\AdministrativeFacilityType.cs
+  Symbols: [AdministrativeFacilityType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AdministrativeFacilityType {   public int F..."
+- File: Medical_Affiliation\Models\AdminLoginViewModel.cs
+  Symbols: [AdminLoginViewModel]
+  Preview: "using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespace Admission_Affiliati..."
+- File: Medical_Affiliation\Models\AdmissionAffiliationContext.cs
+  Symbols: [AdmissionAffiliationContext, AdmissionAffiliationContext]
+  Preview: "using System; using System.Collections.Generic; using Microsoft.EntityFrameworkCore; namespace Medical_Affiliation.Models; public partial class Admiss..."
+- File: Medical_Affiliation\Models\AdmissionLoginViewModel.cs
+  Symbols: [AdmissionLoginViewModel]
+  Preview: "using Admission_Affiliation.Models; using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; public class AdmissionLogin..."
+- File: Medical_Affiliation\Models\AffAdminTeachingBlock.cs
+  Symbols: [AffAdminTeachingBlock]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffAdminTeachingBlock {   public int Id { g..."
+- File: Medical_Affiliation\Models\AffAllFacultyDetailswithdatum.cs
+  Symbols: [AffAllFacultyDetailswithdatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffAllFacultyDetailswithdatum {   public in..."
+- File: Medical_Affiliation\Models\AffCourseDetail.cs
+  Symbols: [AffCourseDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffCourseDetail {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\AffCourseDetail1.cs
+  Symbols: [AffCourseDetail1]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffCourseDetail1 {   public int Id { get; s..."
+- File: Medical_Affiliation\Models\AffDeanAdministrativeExperience.cs
+  Symbols: [AffDeanAdministrativeExperience]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffDeanAdministrativeExperience {   public ..."
+- File: Medical_Affiliation\Models\AffDeanOrDirectorDetail.cs
+  Symbols: [AffDeanOrDirectorDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffDeanOrDirectorDetail {   public int Id {..."
+- File: Medical_Affiliation\Models\AffDeanTeachingExperience.cs
+  Symbols: [AffDeanTeachingExperience]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffDeanTeachingExperience {   public int Id..."
+- File: Medical_Affiliation\Models\AffFacultyCourseMappingWithDatum.cs
+  Symbols: [AffFacultyCourseMappingWithDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffFacultyCourseMappingWithDatum {   public..."
+- File: Medical_Affiliation\Models\AffHostelDetail.cs
+  Symbols: [AffHostelDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffHostelDetail {   public int HostelDetail..."
+- File: Medical_Affiliation\Models\AffHostelFacilityDetail.cs
+  Symbols: [AffHostelFacilityDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffHostelFacilityDetail {   public int Id {..."
+- File: Medical_Affiliation\Models\AffiliatedHospitalDetail.cs
+  Symbols: [AffiliatedHospitalDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliatedHospitalDetail {   public int Id ..."
+- File: Medical_Affiliation\Models\AffiliatedHospitalDocument.cs
+  Symbols: [AffiliatedHospitalDocument]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliatedHospitalDocument {   public int D..."
+- File: Medical_Affiliation\Models\AffiliatedYearwiseMaterialsDatum.cs
+  Symbols: [AffiliatedYearwiseMaterialsDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliatedYearwiseMaterialsDatum {   public..."
+- File: Medical_Affiliation\Models\AffiliatedYearwiseMaterialsFormViewModel.cs
+  Symbols: [AffiliatedHospitalBlockViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; using Microsoft.AspNetCore.Http; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation...."
+- File: Medical_Affiliation\Models\AffiliationCollege.cs
+  Symbols: [AffiliationCollege]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationCollege {   public int SlNo { ge..."
+- File: Medical_Affiliation\Models\AffiliationCollegeMaster.cs
+  Symbols: [AffiliationCollegeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationCollegeMaster {   public string ..."
+- File: Medical_Affiliation\Models\AffiliationCollegeMaster1.cs
+  Symbols: [AffiliationCollegeMaster1]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationCollegeMaster1 {   public string..."
+- File: Medical_Affiliation\Models\AffiliationCollegeMasterFac6.cs
+  Symbols: [AffiliationCollegeMasterFac6]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationCollegeMasterFac6 {   public str..."
+- File: Medical_Affiliation\Models\AffiliationCollegeMasterFaculty10.cs
+  Symbols: [AffiliationCollegeMasterFaculty10]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationCollegeMasterFaculty10 {   publi..."
+- File: Medical_Affiliation\Models\AffiliationCollegeMasterFaculty4.cs
+  Symbols: [AffiliationCollegeMasterFaculty4]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationCollegeMasterFaculty4 {   public..."
+- File: Medical_Affiliation\Models\AffiliationCollegeMasterPharmarcy.cs
+  Symbols: [AffiliationCollegeMasterPharmarcy]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationCollegeMasterPharmarcy {   publi..."
+- File: Medical_Affiliation\Models\AffiliationCourseDetail.cs
+  Symbols: [AffiliationCourseDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationCourseDetail {   public int Id {..."
+- File: Medical_Affiliation\Models\AffiliationFinalDeclaration.cs
+  Symbols: [AffiliationFinalDeclaration]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationFinalDeclaration {   public int ..."
+- File: Medical_Affiliation\Models\AffiliationFinalDeclarationViewModel.cs
+  Symbols: [AffiliationFinalDeclarationViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class AffiliationFinalDeclarationViewModel   {     public int Id { get; set; }     public string Princ..."
+- File: Medical_Affiliation\Models\AffiliationLicinpsection.cs
+  Symbols: [AffiliationLicinpsection]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationLicinpsection {   public int Id ..."
+- File: Medical_Affiliation\Models\AffiliationNotification.cs
+  Symbols: [AffiliationNotification]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationNotification {   public int Noti..."
+- File: Medical_Affiliation\Models\AffiliationNotificationRead.cs
+  Symbols: [AffiliationNotificationRead]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationNotificationRead {   public int ..."
+- File: Medical_Affiliation\Models\AffiliationNotificationVM.cs
+  Symbols: [NotificationSummaryVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class NotificationSummaryVM   {     public int UnreadCount { get; set; }     public List<AffiliationNo..."
+- File: Medical_Affiliation\Models\AffiliationOtherCoursesPermittedByNmc.cs
+  Symbols: [AffiliationOtherCoursesPermittedByNmc]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationOtherCoursesPermittedByNmc {   p..."
+- File: Medical_Affiliation\Models\AffiliationOthersCollegeMaster.cs
+  Symbols: [AffiliationOthersCollegeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationOthersCollegeMaster {   public i..."
+- File: Medical_Affiliation\Models\AffiliationPayment.cs
+  Symbols: [AffiliationPayment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationPayment {   public int Id { get;..."
+- File: Medical_Affiliation\Models\AffiliationPaymentViewModel.cs
+  Symbols: [AffiliationPaymentViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class AffiliationPaymentViewModel   {     public int Id { get; set; }     public string CollegeCode { ..."
+- File: Medical_Affiliation\Models\AffiliationPgCourseViewModel.cs
+  Symbols: [AffiliationPgCourseViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class AffiliationPgCourseViewModel   {     public string CollegeCode { get; set; }     public int Type..."
+- File: Medical_Affiliation\Models\AffiliationPgSsCourseDetail.cs
+  Symbols: [AffiliationPgSsCourseDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationPgSsCourseDetail {   public int ..."
+- File: Medical_Affiliation\Models\AffiliationPgSsCourseDetailsForGok.cs
+  Symbols: [AffiliationPgSsCourseDetailsForGok]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationPgSsCourseDetailsForGok {   publ..."
+- File: Medical_Affiliation\Models\AffiliationPgSsCourseDetailsRguh.cs
+  Symbols: [AffiliationPgSsCourseDetailsRguh]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffiliationPgSsCourseDetailsRguh {   public..."
+- File: Medical_Affiliation\Models\AffiliationSSViewModel.cs
+  Symbols: [AffiliationSSViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class AffiliationSSViewModel   {     public string CollegeCo..."
+- File: Medical_Affiliation\Models\AffInstitutionsDetail.cs
+  Symbols: [AffInstitutionsDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffInstitutionsDetail {   public int Instit..."
+- File: Medical_Affiliation\Models\AffInstitutionStatusMaster.cs
+  Symbols: [AffInstitutionStatusMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffInstitutionStatusMaster {   public byte ..."
+- File: Medical_Affiliation\Models\AffNonTeachingFaculty.cs
+  Symbols: [AffNonTeachingFaculty]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffNonTeachingFaculty {   public int Id { g..."
+- File: Medical_Affiliation\Models\AffNonTeachingStaff.cs
+  Symbols: [AffNonTeachingStaff]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffNonTeachingStaff {   public int StaffId ..."
+- File: Medical_Affiliation\Models\AffPrincipalAdministrativeExperience.cs
+  Symbols: [AffPrincipalAdministrativeExperience]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffPrincipalAdministrativeExperience {   pu..."
+- File: Medical_Affiliation\Models\AffPrincipalDetail.cs
+  Symbols: [AffPrincipalDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffPrincipalDetail {   public int Id { get;..."
+- File: Medical_Affiliation\Models\AffPrincipalTeachingExperience.cs
+  Symbols: [AffPrincipalTeachingExperience]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffPrincipalTeachingExperience {   public i..."
+- File: Medical_Affiliation\Models\AffSanctionedIntakeForCourse.cs
+  Symbols: [AffSanctionedIntakeForCourse]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffSanctionedIntakeForCourse {   public int..."
+- File: Medical_Affiliation\Models\AffTeachingFacultyAllDetail.cs
+  Symbols: [AffTeachingFacultyAllDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AffTeachingFacultyAllDetail {   public int ..."
+- File: Medical_Affiliation\Models\AhsAffiliatedYearwiseMaterialsDatum.cs
+  Symbols: [AhsAffiliatedYearwiseMaterialsDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhsAffiliatedYearwiseMaterialsDatum {   pub..."
+- File: Medical_Affiliation\Models\AhsCourseCollegeDatum.cs
+  Symbols: [AhsCourseCollegeDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhsCourseCollegeDatum {   public short SlNo..."
+- File: Medical_Affiliation\Models\AhsCourseDetail.cs
+  Symbols: [AhscourseDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhscourseDetail {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\AhsDetail.cs
+  Symbols: [AhsDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhsDetail {   public int RegistrationNumber..."
+- File: Medical_Affiliation\Models\AhsDetailsDatum.cs
+  Symbols: [AhsDetailsDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhsDetailsDatum {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\AhsExpectedIntakeMaster.cs
+  Symbols: [AhsExpectedIntakeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhsExpectedIntakeMaster {   public int Inta..."
+- File: Medical_Affiliation\Models\AhsFfdatum.cs
+  Symbols: [AhsFfdatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhsFfdatum {   public int Id { get; set; } ..."
+- File: Medical_Affiliation\Models\AhshospitalDetail.cs
+  Symbols: [AhshospitalDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhshospitalDetail {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\AHShospitalDetailsViewModel.cs
+  Symbols: [AHShospitalDetailsViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class AHShospitalDetailsViewModel   {     public string Coll..."
+- File: Medical_Affiliation\Models\AHSInstituteDetailViewModel.cs
+  Symbols: [AHSInstituteDetailViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class AHSInstit..."
+- File: Medical_Affiliation\Models\AhsinstitutionDetail.cs
+  Symbols: [AhsinstitutionDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhsinstitutionDetail {   public int Id { ge..."
+- File: Medical_Affiliation\Models\AHSSOloginViewModel.cs
+  Symbols: [AHSSOloginViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class AHSSOlogi..."
+- File: Medical_Affiliation\Models\AhsteachingFacultyDetail.cs
+  Symbols: [AhsteachingFacultyDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhsteachingFacultyDetail {   public int Id ..."
+- File: Medical_Affiliation\Models\AhstrustMemberDetail.cs
+  Symbols: [AhstrustMemberDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AhstrustMemberDetail {   public int Id { ge..."
+- File: Medical_Affiliation\Models\AHS_FacultyIntakeViewModel.cs
+  Symbols: [AHS_FacultyIntakeViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class AHS_FacultyIntakeViewModel   {     //[Required]    ..."
+- File: Medical_Affiliation\Models\AHS_UGPGSSDetailsFormViewModel.cs
+  Symbols: [AHS_UGPGSSDetailsFormViewModel]
+  Preview: "//page created by ram on 06-11-2025 namespace Medical_Affiliation.Models {   public class AHS_UGPGSSDetailsFormViewModel   {     public string Faculty..."
+- File: Medical_Affiliation\Models\AHS_YearwiseMaterialsDataViewModel.cs
+  Symbols: [AHS_YearwiseMaterialsDataViewModel]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Models {   public class AHS_YearwiseMaterialsDataViewModel   {     public int Id { get..."
+- File: Medical_Affiliation\Models\ApiFacultyViewModel.cs
+  Symbols: [ApiFacultyViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class ApiFacultyViewModel   {     public int Id { get; set; }     public int? FacultyCode { get; set; ..."
+- File: Medical_Affiliation\Models\ApplicationDbContext.cs
+  Symbols: [ApplicationDbContext]
+  Preview: "//using System; //using System.Collections.Generic; //using Microsoft.EntityFrameworkCore; //namespace Medical_Affiliation.Models; //public partial cl..."
+- File: Medical_Affiliation\Models\ApplicationProgress.cs
+  Symbols: [ApplicationProgress]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class ApplicationProgress {   public int Id { get..."
+- File: Medical_Affiliation\Models\ApplicationStatusReportVM.cs
+  Symbols: [ApplicationStatusReportVM]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class ApplicationStatusReportVM   {     public List<CollegeS..."
+- File: Medical_Affiliation\Models\ApplicationSubmission.cs
+  Symbols: [ApplicationSubmission]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class ApplicationSubmission {   public int Id { g..."
+- File: Medical_Affiliation\Models\AppMenuItem.cs
+  Symbols: [AppMenuItem]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AppMenuItem {   public int MenuItemId { get..."
+- File: Medical_Affiliation\Models\AppRole.cs
+  Symbols: [AppRole]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AppRole {   public int RoleId { get; set; }..."
+- File: Medical_Affiliation\Models\AppRoleMenu.cs
+  Symbols: [AppRoleMenu]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AppRoleMenu {   public int RoleMenuId { get..."
+- File: Medical_Affiliation\Models\AppUser.cs
+  Symbols: [AppUser]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AppUser {   public int UserId { get; set; }..."
+- File: Medical_Affiliation\Models\AssociatedInstitution.cs
+  Symbols: [AssociatedInstitution]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AssociatedInstitution {   public int Id { g..."
+- File: Medical_Affiliation\Models\AuditLog.cs
+  Symbols: [AuditLog]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AuditLog {   public int LogId { get; set; }..."
+- File: Medical_Affiliation\Models\AuditLog1.cs
+  Symbols: [AuditLog1]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AuditLog1 {   public long AuditLogId { get;..."
+- File: Medical_Affiliation\Models\AyurvedaMinimumConstructedAreaViewModel.cs
+  Symbols: [AyurvedaMinimumConstructedAreaViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models; public class AyurvedaMinimumConstructedAreaViewModel {   public int Se..."
+- File: Medical_Affiliation\Models\AyurvedaOtherEquipmentAvailabilityViewModel.cs
+  Symbols: [AyurvedaOtherEquipmentAvailabilityViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class AyurvedaOtherEquipmentAvailabilityViewModel   {     pu..."
+- File: Medical_Affiliation\Models\AyurvedaStaffAvailabilityViewModel.cs
+  Symbols: [AyurvedaStaffAvailabilityViewModel]
+  Preview: " using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models; public class AyurvedaStaffAvailabilityViewModel {   public int Select..."
+- File: Medical_Affiliation\Models\AyurvedicCollegeMaster.cs
+  Symbols: [AyurvedicCollegeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class AyurvedicCollegeMaster {   public int Id { ..."
+- File: Medical_Affiliation\Models\BasicDetail.cs
+  Symbols: [BasicDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class BasicDetail {   public int Id { get; set; }..."
+- File: Medical_Affiliation\Models\BuildingTypeMaster.cs
+  Symbols: [BuildingTypeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class BuildingTypeMaster {   public int? Building..."
+- File: Medical_Affiliation\Models\CaAcademicMatter.cs
+  Symbols: [CaAcademicMatter]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaAcademicMatter {   public int Id { get; s..."
+- File: Medical_Affiliation\Models\CaAcademicPerformance.cs
+  Symbols: [CaAcademicPerformance]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaAcademicPerformance {   public int Academ..."
+- File: Medical_Affiliation\Models\Caapplicationlistitemvm.cs
+  Symbols: [Caapplicationlistitemvm]
+  Preview: "namespace Medical_Affiliation.Models {   public class Caapplicationlistitemvm   {   } } "
+- File: Medical_Affiliation\Models\CaCourseCurriculum.cs
+  Symbols: [CaCourseCurriculum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaCourseCurriculum {   public int CourseCur..."
+- File: Medical_Affiliation\Models\CaCourseDetailsInFinancialDetail.cs
+  Symbols: [CaCourseDetailsInFinancialDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaCourseDetailsInFinancialDetail {   public..."
+- File: Medical_Affiliation\Models\CaDentalLibraryRecord.cs
+  Symbols: [CaDentalLibraryRecord]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaDentalLibraryRecord {   public int Id { g..."
+- File: Medical_Affiliation\Models\CaDepartmentLibraryDetail.cs
+  Symbols: [CaDepartmentLibraryDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaDepartmentLibraryDetail {   public int Id..."
+- File: Medical_Affiliation\Models\CaExaminationScheme.cs
+  Symbols: [CaExaminationScheme]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaExaminationScheme {   public int Examinat..."
+- File: Medical_Affiliation\Models\CaFinancialDetail.cs
+  Symbols: [CaFinancialDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaFinancialDetail {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\CaLibraryDetail.cs
+  Symbols: [CaLibraryDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaLibraryDetail {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\CaLibraryService.cs
+  Symbols: [CaLibraryService]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaLibraryService {   public int Id { get; s..."
+- File: Medical_Affiliation\Models\CaLibraryStaffDetail.cs
+  Symbols: [CaLibraryStaffDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaLibraryStaffDetail {   public int Id { ge..."
+- File: Medical_Affiliation\Models\CaMedicalDepartmentLibrary.cs
+  Symbols: [CaMedicalDepartmentLibrary]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedicalDepartmentLibrary {   public int D..."
+- File: Medical_Affiliation\Models\CaMedicalLibraryOtherDetail.cs
+  Symbols: [CaMedicalLibraryOtherDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedicalLibraryOtherDetail {   public int ..."
+- File: Medical_Affiliation\Models\CaMedicalLibraryService.cs
+  Symbols: [CaMedicalLibraryService]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedicalLibraryService {   public int Libr..."
+- File: Medical_Affiliation\Models\CaMedicalLibraryStaff.cs
+  Symbols: [CaMedicalLibraryStaff]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedicalLibraryStaff {   public int Id { g..."
+- File: Medical_Affiliation\Models\CaMedicalLibraryUsageReport.cs
+  Symbols: [CaMedicalLibraryUsageReport]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedicalLibraryUsageReport {   public int ..."
+- File: Medical_Affiliation\Models\CaMedLibCommittee.cs
+  Symbols: [CaMedLibCommittee]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedLibCommittee {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\CaMedLibOtherAcademicActivity.cs
+  Symbols: [CaMedLibOtherAcademicActivity]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedLibOtherAcademicActivity {   public in..."
+- File: Medical_Affiliation\Models\CaMedLibraryBuilding.cs
+  Symbols: [CaMedLibraryBuilding]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedLibraryBuilding {   public int SlNo { ..."
+- File: Medical_Affiliation\Models\CaMedLibraryEquipment.cs
+  Symbols: [CaMedLibraryEquipment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedLibraryEquipment {   public int SlNo {..."
+- File: Medical_Affiliation\Models\CaMedLibraryFinance.cs
+  Symbols: [CaMedLibraryFinance]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedLibraryFinance {   public int SlNo { g..."
+- File: Medical_Affiliation\Models\CaMedLibraryGeneral.cs
+  Symbols: [CaMedLibraryGeneral]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedLibraryGeneral {   public int SlNo { g..."
+- File: Medical_Affiliation\Models\CaMedLibraryItem.cs
+  Symbols: [CaMedLibraryItem]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedLibraryItem {   public int SlNo { get;..."
+- File: Medical_Affiliation\Models\CaMedLibTechnicalProcess.cs
+  Symbols: [CaMedLibTechnicalProcess]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedLibTechnicalProcess {   public int SlN..."
+- File: Medical_Affiliation\Models\CaMedResearchPublicationsDetail.cs
+  Symbols: [CaMedResearchPublicationsDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedResearchPublicationsDetail {   public ..."
+- File: Medical_Affiliation\Models\CaMedStaffParticularsOther.cs
+  Symbols: [CaMedStaffParticularsOther]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedStaffParticularsOther {   public int I..."
+- File: Medical_Affiliation\Models\CaMedStaffParticularsOtherTemp.cs
+  Symbols: [CaMedStaffParticularsOtherTemp]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMedStaffParticularsOtherTemp {   public i..."
+- File: Medical_Affiliation\Models\CaMstCourseCurriculum.cs
+  Symbols: [CaMstCourseCurriculum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstCourseCurriculum {   public int Curric..."
+- File: Medical_Affiliation\Models\CaMstDentalLibraryRecord.cs
+  Symbols: [CaMstDentalLibraryRecord]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstDentalLibraryRecord {   public int Rec..."
+- File: Medical_Affiliation\Models\CaMstExaminationScheme.cs
+  Symbols: [CaMstExaminationScheme]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstExaminationScheme {   public int Schem..."
+- File: Medical_Affiliation\Models\CaMstLibraryEquipmentsType.cs
+  Symbols: [CaMstLibraryEquipmentsType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstLibraryEquipmentsType {   public int I..."
+- File: Medical_Affiliation\Models\CaMstLibraryServicesList.cs
+  Symbols: [CaMstLibraryServicesList]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstLibraryServicesList {   public int Id ..."
+- File: Medical_Affiliation\Models\CaMstMedCommitteeName.cs
+  Symbols: [CaMstMedCommitteeName]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstMedCommitteeName {   public int Id { g..."
+- File: Medical_Affiliation\Models\CaMstMediLibraryService.cs
+  Symbols: [CaMstMediLibraryService]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstMediLibraryService {   public int Serv..."
+- File: Medical_Affiliation\Models\CaMstMedLibraryEquipment.cs
+  Symbols: [CaMstMedLibraryEquipment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstMedLibraryEquipment {   public int SlN..."
+- File: Medical_Affiliation\Models\CaMstMedLibraryItem.cs
+  Symbols: [CaMstMedLibraryItem]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstMedLibraryItem {   public int SlNo { g..."
+- File: Medical_Affiliation\Models\CaMstMedLibTechnicalProcess.cs
+  Symbols: [CaMstMedLibTechnicalProcess]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstMedLibTechnicalProcess {   public int ..."
+- File: Medical_Affiliation\Models\CaMstMedOtherAcademicActivity.cs
+  Symbols: [CaMstMedOtherAcademicActivity]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstMedOtherAcademicActivity {   public in..."
+- File: Medical_Affiliation\Models\CaMstRegisterRecord.cs
+  Symbols: [CaMstRegisterRecord]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstRegisterRecord {   public int Register..."
+- File: Medical_Affiliation\Models\CaMstUserDetail.cs
+  Symbols: [CaMstUserDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstUserDetail {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\CaMstVdVehicleFor.cs
+  Symbols: [CaMstVdVehicleFor]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstVdVehicleFor {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\CaMstYearOfStudy.cs
+  Symbols: [CaMstYearOfStudy]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaMstYearOfStudy {   public int YearOfStudy..."
+- File: Medical_Affiliation\Models\CaNursingCollectionDevelopment.cs
+  Symbols: [CaNursingCollectionDevelopment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaNursingCollectionDevelopment {   public i..."
+- File: Medical_Affiliation\Models\CaNursingLibraryEquipment.cs
+  Symbols: [CaNursingLibraryEquipment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaNursingLibraryEquipment {   public int Id..."
+- File: Medical_Affiliation\Models\CApreviewViewModel.cs
+  Symbols: [CApreviewViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; using GeoPhotoModule.Models; namespace Medical_Affiliation.Models {   public class CApreviewViewModel   {..."
+- File: Medical_Affiliation\Models\CaProgress.cs
+  Symbols: [CaProgress]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaProgress {   public int Id { get; set; } ..."
+- File: Medical_Affiliation\Models\CaSsAffiliationGrantedYear.cs
+  Symbols: [CaSsAffiliationGrantedYear]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaSsAffiliationGrantedYear {   public int I..."
+- File: Medical_Affiliation\Models\CaSsLicpreviousInspection.cs
+  Symbols: [CaSsLicpreviousInspection]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaSsLicpreviousInspection {   public int Id..."
+- File: Medical_Affiliation\Models\CaSsLopsavedDate.cs
+  Symbols: [CaSsLopsavedDate]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaSsLopsavedDate {   public int Id { get; s..."
+- File: Medical_Affiliation\Models\CaSsOtherCoursesConducted.cs
+  Symbols: [CaSsOtherCoursesConducted]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaSsOtherCoursesConducted {   public int Id..."
+- File: Medical_Affiliation\Models\CaSsPermission.cs
+  Symbols: [CaSsPermission]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaSsPermission {   public int Id { get; set..."
+- File: Medical_Affiliation\Models\CaStudentRegisterRecord.cs
+  Symbols: [CaStudentRegisterRecord]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaStudentRegisterRecord {   public int Stud..."
+- File: Medical_Affiliation\Models\CaUserDetail.cs
+  Symbols: [CaUserDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaUserDetail {   public int Id { get; set; ..."
+- File: Medical_Affiliation\Models\CaVehicleDetail.cs
+  Symbols: [CaVehicleDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CaVehicleDetail {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\CA_Aff_AcademicMattersViewModel.cs
+  Symbols: [CA_Aff_AcademicMattersViewModel]
+  Preview: "using Medical_Affiliation.Models; using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation..."
+- File: Medical_Affiliation\Models\CA_Aff_MedicalLibraryViewModel.cs
+  Symbols: [CA_Aff_MedicalLibraryViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; using static Medical_Affiliation.Models.LibraryServiceRowViewModel; namespace Medical_Affiliation.Models ..."
+- File: Medical_Affiliation\Models\CA_DepartmentLibraryDetailsViewModel.cs
+  Symbols: [CA_DepartmentLibraryRowVM]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_Depart..."
+- File: Medical_Affiliation\Models\CA_FinancialCourseRowViewModel.cs
+  Symbols: [CA_FinancialCourseRowViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_FinancialCourseRowViewModel   {     public int? ..."
+- File: Medical_Affiliation\Models\CA_FinancialDetailsViewModel.cs
+  Symbols: [CA_FinancialDetailsViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_FinancialDetailsViewModel   {     public string?..."
+- File: Medical_Affiliation\Models\CA_LibraryDetailsViewModel.cs
+  Symbols: [CA_LibraryDetailsViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_LibraryDetailsViewModel   {     public string? R..."
+- File: Medical_Affiliation\Models\CA_LibraryServicesViewModel.cs
+  Symbols: [CA_LibraryServicesViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_LibraryServicesViewModel   {     public int Id {..."
+- File: Medical_Affiliation\Models\CA_LibraryStaffDetailsViewModel.cs
+  Symbols: [CA_LibraryStaffDetailsViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_LibraryStaffDetailsViewModel   {     public stri..."
+- File: Medical_Affiliation\Models\CA_Medi_LibraryBuildingVM.cs
+  Symbols: [CA_Medi_LibraryBuildingVM]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_Medi_LibraryBuildingVM   {     //[Required(Error..."
+- File: Medical_Affiliation\Models\CA_Medi_LibraryEquipmentsVM.cs
+  Symbols: [CA_Medi_LibraryEquipmentsVM]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_Medi_LibraryEquipmentsVM   {     public int SlNo..."
+- File: Medical_Affiliation\Models\CA_Medi_LibraryFinanceVM.cs
+  Symbols: [CA_Medi_LibraryFinanceVM]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_Medi_LibraryFinanceVM   {     [Required(ErrorMes..."
+- File: Medical_Affiliation\Models\CA_Medi_LibraryGeneralVM.cs
+  Symbols: [CA_Medi_LibraryGeneralVM]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_Medi_LibraryGeneralVM   {     [Required(ErrorMes..."
+- File: Medical_Affiliation\Models\CA_Medi_LibraryItemsVM.cs
+  Symbols: [CA_Medi_LibraryItemsVM]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_Medi_LibraryItemsVM   {     public int SlNo { ge..."
+- File: Medical_Affiliation\Models\CA_Medi_Lib_FinanceVM.cs
+  Symbols: [CA_Medi_Lib_FinanceVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class CA_Medi_Lib_FinanceVM   {     public CA_Medi_LibraryFinanceVM Finance { get; set; } = new();   }..."
+- File: Medical_Affiliation\Models\CA_Medi_TechnicalProcessVM.cs
+  Symbols: [CA_Medi_TechnicalProcessVM]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_Medi_TechnicalProcessVM   {     public int SlNo ..."
+- File: Medical_Affiliation\Models\CA_Med_LibraryMainVM.cs
+  Symbols: [CA_Med_LibraryMainVM]
+  Preview: "namespace Medical_Affiliation.Models {   //public class CA_Med_LibraryMainVM   //{   //  public LibraryGeneralVM General { get; set; } = new();   //  ..."
+- File: Medical_Affiliation\Models\CA_Med_Lib_BuildingDetailsVM.cs
+  Symbols: [CA_Med_Lib_BuildingDetailsVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class CA_Med_Lib_BuildingDetailsVM   {     public CA_Medi_LibraryBuildingVM Building { get; set; } = n..."
+- File: Medical_Affiliation\Models\CA_Med_Lib_CommitteePostVM.cs
+  Symbols: [CA_Med_Lib_CommitteePostVM]
+  Preview: "using System.Collections.Generic; namespace Medical_Affiliation.Models {   public class CA_Med_Lib_CommitteePostVM   {     public List<CA_Med_Lib_Comm..."
+- File: Medical_Affiliation\Models\CA_Med_Lib_CommitteeVM.cs
+  Symbols: [CA_Med_Lib_CommitteeVM]
+  Preview: "using System.ComponentModel.DataAnnotations; public class CA_Med_Lib_CommitteeVM {      public int CommitteeId { get; set; }   public string Committee..."
+- File: Medical_Affiliation\Models\CA_Med_Lib_DetailsAndItemsVM.cs
+  Symbols: [CA_Med_Lib_DetailsAndItemsVM]
+  Preview: "using System.Collections.Generic; namespace Medical_Affiliation.Models {   public class CA_Med_Lib_DetailsAndItemsVM   {     public CA_Medi_LibraryGen..."
+- File: Medical_Affiliation\Models\CA_Med_Lib_EquipmentsVM.cs
+  Symbols: [CA_Med_Lib_EquipmentsVM]
+  Preview: "using System.Collections.Generic; namespace Medical_Affiliation.Models {   public class CA_Med_Lib_EquipmentsVM   {     public List<CA_Medi_LibraryEqu..."
+- File: Medical_Affiliation\Models\CA_Med_Lib_OtherAcademicActivitiesVM.cs
+  Symbols: [CA_Med_Lib_OtherAcademicActivitiesVM]
+  Preview: "using System.ComponentModel.DataAnnotations; using Microsoft.AspNetCore.Http;  namespace Medical_Affiliation.Models {   public class CA_Med_Lib_OtherA..."
+- File: Medical_Affiliation\Models\CA_Med_Lib_OtherActivityPostVM.cs
+  Symbols: [CA_Med_Lib_OtherActivityPostVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class CA_Med_Lib_OtherActivityPostVM   {     public int? Id { get; set; } // null = add, value = edit ..."
+- File: Medical_Affiliation\Models\CA_Med_Lib_TechnicalProcessVM.cs
+  Symbols: [CA_Med_Lib_TechnicalProcessVM]
+  Preview: "using System.Collections.Generic; namespace Medical_Affiliation.Models {   public class CA_Med_Lib_TechnicalProcessVM   {     public List<CA_Medi_Tech..."
+- File: Medical_Affiliation\Models\CA_Med_ResearchPublicationsDetailsVM.cs
+  Symbols: [CA_Med_ResearchPublicationsDetailsVM]
+  Preview: "using Microsoft.AspNetCore.Http; using System.Collections.Generic; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {..."
+- File: Medical_Affiliation\Models\CA_SS_CoursesAppliedVM.cs
+  Symbols: [CA_SS_CoursesAppliedVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class CA_SS_CoursesAppliedVM   {     public string? CollegeCode { get; set; }     public string? Facul..."
+- File: Medical_Affiliation\Models\CA_SS_FullViewVM.cs
+  Symbols: [CA_SS_FullViewVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class CA_SS_FullViewVM   {     // ===== Applied Courses =====     public string? CollegeCode { get; se..."
+- File: Medical_Affiliation\Models\CA_SS_SSCourseParticularsVM.cs
+  Symbols: [CA_SS_SSCourseParticularsVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class CA_SS_SSCourseParticularsVM   {     public List<CA_SS_LOPSavedDateVM> LopList { get; set; } = ne..."
+- File: Medical_Affiliation\Models\CA_VehicleDetailsViewModel.cs
+  Symbols: [CA_VehicleDetailsViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class CA_Vehicl..."
+- File: Medical_Affiliation\Models\ClassroomPageVM.cs
+  Symbols: [ClassroomPageVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class ClassroomPageVM   {     public string FacultyCode { get; set; }          public List<ClassroomDe..."
+- File: Medical_Affiliation\Models\ClinicalDatum.cs
+  Symbols: [ClinicalDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class ClinicalDatum {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\ClinicalFacilitesViewModel.cs
+  Symbols: [SectionViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.ModelBinding.Validation; using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespa..."
+- File: Medical_Affiliation\Models\ClinicalFacilityDocMaster.cs
+  Symbols: [ClinicalFacilityDocMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class ClinicalFacilityDocMaster {   public int Do..."
+- File: Medical_Affiliation\Models\ClinicalMaterialDatum.cs
+  Symbols: [ClinicalMaterialDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class ClinicalMaterialDatum {   public int Id { g..."
+- File: Medical_Affiliation\Models\ClinicalWorkloadDetail.cs
+  Symbols: [ClinicalWorkloadDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class ClinicalWorkloadDetail {   public int Id { ..."
+- File: Medical_Affiliation\Models\CollegeCourseIntakeDetail.cs
+  Symbols: [CollegeCourseIntakeDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CollegeCourseIntakeDetail {   public int Id..."
+- File: Medical_Affiliation\Models\CollegeCourseRegistration.cs
+  Symbols: [CollegeCourseRegistration]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CollegeCourseRegistration {   public int Id..."
+- File: Medical_Affiliation\Models\CollegeCourseViewModel .cs
+  Symbols: [CollegeCourseViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class CollegeCourseViewModel   {     public string? CollegeC..."
+- File: Medical_Affiliation\Models\CollegeDesignationDetail.cs
+  Symbols: [CollegeDesignationDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CollegeDesignationDetail {   public int Id ..."
+- File: Medical_Affiliation\Models\CollegedetailsFellowship.cs
+  Symbols: [CollegedetailsFellowship]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CollegedetailsFellowship {   public string ..."
+- File: Medical_Affiliation\Models\CollegeDetailsUpdateViewModel.cs
+  Symbols: [CollegeDetailsUpdateViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class CollegeDetailsUpdateViewModel   {     public string Co..."
+- File: Medical_Affiliation\Models\CollegeDetailsViewModel.cs
+  Symbols: [CollegeDetailsViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class CollegeDetailsViewModel   {     public int FacultyCode { get; set; }     public string CollegeNa..."
+- File: Medical_Affiliation\Models\CollegeDocsReportFilterViewModel.cs
+  Symbols: [CollegeDocsReportFilterViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class CollegeDocsReportFilterViewModel   {     public string..."
+- File: Medical_Affiliation\Models\CollegeInfo.cs
+  Symbols: [CollegeInfo]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CollegeInfo {   public int Id { get; set; }..."
+- File: Medical_Affiliation\Models\CollegeIntakeDetail.cs
+  Symbols: [CollegeIntakeDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CollegeIntakeDetail {   public int Id { get..."
+- File: Medical_Affiliation\Models\CollegeLocationViewModel.cs
+  Symbols: [CollegeLocationViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class CollegeLocationViewModel   {     public string CollegeCode { get; set; }     public string Colle..."
+- File: Medical_Affiliation\Models\CollegeLoginViewModel.cs
+  Symbols: [CollegeLoginViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; public class CollegeLoginViewModel {   public string CollegeId { get; set; }   public int FacultyId { get; s..."
+- File: Medical_Affiliation\Models\CollegePrincipalDetail.cs
+  Symbols: [CollegePrincipalDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CollegePrincipalDetail {   public int Id { ..."
+- File: Medical_Affiliation\Models\Collegeprofileviewmodel.cs
+  Symbols: [CollegeProfileViewModel]
+  Preview: "using Microsoft.AspNetCore.Http; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CollegeProfileView..."
+- File: Medical_Affiliation\Models\ContinuationTrustMemberDetail.cs
+  Symbols: [ContinuationTrustMemberDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class ContinuationTrustMemberDetail {   public in..."
+- File: Medical_Affiliation\Models\ContinuationTrustMemberDocument.cs
+  Symbols: [ContinuationTrustMemberDocument]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class ContinuationTrustMemberDocument {   public ..."
+- File: Medical_Affiliation\Models\Course.cs
+  Symbols: [Course]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Course {   public int Id { get; set; }   pu..."
+- File: Medical_Affiliation\Models\CourseDetailsAh.cs
+  Symbols: [CourseDetailsAh]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CourseDetailsAh {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\CourseIntakeDetail.cs
+  Symbols: [CourseIntakeDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CourseIntakeDetail {   public int IntakeId ..."
+- File: Medical_Affiliation\Models\CourseIntakeFello.cs
+  Symbols: [CourseIntakeFello]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CourseIntakeFello {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\CourseMaster.cs
+  Symbols: [CourseMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CourseMaster {   public string CourseCode {..."
+- File: Medical_Affiliation\Models\CoursesOffered.cs
+  Symbols: [CoursesOffered]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class CoursesOffered {   public int Id { get; set..."
+- File: Medical_Affiliation\Models\DashboardViewModel.cs
+  Symbols: [DashboardViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class DashboardViewModel   {     public string CollegeCode { get; set; }     public string CollegeName..."
+- File: Medical_Affiliation\Models\DeclarationViewModel.cs
+  Symbols: [DeclarationViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class DeclarationViewModel   {     public bool IsPenaltyEnabled { get; set; }     public DateTime Subm..."
+- File: Medical_Affiliation\Models\DentalChair.cs
+  Symbols: [DentalChair]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DentalChair {   public int Id { get; set; }..."
+- File: Medical_Affiliation\Models\DentalChairVm.cs
+  Symbols: [DentalChairVm]
+  Preview: "namespace Medical_Affiliation.Models {   public class DentalChairVm   {     public int CourseCode { get; set; }     public string CourseName { get; se..."
+- File: Medical_Affiliation\Models\DentalCollegeEquipmentDetail.cs
+  Symbols: [DentalCollegeEquipmentDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DentalCollegeEquipmentDetail {   public int..."
+- File: Medical_Affiliation\Models\DentalCollegeLandBuildingDetail.cs
+  Symbols: [DentalCollegeLandBuildingDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DentalCollegeLandBuildingDetail {   public ..."
+- File: Medical_Affiliation\Models\DentalCollegeLandBuildingViewModel.cs
+  Symbols: [DentalCollegeLandBuildingViewModel]
+  Preview: "using Medical_Affiliation.Models; using Microsoft.AspNetCore.Http; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.ViewMode..."
+- File: Medical_Affiliation\Models\DentalInfrastructure.cs
+  Symbols: [DentalInfrastructure]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DentalInfrastructure {   public int Id { ge..."
+- File: Medical_Affiliation\Models\DentalPreClinicalAndSkillsLabAreaReq.cs
+  Symbols: [DentalPreClinicalAndSkillsLabAreaReq]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DentalPreClinicalAndSkillsLabAreaReq {   pu..."
+- File: Medical_Affiliation\Models\DentalPreClinicalAndSkillsLabAreaReqVM.cs
+  Symbols: [DentalPreClinicalAndSkillsLabAreaReqVM]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.ViewModels {   public class DentalPreClinicalAndSkillsLabAreaReqVM   {     ..."
+- File: Medical_Affiliation\Models\DentalService.cs
+  Symbols: [DentalService]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DentalService {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\DentalTeachingStaffVm.cs
+  Symbols: [DentalTeachingStaffVm]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class DentalTeachingStaffVm   {     public string? CollegeCo..."
+- File: Medical_Affiliation\Models\DentalVm.cs
+  Symbols: [EquipmentPageVM]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class EquipmentPageVM   {     public string CollegeCode { ge..."
+- File: Medical_Affiliation\Models\DentalWardBedDistribution.cs
+  Symbols: [DentalWardBedDistribution]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DentalWardBedDistribution {   public int Id..."
+- File: Medical_Affiliation\Models\DepartmentalMuseum.cs
+  Symbols: [DepartmentalMuseum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DepartmentalMuseum {   public int Id { get;..."
+- File: Medical_Affiliation\Models\DepartmentalResearchLab.cs
+  Symbols: [DepartmentalResearchLab]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DepartmentalResearchLab {   public int Id {..."
+- File: Medical_Affiliation\Models\DepartmentEquipment.cs
+  Symbols: [DepartmentEquipment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DepartmentEquipment {   public int Id { get..."
+- File: Medical_Affiliation\Models\DepartmentMaster.cs
+  Symbols: [DepartmentMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DepartmentMaster {   public int Id { get; s..."
+- File: Medical_Affiliation\Models\DepartmentMastersForUg.cs
+  Symbols: [DepartmentMastersForUg]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DepartmentMastersForUg {   public int Id { ..."
+- File: Medical_Affiliation\Models\DepartmentOfficesMeuViewModel.cs
+  Symbols: [DepartmentOfficesMeuViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class DepartmentOfficesMeuViewModel : IValidatableObject ..."
+- File: Medical_Affiliation\Models\DepartmentServiceDetail.cs
+  Symbols: [DepartmentServiceDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DepartmentServiceDetail {   public int Id {..."
+- File: Medical_Affiliation\Models\DepartmentWiseFacultyMaster.cs
+  Symbols: [DepartmentWiseFacultyMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DepartmentWiseFacultyMaster {   public int ..."
+- File: Medical_Affiliation\Models\DeptWisePublication.cs
+  Symbols: [DeptWisePublication]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DeptWisePublication {   public int Id { get..."
+- File: Medical_Affiliation\Models\DesignationMaster.cs
+  Symbols: [DesignationMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DesignationMaster {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\DetailsSenate.cs
+  Symbols: [DetailsSenate]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DetailsSenate {   public int SlNo { get; se..."
+- File: Medical_Affiliation\Models\District.cs
+  Symbols: [District]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class District {   public string DistrictId { get..."
+- File: Medical_Affiliation\Models\DistrictMaster.cs
+  Symbols: [DistrictMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DistrictMaster {   public string DistrictId..."
+- File: Medical_Affiliation\Models\DocumentMaster.cs
+  Symbols: [DocumentMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class DocumentMaster {   public int DocId { get; ..."
+- File: Medical_Affiliation\Models\Edited2207CourseMasterMedicalData1.cs
+  Symbols: [Edited2207CourseMasterMedicalData1]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Edited2207CourseMasterMedicalData1 {   publ..."
+- File: Medical_Affiliation\Models\EligibleFacultyDetail.cs
+  Symbols: [EligibleFacultyDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class EligibleFacultyDetail {   public int Id { g..."
+- File: Medical_Affiliation\Models\EquipmentAvailabilityViewModel.cs
+  Symbols: [EquipmentAvailabilityViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class EquipmentAvailabilityViewModel   {     // Dropdown    ..."
+- File: Medical_Affiliation\Models\EquipmentMasterViewModel.cs
+  Symbols: [EquipmentMasterViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.ModelBinding.Validation; using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; public ..."
+- File: Medical_Affiliation\Models\EquipmentVM.cs
+  Symbols: [EquipmentVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class EquipmentVM   {     public int ID { get; set; }     public string EquipmentName { get; set; }   ..."
+- File: Medical_Affiliation\Models\ErrorViewModel.cs
+  Symbols: [ErrorViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class ErrorViewModel   {     public string? RequestId { get; set; }     public bool ShowRequestId => !..."
+- File: Medical_Affiliation\Models\Event.cs
+  Symbols: [Event]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Event {   public int EventId { get; set; } ..."
+- File: Medical_Affiliation\Models\EventAssignment.cs
+  Symbols: [EventAssignment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class EventAssignment {   public int AssignmentId..."
+- File: Medical_Affiliation\Models\EventCategory.cs
+  Symbols: [EventCategory]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class EventCategory {   public int EventCategoryI..."
+- File: Medical_Affiliation\Models\Faculty.cs
+  Symbols: [Faculty]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Faculty {   public int FacultyId { get; set..."
+- File: Medical_Affiliation\Models\FacultyDetail.cs
+  Symbols: [FacultyDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class FacultyDetail {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\FacultyExamResult.cs
+  Symbols: [FacultyExamResult]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class FacultyExamResult {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\FacultyViewModel.cs
+  Symbols: [FacultyViewModel]
+  Preview: "namespace Admission_Affiliation.Models {   public class FacultyViewModel   {     public int FacultyId { get; set; }     public string FacultyName { ge..."
+- File: Medical_Affiliation\Models\FeePaidDetail.cs
+  Symbols: [FeePaidDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class FeePaidDetail {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\FeesMaster.cs
+  Symbols: [FeesMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class FeesMaster {   public int? FacultyId { get;..."
+- File: Medical_Affiliation\Models\FeesType.cs
+  Symbols: [FeesType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class FeesType {   public int FeesCode { get; set..."
+- File: Medical_Affiliation\Models\FellowShip.cs
+  Symbols: [FellowShip]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class FellowShip {   public int Id { get; set; } ..."
+- File: Medical_Affiliation\Models\FellowShipMedical.cs
+  Symbols: [FellowShipMedical]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class FellowShipMedical {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\FormBGeneralSurgeryVM.cs
+  Symbols: [FormBGeneralSurgeryVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class FormBGeneralSurgeryVM   {   } } "
+- File: Medical_Affiliation\Models\FreshOrIncreaseMaster.cs
+  Symbols: [FreshOrIncreaseMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class FreshOrIncreaseMaster {   public string Id ..."
+- File: Medical_Affiliation\Models\GeoPhotoCategoryMaster.cs
+  Symbols: [GeoPhotoCategoryMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class GeoPhotoCategoryMaster {   public int Categ..."
+- File: Medical_Affiliation\Models\GeoPhotoSlotVm.cs
+  Symbols: [GeoPhotoSlotVm]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace GeoPhotoModule.Models {   /// <summary>One upload box (slot) on the page.</summary>   public cl..."
+- File: Medical_Affiliation\Models\GeoPhotoUpload.cs
+  Symbols: [GeoPhotoUpload]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class GeoPhotoUpload {   public long PhotoId { ge..."
+- File: Medical_Affiliation\Models\HealthCenterChp.cs
+  Symbols: [HealthCenterChp]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class HealthCenterChp {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\HospitalBlockViewModel.cs
+  Preview: " "
+- File: Medical_Affiliation\Models\HospitalDetailsForAffiliation.cs
+  Symbols: [HospitalDetailsForAffiliation]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class HospitalDetailsForAffiliation {   public in..."
+- File: Medical_Affiliation\Models\HospitalDocumentDetail.cs
+  Symbols: [HospitalDocumentDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class HospitalDocumentDetail {   public int Id { ..."
+- File: Medical_Affiliation\Models\HospitalDocumentsToBeUploaded.cs
+  Symbols: [HospitalDocumentsToBeUploaded]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class HospitalDocumentsToBeUploaded {   public in..."
+- File: Medical_Affiliation\Models\HospitalFacilitiesMaster.cs
+  Symbols: [HospitalFacilitiesMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class HospitalFacilitiesMaster {   public int Fac..."
+- File: Medical_Affiliation\Models\HospitalFacility.cs
+  Symbols: [HospitalFacility]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class HospitalFacility {   public int HospitalDet..."
+- File: Medical_Affiliation\Models\IndoorBedsOccupancy.cs
+  Symbols: [IndoorBedsOccupancy]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class IndoorBedsOccupancy {   public int Id { get..."
+- File: Medical_Affiliation\Models\IndoorInfrastructureRequirementsCompliance.cs
+  Symbols: [IndoorInfrastructureRequirementsCompliance]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class IndoorInfrastructureRequirementsCompliance ..."
+- File: Medical_Affiliation\Models\Infrastructuredetailsviewmodel.cs
+  Symbols: [InfrastructureDetailsViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class InfrastructureDetailsViewModel   {     public strin..."
+- File: Medical_Affiliation\Models\InitiativeMaster.cs
+  Symbols: [InitiativeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class InitiativeMaster {   public int Id { get; s..."
+- File: Medical_Affiliation\Models\InstitutionBasicDetail.cs
+  Symbols: [InstitutionBasicDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class InstitutionBasicDetail {   public int Insti..."
+- File: Medical_Affiliation\Models\InstitutionBasicDetailsViewModel.cs
+  Symbols: [InstitutionBasicDetailsViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class Instituti..."
+- File: Medical_Affiliation\Models\InstitutionBasicDetailsViewModel1.cs
+  Symbols: [InstitutionBasicDetailsViewModel1]
+  Preview: "using System; using System.Collections.Generic; using System.ComponentModel.DataAnnotations; using Microsoft.AspNetCore.Http; using Microsoft.AspNetCo..."
+- File: Medical_Affiliation\Models\InstitutionDetail.cs
+  Symbols: [InstitutionDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class InstitutionDetail {   public int Institutio..."
+- File: Medical_Affiliation\Models\InstitutionType.cs
+  Symbols: [InstitutionType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class InstitutionType {   public int InstitutionT..."
+- File: Medical_Affiliation\Models\IntakeDetail.cs
+  Symbols: [IntakeDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class IntakeDetail {   public int Id { get; set; ..."
+- File: Medical_Affiliation\Models\IntakeDetailsLatest.cs
+  Symbols: [IntakeDetailsLatest]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class IntakeDetailsLatest {   public int Id { get..."
+- File: Medical_Affiliation\Models\IntakeDetailsLatestViewModel.cs
+  Symbols: [IntakeDetailsLatestViewModel]
+  Preview: "using System; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.ViewModels {   public class IntakeDetailsLatestViewModel   { ..."
+- File: Medical_Affiliation\Models\IntakeMaster.cs
+  Symbols: [IntakeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class IntakeMaster {   public int? Id { get; set;..."
+- File: Medical_Affiliation\Models\LaboratoryEquipmentsDetail.cs
+  Symbols: [LaboratoryEquipmentsDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LaboratoryEquipmentsDetail {   public int L..."
+- File: Medical_Affiliation\Models\LandBuildingDetail.cs
+  Symbols: [LandBuildingDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LandBuildingDetail {   public int Id { get;..."
+- File: Medical_Affiliation\Models\LandBuildingDetailsVM.cs
+  Symbols: [LandBuildingDetailsVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class LandBuildingDetailsVM   {     // LAND DETAILS     public bool AgreeTerms { get; set; }     publi..."
+- File: Medical_Affiliation\Models\LatestExcelAff.cs
+  Symbols: [LatestExcelAff]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LatestExcelAff {   public int Id { get; set..."
+- File: Medical_Affiliation\Models\LibraryFacility.cs
+  Symbols: [LibraryFacility]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LibraryFacility {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\LibraryService.cs
+  Symbols: [LibraryService]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LibraryService {   public string Registrati..."
+- File: Medical_Affiliation\Models\LibraryUsersCategory.cs
+  Symbols: [LibraryUsersCategory]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LibraryUsersCategory {   public string Regi..."
+- File: Medical_Affiliation\Models\LicclaimDetail.cs
+  Symbols: [LicclaimDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicclaimDetail {   public int Id { get; set..."
+- File: Medical_Affiliation\Models\LiccollegeApproval.cs
+  Symbols: [LiccollegeApproval]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LiccollegeApproval {   public int Id { get;..."
+- File: Medical_Affiliation\Models\LICCollegeDashboardViewModel.cs
+  Symbols: [LICCollegeDashboardViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class LICCollegeDashboardViewModel   {     public string CollegeName { get; set; }     public string? ..."
+- File: Medical_Affiliation\Models\LicInspection.cs
+  Symbols: [LicInspection]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicInspection {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\LicInspectionCollegeDetail.cs
+  Symbols: [LicInspectionCollegeDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicInspectionCollegeDetail {   public int I..."
+- File: Medical_Affiliation\Models\LicinspectionDetail.cs
+  Symbols: [LicinspectionDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicinspectionDetail {   public int Id { get..."
+- File: Medical_Affiliation\Models\LicInspectionOtherDetail.cs
+  Symbols: [LicInspectionOtherDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicInspectionOtherDetail {   public int Id ..."
+- File: Medical_Affiliation\Models\LicInspectionOtherDetailsViewModel.cs
+  Symbols: [LicInspectionOtherDetailsViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.ModelBinding.Validation; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public c..."
+- File: Medical_Affiliation\Models\LICMemberCellViewModel.cs
+  Symbols: [LICMemberCellViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class LICMemberCellViewModel   {     public LICMemberSummary Member { get; set; }     public string Co..."
+- File: Medical_Affiliation\Models\LICMemberReportViewModel.cs
+  Symbols: [LICMemberReportViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class LICMemberReportViewModel   {     public string MemberName { get; set; }     public string Colleg..."
+- File: Medical_Affiliation\Models\LICMemberSummary.cs
+  Symbols: [LICMemberSummary]
+  Preview: "namespace Medical_Affiliation.Models {   public class LICMemberSummary   {     public string MemberName { get; set; }     public string PhoneNumber { ..."
+- File: Medical_Affiliation\Models\LicModeofTravel.cs
+  Symbols: [LicModeofTravel]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicModeofTravel {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\LicTaDaEditedFinanceLog.cs
+  Symbols: [LicTaDaEditedFinanceLog]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicTaDaEditedFinanceLog {   public int Id {..."
+- File: Medical_Affiliation\Models\LicTaDaEditLog.cs
+  Symbols: [LicTaDaEditLog]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicTaDaEditLog {   public int LogId { get; ..."
+- File: Medical_Affiliation\Models\LicTadaModels.cs
+  Symbols: [LicTadaDDItem]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models {   // ── Dropdown item ─────────────────────────────────────────..."
+- File: Medical_Affiliation\Models\LicWorkflowMovementLog.cs
+  Symbols: [LicWorkflowMovementLog]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LicWorkflowMovementLog {   public int Movem..."
+- File: Medical_Affiliation\Models\LocalInspectionCommittee.cs
+  Symbols: [LocalInspectionCommittee]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class LocalInspectionCommittee {   public int Id ..."
+- File: Medical_Affiliation\Models\MedCaAccountAndFeeDetail.cs
+  Symbols: [MedCaAccountAndFeeDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedCaAccountAndFeeDetail {   public int Id ..."
+- File: Medical_Affiliation\Models\MedCaMstStaffDesignation.cs
+  Symbols: [MedCaMstStaffDesignation]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedCaMstStaffDesignation {   public int SlN..."
+- File: Medical_Affiliation\Models\MedCaStaffParticular.cs
+  Symbols: [MedCaStaffParticular]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedCaStaffParticular {   public int Id { ge..."
+- File: Medical_Affiliation\Models\MedCollegeProfile.cs
+  Symbols: [MedCollegeProfile]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedCollegeProfile {   public int CgpId { ge..."
+- File: Medical_Affiliation\Models\MedicalAdministrativePhysicalFacility.cs
+  Symbols: [MedicalAdministrativePhysicalFacility]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalAdministrativePhysicalFacility {   p..."
+- File: Medical_Affiliation\Models\MedicalAlliedDisciplineDetail.cs
+  Symbols: [MedicalAlliedDisciplineDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalAlliedDisciplineDetail {   public in..."
+- File: Medical_Affiliation\Models\MedicalCentralLibrary.cs
+  Symbols: [MedicalCentralLibrary]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalCentralLibrary {   public int Id { g..."
+- File: Medical_Affiliation\Models\MedicalCentralLibrarySpeciality.cs
+  Symbols: [MedicalCentralLibrarySpeciality]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalCentralLibrarySpeciality {   public ..."
+- File: Medical_Affiliation\Models\MedicalCollegeCourseIntakeViewModel.cs
+  Symbols: [MedicalCollegeCourseIntakeViewModel]
+  Preview: "using Microsoft.AspNetCore.Http; namespace Medical_Affiliation.Models {   public class MedicalCollegeCourseIntakeViewModel   {     public string Colle..."
+- File: Medical_Affiliation\Models\MedicalCollegePreviousIntake.cs
+  Symbols: [MedicalCollegePreviousIntake]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalCollegePreviousIntake {   public int..."
+- File: Medical_Affiliation\Models\MedicalCourseDetail.cs
+  Symbols: [MedicalCourseDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalCourseDetail {   public int Id { get..."
+- File: Medical_Affiliation\Models\MedicalDashboardViewModel.cs
+  Symbols: [MedicalDashboardViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   // ── Main dashboard page view model ────────────────────────────   public class MedicalDashboardViewModel   ..."
+- File: Medical_Affiliation\Models\MedicalDepartmentOfficesMeu.cs
+  Symbols: [MedicalDepartmentOfficesMeu]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalDepartmentOfficesMeu {   public int ..."
+- File: Medical_Affiliation\Models\MedicalInstituteDetail.cs
+  Symbols: [MedicalInstituteDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalInstituteDetail {   public int Id { ..."
+- File: Medical_Affiliation\Models\MedicalInstituteDetailViewModel.cs
+  Symbols: [MedicalInstituteDetailViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class MedicalIn..."
+- File: Medical_Affiliation\Models\MedicalLibraryPartOneViewModel.cs
+  Symbols: [CA_Aff_MedicalLibraryViewModel1]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class CA_Aff_MedicalLibraryViewModel1   {     public stri..."
+- File: Medical_Affiliation\Models\MedicalMuseum.cs
+  Symbols: [MedicalMuseum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalMuseum {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\MedicalSkillsLaboratory.cs
+  Symbols: [MedicalSkillsLaboratory]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalSkillsLaboratory {   public int Id {..."
+- File: Medical_Affiliation\Models\MedicalStudentPracticalLab.cs
+  Symbols: [MedicalStudentPracticalLab]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalStudentPracticalLab {   public int I..."
+- File: Medical_Affiliation\Models\MedicalUgbedDistribution.cs
+  Symbols: [MedicalUgbedDistribution]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedicalUgbedDistribution {   public int Id ..."
+- File: Medical_Affiliation\Models\MedicalUGBedDistributionVm.cs
+  Symbols: [MedicalUGBedDistributionVm]
+  Preview: "namespace Medical_Affiliation.Models {   public class MedicalUGBedDistributionVm   {     public int Id { get; set; }     // ========================= ..."
+- File: Medical_Affiliation\Models\MedicalViewModels.cs
+  Symbols: [MedicalViewModels, MedicalDataInstituteDetailViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class MedicalViewModels   {     public class MedicalDataInstituteDetailViewModel     {       public in..."
+- File: Medical_Affiliation\Models\MedicalVm.cs
+  Symbols: [MedicalVm]
+  Preview: "using Microsoft.AspNetCore.Mvc.ModelBinding.Validation; using Microsoft.AspNetCore.Mvc.Rendering; using System.ComponentModel.DataAnnotations; namespa..."
+- File: Medical_Affiliation\Models\MedMstSpecialityDepartmentsLibrary.cs
+  Symbols: [MedMstSpecialityDepartmentsLibrary]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MedMstSpecialityDepartmentsLibrary {   publ..."
+- File: Medical_Affiliation\Models\Med_CA_AccountAndFeeDetailsViewModel.cs
+  Symbols: [Med_CA_AccountAndFeeDetailsViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; using Microsoft.AspNetCore.Http; namespace Medical_Affiliation.Models {   public class Med_CA_AccountAndF..."
+- File: Medical_Affiliation\Models\MstAdministration.cs
+  Symbols: [MstAdministration]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAdministration {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\MstAdministrativeBlock.cs
+  Symbols: [MstAdministrativeBlock]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAdministrativeBlock {   public int Facil..."
+- File: Medical_Affiliation\Models\MstAdministrativeFacility.cs
+  Symbols: [MstAdministrativeFacility]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAdministrativeFacility {   public int Fa..."
+- File: Medical_Affiliation\Models\MstAffiliatedMaterialDatum.cs
+  Symbols: [MstAffiliatedMaterialDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAffiliatedMaterialDatum {   public int I..."
+- File: Medical_Affiliation\Models\MstAffiliationFeeStructure.cs
+  Symbols: [MstAffiliationFeeStructure]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAffiliationFeeStructure {   public int F..."
+- File: Medical_Affiliation\Models\MstAffiliationType.cs
+  Symbols: [MstAffiliationType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAffiliationType {   public int Affiliati..."
+- File: Medical_Affiliation\Models\MstAyurvedaConstructedArea.cs
+  Symbols: [MstAyurvedaConstructedArea]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAyurvedaConstructedArea {   public int C..."
+- File: Medical_Affiliation\Models\MstAyurvedaConstructedAreaDetail.cs
+  Symbols: [MstAyurvedaConstructedAreaDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAyurvedaConstructedAreaDetail {   public..."
+- File: Medical_Affiliation\Models\MstAyurvedaOtherEquipmentsDetail.cs
+  Symbols: [MstAyurvedaOtherEquipmentsDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAyurvedaOtherEquipmentsDetail {   public..."
+- File: Medical_Affiliation\Models\MstAyurvedaOtherEquipmentsSubject.cs
+  Symbols: [MstAyurvedaOtherEquipmentsSubject]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models;  public partial class MstAyurvedaOtherEquipmentsSubject {   publ..."
+- File: Medical_Affiliation\Models\MstAyurvedaStaff.cs
+  Symbols: [MstAyurvedaStaff]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAyurvedaStaff {   public int StaffId { g..."
+- File: Medical_Affiliation\Models\MstAyurvedaStaffDetail.cs
+  Symbols: [MstAyurvedaStaffDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstAyurvedaStaffDetail {   public int Staff..."
+- File: Medical_Affiliation\Models\MstBed.cs
+  Symbols: [MstBed]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstBed {   public int FacultyId { get; set;..."
+- File: Medical_Affiliation\Models\MstBookCategory.cs
+  Symbols: [MstBookCategory]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstBookCategory {   public long? Spid { get..."
+- File: Medical_Affiliation\Models\MstBooksSubject.cs
+  Symbols: [MstBooksSubject]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstBooksSubject {   public long SubjectId {..."
+- File: Medical_Affiliation\Models\MstBuildingDetailRequired.cs
+  Symbols: [MstBuildingDetailRequired]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstBuildingDetailRequired {   public int Id..."
+- File: Medical_Affiliation\Models\MstClassroom.cs
+  Symbols: [MstClassroom]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstClassroom {   public string CourseCode {..."
+- File: Medical_Affiliation\Models\MstClassroomDetail.cs
+  Symbols: [MstClassroomDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstClassroomDetail {   public int Id { get;..."
+- File: Medical_Affiliation\Models\MstClinicalDepartment.cs
+  Symbols: [MstClinicalDepartment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstClinicalDepartment {   public int Facult..."
+- File: Medical_Affiliation\Models\MstCollectionDevelopmentMaster.cs
+  Symbols: [MstCollectionDevelopmentMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstCollectionDevelopmentMaster {   public i..."
+- File: Medical_Affiliation\Models\MstCourse.cs
+  Symbols: [MstCourse]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstCourse {   public int Id { get; set; }  ..."
+- File: Medical_Affiliation\Models\MstCourseLevelMap.cs
+  Symbols: [MstCourseLevelMap]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstCourseLevelMap {   public string SourceC..."
+- File: Medical_Affiliation\Models\MstCourseType.cs
+  Symbols: [MstCourseType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstCourseType {   public int CourseTypeId {..."
+- File: Medical_Affiliation\Models\MstDentalBedDistribution.cs
+  Symbols: [MstDentalBedDistribution]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstDentalBedDistribution {   public int Id ..."
+- File: Medical_Affiliation\Models\MstDentalInfrastructure.cs
+  Symbols: [MstDentalInfrastructure]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstDentalInfrastructure {   public int Id {..."
+- File: Medical_Affiliation\Models\MstDentalPreClinicalAndSkillsLaboratoryAreaReq.cs
+  Symbols: [MstDentalPreClinicalAndSkillsLaboratoryAreaReq]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstDentalPreClinicalAndSkillsLaboratoryArea..."
+- File: Medical_Affiliation\Models\MstDentalService.cs
+  Symbols: [MstDentalService]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstDentalService {   public int Id { get; s..."
+- File: Medical_Affiliation\Models\MstDesignation.cs
+  Symbols: [MstDesignation]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstDesignation {   public int DesignationId..."
+- File: Medical_Affiliation\Models\MstEquipmentDepartment.cs
+  Symbols: [MstEquipmentDepartment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstEquipmentDepartment {   public int Id { ..."
+- File: Medical_Affiliation\Models\MstEquipmentDeptWise.cs
+  Symbols: [MstEquipmentDeptWise]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstEquipmentDeptWise {   public int Id { ge..."
+- File: Medical_Affiliation\Models\MstFeeHead.cs
+  Symbols: [MstFeeHead]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstFeeHead {   public int FeeHeadId { get; ..."
+- File: Medical_Affiliation\Models\MstFeesType.cs
+  Symbols: [MstFeesType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstFeesType {   public int FeesCode { get; ..."
+- File: Medical_Affiliation\Models\MstFieldTypeChp.cs
+  Symbols: [MstFieldTypeChp]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstFieldTypeChp {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\MstFpaAdopAffType.cs
+  Symbols: [MstFpaAdopAffType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstFpaAdopAffType {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\MstGeoLocation.cs
+  Symbols: [MstGeoLocation]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstGeoLocation {   public int? BuildingId {..."
+- File: Medical_Affiliation\Models\MstHospitalDocument.cs
+  Symbols: [MstHospitalDocument]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstHospitalDocument {   public int Id { get..."
+- File: Medical_Affiliation\Models\MstHospitalLocation.cs
+  Symbols: [MstHospitalLocation]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstHospitalLocation {   public int FacultyI..."
+- File: Medical_Affiliation\Models\MstHospitalOwnedBy.cs
+  Symbols: [MstHospitalOwnedBy]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstHospitalOwnedBy {   public int Id { get;..."
+- File: Medical_Affiliation\Models\MstHospitalType.cs
+  Symbols: [MstHospitalType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstHospitalType {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\MstHostelFacility.cs
+  Symbols: [MstHostelFacility]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstHostelFacility {   public int HostelFaci..."
+- File: Medical_Affiliation\Models\MstHosteltype.cs
+  Symbols: [MstHosteltype]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstHosteltype {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\MstIndoorBedsDepartmentMaster.cs
+  Symbols: [MstIndoorBedsDepartmentMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstIndoorBedsDepartmentMaster {   public in..."
+- File: Medical_Affiliation\Models\MstIndoorBedsOccupancyMaster.cs
+  Symbols: [MstIndoorBedsOccupancyMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstIndoorBedsOccupancyMaster {   public int..."
+- File: Medical_Affiliation\Models\MstIndoorInfrastructureRequirementsMaster.cs
+  Symbols: [MstIndoorInfrastructureRequirementsMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstIndoorInfrastructureRequirementsMaster {..."
+- File: Medical_Affiliation\Models\MstInstitutionStatus.cs
+  Symbols: [MstInstitutionStatus]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstInstitutionStatus {   public byte Instit..."
+- File: Medical_Affiliation\Models\MstInstitutionType.cs
+  Symbols: [MstInstitutionType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstInstitutionType {   public int Instituti..."
+- File: Medical_Affiliation\Models\MstLaboratory.cs
+  Symbols: [MstLaboratory]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLaboratory {   public int LabId { get; s..."
+- File: Medical_Affiliation\Models\MstLaboratoryEquipmentDetail.cs
+  Symbols: [MstLaboratoryEquipmentDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLaboratoryEquipmentDetail {   public int..."
+- File: Medical_Affiliation\Models\MstLaboratoryEquipmentSubject.cs
+  Symbols: [MstLaboratoryEquipmentSubject]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLaboratoryEquipmentSubject {   public in..."
+- File: Medical_Affiliation\Models\MstLibraryEquipmentMaster.cs
+  Symbols: [MstLibraryEquipmentMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLibraryEquipmentMaster {   public int Eq..."
+- File: Medical_Affiliation\Models\MstLibraryFinanceItem.cs
+  Symbols: [MstLibraryFinanceItem]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLibraryFinanceItem {   public int LibFin..."
+- File: Medical_Affiliation\Models\MstLibraryServicesMaster.cs
+  Symbols: [MstLibraryServicesMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLibraryServicesMaster {   public int Lib..."
+- File: Medical_Affiliation\Models\MstLicAcademicCouncilMember.cs
+  Symbols: [MstLicAcademicCouncilMember]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLicAcademicCouncilMember {   public int ..."
+- File: Medical_Affiliation\Models\MstLicInspectionAllotedMembersDetail.cs
+  Symbols: [MstLicInspectionAllotedMembersDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLicInspectionAllotedMembersDetail {   pu..."
+- File: Medical_Affiliation\Models\MstLicInspectionMember.cs
+  Symbols: [MstLicInspectionMember]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLicInspectionMember {   public int Id { ..."
+- File: Medical_Affiliation\Models\MstLicSenateMember.cs
+  Symbols: [MstLicSenateMember]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLicSenateMember {   public int Id { get;..."
+- File: Medical_Affiliation\Models\MstLicSubjectExpertiseMember.cs
+  Symbols: [MstLicSubjectExpertiseMember]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstLicSubjectExpertiseMember {   public int..."
+- File: Medical_Affiliation\Models\MstMedicalAlliedDiscipline.cs
+  Symbols: [MstMedicalAlliedDiscipline]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstMedicalAlliedDiscipline {   public int I..."
+- File: Medical_Affiliation\Models\MstMedicalCollegeCourseIntake.cs
+  Symbols: [MstMedicalCollegeCourseIntake]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstMedicalCollegeCourseIntake {   public in..."
+- File: Medical_Affiliation\Models\MstMedicalCourseType.cs
+  Symbols: [MstMedicalCourseType]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstMedicalCourseType {   public int CourseT..."
+- File: Medical_Affiliation\Models\MstNursingAffiliatedMaterialDatum.cs
+  Symbols: [MstNursingAffiliatedMaterialDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstNursingAffiliatedMaterialDatum {   publi..."
+- File: Medical_Affiliation\Models\MstParentHospitalDocument.cs
+  Symbols: [MstParentHospitalDocument]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstParentHospitalDocument {   public int Ho..."
+- File: Medical_Affiliation\Models\MstParentHospitalEquipment.cs
+  Symbols: [MstParentHospitalEquipment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstParentHospitalEquipment {   public int H..."
+- File: Medical_Affiliation\Models\MstSport.cs
+  Symbols: [MstSport]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstSport {   public int SportsCode { get; s..."
+- File: Medical_Affiliation\Models\MstSportsItem.cs
+  Symbols: [MstSportsItem]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstSportsItem {   public int SportsCode { g..."
+- File: Medical_Affiliation\Models\MstStudentFacility.cs
+  Symbols: [MstStudentFacility]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstStudentFacility {   public int FacilityT..."
+- File: Medical_Affiliation\Models\MstUsersCategoryMaster.cs
+  Symbols: [MstUsersCategoryMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class MstUsersCategoryMaster {   public int Users..."
+- File: Medical_Affiliation\Models\NaturoPathyCollegeMaster.cs
+  Symbols: [NaturoPathyCollegeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NaturoPathyCollegeMaster {   public double ..."
+- File: Medical_Affiliation\Models\NewAffiliationCollegeMaster.cs
+  Symbols: [NewAffiliationCollegeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NewAffiliationCollegeMaster {   public stri..."
+- File: Medical_Affiliation\Models\NewAffiliationCollegeTable.cs
+  Symbols: [NewAffiliationCollegeTable]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NewAffiliationCollegeTable {   public strin..."
+- File: Medical_Affiliation\Models\NewCollegeCourseIntake.cs
+  Symbols: [NewCollegeCourseIntake]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NewCollegeCourseIntake {   public int Id { ..."
+- File: Medical_Affiliation\Models\NewCollegeCourseintakedetail.cs
+  Symbols: [NewCollegeCourseintakedetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NewCollegeCourseintakedetail {   public int..."
+- File: Medical_Affiliation\Models\NewMstCourse.cs
+  Symbols: [NewMstCourse]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NewMstCourse {   public int Id { get; set; ..."
+- File: Medical_Affiliation\Models\NewNursingClg.cs
+  Symbols: [NewNursingClg]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NewNursingClg {   public string CollegeCode..."
+- File: Medical_Affiliation\Models\NodalOfficerAdminViewModel.cs
+  Symbols: [NodalOfficerAdminViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class NodalOfficerAdminViewModel   {     public int Id { get..."
+- File: Medical_Affiliation\Models\NodalOfficerDetail.cs
+  Symbols: [NodalOfficerDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NodalOfficerDetail {   public int Id { get;..."
+- File: Medical_Affiliation\Models\NodalOfficerDetailViewModel.cs
+  Symbols: [NodalOfficersList]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class NodalOfficersList   {     public List<NodalOfficerDeta..."
+- File: Medical_Affiliation\Models\NodalOfficerEditViewModel.cs
+  Symbols: [NodalOfficerEditViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class NodalOfficerEditViewModel   {     public int Id { get; set; }     public string NodalOfficerName..."
+- File: Medical_Affiliation\Models\NodalOfficerInitiative.cs
+  Symbols: [NodalOfficerInitiative]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NodalOfficerInitiative {   public int Id { ..."
+- File: Medical_Affiliation\Models\NonTeachingStaffDetail.cs
+  Symbols: [NonTeachingStaffDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NonTeachingStaffDetail {   public int Id { ..."
+- File: Medical_Affiliation\Models\NursingAcademicYear.cs
+  Symbols: [NursingAcademicYear]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingAcademicYear {   public int Id { get..."
+- File: Medical_Affiliation\Models\NursingAffiliatedYearwiseMaterialsDatum.cs
+  Symbols: [NursingAffiliatedYearwiseMaterialsDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingAffiliatedYearwiseMaterialsDatum {  ..."
+- File: Medical_Affiliation\Models\NursingCollege.cs
+  Symbols: [NursingCollege]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingCollege {   public int Id { get; set..."
+- File: Medical_Affiliation\Models\NursingCollegeDesignationDetail.cs
+  Symbols: [NursingCollegeDesignationDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingCollegeDesignationDetail {   public ..."
+- File: Medical_Affiliation\Models\NursingCollegeRegistration.cs
+  Symbols: [NursingCollegeRegistration]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingCollegeRegistration {   public int I..."
+- File: Medical_Affiliation\Models\NursingCollegesBasicDetail.cs
+  Symbols: [NursingCollegesBasicDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingCollegesBasicDetail {   public int I..."
+- File: Medical_Affiliation\Models\NursingCourse.cs
+  Symbols: [NursingCourse]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingCourse {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\NursingFacultyDetail.cs
+  Symbols: [NursingFacultyDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingFacultyDetail {   public int Id { ge..."
+- File: Medical_Affiliation\Models\NursingFacultyDetail1.cs
+  Symbols: [NursingFacultyDetail1]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingFacultyDetail1 {   public int Id { g..."
+- File: Medical_Affiliation\Models\NursingFacultyViewModel.cs
+  Symbols: [NursingFacultyViewModel]
+  Preview: "// File: Models/NursingFacultyViewModel.cs using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class NursingFacu..."
+- File: Medical_Affiliation\Models\NursingFacultyWithCollege.cs
+  Symbols: [NursingFacultyWithCollege]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingFacultyWithCollege {   public int Fa..."
+- File: Medical_Affiliation\Models\NursingInstituteDetail.cs
+  Symbols: [NursingInstituteDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingInstituteDetail {   public int Id { ..."
+- File: Medical_Affiliation\Models\NursingUgpgdetail.cs
+  Symbols: [NursingUgpgdetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingUgpgdetail {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\NursingYearwiseMaterialsDatum.cs
+  Symbols: [NursingYearwiseMaterialsDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class NursingYearwiseMaterialsDatum {   public in..."
+- File: Medical_Affiliation\Models\Nursing_YearwiseMaterialsDataViewModel.cs
+  Symbols: [Nursing_YearwiseMaterialsDataViewModel]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Models {   public class Nursing_YearwiseMaterialsDataViewModel   {     public int Id {..."
+- File: Medical_Affiliation\Models\OpdDetail.cs
+  Symbols: [OpdDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class OpdDetail {   public int Id { get; set; }  ..."
+- File: Medical_Affiliation\Models\OpdRoomArea.cs
+  Symbols: [OpdRoomArea]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class OpdRoomArea {   public int Id { get; set; }..."
+- File: Medical_Affiliation\Models\OperationTheatreDistribution.cs
+  Symbols: [OperationTheatreDistribution]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class OperationTheatreDistribution {   public int..."
+- File: Medical_Affiliation\Models\OrganizationBasicDetail.cs
+  Symbols: [OrganizationBasicDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class OrganizationBasicDetail {   public int Id {..."
+- File: Medical_Affiliation\Models\OtherCourseObservership.cs
+  Symbols: [OtherCourseObservership]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class OtherCourseObservership {   public int Id {..."
+- File: Medical_Affiliation\Models\PartTimeSubject.cs
+  Symbols: [PartTimeSubject]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class PartTimeSubject {   public string CourseCod..."
+- File: Medical_Affiliation\Models\PaymentAffiliationDocument.cs
+  Symbols: [PaymentAffiliationDocument]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class PaymentAffiliationDocument {   public int P..."
+- File: Medical_Affiliation\Models\Paymentcalculationviewmodel.cs
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models {   /// <summary>   /// Top-level ViewModel for the College Affil..."
+- File: Medical_Affiliation\Models\PaymentDocumentPostVM.cs
+  Symbols: [PaymentDocumentPostVM]
+  Preview: "namespace Medical_Affiliation.Models {   public class PaymentDocumentPostVM   {     public string CollegeCode { get; set; }     public int FacultyCode..."
+- File: Medical_Affiliation\Models\PaymentReceipt.cs
+  Symbols: [PaymentReceipt]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class PaymentReceipt {   public int ReceiptId { g..."
+- File: Medical_Affiliation\Models\PgAcademicIntakeViewModel.cs
+  Symbols: [PgAcademicIntakeViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class PgAcademicIntakeViewModel   {     public int? Selected..."
+- File: Medical_Affiliation\Models\Pgcoursegeneralviewmodel.cs
+  Symbols: [PgCourseGeneralViewModel]
+  Preview: "using System; using System.Collections.Generic; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class PgC..."
+- File: Medical_Affiliation\Models\PgCourseSubjectSelectionViewModel.cs
+  Symbols: [PgCourseSubjectSelectionViewModel]
+  Preview: "using System.Collections.Generic; namespace Medical_Affiliation.Models {   public class PgCourseSubjectSelectionViewModel   {     public string? Facul..."
+- File: Medical_Affiliation\Models\Pgcoursesummaryviewmodel.cs
+  Symbols: [PgCourseSummaryViewModel]
+  Preview: "using System; using System.Collections.Generic; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class PgC..."
+- File: Medical_Affiliation\Models\PgStudentsYearWiseDetail.cs
+  Symbols: [PgStudentsYearWiseDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class PgStudentsYearWiseDetail {   public int Id ..."
+- File: Medical_Affiliation\Models\Pharmarcy.cs
+  Symbols: [Pharmarcy]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Pharmarcy {   public int Id { get; set; }  ..."
+- File: Medical_Affiliation\Models\PhysicalFacilitiesTypeMaster.cs
+  Symbols: [PhysicalFacilitiesTypeMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class PhysicalFacilitiesTypeMaster {   public int..."
+- File: Medical_Affiliation\Models\Physiotherapy.cs
+  Symbols: [Physiotherapy]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Physiotherapy {   public int Id { get; set;..."
+- File: Medical_Affiliation\Models\PrincipalDeclarationModel.cs
+  Symbols: [PrincipalDeclarationModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class PrincipalDeclarationModel   {     public string PrincipalName { get; set; }     public string Is..."
+- File: Medical_Affiliation\Models\Query.cs
+  Symbols: [Query]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Query {   public string? Id { get; set; }  ..."
+- File: Medical_Affiliation\Models\RecentClaimViewModel.cs
+  Symbols: [RecentClaimViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class RecentClaimViewModel   {     public string MemberName { get; set; }     public string CollegeCod..."
+- File: Medical_Affiliation\Models\RguhsIntakeChangeAndApproval.cs
+  Symbols: [RguhsIntakeChangeAndApproval]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class RguhsIntakeChangeAndApproval {   public int..."
+- File: Medical_Affiliation\Models\SaveFacultyDto.cs
+  Symbols: [SaveFacultyDto]
+  Preview: "namespace Medical_Affiliation.Models {   public class SaveFacultyDto   {     public int Id { get; set; }     public string DepartmentCode { get; set; ..."
+- File: Medical_Affiliation\Models\SeatSlabMaster.cs
+  Symbols: [SeatSlabMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class SeatSlabMaster {   public int Id { get; set..."
+- File: Medical_Affiliation\Models\SeatSlabMasterRguh.cs
+  Symbols: [SeatSlabMasterRguh]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class SeatSlabMasterRguh {   public int SeatSlabI..."
+- File: Medical_Affiliation\Models\SectionOfficerCourseWiseRguhsIntakeViewModel.cs
+  Symbols: [SectionOfficerCourseWiseRguhsIntakeViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class SectionOfficerCourseWiseRguhsIntakeViewModel   {     public List<CollegeCourseIntakeDetail> coll..."
+- File: Medical_Affiliation\Models\SeminarRoom.cs
+  Symbols: [SeminarRoom]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class SeminarRoom {   public int Id { get; set; }..."
+- File: Medical_Affiliation\Models\Servicesworkloadviewmodel.cs
+  Symbols: [ServicesWorkloadViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class ServicesWorkloadViewModel   {     public string Fac..."
+- File: Medical_Affiliation\Models\SkillsLabEquipmentItemViewModel.cs
+  Symbols: [SkillsLabEquipmentItemViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class SkillsLabEquipmentItemViewModel   {     public int Id { get; set; }     // DB Id (optional)     ..."
+- File: Medical_Affiliation\Models\SkillsLabViewModel.cs
+  Symbols: [SkillsLabViewModel]
+  Preview: "using Medical_Affiliation.ViewModels; using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {     public class SkillsLabVi..."
+- File: Medical_Affiliation\Models\SmallGroupTeaching.cs
+  Symbols: [SmallGroupTeaching]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class SmallGroupTeaching {   public int Id { get;..."
+- File: Medical_Affiliation\Models\SmallGroupTeachingViewModel.cs
+  Symbols: [SmallGroupTeachingViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class SmallGroupTeachingViewModel : IValidatableObject   ..."
+- File: Medical_Affiliation\Models\SpecialtyClinicDetail.cs
+  Symbols: [SpecialtyClinicDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class SpecialtyClinicDetail {   public int Id { g..."
+- File: Medical_Affiliation\Models\StaffDetailsCombinedViewModel.cs
+  Symbols: [StaffDetailsCombinedViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; using Microsoft.AspNetCore.Http; namespace Medical_Affiliation.Models {   // Combined view model for the ..."
+- File: Medical_Affiliation\Models\Staffdetailsviewmodel.cs
+  Symbols: [StaffDetailsViewModel]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace Medical_Affiliation.Models {   public class StaffDetailsViewModel   {     public string Faculty..."
+- File: Medical_Affiliation\Models\StaffUnitWiseDetail.cs
+  Symbols: [StaffUnitWiseDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class StaffUnitWiseDetail {   public int Id { get..."
+- File: Medical_Affiliation\Models\State.cs
+  Symbols: [State]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class State {   public string StateId { get; set;..."
+- File: Medical_Affiliation\Models\StateMaster.cs
+  Symbols: [StateMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class StateMaster {   public string StateId { get..."
+- File: Medical_Affiliation\Models\StepItem.cs
+  Symbols: [StepItem]
+  Preview: "public class StepItem {   public string Key { get; set; }   public string Label { get; set; }   public string Group { get; set; }   public string Ctrl..."
+- File: Medical_Affiliation\Models\StudentExamResultDetail.cs
+  Symbols: [StudentExamResultDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class StudentExamResultDetail {   public int Id {..."
+- File: Medical_Affiliation\Models\StudentRegistration.cs
+  Symbols: [StudentRegistration]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class StudentRegistration {   public int Id { get..."
+- File: Medical_Affiliation\Models\SuperVisionInFieldPracticeArea.cs
+  Symbols: [SuperVisionInFieldPracticeArea]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class SuperVisionInFieldPracticeArea {   public i..."
+- File: Medical_Affiliation\Models\Taluk.cs
+  Symbols: [Taluk]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Taluk {   public string TalukId { get; set;..."
+- File: Medical_Affiliation\Models\TalukMappingViewModel.cs
+  Symbols: [TalukMappingViewModel, DeleteTalukView]
+  Preview: "namespace Medical_Affiliation.Models {   public class TalukMappingViewModel   {     public string? DistrictId { get; set; }     public List<DistrictMa..."
+- File: Medical_Affiliation\Models\TalukMaster.cs
+  Symbols: [TalukMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TalukMaster {   public int Id { get; set; }..."
+- File: Medical_Affiliation\Models\TblAyurvedaConstructedAreaAvailability.cs
+  Symbols: [TblAyurvedaConstructedAreaAvailability]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblAyurvedaConstructedAreaAvailability {   ..."
+- File: Medical_Affiliation\Models\TblAyurvedaOtherEquipmentAvailability.cs
+  Symbols: [TblAyurvedaOtherEquipmentAvailability]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblAyurvedaOtherEquipmentAvailability {   p..."
+- File: Medical_Affiliation\Models\TblAyurvedaStaffAvailability.cs
+  Symbols: [TblAyurvedaStaffAvailability]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblAyurvedaStaffAvailability {   public int..."
+- File: Medical_Affiliation\Models\TblClassroomAvailability.cs
+  Symbols: [TblClassroomAvailability]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblClassroomAvailability {   public int Id ..."
+- File: Medical_Affiliation\Models\TblDesignation.cs
+  Symbols: [TblDesignation]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblDesignation {   public string? Fdesgcode..."
+- File: Medical_Affiliation\Models\TblEquipmentDetail.cs
+  Symbols: [TblEquipmentDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblEquipmentDetail {   public int Id { get;..."
+- File: Medical_Affiliation\Models\TblLaboratoryAvailability.cs
+  Symbols: [TblLaboratoryAvailability]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblLaboratoryAvailability {   public int Id..."
+- File: Medical_Affiliation\Models\TblLaboratoryAvailability1.cs
+  Symbols: [TblLaboratoryAvailability1]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblLaboratoryAvailability1 {   public int I..."
+- File: Medical_Affiliation\Models\TblMedicalEquipmentAvailability.cs
+  Symbols: [TblMedicalEquipmentAvailability]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblMedicalEquipmentAvailability {   public ..."
+- File: Medical_Affiliation\Models\TblMedicalSkillsLabEquipment.cs
+  Symbols: [TblMedicalSkillsLabEquipment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblMedicalSkillsLabEquipment {   public int..."
+- File: Medical_Affiliation\Models\TblRguhsFacultyUser.cs
+  Symbols: [TblRguhsFacultyUser]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TblRguhsFacultyUser {   public int Id { get..."
+- File: Medical_Affiliation\Models\TeachingStaffDepartmentWiseDetail.cs
+  Symbols: [TeachingStaffDepartmentWiseDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TeachingStaffDepartmentWiseDetail {   publi..."
+- File: Medical_Affiliation\Models\TeachingStaffDepartmentWiseVm.cs
+  Symbols: [TeachingStaffDepartmentWiseVm]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class TeachingStaffDepartmentWiseVm   {     public string? C..."
+- File: Medical_Affiliation\Models\TrustDocumentDetail.cs
+  Symbols: [TrustDocumentDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TrustDocumentDetail {   public int? Faculty..."
+- File: Medical_Affiliation\Models\TrustDocumentMaster.cs
+  Symbols: [TrustDocumentMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TrustDocumentMaster {   public int Document..."
+- File: Medical_Affiliation\Models\TrustMemberDetail.cs
+  Symbols: [TrustMemberDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TrustMemberDetail {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\TrustSocietyIntake.cs
+  Symbols: [TrustSocietyIntake]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TrustSocietyIntake {   public int Id { get;..."
+- File: Medical_Affiliation\Models\TxnCollegeFeePayment.cs
+  Symbols: [TxnCollegeFeePayment]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TxnCollegeFeePayment {   public int Payment..."
+- File: Medical_Affiliation\Models\TxnCollegeFeePaymentDetail.cs
+  Symbols: [TxnCollegeFeePaymentDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TxnCollegeFeePaymentDetail {   public int P..."
+- File: Medical_Affiliation\Models\TxnPgcourseGeneralDetail.cs
+  Symbols: [TxnPgcourseGeneralDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TxnPgcourseGeneralDetail {   public int Pgc..."
+- File: Medical_Affiliation\Models\TxnPgcourseIcudetail.cs
+  Symbols: [TxnPgcourseIcudetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TxnPgcourseIcudetail {   public int Pgcours..."
+- File: Medical_Affiliation\Models\TxnPgcourseSummaryContactDetail.cs
+  Symbols: [TxnPgcourseSummaryContactDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TxnPgcourseSummaryContactDetail {   public ..."
+- File: Medical_Affiliation\Models\TxnPgcourseSummaryDetail.cs
+  Symbols: [TxnPgcourseSummaryDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TxnPgcourseSummaryDetail {   public int Pgc..."
+- File: Medical_Affiliation\Models\TxnPgcourseSummaryInspectionDetail.cs
+  Symbols: [TxnPgcourseSummaryInspectionDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TxnPgcourseSummaryInspectionDetail {   publ..."
+- File: Medical_Affiliation\Models\TxnPgcourseUnitBedDetail.cs
+  Symbols: [TxnPgcourseUnitBedDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TxnPgcourseUnitBedDetail {   public int Pgc..."
+- File: Medical_Affiliation\Models\TypeOfAffiliation.cs
+  Symbols: [TypeOfAffiliation]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TypeOfAffiliation {   public int TypeId { g..."
+- File: Medical_Affiliation\Models\TypeOfMinorityMaster.cs
+  Symbols: [TypeOfMinorityMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TypeOfMinorityMaster {   public int Id { ge..."
+- File: Medical_Affiliation\Models\TypeOfOrganizationMaster.cs
+  Symbols: [TypeOfOrganizationMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class TypeOfOrganizationMaster {   public int Typ..."
+- File: Medical_Affiliation\Models\UgandPgrepository.cs
+  Symbols: [UgandPgrepository]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class UgandPgrepository {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\UgdesignationMaster.cs
+  Symbols: [UgdesignationMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class UgdesignationMaster {   public int Id { get..."
+- File: Medical_Affiliation\Models\Ugdetail.cs
+  Symbols: [Ugdetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class Ugdetail {   public int Id { get; set; }   ..."
+- File: Medical_Affiliation\Models\UgFacultyDetail.cs
+  Symbols: [UgFacultyDetail]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class UgFacultyDetail {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\UgPrintedUpload.cs
+  Symbols: [UgPrintedUpload]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class UgPrintedUpload {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\UgSeatSlabNormMaster.cs
+  Symbols: [UgSeatSlabNormMaster]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class UgSeatSlabNormMaster {   public int Id { ge..."
+- File: Medical_Affiliation\Models\UniversityImage.cs
+  Symbols: [UniversityImage]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class UniversityImage {   public int Id { get; se..."
+- File: Medical_Affiliation\Models\UniversityImagesViewModel.cs
+  Symbols: [UniversityImagesViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class UniversityImagesViewModel   {     public int ImgId { get; set; }     public string ImgName { get..."
+- File: Medical_Affiliation\Models\UpdateDistrictsAndTaluksForCollegesViewModel.cs
+  Symbols: [UpdateDistrictsAndTaluksForCollegesViewModel]
+  Preview: "using Microsoft.AspNetCore.Mvc.Rendering; namespace Medical_Affiliation.Models {   public class UpdateDistrictsAndTaluksForCollegesViewModel   {     p..."
+- File: Medical_Affiliation\Models\UploadedCollegeViewModel.cs
+  Symbols: [UploadedCollegeViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   // ── University Dashboard dropdown ────────────────────────────────────────   public class UploadedCollegeVi..."
+- File: Medical_Affiliation\Models\UserManualUrl.cs
+  Symbols: [UserManualUrl]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class UserManualUrl {   public int FacultyId { ge..."
+- File: Medical_Affiliation\Models\VCLoginViewModel.cs
+  Symbols: [VCLoginViewModel]
+  Preview: "// Models/VCLoginViewModel.cs namespace Medical_Affiliation.Models {   public class VCLoginViewModel   {     public string UserName { get; set; } = ''..."
+- File: Medical_Affiliation\Models\VehicleRequestLog.cs
+  Symbols: [VehicleRequestLog]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class VehicleRequestLog {   public int Id { get; ..."
+- File: Medical_Affiliation\Models\VwApplicationDate.cs
+  Symbols: [VwApplicationDate]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class VwApplicationDate {   public int EventId { ..."
+- File: Medical_Affiliation\Models\VwArchivedEvent.cs
+  Symbols: [VwArchivedEvent]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class VwArchivedEvent {   public int EventId { ge..."
+- File: Medical_Affiliation\Models\VwAssignedEvent.cs
+  Symbols: [VwAssignedEvent]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class VwAssignedEvent {   public int EventId { ge..."
+- File: Medical_Affiliation\Models\VwUpcomingEvent.cs
+  Symbols: [VwUpcomingEvent]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class VwUpcomingEvent {   public int EventId { ge..."
+- File: Medical_Affiliation\Models\WardsHeader.cs
+  Symbols: [WardsHeader]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class WardsHeader {   public int Id { get; set; }..."
+- File: Medical_Affiliation\Models\WardsParameter.cs
+  Symbols: [WardsParameter]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class WardsParameter {   public int Id { get; set..."
+- File: Medical_Affiliation\Models\WhatsAppSettings.cs
+  Symbols: [WhatsAppSettings]
+  Preview: "namespace Medical_Affiliation.Models {   public class WhatsAppSettings   {     public string ApiBaseUrl { get; set; } = string.Empty;     public strin..."
+- File: Medical_Affiliation\Models\YearwiseMaterialsDatum.cs
+  Symbols: [YearwiseMaterialsDatum]
+  Preview: "using System; using System.Collections.Generic; namespace Medical_Affiliation.Models; public partial class YearwiseMaterialsDatum {   public int Id { ..."
+- File: Medical_Affiliation\Models\YearwiseMaterialsFormViewModel.cs
+  Symbols: [HospitalBlockViewModel]
+  Preview: "namespace Medical_Affiliation.Models {   public class HospitalBlockViewModel   {     public int? ParentHospitalId { get; set; }     public string Pare..."
+- File: Medical_Affiliation\Models\YearWiseReportViewModel.cs
+  Symbols: [YearWiseReportViewModel]
+  Preview: "using System.Collections.Generic; using Microsoft.AspNetCore.Mvc.Rendering; public class YearWiseReportViewModel {   // Filters   public string Select..."
+- File: Medical_Affiliation\Pdf\PreviewReportPdf.cs
+  Preview: "//using DocumentFormat.OpenXml.Spreadsheet; //using DocumentFormat.OpenXml.Spreadsheet; // (if you decided to keep this) using Medical_Affiliation.Mod..."
+- File: Medical_Affiliation\Properties\launchSettings.json
+  Preview: "{  '$schema': 'http://json.schemastore.org/launchsettings.json',  'iisSettings': {   'windowsAuthentication': false,   'anonymousAuthentication': true..."
+- File: Medical_Affiliation\Services\AuditLogService.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Http; usin..."
+- File: Medical_Affiliation\Services\Geophotorepository.cs
+  Symbols: [IGeoPhotoRepository]
+  Preview: "using System.Data; using GeoPhotoModule.Models; using Microsoft.Data.SqlClient; namespace GeoPhotoModule.Services {   public interface IGeoPhotoReposi..."
+- File: Medical_Affiliation\Services\LicTadaService.cs
+  Preview: "using Medical_Affiliation.Models; using Microsoft.Data.SqlClient; using Microsoft.Extensions.Configuration; using System; using System.Collections.Gen..."
+- File: Medical_Affiliation\Services\Paymentreceiptpdfservice.cs
+  Symbols: [PaymentReceiptCourseLine]
+  Preview: "using QuestPDF.Fluent; using QuestPDF.Helpers; using QuestPDF.Infrastructure; namespace Medical_Affiliation.Services {   public class PaymentReceiptCo..."
+- File: Medical_Affiliation\Services\Principalcontactlookupservice.cs
+  Symbols: [IPrincipalContactLookupService]
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.EntityFrameworkCore; namespace Medical_Affiliation.Services {   public interface IPrincipalContactLook..."
+- File: Medical_Affiliation\Services\Whatsappservice.cs
+  Symbols: [IWhatsAppService]
+  Preview: "using System.Text.Json; using Medical_Affiliation.Models; using Microsoft.Extensions.Options; namespace Medical_Affiliation.Services {   public interf..."
+- File: Medical_Affiliation\Utilities\AuditActionAttribute.cs
+  Symbols: [AuditActionAttribute]
+  Preview: "using System; namespace Medical_Affiliation.Utilities {   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]   public class AuditActio..."
+- File: Medical_Affiliation\Utilities\AuditActionFilter.cs
+  Symbols: [Au]
+  Preview: "using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc.Controllers; using Microsoft.AspNetCore.Mvc.Filters; using System.Linq; ..."
+- File: Medical_Affiliation\Utilities\AuditExceptionFilter.cs
+  Symbols: [AuditExceptionF]
+  Preview: "using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc.Filters; using Microsoft.Extensions.Logging; using System; using System...."
+- File: Medical_Affiliation\Utilities\AuditLogExtensions.cs
+  Preview: "using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Http; using System.Reflection; using System.Text.Json; namespace Medical_Aff..."
+- File: Medical_Affiliation\Utilities\ComprehensiveAuditActionFilter.cs
+  Preview: "using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc.Filters; using Microsoft.Extensions.Logging; using System; using System...."
+- File: Medical_Affiliation\ViewComponents\SidebarViewComponent.cs
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.AspNetCore.Mvc; using Microsoft.AspNetCore.Mvc.Rendering; using Microsoft.EntityFrameworkCore; using S..."
+- File: Medical_Affiliation\DATA\Entities\AuditLog1.cs
+  Symbols: [AuditLog1]
+  Preview: "using System; namespace Medical_Affiliation.DATA.Entities {   public class AuditLog1   {     public long AuditLogId { get; set; }     public string? U..."
+- File: Medical_Affiliation\Services\Faculty\CAAcademicService.cs
+  Symbols: [CAAcademicService]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\CAAdminTeachAndHostelService.cs
+  Symbols: [CAAdminTeachAndHostelServi]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\CABasicDetailsService.cs
+  Symbols: [CABasicDetailsService]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\CADeclaratiionService.cs
+  Symbols: [CADeclarationService]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\CAFacultyDesigNonTeachingService.cs
+  Symbols: [CAFacultyDesigNonTeachingS]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\CAFinanceService.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\CAHospitalAffiliationService.cs
+  Symbols: [CAHospitalAffiliationServi]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\CALandAndEquipmentService.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using..."
+- File: Medical_Affiliation\Services\Faculty\CALandClassEquipmentService.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using..."
+- File: Medical_Affiliation\Services\Faculty\CALibraryService.cs
+  Preview: " using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; usin..."
+- File: Medical_Affiliation\Services\Faculty\CAPaymentService.cs
+  Symbols: [CAPaymentService]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\CAPreviewService.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using GeoPhotoModule.Services; using ..."
+- File: Medical_Affiliation\Services\Faculty\CAVehicleService.cs
+  Symbols: [CAVehicleService]
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.EntityFrameworkCore; ..."
+- File: Medical_Affiliation\Services\Faculty\FacultyHospitalService.cs
+  Symbols: [FacultyHospitalService]
+  Preview: "using Medical_Affiliation.Models; using Medical_Affiliation.Services.Handlers; using Medical_Affiliation.Services.Interfaces; namespace Medical_Affili..."
+- File: Medical_Affiliation\Services\Handlers\IFacultyHospitalHandler.cs
+  Symbols: [IFacultyHospitalHandler]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Handlers {   public interface IFacultyHospitalHandler   {     int FacultyId {..."
+- File: Medical_Affiliation\Services\Interfaces\CourseLevelHelper.cs
+  Symbols: [CourseLevelHelper]
+  Preview: "using Medical_Affiliation.DATA; using Microsoft.EntityFrameworkCore; namespace Medical_Affiliation.Services.Interfaces {   public static class CourseL..."
+- File: Medical_Affiliation\Services\Interfaces\IAuditLogService.cs
+  Symbols: [IAuditLogService]
+  Preview: "using Microsoft.AspNetCore.Http; using System; using System.Threading.Tasks; namespace Medical_Affiliation.Services.Interfaces {   public interface IA..."
+- File: Medical_Affiliation\Services\Interfaces\ICAAcademicService.cs
+  Symbols: [ICAAcademicService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAAcademicService   {     Task<CA_Aff_Academ..."
+- File: Medical_Affiliation\Services\Interfaces\ICAAdminTeachAndHostel.cs
+  Symbols: [ICAAdminTeachAndHostel]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAAdminTeachAndHostel   {     Task<AdminTeac..."
+- File: Medical_Affiliation\Services\Interfaces\ICADeclarationService.cs
+  Symbols: [ICADeclarationService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICADeclarationService   {     Task<Affiliatio..."
+- File: Medical_Affiliation\Services\Interfaces\ICAFacultyDesigNonTeachingService.cs
+  Symbols: [ICAFacultyDesigNonTeaching]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAFacultyDesigNonTeaching   {     Task<Facul..."
+- File: Medical_Affiliation\Services\Interfaces\ICAFinanceService.cs
+  Symbols: [ICAFinanceService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAFinanceService   {     Task<FinanceViewMod..."
+- File: Medical_Affiliation\Services\Interfaces\ICAHospitalAffiliationService.cs
+  Symbols: [ICAHospitalAffiliationService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAHospitalAffiliationService   {     Task<Ho..."
+- File: Medical_Affiliation\Services\Interfaces\ICAInstitutionBasicDetails.cs
+  Symbols: [ICAInstitutionBasicDetails]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAInstitutionBasicDetails   {     Task<Insti..."
+- File: Medical_Affiliation\Services\Interfaces\ICALandClassEquipmentService.cs
+  Symbols: [ICALandClassEquipmentService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICALandClassEquipmentService   {     Task<Phy..."
+- File: Medical_Affiliation\Services\Interfaces\ICALibraryService.cs
+  Symbols: [ICALibraryService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICALibraryService   {     Task<MedicalLibrary..."
+- File: Medical_Affiliation\Services\Interfaces\ICAPaymentService.cs
+  Symbols: [ICAPaymentService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAPaymentService   {     Task<AffiliationPay..."
+- File: Medical_Affiliation\Services\Interfaces\ICAPreviewService.cs
+  Symbols: [ICAPreviewService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAPreviewService   {     Task<CApreviewViewM..."
+- File: Medical_Affiliation\Services\Interfaces\ICAVehicleService.cs
+  Symbols: [ICAVehicleService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface ICAVehicleService   {     Task<VehicleDetailL..."
+- File: Medical_Affiliation\Services\Interfaces\IHospitalService.cs
+  Symbols: [IHospitalService]
+  Preview: "using Medical_Affiliation.Models; namespace Medical_Affiliation.Services.Interfaces {   public interface IHospitalService   {         Task<HospitalAff..."
+- File: Medical_Affiliation\Services\Interfaces\IUserContext.cs
+  Symbols: [IUserContext]
+  Preview: "namespace Medical_Affiliation.Services.Interfaces {   public interface IUserContext   {     string CollegeCode { get; }     string CourseLevel { get; ..."
+- File: Medical_Affiliation\Services\UserContext\SessionUserContext.cs
+  Symbols: [SessionUserContext]
+  Preview: "using Medical_Affiliation.Services.Interfaces; using System.Security.Claims; namespace Medical_Affiliation.Services.UserContext {   public class Sessi..."
+- File: Medical_Affiliation\Services\Handlers\Ayurveda\AyurvedaHospitalHandler.cs
+  Preview: "using Medical_Affiliation.Models; using Medical_Affiliation.DATA; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using..."
+- File: Medical_Affiliation\Services\Handlers\Dental\DentalHospitalHandler.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using..."
+- File: Medical_Affiliation\Services\Handlers\Medical\MedicalHospitalHandler.cs
+  Preview: "using Medical_Affiliation.DATA; using Medical_Affiliation.Models; using Medical_Affiliation.Services.Interfaces; using Microsoft.AspNetCore.Mvc; using..."
+- File: Medical_Affiliation\Services\Handlers\Nursing\NursingHospitalHandler.cs
+  Preview: "//using Medical_Affiliation.DATA; //using Medical_Affiliation.Models; //using Medical_Affiliation.Services.Interfaces; //using Microsoft.EntityFramewo..."

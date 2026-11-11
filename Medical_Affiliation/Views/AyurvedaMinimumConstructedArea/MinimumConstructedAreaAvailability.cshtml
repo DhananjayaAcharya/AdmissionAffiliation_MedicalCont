@@ -1,0 +1,327 @@
+﻿@model Medical_Affiliation.Models.AyurvedaMinimumConstructedAreaViewModel
+@{
+    ViewData["Title"] = "Minimum Constructed Area";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+    string? previousMegaSection = null;
+}
+<style>
+    .constructed-page {
+        padding: 24px;
+        background: #f7f8fc;
+        min-height: 80vh
+    }
+
+    .constructed-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 18px rgba(0,0,0,.07);
+        overflow: hidden
+    }
+
+    .constructed-header {
+        background: #172b4d;
+        color: #fff;
+        padding: 20px 26px;
+        border-bottom: 4px solid #c8a951
+    }
+
+        .constructed-header h2 {
+            margin: 0;
+            font-size: 23px;
+            font-weight: 700
+        }
+
+        .constructed-header p {
+            margin: 8px 0 0;
+            color: #e7eaf0
+        }
+
+    .constructed-body {
+        padding: 26px
+    }
+
+    .section-label {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #172b4d
+    }
+
+    .constructed-select {
+        min-height: 50px;
+        font-size: 16px;
+        border-radius: 8px
+    }
+
+    .selected-area-heading {
+        background: #172b4d;
+        color: #fff;
+        border-left: 6px solid #c8a951;
+        border-radius: 7px;
+        padding: 14px 18px;
+        margin: 24px 0 18px;
+        font-size: 18px;
+        font-weight: 700
+    }
+
+        .selected-area-heading span {
+            color: #f1d98d
+        }
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto
+    }
+
+    .constructed-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        background: #fff
+    }
+
+        .constructed-table thead th {
+            background: #172b4d;
+            color: #fff;
+            padding: 12px 9px;
+            border: 1px solid #d9dee8;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 13px
+        }
+
+        .constructed-table tbody td {
+            padding: 11px;
+            border: 1px solid #d9dee8;
+            vertical-align: middle;
+            font-size: 13px
+        }
+
+        .constructed-table .mega-row td {
+            color: #172b4d;
+            font-weight: 700;
+            padding: 12px 15px
+        }
+
+        .constructed-table .mega-band-0 td {
+            background: #e3ecf8 !important
+        }
+
+        .constructed-table .mega-band-1 td {
+            background: #d2e1f2 !important
+        }
+
+        .constructed-table tbody tr.data-row:nth-child(even) {
+            background: #f8f9fc
+        }
+
+    .section-name {
+        min-width: 330px
+    }
+
+    .requirement-cell {
+        min-width: 140px;
+        text-align: center
+    }
+
+    .requirement-value {
+        display: block;
+        color: #172b4d;
+        font-weight: 700;
+        margin-bottom: 9px
+    }
+
+    .actual-entry {
+        border: 1px solid #b9c9dc;
+        border-radius: 7px;
+        background: #f5f8fc;
+        padding: 8px
+    }
+
+        .actual-entry label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #34445d;
+            margin-bottom: 5px;
+            text-align: left
+        }
+
+        .actual-entry input {
+            width: 100%;
+            text-align: center
+        }
+
+    .notice-text {
+        color: #596579;
+        font-size: 13px;
+        margin-top: 12px
+    }
+
+    .btn-constructed {
+        background: #172b4d;
+        color: #fff;
+        border: 0;
+        border-radius: 7px;
+        padding: 11px 24px;
+        font-weight: 600
+    }
+
+        .btn-constructed:hover {
+            background: #243e68;
+            color: #fff
+        }
+
+    .btn-reset-constructed {
+        background: #e8eaf0;
+        color: #172b4d;
+        border: 1px solid #cfd5df;
+        border-radius: 7px;
+        padding: 11px 24px;
+        font-weight: 600
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 30px;
+        color: #657085
+    }
+
+    @@media(max-width:768px) {
+        .constructed-page {
+            padding: 12px
+        }
+
+        .constructed-body {
+            padding: 14px
+        }
+
+        .section-name {
+            min-width: 260px
+        }
+    }
+</style>
+
+<div class="constructed-page">
+    <div class="constructed-card">
+        <div class="constructed-header">
+            <h2>Ayurveda PG — Minimum Constructed Area</h2>
+            <p>Academic Year: @Model.AcademicYear | Area unit: Square metres (m²)</p>
+        </div>
+        <div class="constructed-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            <form method="get" asp-controller="AyurvedaMinimumConstructedArea" asp-action="MinimumConstructedAreaAvailability">
+                <div class="row">
+                    <div class="col-md-10 mb-3">
+                        <label class="section-label" for="constructedAreaID">Constructed Area</label>
+                        <select id="constructedAreaID" name="constructedAreaID" class="form-select constructed-select"
+                                asp-items="Model.ConstructedAreas" onchange="this.form.submit()">
+                            <option value="">-- Select Constructed Area --</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            @if (Model.SelectedConstructedAreaID > 0)
+            {
+                <div class="selected-area-heading">Constructed Area: <span>@Model.SelectedConstructedAreaName</span></div>
+                @if (Model.Items.Count > 0)
+                {
+                    <form method="post" asp-controller="AyurvedaMinimumConstructedArea" asp-action="MinimumConstructedAreaAvailability">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="SelectedConstructedAreaID" />
+                        <div class="table-wrap">
+                            <table class="constructed-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:65px">Sl. No.</th>
+                                        <th>Section</th>
+                                        <th>Minimum Constructed Area Required<br />(60 Intake)</th>
+                                        <th>Minimum Constructed Area Required<br />(100 Intake)</th>
+                                        <th>Minimum Constructed Area Required<br />(150 Intake)</th>
+                                        <th>Minimum Constructed Area Required<br />(200 Intake)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        previousMegaSection = null;
+                                        int megaBand = -1;
+                                        int serialNumber = 0;
+                                    }
+                                    @for (int i = 0; i < Model.Items.Count; i++)
+                                    {
+                                        var item = Model.Items[i];
+                                        if (!string.Equals(previousMegaSection, item.MegaSectionName, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            previousMegaSection = item.MegaSectionName;
+                                            megaBand++;
+                                            <tr class="mega-row mega-band-@(megaBand % 2)">
+                                                <td colspan="6">@item.MegaSectionName</td>
+                                            </tr>
+                                        }
+                                        serialNumber++;
+                                        <tr class="data-row">
+                                            <td class="text-center">
+                                                @serialNumber
+                                                <input type="hidden" asp-for="Items[i].ConstructedAreaDetailID" />
+                                            </td>
+                                            <td class="section-name">@item.SectionName</td>
+                                            <td class="requirement-cell">
+                                                <span class="requirement-value">@item.IntakeCapacity60Requirement</span>
+                                                <div class="actual-entry">
+                                                    <label>Available Area (m²) :</label>
+                                                    <input type="number" min="0" step="0.01" class="form-control" asp-for="Items[i].IntakeCapacity60" placeholder="Enter area" />
+                                                </div>
+                                            </td>
+                                            <td class="requirement-cell">
+                                                <span class="requirement-value">@item.IntakeCapacity100Requirement</span>
+                                                <div class="actual-entry">
+                                                    <label>Available Area (m²) :</label>
+                                                    <input type="number" min="0" step="0.01" class="form-control" asp-for="Items[i].IntakeCapacity100" placeholder="Enter area" />
+                                                </div>
+                                            </td>
+                                            <td class="requirement-cell">
+                                                <span class="requirement-value">@item.IntakeCapacity150Requirement</span>
+                                                <div class="actual-entry">
+                                                    <label>Available Area (m²) :</label>
+                                                    <input type="number" min="0" step="0.01" class="form-control" asp-for="Items[i].IntakeCapacity150" placeholder="Enter area" />
+                                                </div>
+                                            </td>
+                                            <td class="requirement-cell">
+                                                <span class="requirement-value">@item.IntakeCapacity200Requirement</span>
+                                                <div class="actual-entry">
+                                                    <label>Available Area (m²) :</label>
+                                                    <input type="number" min="0" step="0.01" class="form-control" asp-for="Items[i].IntakeCapacity200" placeholder="Enter area" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="notice-text">Enter the college's actual constructed area in square metres for each intake capacity. Leave a field blank or enter zero if the area is unavailable.</p>
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn-constructed">Save Availability</button>
+                            <button type="reset" class="btn-reset-constructed">Reset Changes</button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+
+                    <div class="no-data">Master details have not yet been added for this constructed area.</div>
+                }
+            }
+        </div>
+    </div>
+</div>
+

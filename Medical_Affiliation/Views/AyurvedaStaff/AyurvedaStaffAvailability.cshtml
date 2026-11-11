@@ -1,0 +1,395 @@
+@model Medical_Affiliation.Models.AyurvedaStaffAvailabilityViewModel
+@{
+    ViewData["Title"] = "Ayurveda Staff Availability";
+    Layout = "~/Views/Shared/_CaLayout.cshtml";
+
+    // 1 = Teaching Staff, 2 = Non-Teaching Staff, 3 = Teaching Department, 4 = Hospital Staff
+    bool isTeachingStaff = Model.SelectedStaffId == 1;
+    bool isNonTeachingStaff = Model.SelectedStaffId == 2;
+    bool isHospitalStaff = Model.SelectedStaffId == 4;
+
+    // Teaching Staff, Non-Teaching Staff and Hospital Staff rows are identified by StaffCadre;
+    // Teaching Department rows are identified by StaffSubDepartments.
+    bool showCadre = isTeachingStaff || isNonTeachingStaff || isHospitalStaff;
+
+    string departmentLabel = isHospitalStaff ? "Hospital Department / Zone"
+                           : isNonTeachingStaff ? "Section / Cell"
+                           : "Teaching Department";
+
+    string selectPlaceholder = isNonTeachingStaff ? "-- Select Section --" : "-- Select Department --";
+    string headingDepartmentLabel = isNonTeachingStaff ? "Section" : "Department";
+
+    string Show(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
+}
+<style>
+    .staff-page {
+        padding: 24px;
+        background: #f7f8fc;
+        min-height: 80vh
+    }
+
+    .staff-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 18px rgba(0,0,0,.07);
+        overflow: hidden
+    }
+
+    .staff-header {
+        background: #172b4d;
+        color: #fff;
+        padding: 20px 26px;
+        border-bottom: 4px solid #c8a951
+    }
+
+        .staff-header h2 {
+            margin: 0;
+            font-size: 23px;
+            font-weight: 700
+        }
+
+        .staff-header p {
+            margin: 8px 0 0;
+            color: #e7eaf0
+        }
+
+    .staff-body {
+        padding: 26px
+    }
+
+    .field-label {
+        display: block;
+        margin-bottom: 9px;
+        color: #172b4d;
+        font-weight: 700
+    }
+
+    .staff-select {
+        min-height: 48px;
+        border-radius: 8px
+    }
+
+    .selected-heading {
+        background: #172b4d;
+        color: #fff;
+        border-left: 6px solid #c8a951;
+        border-radius: 7px;
+        padding: 14px 18px;
+        margin: 22px 0 18px;
+        font-size: 17px;
+        font-weight: 700
+    }
+
+        .selected-heading span {
+            color: #f1d98d
+        }
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto
+    }
+
+    .staff-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff
+    }
+
+        .staff-table thead th {
+            background: #172b4d;
+            color: #fff;
+            padding: 12px 9px;
+            border: 1px solid #d9dee8;
+            text-align: center;
+            font-size: 13px
+        }
+
+        .staff-table tbody td {
+            padding: 11px;
+            border: 1px solid #d9dee8;
+            vertical-align: middle;
+            font-size: 13px
+        }
+
+        .staff-table .department-row td {
+            font-weight: 700;
+            color: #172b4d;
+            padding: 12px 15px
+        }
+
+    .department-band-0 td {
+        background: #e3ecf8 !important
+    }
+
+    .department-band-1 td {
+        background: #d2e1f2 !important
+    }
+
+    .subdepartment {
+        min-width: 330px
+    }
+
+    .capacity-cell {
+        min-width: 145px;
+        text-align: center
+    }
+
+    .requirement {
+        display: block;
+        color: #172b4d;
+        font-weight: 700;
+        margin-bottom: 9px
+    }
+
+    .actual-box {
+        border: 1px solid #b9c9dc;
+        border-radius: 7px;
+        background: #f5f8fc;
+        padding: 8px
+    }
+
+        .actual-box label {
+            display: block;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #34445d;
+            margin-bottom: 5px
+        }
+
+        .actual-box input {
+            text-align: center
+        }
+
+    .btn-save {
+        background: #172b4d;
+        color: #fff;
+        border: 0;
+        border-radius: 7px;
+        padding: 11px 24px;
+        font-weight: 600
+    }
+
+    .btn-reset {
+        background: #e8eaf0;
+        color: #172b4d;
+        border: 1px solid #cfd5df;
+        border-radius: 7px;
+        padding: 11px 24px;
+        font-weight: 600
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 30px;
+        color: #657085
+    }
+
+    @@media(max-width:768px) {
+        .staff-page {
+            padding: 12px
+        }
+
+        .staff-body {
+            padding: 14px
+        }
+
+        .subdepartment {
+            min-width: 260px
+        }
+    }
+</style>
+
+<div class="staff-page">
+    <div class="staff-card">
+        <div class="staff-header">
+            @if (isTeachingStaff)
+            {
+                <h2>Ayurveda PG — Teaching Staff Requirements</h2>
+                <p>Schedule IV | Academic Year: @Model.AcademicYear</p>
+            }
+            else if (isNonTeachingStaff)
+            {
+                <h2>Ayurveda PG — Non-Teaching Staff Requirements</h2>
+                <p>Schedule V | Academic Year: @Model.AcademicYear</p>
+            }
+            else if (isHospitalStaff)
+            {
+                <h2>Ayurveda PG — Hospital Staff Requirements</h2>
+                <p>Schedule XX | Academic Year: @Model.AcademicYear</p>
+            }
+            else
+            {
+                <h2>Ayurveda PG — Teaching Department Requirements</h2>
+                <p>Schedule VI | Academic Year: @Model.AcademicYear</p>
+            }
+        </div>
+        <div class="staff-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            <form method="get" asp-controller="AyurvedaStaff" asp-action="AyurvedaStaffAvailability">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="field-label" for="staffId">Staff Category</label>
+                        <select id="staffId" name="staffId" class="form-select staff-select"
+                                asp-items="Model.StaffCategories" onchange="this.form.submit()">
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="field-label" for="department">@departmentLabel</label>
+                        <select id="department" name="department" class="form-select staff-select"
+                                asp-items="Model.Departments" onchange="this.form.submit()">
+                            <option value="">@selectPlaceholder</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            @if (Model.Items.Count > 0)
+            {
+                <div class="selected-heading">
+                    Staff Category: <span>@Model.SelectedStaffName</span>
+                    &nbsp; | &nbsp; @headingDepartmentLabel: <span>@Model.SelectedDepartment</span>
+                </div>
+
+                <form method="post" asp-controller="AyurvedaStaff" asp-action="AyurvedaStaffAvailability">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="SelectedStaffId" />
+                    <input type="hidden" asp-for="SelectedDepartment" />
+
+                    <div class="table-wrap">
+                        <table class="staff-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:65px">Sl. No.</th>
+
+                                    @if (isHospitalStaff)
+                                    {
+                                        <th>Designation / Category of Employee</th>
+                                    }
+                                    else if (isNonTeachingStaff)
+                                    {
+                                        <th>Category of Staff</th>
+                                    }
+                                    else if (isTeachingStaff)
+                                    {
+                                        <th>Staff Cadre</th>
+                                    }
+                                    else
+                                    {
+                                        <th>Staff Sub-Department / Requirement</th>
+                                    }
+
+                                    <th>Minimum Required<br />(60 Intake)</th>
+                                    <th>Minimum Required<br />(100 Intake)</th>
+                                    <th>Minimum Required<br />(150 Intake)</th>
+                                    <th>Minimum Required<br />(200 Intake)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Items.Count; i++)
+                                {
+                                    var item = Model.Items[i];
+                                    <tr>
+                                        <td class="text-center">
+                                            @(i + 1)
+                                            <input type="hidden" asp-for="Items[i].StaffDetailID" />
+                                        </td>
+                                        @if (showCadre)
+                                        {
+                                            <td class="subdepartment">
+                                                <strong>@item.StaffCadre</strong>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="subdepartment">
+                                                @item.StaffSubDepartments
+                                            </td>
+                                        }
+                                        <td class="capacity-cell">
+                                            <span class="requirement">@Show(item.IntakeCapacity60Requirement)</span>
+                                            <div class="actual-box">
+                                                <label>Available Quantity :</label>
+                                                <input type="number" min="0" class="form-control" asp-for="Items[i].IntakeCapacity60" placeholder="Enter quantity" />
+                                            </div>
+                                        </td>
+                                        <td class="capacity-cell">
+                                            <span class="requirement">@Show(item.IntakeCapacity100Requirement)</span>
+                                            <div class="actual-box">
+                                                <label>Available Quantity :</label>
+                                                <input type="number" min="0" class="form-control" asp-for="Items[i].IntakeCapacity100" placeholder="Enter quantity" />
+                                            </div>
+                                        </td>
+                                        <td class="capacity-cell">
+                                            <span class="requirement">@Show(item.IntakeCapacity150Requirement)</span>
+                                            <div class="actual-box">
+                                                <label>Available Quantity :</label>
+                                                <input type="number" min="0" class="form-control" asp-for="Items[i].IntakeCapacity150" placeholder="Enter quantity" />
+                                            </div>
+                                        </td>
+                                        <td class="capacity-cell">
+                                            <span class="requirement">@Show(item.IntakeCapacity200Requirement)</span>
+                                            <div class="actual-box">
+                                                <label>Available Quantity :</label>
+                                                <input type="number" min="0" class="form-control" asp-for="Items[i].IntakeCapacity200" placeholder="Enter quantity" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        @if (isTeachingStaff)
+                        {
+                            <div class="alert alert-info mt-3">
+                                <strong>Note:</strong>
+                                * For requirements marked as 1*, the required one post may be
+                                filled by either a Professor or an Associate Professor.
+                            </div>
+                        }
+                        else if (isNonTeachingStaff)
+                        {
+                            <div class="alert alert-info mt-3">
+                                <strong>Note:</strong>
+                                Services of electrician, plumber, gardener, attendant or peon, maintenance staff,
+                                multi-tasking staff and the like may be obtained by outsourcing.
+                            </div>
+                        }
+                        else if (isHospitalStaff)
+                        {
+                            <div class="alert alert-info mt-3">
+                                <strong>Note:</strong>
+                                Anaesthesiologist, Pathologist and Radiologist (modern medical staff) are part time and their
+                                presence is not mandatory for inspection or visitation. Public relation officers, multi-tasking
+                                staff, housekeeping, maintenance staff, security and drivers may be appointed or outsourced as required.
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn-save">Save Availability</button>
+                        <button type="reset" class="btn-reset">Reset Changes</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="no-data">
+                    @(isHospitalStaff
+                        ? "No Schedule XX details are available for this department."
+                        : isNonTeachingStaff
+                            ? "No Schedule V details are available for this section."
+                            : "No Schedule VI details are available for this category or department.")
+                </div>
+            }
+        </div>
+    </div>
+</div>
