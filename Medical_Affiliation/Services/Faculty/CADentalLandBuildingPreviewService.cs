@@ -71,6 +71,7 @@ namespace Medical_Affiliation.Services.Faculty
             var entity = await _context.DentalCollegeLandBuildingDetails
                 .FirstOrDefaultAsync(x =>
                     x.CollegeCode == collegeCode &&
+                    x.CourseLevel == courseLevel &&
                     x.FacultyCode == facultyCode);
 
             var vm = new DentalCollegeLandBuildingViewModel
