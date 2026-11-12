@@ -30,27 +30,105 @@ namespace Medical_Affiliation.Controllers
         // ------------------------------------------------------------------
         // Shared helpers - ONE source of truth for the page's dropdown and
         // table data, used by both the GET and every POST re-render path.
-        // (Previously GET used CollegeCourseIntakeDetails filtered by
-        // faculty + college, while the POST reload used MstCourses - the
-        // full unfiltered master list - which is why the dropdown looked
-        // wrong after a save / failed save.)
+        // The course dropdown comes from fellowship_courseIntake (signed-in faculty +
+        // college) and only lists courses whose Intake_26_27 is not yet filled.
         // ------------------------------------------------------------------
 
+        /// <summary>One course offered to the signed-in college, with its sanctioned intake and seats already used.</summary>
+        private sealed record CourseSeat(string Course, int Intake, int Used)
+        {
+            public int Left => Intake - Used;
+        }
+
+        /// <summary>
+        /// Courses for the signed-in college + faculty from [dbo].[fellowship_courseIntake], each with
+        /// its Intake_26_27 and the number of student records already saved for that course in
+        /// FellowShip_Medical. Plain ADO.NET (same style as AcceptedRejectedDashboard), so no new
+        /// DbSet / migration is needed. TRY_CAST makes a text or NULL intake safe (counts as 0 seats).
+        /// </summary>
+        private List<CourseSeat> LoadCourseSeats(string? facultyCode, string? collegeCode)
+        {
+            var list = new List<CourseSeat>();
+
+            facultyCode = (facultyCode ?? string.Empty).Trim();
+            collegeCode = (collegeCode ?? string.Empty).Trim();
+            if (facultyCode.Length == 0 || collegeCode.Length == 0)
+            {
+                return list;
+            }
+
+            const string sql = @"
+                SELECT c.CourseName,
+                       c.Intake,
+                       ISNULL(u.Used, 0) AS Used
+                FROM (
+                    SELECT LTRIM(RTRIM([course])) AS CourseName,
+                           SUM(ISNULL(TRY_CAST([Intake_26_27] AS INT), 0)) AS Intake
+                    FROM [dbo].[fellowship_courseIntake]
+                    WHERE CAST([FacultyCode] AS VARCHAR(20)) = @faculty
+                      AND UPPER(LTRIM(RTRIM([CollegeCode]))) = UPPER(@college)
+                      AND [course] IS NOT NULL
+                      AND LTRIM(RTRIM([course])) <> ''
+                    GROUP BY LTRIM(RTRIM([course]))
+                ) c
+                LEFT JOIN (
+                    SELECT LTRIM(RTRIM([Course])) AS CourseName,
+                           COUNT(*) AS Used
+                    FROM [dbo].[FellowShip_Medical]
+                    WHERE CAST([FacultyCode] AS VARCHAR(20)) = @faculty
+                      AND UPPER(LTRIM(RTRIM([Collegecode]))) = UPPER(@college)
+                    GROUP BY LTRIM(RTRIM([Course]))
+                ) u ON u.CourseName COLLATE DATABASE_DEFAULT = c.CourseName COLLATE DATABASE_DEFAULT
+                ORDER BY c.CourseName";
+
+            var conn = _context.Database.GetDbConnection();
+            var openedHere = conn.State != ConnectionState.Open;
+            try
+            {
+                if (openedHere) conn.Open();
+
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = sql;
+                cmd.CommandType = CommandType.Text;
+
+                var pFaculty = cmd.CreateParameter();
+                pFaculty.ParameterName = "@faculty";
+                pFaculty.Value = facultyCode;
+                cmd.Parameters.Add(pFaculty);
+
+                var pCollege = cmd.CreateParameter();
+                pCollege.ParameterName = "@college";
+                pCollege.Value = collegeCode;
+                cmd.Parameters.Add(pCollege);
+
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    var name = reader.IsDBNull(0) ? null : reader.GetString(0);
+                    if (string.IsNullOrWhiteSpace(name)) continue;
+
+                    var intake = reader.IsDBNull(1) ? 0 : Convert.ToInt32(reader.GetValue(1));
+                    var used = reader.IsDBNull(2) ? 0 : Convert.ToInt32(reader.GetValue(2));
+                    list.Add(new CourseSeat(name, intake, used));
+                }
+            }
+            finally
+            {
+                if (openedHere) conn.Close();
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Course dropdown: only courses that still have a free seat (records saved &lt; Intake_26_27).
+        /// Once a course reaches its intake it disappears from the list.
+        /// </summary>
         private List<SelectListItem> LoadCourseList(string? facultyCode, string? collegeCode)
         {
-            facultyCode ??= string.Empty;
-            collegeCode ??= string.Empty;
-
-            return _context.CollegeCourseIntakeDetails
-                .Where(e => e.FacultyCode.ToString() == facultyCode && e.CollegeCode == collegeCode)
-                .Select(c => c.CourseName)
-                .Distinct()
-                .OrderBy(name => name)
-                .Select(name => new SelectListItem
-                {
-                    Value = name,
-                    Text = name
-                })
+            return LoadCourseSeats(facultyCode, collegeCode)
+                .Where(c => c.Used < c.Intake)
+                .Select(c => new SelectListItem { Value = c.Course, Text = c.Course })
                 .ToList();
         }
 
@@ -107,13 +185,13 @@ namespace Medical_Affiliation.Controllers
             ModelState.Remove("Form.FacultyCode");
             ModelState.Remove("Form.CollegeCode");
 
-                // Fields that are OPTIONAL on this form (PG row, previous-experience college,
-                // candidate registered number) or that have no input on this page at all
-                // (programme opening / ending date). With <Nullable>enable</Nullable>,
-                // non-nullable string properties get an implicit [Required] from MVC, and
-                // some of them also carry an explicit [Required] in the view-model, which
-                // silently blocks the save when the user leaves them blank.
-                // Clear those binder errors so only the real rules apply.
+            // Fields that are OPTIONAL on this form (PG row, previous-experience college,
+            // candidate registered number) or that have no input on this page at all
+            // (programme opening / ending date). With <Nullable>enable</Nullable>,
+            // non-nullable string properties get an implicit [Required] from MVC, and
+            // some of them also carry an explicit [Required] in the view-model, which
+            // silently blocks the save when the user leaves them blank.
+            // Clear those binder errors so only the real rules apply.
             ModelState.Remove("Form.PG_Degree");
             ModelState.Remove("Form.PG_UniversityCollegeName");
             ModelState.Remove("Form.PG_YearOfPassing");
@@ -136,6 +214,23 @@ namespace Medical_Affiliation.Controllers
                 return ReloadFellowshipMedicalView(pageVm);
             }
 
+            // ---- Intake check (server side - the dropdown alone can be bypassed) ----
+            var courseName = (vm.Course ?? string.Empty).Trim();
+            var seat = LoadCourseSeats(vm.FacultyCode, vm.CollegeCode)
+                .FirstOrDefault(c => string.Equals(c.Course, courseName, StringComparison.OrdinalIgnoreCase));
+
+            if (seat == null)
+            {
+                TempData["Error"] = "Record was NOT saved. The selected course is not offered for your college.";
+                return ReloadFellowshipMedicalView(pageVm);
+            }
+
+            if (seat.Used >= seat.Intake)
+            {
+                TempData["Error"] = $"Record was NOT saved. The intake for \"{seat.Course}\" is full ({seat.Used} of {seat.Intake} seats already used).";
+                return ReloadFellowshipMedicalView(pageVm);
+            }
+
             var safeCollegeCode = string.IsNullOrWhiteSpace(vm.CollegeCode)
                 ? "UNKNOWN"
                 : vm.CollegeCode.Trim().Replace(" ", string.Empty).ToUpperInvariant();
@@ -143,12 +238,12 @@ namespace Medical_Affiliation.Controllers
             // Track every file actually written to disk so we can clean them up if
             // the DB save fails partway through - otherwise a failed save still
             // leaves orphaned documents behind on the D: drive.
-           
+
             var writtenPaths = new List<string>();
 
             try
             {
-                var generatedFellowshipCode = GenerateFellowshipCode(vm.Course);    
+                var generatedFellowshipCode = GenerateFellowshipCode(vm.Course);
 
                 var (sslcPath, sslcGuid) = SaveDocumentToCollegeFolder(ssLC_Doc, safeCollegeCode, "SSLC", writtenPaths);
                 var (kmcPath, kmcGuid) = SaveDocumentToCollegeFolder(kmc_Doc, safeCollegeCode, "KMC", writtenPaths);
