@@ -5335,15 +5335,16 @@ namespace Medical_Affiliation.Controllers
                     .Trim()
                     .ToUpperInvariant();
 
-               
                 if (selectedLevel == "PG")
                 {
-                    return RedirectToAction("PgCourses", "AffiliationPgCourse");
+                    return facultyCode == "2"
+                        ? RedirectToAction("PgCourses", "AffiliationDentalPgCourse")
+                        : RedirectToAction("PgCourses", "AffiliationPgCourse");
                 }
 
                 if (selectedLevel == "SS")
                 {
-                    return RedirectToAction("CA_SS_CoursesApplied", "Aff_CA_SS_CoursesAppliedSS");
+                    return RedirectToAction("CA_SS_CoursesApplied","Aff_CA_SS_CoursesAppliedSS" );
                 }
 
                 if (facultyCode == "2" && selectedLevel == "UG")

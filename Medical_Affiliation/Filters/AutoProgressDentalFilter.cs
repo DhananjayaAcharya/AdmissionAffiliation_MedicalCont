@@ -103,7 +103,7 @@ public class AutoProgressDentalFilter : IAsyncActionFilter
 
             new () { Key = "BDSDetails", Ctrl = "ContinuesAffiliation_Facultybased", Acts = new(){ "Ug_Course_Details" }},
 
-            new () { Key = "PgCourses", Ctrl = "AffiliationPgCourse", Acts = new() {"SavePgCoursesRguhs" }},
+            new () { Key = "PgCourses", Ctrl = "AffiliationDentalPgCourse", Acts = new() {"SavePgCoursesRguhs" }},
 
             new () { Key = "DentalEquipmentDetails", Ctrl = "Dental", Acts = new() {"SaveEquipment" } },
 

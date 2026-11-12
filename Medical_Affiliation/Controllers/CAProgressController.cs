@@ -84,7 +84,7 @@ namespace Medical_Affiliation.Controllers
             // --------------------------------------------------------
 
             var faculties = await _context.Faculties
-                .Where(x => x.Status == "Active")
+                .Where(x => x.Status == "Active" && (facultyCode == null ||  x.FacultyId.ToString() == facultyCode))
                 .OrderBy(x => x.FacultyName)
                 .Select(x => new
                 {
@@ -98,7 +98,7 @@ namespace Medical_Affiliation.Controllers
                 {
                     Value = x.FacultyId.ToString(),
                     Text = x.FacultyName,
-                    Selected = x.FacultyId.ToString() == facultyCode
+                    Selected = x.FacultyId.ToString() == "2"
                 })
                 .ToList();
 
@@ -112,10 +112,11 @@ namespace Medical_Affiliation.Controllers
             if (!string.IsNullOrWhiteSpace(facultyCode))
             {
                 collegesQuery = collegesQuery
-                    .Where(x => x.FacultyCode == facultyCode);
+                    .Where(x => x.FacultyCode == "2");
             }
 
             var colleges = await collegesQuery
+                .Where(x => x.FacultyCode == "2")
                 .OrderBy(x => x.CollegeName)
                 .Select(x => new
                 {
