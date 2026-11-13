@@ -47,11 +47,11 @@ namespace Medical_Affiliation.Services.Faculty
                         ? vehicle.ValidityDate.Value.ToDateTime(TimeOnly.MinValue)
                         : (DateTime?)null,
 
-                    RcBookAvailable = vehicle.RcBookStatus == "Y",
+                    RcBookAvailable = vehicle.RcBookStatus == "A",
 
-                    InsuranceAvailable = vehicle.InsuranceStatus == "Y",
+                    InsuranceAvailable = vehicle.InsuranceStatus == "A",
 
-                    DrivingLicenseAvailable = vehicle.DrivingLicenseStatus == "Y"
+                    DrivingLicenseAvailable = vehicle.DrivingLicenseStatus == "A"
                 })
                 .ToListAsync();
 

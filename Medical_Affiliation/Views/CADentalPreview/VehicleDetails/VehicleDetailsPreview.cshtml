@@ -101,36 +101,21 @@
                                 </td>
 
                                 <td class="text-center">
-                                    @if (vehicle.RcBookAvailable)
-                                    {
-                                        <i class="bi bi-check-circle-fill text-success"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-x-circle-fill text-danger"></i>
-                                    }
+                                    <span class="badge @(vehicle.RcBookAvailable ? "bg-success" : "bg-danger")">
+                                        @(vehicle.RcBookAvailable ? "Available" : "Not Available")
+                                    </span>
                                 </td>
 
                                 <td class="text-center">
-                                    @if (vehicle.InsuranceAvailable)
-                                    {
-                                        <i class="bi bi-check-circle-fill text-success"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-x-circle-fill text-danger"></i>
-                                    }
+                                    <span class="badge @(vehicle.InsuranceAvailable ? "bg-success" : "bg-danger")">
+                                        @(vehicle.InsuranceAvailable ? "Available" : "Not Available")
+                                    </span>
                                 </td>
 
                                 <td class="text-center">
-                                    @if (vehicle.DrivingLicenseAvailable)
-                                    {
-                                        <i class="bi bi-check-circle-fill text-success"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-x-circle-fill text-danger"></i>
-                                    }
+                                    <span class="badge @(vehicle.DrivingLicenseAvailable ? "bg-success" : "bg-danger")">
+                                        @(vehicle.DrivingLicenseAvailable ? "Available" : "Not Available")
+                                    </span>
                                 </td>
 
                             </tr>

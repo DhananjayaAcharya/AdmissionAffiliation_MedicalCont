@@ -212,17 +212,9 @@
                                 </td>
 
                                 <td>
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        Model.StaffOther.TeachersUpdatedInEMS))
-                                    {
-                                        @Model.StaffOther.TeachersUpdatedInEMS
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted fst-italic">
-                                            Not provided
-                                        </span>
-                                    }
+                                    <span class="badge @(!string.IsNullOrWhiteSpace(Model.StaffOther.TeachersUpdatedInEMS) ? "bg-success" : "bg-danger")">
+                                        @(!string.IsNullOrWhiteSpace(Model.StaffOther.TeachersUpdatedInEMS) ? "Available" : "Not Available")
+                                    </span>
                                 </td>
                             </tr>
 
@@ -236,17 +228,9 @@
                                 </td>
 
                                 <td>
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        Model.StaffOther.ExaminerDetailsAttached))
-                                    {
-                                        @Model.StaffOther.ExaminerDetailsAttached
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted fst-italic">
-                                            Not provided
-                                        </span>
-                                    }
+                                    <span class="badge @(!string.IsNullOrWhiteSpace(Model.StaffOther.ExaminerDetailsAttached) ? "bg-success" : "bg-danger")">
+                                        @(!string.IsNullOrWhiteSpace(Model.StaffOther.ExaminerDetailsAttached) ? "Available" : "Not Available")
+                                    </span>
                                 </td>
                             </tr>
 
@@ -291,17 +275,9 @@
                                 </td>
 
                                 <td>
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        Model.StaffOther.ServiceRegisterMaintained))
-                                    {
-                                        @Model.StaffOther.ServiceRegisterMaintained
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted fst-italic">
-                                            Not provided
-                                        </span>
-                                    }
+                                    <span class="badge @(!string.IsNullOrWhiteSpace(Model.StaffOther.ServiceRegisterMaintained) ? "bg-success" : "bg-danger")">
+                                        @(!string.IsNullOrWhiteSpace(Model.StaffOther.ServiceRegisterMaintained) ? "Available" : "Not Available")
+                                    </span>
                                 </td>
                             </tr>
 
@@ -315,17 +291,9 @@
                                 </td>
 
                                 <td>
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        Model.StaffOther.AcquittanceRegisterMaintained))
-                                    {
-                                        @Model.StaffOther.AcquittanceRegisterMaintained
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted fst-italic">
-                                            Not provided
-                                        </span>
-                                    }
+                                    <span class="badge @(!string.IsNullOrWhiteSpace(Model.StaffOther.AcquittanceRegisterMaintained) ? "bg-success" : "bg-danger")">
+                                        @(!string.IsNullOrWhiteSpace(Model.StaffOther.AcquittanceRegisterMaintained) ? "Available" : "Not Available")
+                                    </span>
                                 </td>
                             </tr>
 

@@ -99,14 +99,9 @@
                             <th>Future Expansion Space</th>
 
                             <td colspan="3">
-                                @if (Model.HasFutureExpansionSpace == true)
-                                {
-                                    <i class="bi bi-check-circle-fill text-success"></i>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-x-circle-fill text-danger"></i>
-                                }
+                                <span class="badge @(Model.HasFutureExpansionSpace == true ? "bg-success" : "bg-danger")">
+                                    @(Model.HasFutureExpansionSpace == true ? "Available" : "Not Available")
+                                </span>
                             </td>
 
                         </tr>

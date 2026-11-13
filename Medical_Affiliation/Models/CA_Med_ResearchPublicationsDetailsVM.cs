@@ -124,7 +124,8 @@ namespace Medical_Affiliation.Models
 
         public int FacultyCode { get; set; }
 
-        [Required(ErrorMessage = "Department is required")]
+        public string? CourseLevel {get; set;}
+
         public string DeptCode { get; set; }
 
         public string? DeptName { get; set; }
@@ -136,6 +137,14 @@ namespace Medical_Affiliation.Models
         public IFormFile? PublicationPdf { get; set; }
 
         public string? PublicationPath { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if(CourseLevel == "PG" && FacultyCode == 2 && string.IsNullOrWhiteSpace(DeptCode))
+            {
+                yield return new ValidationResult("Department is required", new[] {nameof(DeptCode)});
+            }
+        }
     }
 
 }

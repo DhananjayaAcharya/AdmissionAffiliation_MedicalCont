@@ -141,6 +141,7 @@ namespace Medical_Affiliation.Controllers
                     return new DepartmentWisePublicationVM
                     {
                         Id = saved?.Id ?? 0,
+                        CourseLevel = courseLevel,
                         CollegeCode = collegeCode,
                         FacultyCode = facultyCodeInt,
                         DeptCode = d.DepartmentCode,

@@ -286,6 +286,7 @@ namespace Medical_Affiliation.Controllers
                 var uploadedRecords = _context.CaDentalLibraryRecords
                     .Where(x => x.CollegeCode == collegeCode &&
                                 x.FacultyCode == facultyCode &&
+                                x.CourseLevel == courseLevel &&
                                 x.AffiliationType == affiliationType)
                     .ToList();
 
@@ -463,10 +464,16 @@ namespace Medical_Affiliation.Controllers
                 if (!activeDepartments.Any())
                     ModelState.AddModelError("", "At least one department is required.");
 
-                foreach (var dept in activeDepartments)
+                if(courseLevel == "PG" && activeDepartments.Any())
                 {
-                    if (string.IsNullOrWhiteSpace(dept.DepartmentCode))
-                        ModelState.AddModelError("", "Department is required.");
+                    for (int i = 0; i < activeDepartments.Count; i++)
+                    {
+                        if (string.IsNullOrWhiteSpace(activeDepartments[i].DepartmentCode))
+                        {
+                            ModelState.AddModelError("","Department is required for all active departments.");
+                            break;
+                        }
+                    }
                 }
 
                 ModelState.Remove("OtherDetails.SpecialFeaturesQuestion");
@@ -783,6 +790,7 @@ namespace Medical_Affiliation.Controllers
                 {
                     var oldRecords = _context.CaDentalLibraryRecords
                         .Where(x => x.CollegeCode == collegeCode &&
+                                    x.CourseLevel == courseLevel &&
                                     x.FacultyCode == facultyCode &&
                                     x.AffiliationType == affiliationType)
                         .ToList();

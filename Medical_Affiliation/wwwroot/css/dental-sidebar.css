@@ -1,0 +1,571 @@
+
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+    --ca-navy: #0a3d91;
+    --ca-navy-light: #1d5fd6;
+    --ca-ink: #0f1d3d;
+    --ca-text: #435273;
+    --ca-muted: #7d8aa9;
+    --ca-faint: #a3b0c9;
+    --ca-border: #d8e3f5;
+    --ca-bg-tint: #f4f8fd;
+    --ca-accent-bg: #eaf2ff;
+    --ca-accent-bg-strong: #d6e6fc;
+    --ca-success: #157347;
+    --ca-radius-sm: 6px;
+    --ca-radius-md: 8px;
+}
+
+/* ══════════════════════════════
+                                        CA SIDEBAR
+            ══════════════════════════════ */
+.ca-sb {
+    width: 18vw;
+    min-width: 260px;
+    max-width: 340px;
+    min-height: auto;
+    height: auto;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    font-family: 'DM Sans', sans-serif;
+    position: sticky;
+    top: 7.8rem;
+    overflow-y: auto;
+    border-right: 1px solid var(--ca-border);
+    transition: width 0.25s ease;
+}
+
+.ca-shell.sidebar-collapsed > .ca-sb {
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    overflow: hidden;
+}
+
+.ca-sb.sidebar-collapsed {
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    overflow: hidden;
+}
+
+/* ── Collapse / expand handle ─────────────────────────────────────
+            A single, always-visible circular button pinned to the top-right
+            corner of the sidebar. Because it sits inside the box (not poking
+            past the border), it survives the sidebar's overflow-y:auto in
+            both the expanded and the 56px collapsed width — no more relying
+            on a second hidden control that only appeared once already
+            collapsed. */
+.ca-sb-handle {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: var(--ca-navy);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 6;
+    box-shadow: 0 2px 6px rgba(10, 61, 145, 0.35);
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+    .ca-sb-handle:hover {
+        background: var(--ca-navy-light);
+        box-shadow: 0 3px 9px rgba(10, 61, 145, 0.45);
+        transform: translateY(-1px);
+    }
+
+    .ca-sb-handle:active {
+        transform: translateY(0);
+    }
+
+    .ca-sb-handle:focus-visible {
+        outline: 2px solid var(--ca-navy);
+        outline-offset: 2px;
+    }
+
+    .ca-sb-handle i {
+        font-size: 0.72rem;
+        transition: transform 0.25s ease;
+    }
+
+.ca-shell.sidebar-collapsed .ca-sb-handle i,
+.ca-sb.sidebar-collapsed .ca-sb-handle i {
+    transform: rotate(180deg);
+}
+
+.ca-sb-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Reserve room so the title text never runs under the handle button */
+.ca-sb-top {
+    padding-right: 44px;
+}
+
+/* Collapsed state: hide the full nav, reveal the icon rail instead */
+.ca-shell.sidebar-collapsed .ca-sb-top,
+.ca-shell.sidebar-collapsed .ca-sb-prog,
+.ca-shell.sidebar-collapsed .accordion-container,
+.ca-shell.sidebar-collapsed .ca-sb-footer-label,
+.ca-sb.sidebar-collapsed .ca-sb-top,
+.ca-sb.sidebar-collapsed .ca-sb-prog,
+.ca-sb.sidebar-collapsed .accordion-container,
+.ca-sb.sidebar-collapsed .ca-sb-footer-label {
+    display: none;
+}
+
+.ca-sb-rail {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 52px 0 12px;
+}
+
+.ca-shell.sidebar-collapsed .ca-sb-rail,
+.ca-sb.sidebar-collapsed .ca-sb-rail {
+    display: flex;
+}
+
+.ca-sb-rail-item {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--ca-radius-md);
+    border: none;
+    background: transparent;
+    color: var(--ca-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s, color 0.15s;
+}
+
+    .ca-sb-rail-item:hover {
+        background: var(--ca-accent-bg);
+        color: var(--ca-navy);
+    }
+
+    .ca-sb-rail-item:focus-visible {
+        outline: 2px solid var(--ca-navy);
+        outline-offset: 2px;
+    }
+
+    .ca-sb-rail-item .rail-badge {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ca-success);
+        border: 1.5px solid #fff;
+    }
+
+/* Mini circular completion ring, shown only in the collapsed rail */
+.ca-sb-rail-progress {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: conic-gradient(var(--ca-navy) calc(var(--pct) * 1%), var(--ca-border) 0);
+    margin-bottom: 6px;
+}
+
+    .ca-sb-rail-progress span {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.55rem;
+        font-weight: 700;
+        color: var(--ca-navy);
+    }
+
+.ca-sb::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ca-sb::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+/* Brand */
+.ca-sb-top {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--ca-border);
+    flex-shrink: 0;
+}
+
+.ca-sb-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.15rem;
+    color: var(--ca-ink);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+}
+
+.ca-sb-subtitle {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ca-muted);
+    margin-top: 4px;
+}
+
+.ca-sb-affiliation {
+    margin-top: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ca-navy);
+}
+
+/* Progress */
+.ca-sb-prog {
+    padding: 10px 18px 9px;
+    border-bottom: 1px solid var(--ca-border);
+    flex-shrink: 0;
+    background: var(--ca-bg-tint);
+}
+
+.ca-sb-prog-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+}
+
+.ca-sb-prog-lbl {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ca-muted);
+}
+
+.ca-sb-prog-pct {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ca-navy);
+    font-variant-numeric: tabular-nums;
+}
+
+.ca-sb-track {
+    height: 5px;
+    background: var(--ca-border);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.ca-sb-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--ca-navy), var(--ca-navy-light));
+    transition: width 0.4s ease;
+}
+
+.ca-sb-prog-note {
+    font-size: 0.62rem;
+    color: var(--ca-faint);
+    text-align: right;
+    margin-top: 5px;
+}
+
+/* Accordion / nav groups */
+.accordion-container {
+    width: 100%;
+    flex: 1;
+    overflow: visible;
+    padding-bottom: 8px;
+}
+
+    .accordion-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .accordion-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+    }
+
+.accordion-item {
+    background: transparent;
+    border-bottom: 1px solid var(--ca-border);
+}
+
+.accordion-header {
+    font-size: 0.86rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ca-text);
+    padding: 9px 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    transition: color 0.15s;
+}
+
+    .accordion-header:hover {
+        color: var(--ca-navy);
+    }
+
+    .accordion-header:focus-visible {
+        outline: 2px solid var(--ca-navy);
+        outline-offset: -2px;
+    }
+
+    .accordion-header.active-tab {
+        color: var(--ca-navy);
+        font-weight: 700;
+    }
+
+        .accordion-header.active-tab .toggle-icon {
+            transform: rotate(180deg);
+            color: var(--ca-navy);
+        }
+
+.toggle-icon {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--ca-muted);
+    transition: transform 0.3s ease;
+}
+
+.accordion-header:hover .toggle-icon {
+    color: var(--ca-navy);
+}
+
+.accordion-group-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--ca-muted);
+    background: var(--ca-bg-tint);
+    border: 1px solid var(--ca-border);
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-variant-numeric: tabular-nums;
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+/* Step link */
+.ca-sb-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0 8px;
+}
+
+.ca-sb-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 18px 6px 22px;
+    text-decoration: none;
+    color: var(--ca-text);
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+    .ca-sb-link:hover {
+        background: var(--ca-accent-bg);
+        color: var(--ca-navy);
+        text-decoration: none;
+    }
+
+    .ca-sb-link:focus-visible {
+        outline: 2px solid var(--ca-navy);
+        outline-offset: -2px;
+    }
+
+    .ca-sb-link.is-active {
+        background: var(--ca-accent-bg-strong);
+        border-left-color: var(--ca-navy);
+        color: var(--ca-navy);
+        font-weight: 700;
+        padding-left: 19px;
+    }
+
+/* Step dot */
+.ca-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.58rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.ca-dot-done {
+    background: var(--ca-success);
+    color: #fff;
+}
+
+.ca-dot-current {
+    background: var(--ca-navy);
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(29, 95, 214, 0.18);
+}
+
+.ca-dot-pending {
+    background: #f1f5f9;
+    border: 1.5px solid #cbd5e1;
+    color: var(--ca-faint);
+}
+
+.ca-sb-check {
+    font-size: 0.7rem;
+    color: var(--ca-success);
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.ca-sb-label {
+    flex: 1;
+}
+
+/* Footer */
+.ca-sb-footer {
+    padding: 8px 18px;
+    border-top: 1px solid var(--ca-border);
+    flex-shrink: 0;
+    background: var(--ca-bg-tint);
+    text-align: center;
+}
+
+.ca-sb-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ca-navy);
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: var(--ca-radius-sm);
+    transition: background 0.15s, color 0.15s;
+}
+
+    .ca-sb-back:hover {
+        background: var(--ca-accent-bg);
+        text-decoration: none;
+        color: var(--ca-navy);
+    }
+
+    .ca-sb-back:focus-visible {
+        outline: 2px solid var(--ca-navy);
+        outline-offset: 2px;
+    }
+
+    /* Locked sidebar items */
+    .ca-sb-link.is-locked {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        margin: 3px 0;
+        color: #64748b;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: not-allowed;
+        opacity: 0.85;
+        text-decoration: none;
+        pointer-events: none;
+        transition: background 0.2s ease;
+    }
+
+    /* Keep the label readable */
+    .ca-sb-link.is-locked .ca-sb-label {
+        flex: 1;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    /* Lock icon */
+    .ca-sb-link.is-locked .bi-lock-fill {
+        color: #dc2626;
+        font-size: 13px;
+        background: #fee2e2;
+        padding: 5px;
+        border-radius: 50%;
+    }
+
+    /* Locked status dot */
+    .ca-sb-link.is-locked .ca-dot {
+        opacity: 0.5;
+    }
+
+    /* Disabled accordion headers */
+    .accordion-header:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+        background: #f1f5f9;
+    }
+
+
+@media (max-width: 991px) {
+    .ca-sb {
+        width: 100%;
+        max-width: none;
+        min-height: auto;
+        height: auto;
+        position: static;
+    }
+    /* The handle relies on absolute-positioning within a sticky box;
+                on mobile the sidebar stacks inline, so keep the handle but
+                let the rail collapse behaviour still apply for a compact view. */
+    .ca-sb-handle {
+        top: 10px;
+        right: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ca-sb-fill,
+    .accordion-content,
+    .toggle-icon,
+    .ca-sb-link,
+    .ca-sb-handle,
+    .ca-sb-handle i {
+        transition: none;
+    }
+}
+
+

@@ -25,17 +25,29 @@
 
                 <tr>
                     <th>Digital Library</th>
-                    <td>@Model.General.DigitalLibrary</td>
+                    <td>
+                        <span class="badge @(Model.General.DigitalLibrary == "Y" ? "bg-success" : "bg-danger")">
+                            @(Model.General.DigitalLibrary == "Y" ? "Available" : "Not Available")
+                        </span>
+                    </td>
                 </tr>
 
                 <tr>
                     <th>HELINET Services</th>
-                    <td>@Model.General.HelinetServices</td>
+                    <td>
+                        <span class="badge @(Model.General.HelinetServices == "Y" ? "bg-success" : "bg-danger")">
+                            @(Model.General.HelinetServices == "Y" ? "Available" : "Not Available")
+                        </span>
+                    </td>
                 </tr>
 
                 <tr>
                     <th>Department-wise Library</th>
-                    <td>@Model.General.DepartmentWiseLibrary</td>
+                    <td>
+                        <span class="badge @(Model.General.DepartmentWiseLibrary == "Y" ? "bg-success" : "bg-danger")">
+                            @(Model.General.DepartmentWiseLibrary == "Y" ? "Available" : "Not Available")
+                        </span>
+                    </td>
                 </tr>
 
             </tbody>
@@ -123,7 +135,11 @@
 
                 <tr>
                     <th style="width:40%">Independent Library Building</th>
-                    <td>@Model.Building.IsIndependent</td>
+                    <td>
+                        <span class="badge @(Model.Building.IsIndependent == "Y" ? "bg-success" : "bg-danger")">
+                            @(Model.Building.IsIndependent == "Y" ? "Available" : "Not Available")
+                        </span>
+                    </td>
                 </tr>
 
                 <tr>
@@ -215,11 +231,12 @@
                         @foreach (var item in Model.Equipments)
                         {
                             <tr>
-
                                 <td>@item.EquipmentName</td>
-
-                                <td class="text-center">@item.HasEquipment</td>
-
+                                <td class="text-center">
+                                    <span class="badge @(item.HasEquipment == "Y" ? "bg-success" : "bg-danger")">
+                                        @(item.HasEquipment == "Y" ? "Available" : "Not Available")
+                                    </span>
+                                </td>
                             </tr>
                         }
 
