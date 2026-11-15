@@ -17,6 +17,10 @@ public class PreviewReportPdf : IDocument
     private int _sectionNumber;
     private byte[]? _watermarkLogoBytes;
 
+    // Registration number from [Admission_Affiliation].[dbo].[ApplicationSubmission].[RegistrationNumber]
+    // (looked up by CollegeCode + CourseLevel + TypeOfAffiliation).
+    private string? _registrationNumber;
+
     // PG-only sections 08A - 08F (loaded in CAPreviewController via PgSectionLoader).
     private List<PgSectionGroup> _pgSections = new();
 
@@ -53,6 +57,12 @@ public class PreviewReportPdf : IDocument
     {
         _pgPresentIntake = presentIntake;
         _pgAdditionalSeats = additionalSeats;
+        return this;
+    }
+
+    public PreviewReportPdf WithRegistrationNumber(string? registrationNumber)
+    {
+        _registrationNumber = string.IsNullOrWhiteSpace(registrationNumber) ? null : registrationNumber.Trim();
         return this;
     }
 
@@ -216,6 +226,16 @@ public class PreviewReportPdf : IDocument
                     t.TotalPages();
                 });
             });
+
+            // Registration number below the footer line - shown on every page
+            if (_registrationNumber != null)
+            {
+                c.Item().PaddingTop(3).AlignCenter().Text(t =>
+                {
+                    t.Span("Registration No: ").FontSize(8).Bold().FontColor(_theme.Muted);
+                    t.Span(_registrationNumber).FontSize(8.5f).Bold().FontColor(_theme.Primary);
+                });
+            }
         });
     }
 
@@ -301,12 +321,20 @@ public class PreviewReportPdf : IDocument
                 c.Item().PaddingTop(3).Text("Jayanagar, Bengaluru, Karnataka 560041")
                     .FontSize(8.5f).FontColor("#CBD5E1");
 
-                //c.Item().PaddingTop(7).Row(r =>
-                //{
-                //    r.AutoItem().Background(_theme.Accent).CornerRadius(8)
-                //        .PaddingVertical(2).PaddingHorizontal(10)
-                //        .Text("AFFILIATION APPLICATION PREVIEW").FontSize(7.5f).Bold().FontColor(_theme.Primary);
-                //});
+                // Registration number badge - front page header
+                if (_registrationNumber != null)
+                {
+                    c.Item().PaddingTop(7).Row(r =>
+                    {
+                        r.AutoItem().Background(_theme.Accent).CornerRadius(8)
+                            .PaddingVertical(2).PaddingHorizontal(10)
+                            .Text(t =>
+                            {
+                                t.Span("REGISTRATION NO: ").FontSize(7.5f).Bold().FontColor(_theme.Primary);
+                                t.Span(_registrationNumber).FontSize(9).Bold().FontColor(_theme.Primary);
+                            });
+                    });
+                }
             });
         });
 
@@ -469,7 +497,7 @@ public class PreviewReportPdf : IDocument
     {
         var institute = _model?.AffInstituteDetails;
         if (institute == null) return;
-       
+
         AddMainHeading(col, "Trust Institution Details");
 
         AddInstituteTabSection(col, "Trust / Society Details", table =>
@@ -784,7 +812,7 @@ public class PreviewReportPdf : IDocument
                 foreach (var _ in headers)
                     columns.RelativeColumn();
             });
-            
+
             grid.Header(header =>
             {
                 header.Cell().Element(Th).AlignCenter().Text("#").FontSize(8);
@@ -938,7 +966,7 @@ public class PreviewReportPdf : IDocument
         if (academic.CourseCurriculumdvm != null && academic.CourseCurriculumdvm.Any())
         {
             AddSubHeading(col, "Course Curriculum");
-            
+
             col.Item().PaddingTop(2).Table(table =>
             {
                 table.ColumnsDefinition(columns =>

@@ -108,7 +108,13 @@
     string Num(int? v) => v.HasValue ? v.Value.ToString() : "—";
     string Dec(decimal? v) => v.HasValue ? v.Value.ToString("N2") : "—";
 
-    var completionPct = Math.Max(0, Math.Min(100, (int)Model.CompletionPercentage));
+    // Floor (not round) so 99.6% never counts as 100%.
+    var completionPct = Math.Max(0, Math.Min(100, (int)Math.Floor((double)Model.CompletionPercentage)));
+
+    // The Submit button and the consent modal are shown ONLY when the application is
+    // complete and the completion (same value as the sidebar) is 100%.
+    // The controller enforces the same rule again on the POST.
+    var canSubmit = !applicationReadOnly && completionPct >= 100 && Model.IsApplicationComplete;
 }
 
 <style>
@@ -1199,8 +1205,9 @@
                             <i class="bi bi-file-earmark-pdf-fill"></i> View / download final PDF
                         </a>
                     }
-                    else if (Model.IsApplicationComplete && Model.CompletionPercentage >= 100)
+                    else if (canSubmit)
                     {
+                        @* Shown ONLY when the sidebar completion is 100% *@
                         <button type="button" class="submit-application-btn" data-bs-toggle="modal" data-bs-target="#consentModal">
                             <i class="bi bi-send-check-fill"></i> Submit application
                         </button>
@@ -1982,62 +1989,65 @@
     </div>
 </div>
 
-<!-- ============ CONSENT MODAL ============ -->
-<div class="modal fade consent-modal" id="consentModal" tabindex="-1" aria-labelledby="consentModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
-                    <div class="consent-modal-eyebrow"><i class="bi bi-bank2"></i> RGUHS · Continuous Affiliation</div>
-                    <h2 class="modal-title" id="consentModalTitle">Declaration and consent</h2>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body consent-body">
-                @{
-                    var declPrincipal = Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Name)
-                        ? Model.InstitutionDetails.Principal_Name
-                        : "the Principal";
-                    var declInstitution = Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.NameOfInstitution)
-                        ? Model.InstitutionDetails.NameOfInstitution
-                        : "this institution";
-                }
-                <p>
-                    I, <strong>@declPrincipal</strong>, Principal of <strong>@declInstitution</strong>, hereby solemnly declare and undertake
-                    that all documents, particulars, statements, declarations and information furnished or uploaded by the College in this
-                    application are true, complete, accurate and correct to the best of my knowledge and belief.
-                </p>
-                <p>
-                    I further undertake that no material information has been concealed, suppressed or misrepresented in this application.
-                    I understand that any false, misleading, fabricated, incomplete or incorrect information or documentation furnished by
-                    the College may result in rejection or cancellation of the application, withdrawal of affiliation/approval, or such other
-                    action as may be taken by Rajiv Gandhi University of Health Sciences, Karnataka (RGUHS) in accordance with the applicable
-                    rules, regulations, ordinances and notifications.
-                </p>
-                <div class="preview-caution">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <span><strong>Before you proceed:</strong> close this dialog and scroll through every section of the preview, then return here, tick the consent box and click Submit. Consent is mandatory.</span>
-                </div>
-                @if (TempData["PreviewError"] != null)
-                {
-                    <div class="alert alert-danger">@TempData["PreviewError"]</div>
-                }
-
-                <form id="consentForm" asp-controller="CAPreview" asp-action="SubmitApplication" method="post" target="_blank">
-                    @Html.AntiForgeryToken()
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="declarationConsent" name="declarationConsent" value="true" />
-                        <label class="form-check-label" for="declarationConsent">I confirm and consent to submit the affiliation application.</label>
+@if (canSubmit)
+{
+    <!-- ============ CONSENT MODAL (rendered only when completion is 100%) ============ -->
+    <div class="modal fade consent-modal" id="consentModal" tabindex="-1" aria-labelledby="consentModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <div class="consent-modal-eyebrow"><i class="bi bi-bank2"></i> RGUHS · Continuous Affiliation</div>
+                        <h2 class="modal-title" id="consentModalTitle">Declaration and consent</h2>
                     </div>
-                    <button type="submit" id="generatePreviewPdf" class="pdf-action" disabled>
-                        <i class="bi bi-send-check-fill"></i> Submit application
-                    </button>
-                    <div class="pdf-hint">Tick the consent box to enable this button.</div>
-                </form>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body consent-body">
+                    @{
+                        var declPrincipal = Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.Principal_Name)
+                            ? Model.InstitutionDetails.Principal_Name
+                            : "the Principal";
+                        var declInstitution = Model.InstitutionDetails != null && !string.IsNullOrWhiteSpace(Model.InstitutionDetails.NameOfInstitution)
+                            ? Model.InstitutionDetails.NameOfInstitution
+                            : "this institution";
+                    }
+                    <p>
+                        I, <strong>@declPrincipal</strong>, Principal of <strong>@declInstitution</strong>, hereby solemnly declare and undertake
+                        that all documents, particulars, statements, declarations and information furnished or uploaded by the College in this
+                        application are true, complete, accurate and correct to the best of my knowledge and belief.
+                    </p>
+                    <p>
+                        I further undertake that no material information has been concealed, suppressed or misrepresented in this application.
+                        I understand that any false, misleading, fabricated, incomplete or incorrect information or documentation furnished by
+                        the College may result in rejection or cancellation of the application, withdrawal of affiliation/approval, or such other
+                        action as may be taken by Rajiv Gandhi University of Health Sciences, Karnataka (RGUHS) in accordance with the applicable
+                        rules, regulations, ordinances and notifications.
+                    </p>
+                    <div class="preview-caution">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span><strong>Before you proceed:</strong> close this dialog and scroll through every section of the preview, then return here, tick the consent box and click Submit. Consent is mandatory.</span>
+                    </div>
+                    @if (TempData["PreviewError"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["PreviewError"]</div>
+                    }
+
+                    <form id="consentForm" asp-controller="CAPreview" asp-action="SubmitApplication" method="post" target="_blank">
+                        @Html.AntiForgeryToken()
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="declarationConsent" name="declarationConsent" value="true" />
+                            <label class="form-check-label" for="declarationConsent">I confirm and consent to submit the affiliation application.</label>
+                        </div>
+                        <button type="submit" id="generatePreviewPdf" class="pdf-action" disabled>
+                            <i class="bi bi-send-check-fill"></i> Submit application
+                        </button>
+                        <div class="pdf-hint">Tick the consent box to enable this button.</div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -2097,7 +2107,7 @@
         if (ex) ex.addEventListener('click', function () { setAll(false); });
         if (co) co.addEventListener('click', function () { setAll(true); });
 
-        /* 4. Consent modal */
+        /* 4. Consent modal (only exists in the page when completion is 100%) */
         var consent = document.getElementById('declarationConsent');
         var pdfAction = document.getElementById('generatePreviewPdf');
         if (consent && pdfAction) {
@@ -2113,7 +2123,7 @@
         }
         @if (TempData["PreviewError"] != null)
         {
-                        <text>if (consentModal) { consentModal.show(); }</text>
+                            <text>if (consentModal) { consentModal.show(); }</text>
         }
     });
 </script>

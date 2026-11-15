@@ -3208,22 +3208,24 @@ namespace Medical_Affiliation.Controllers
             var facultyCode = User.FindFirst("FacultyCode")?.Value;
             var collegeCode = User.FindFirst("CollegeCode")?.Value;
 
-            //if (string.IsNullOrWhiteSpace(courseLevel))
-            //    return RedirectToAction("Dashboard", "Collegelogin");
-
             if (string.IsNullOrWhiteSpace(facultyCode) || string.IsNullOrWhiteSpace(collegeCode))
                 return BadRequest("Session expired. FacultyCode / CollegeCode not found. Please login again.");
 
-            // 2. Try to load existing record
+            // 3. Try to load existing record (ONE row per faculty + college)
             var entity = _context.AffInstitutionsDetails
                 .FirstOrDefault(x =>
-                    (x.FacultyCode ?? "").Trim().ToLower() == (facultyCode ?? "").Trim().ToLower()
+                    (x.FacultyCode ?? "").Trim().ToLower() == facultyCode.Trim().ToLower()
                     &&
-                    (x.CollegeCode ?? "").Trim().ToLower() == (collegeCode ?? "").Trim().ToLower());
-            var GetCollegeName = _context.AffiliationCollegeMasters.Where(e => e.CollegeCode == collegeCode).FirstOrDefault();
-            HttpContext.Session.SetString("CollegeName", GetCollegeName.CollegeName);
+                    (x.CollegeCode ?? "").Trim().ToLower() == collegeCode.Trim().ToLower());
 
-            // 3. Build view model
+            var getCollegeName = _context.AffiliationCollegeMasters
+                .Where(e => e.CollegeCode == collegeCode)
+                .FirstOrDefault();
+
+            var collegeNameValue = getCollegeName?.CollegeName ?? string.Empty;
+            HttpContext.Session.SetString("CollegeName", collegeNameValue);
+
+            // 4. Build view model
             InstitutionViewModel vm;
 
             if (entity == null)
@@ -3233,8 +3235,7 @@ namespace Medical_Affiliation.Controllers
                 {
                     FacultyCode = facultyCode,
                     CollegeCode = collegeCode,
-                    //CourseLevel = courseLevel,
-                    NameOfInstitution = GetCollegeName.CollegeName,
+                    NameOfInstitution = collegeNameValue,
                 };
             }
             else
@@ -3248,6 +3249,7 @@ namespace Medical_Affiliation.Controllers
 
             var otherHealthColleges = _context.OtherHealthScienceColleges
                 .Where(x => x.CollegeCode == collegeCode)
+                .OrderBy(x => x.Id)
                 .ToList();
 
             if (otherHealthColleges.Any())
@@ -3267,9 +3269,7 @@ namespace Medical_Affiliation.Controllers
                         OtherCourseCode = item.CourseCode
                     };
 
-                    // -----------------------------
                     // Faculty dropdown
-                    // -----------------------------
                     row.FacultyList = _context.Faculties
                         .Select(f => new SelectListItem
                         {
@@ -3278,10 +3278,7 @@ namespace Medical_Affiliation.Controllers
                         })
                         .ToList();
 
-                    // -----------------------------
-                    // College dropdown
-                    // Based on selected Faculty
-                    // -----------------------------
+                    // College dropdown (based on selected Faculty)
                     row.CollegeList = _context.AffiliationCollegeMasters
                         .Where(c => c.FacultyCode == item.FacultyId.ToString())
                         .Select(c => new SelectListItem
@@ -3291,10 +3288,7 @@ namespace Medical_Affiliation.Controllers
                         })
                         .ToList();
 
-                    // -----------------------------
-                    // Course dropdown
-                    // Based on selected Faculty
-                    // -----------------------------
+                    // Course dropdown (based on selected Faculty)
                     row.CourseList = _context.MstCourses
                         .Where(c => c.FacultyCode == item.FacultyId)
                         .Select(c => new SelectListItem
@@ -3332,18 +3326,18 @@ namespace Medical_Affiliation.Controllers
 
 
             var existingTrustDetails = _context.InstitutionBasicDetails
-                    .Where(x => (x.FacultyCode ?? "").Trim().ToLower() == (facultyCode ?? "").Trim().ToLower()
+                    .Where(x => (x.FacultyCode ?? "").Trim().ToLower() == facultyCode.Trim().ToLower()
                     &&
-                    (x.CollegeCode ?? "").Trim().ToLower() == (collegeCode ?? "").Trim().ToLower()).FirstOrDefault();
+                    (x.CollegeCode ?? "").Trim().ToLower() == collegeCode.Trim().ToLower())
+                    .FirstOrDefault();
 
-            if(existingTrustDetails != null && facultyCode == "2")
+            if (existingTrustDetails != null && facultyCode == "2")
             {
                 vm.hasAadhaarFile = !string.IsNullOrWhiteSpace(existingTrustDetails.AadhaarFilePath);
             }
 
             return View(vm);
         }
-
 
         // ─────────────────────────────────────────────────────────────────────────────
         // POST: Institution/Institution_Details
@@ -3398,15 +3392,6 @@ namespace Medical_Affiliation.Controllers
                 }
             }
 
-            var errors = ModelState
-                        .Where(x => x.Value.Errors.Count > 0)
-                        .Select(x => new
-                        {
-                            Field = x.Key,
-                            Errors = x.Value.Errors.Select(e => e.ErrorMessage)
-                        })
-                        .ToList();
-
             // 3. Return view with errors if validation fails
             if (!ModelState.IsValid)
             {
@@ -3415,12 +3400,15 @@ namespace Medical_Affiliation.Controllers
                 return View(vm);
             }
 
-            // 4. Load existing entity or create new one
+            // 4. Load existing entity or create new one.
+            //    ✅ FIX: use the SAME lookup as the GET action (faculty + college only).
+            //    Previously the POST also filtered on CourseLevel, so when the session
+            //    CourseLevel was null / different, no row was found and a NEW row was
+            //    inserted on every save, while the GET kept showing the old row.
             var entity = _context.AffInstitutionsDetails
                 .FirstOrDefault(x =>
-                    x.FacultyCode == vm.FacultyCode &&
-                    x.CollegeCode == vm.CollegeCode &&
-                    x.CourseLevel == courseLevel);
+                    (x.FacultyCode ?? "").Trim().ToLower() == facultyCode.Trim().ToLower() &&
+                    (x.CollegeCode ?? "").Trim().ToLower() == collegeCode.Trim().ToLower());
 
             bool isNew = entity == null;
 
@@ -3434,10 +3422,15 @@ namespace Medical_Affiliation.Controllers
                 };
                 _context.AffInstitutionsDetails.Add(entity);
             }
+            else if (string.IsNullOrWhiteSpace(entity.CourseLevel) && !string.IsNullOrWhiteSpace(courseLevel))
+            {
+                // Back-fill only when the stored value is empty; never create another row
+                entity.CourseLevel = courseLevel;
+            }
 
             // 5. Handle document upload
             if (documentFile != null && documentFile.Length > 0)
-            {       
+            {
                 string rootPath = entity.FacultyCode == "2"
                     ? BaseDentalPath
                     : BaseMedicalPath;
@@ -3503,7 +3496,7 @@ namespace Medical_Affiliation.Controllers
                     (x.CollegeCode ?? "").Trim().ToLower() == (vm.CollegeCode ?? "").Trim().ToLower()).FirstOrDefaultAsync();
 
             // ================================
-            // Gov Autonomous Certificate Upload
+            // Trust Aadhaar Upload
             // ================================
             if (existingTrustDetails != null && AadhaarFile != null && AadhaarFile.Length > 0)
             {
@@ -3567,29 +3560,17 @@ namespace Medical_Affiliation.Controllers
             // 6. Map all ViewModel fields → Entity
             MapViewModelToEntity(vm, entity);
 
-            // ✅ Fix: write checkboxes directly to entity after MapViewModelToEntity
-            // bypasses model binder's false values completely
+            // Write checkboxes directly to entity after MapViewModelToEntity
+            // (bypasses model binder's false values with multipart/form-data)
             entity.MinorityInstitute = Request.Form["MinorityInstitute"].Contains("true");
             entity.AttachedToMedicalClg = Request.Form["AttachedToMedicalClg"].Contains("true");
             entity.RuralInstitute = Request.Form["RuralInstitute"].Contains("true");
 
             // ============================================================
             // SAVE OTHER HEALTH SCIENCE COLLEGES
+            // ✅ FIX: UPDATE existing rows by Id, INSERT only brand-new rows.
+            //    (Before, every save re-inserted all rows → duplicates.)
             // ============================================================
-
-            // First remove existing records for this institution
-            //var existingOtherColleges = await _context.OtherHealthScienceColleges
-            //    .Where(x =>
-            //        x.CollegeCode == collegeCode)
-            //    .ToListAsync();
-
-            //if (existingOtherColleges.Any())
-            //{
-            //    _context.OtherHealthScienceColleges.RemoveRange(existingOtherColleges);
-            //}
-
-
-            // Save new records only when YES is selected
             if (vm.HasOtherHealthScienceColleges == true &&
                 vm.OtherHealthScienceColleges != null &&
                 vm.OtherHealthScienceColleges.Any())
@@ -3604,16 +3585,33 @@ namespace Medical_Affiliation.Controllers
                         continue;
                     }
 
-                    var otherCollege = new OtherHealthScienceCollege
-                    {
-                        CollegeCode = collegeCode,
-                        FacultyId = item.OtherFacultyId.Value,
-                        OtherCollegeCode = item.OtherCollegeCode,
-                        CourseCode = item.OtherCourseCode.Value,
-                        CreatedOn = DateTime.Now
-                    };
+                    OtherHealthScienceCollege? other = null;
 
-                    _context.OtherHealthScienceColleges.Add(otherCollege);
+                    if (item.Id > 0)
+                    {
+                        other = await _context.OtherHealthScienceColleges
+                            .FirstOrDefaultAsync(x => x.Id == item.Id && x.CollegeCode == collegeCode);
+                    }
+
+                    if (other != null)
+                    {
+                        // UPDATE the same row
+                        other.FacultyId = item.OtherFacultyId.Value;
+                        other.OtherCollegeCode = item.OtherCollegeCode;
+                        other.CourseCode = item.OtherCourseCode.Value;
+                    }
+                    else
+                    {
+                        // INSERT only genuinely new rows
+                        _context.OtherHealthScienceColleges.Add(new OtherHealthScienceCollege
+                        {
+                            CollegeCode = collegeCode,
+                            FacultyId = item.OtherFacultyId.Value,
+                            OtherCollegeCode = item.OtherCollegeCode,
+                            CourseCode = item.OtherCourseCode.Value,
+                            CreatedOn = DateTime.Now
+                        });
+                    }
                 }
             }
 
@@ -3621,7 +3619,6 @@ namespace Medical_Affiliation.Controllers
             try
             {
                 _context.SaveChanges();
-                //ContinuousAffiliationController.MarkDone(HttpContext, "Institution");
             }
             catch (DbUpdateException ex)
             {
@@ -3660,13 +3657,12 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("aff_institutedetails", "ContinuesAffiliation_Facultybased");
             }
         }
-
         [HttpDelete]
         public async Task<IActionResult> DeleteOtherHealthScienceCollege(int id)
         {
             var entity = await _context.OtherHealthScienceColleges.FirstOrDefaultAsync(e => e.Id == id);
 
-            if(entity == null)
+            if (entity == null)
             {
                 return NotFound(new
                 {
@@ -3681,7 +3677,7 @@ namespace Medical_Affiliation.Controllers
             return Ok(new
             {
                 success = true,
-                message = "Other health science college deleted successfullly."
+                message = "Other health science college deleted successfully."
             });
         }
 

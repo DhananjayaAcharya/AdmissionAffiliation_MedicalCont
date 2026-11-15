@@ -42,6 +42,19 @@ namespace Medical_Affiliation.Controllers
             ?? HttpContext.Session.GetString("SelectedCourseLevel")
             ?? string.Empty).Trim().ToUpperInvariant();
 
+        // ------------------------------------------------------------------
+        // Single rule used everywhere (Preview page button, Submit, PDF):
+        // the application can be submitted ONLY when it is complete AND the
+        // completion percentage (the value shown in the sidebar) is 100.
+        // Floor is used so 99.6% never counts as 100%.
+        // ------------------------------------------------------------------
+        private static bool IsReadyToSubmit(CApreviewViewModel? model)
+        {
+            if (model == null) return false;
+            return model.IsApplicationComplete
+                && Math.Floor((double)model.CompletionPercentage) >= 100;
+        }
+
         public async Task<IActionResult> Preview()
         {
             var requestedCourseLevel = Request.Query["courseLevel"].FirstOrDefault();
@@ -398,9 +411,10 @@ namespace Medical_Affiliation.Controllers
         {
             var completion = await _capreviewService.GetPreviewAsync();
 
-            if (!completion.IsApplicationComplete)
+            // Submit / PDF only when the application is complete AND the completion is 100%.
+            if (!IsReadyToSubmit(completion))
             {
-                TempData["PreviewError"] = $"Complete the application sections before submitting. Current completion: {completion.CompletionPercentage}%.";
+                TempData["PreviewError"] = $"Complete all application sections (100%) before submitting. Current completion: {completion.CompletionPercentage}%.";
                 return RedirectToAction(nameof(Preview));
             }
 
@@ -566,9 +580,23 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> SubmitApplication(bool declarationConsent, IFormFile? sealedSignedReupload)
         {
             var completion = await _capreviewService.GetPreviewAsync();
-            if (!completion.IsApplicationComplete)
+
+            // Server-side guard: the Submit button is only shown at 100%, but a direct POST
+            // must be rejected too. An already-submitted application is allowed through so the
+            // final PDF can still be opened (handled further below).
+            var alreadyCollege = (completion.CollegeCode ?? HttpContext.Session.GetString("CollegeCode"))?.Trim();
+            var alreadyType = (completion.ApplicationType ?? HttpContext.Session.GetString("TypeOfAffiliation"))?.Trim();
+            var alreadyLevel = (completion.ApplyingCourseLevel
+                ?? HttpContext.Session.GetString("CourseLevel")
+                ?? HttpContext.Session.GetString("SelectedCourseLevel"))?.Trim();
+            var alreadySubmitted = !string.IsNullOrWhiteSpace(alreadyCollege)
+                && !string.IsNullOrWhiteSpace(alreadyType)
+                && !string.IsNullOrWhiteSpace(alreadyLevel)
+                && await HasSubmittedApplicationAsync(alreadyCollege, alreadyType, alreadyLevel);
+
+            if (!alreadySubmitted && !IsReadyToSubmit(completion))
             {
-                TempData["PreviewError"] = $"Complete the application sections before submitting. Current completion: {completion.CompletionPercentage}%.";
+                TempData["PreviewError"] = $"Complete all application sections (100%) before submitting. Current completion: {completion.CompletionPercentage}%.";
                 return RedirectToAction(nameof(Preview));
             }
 
@@ -764,6 +792,62 @@ namespace Medical_Affiliation.Controllers
             }
 
             throw new InvalidOperationException("Unable to generate a unique registration number.");
+        }
+
+        // ------------------------------------------------------------------
+        // Registration number shown in the PDF (front-page header + every page footer).
+        // Source: dbo.ApplicationSubmission.RegistrationNumber, matched on
+        // CollegeCode + CourseLevel + TypeOfAffiliation.
+        // Read-only: it never generates a number. Returns null when the application
+        // has not been submitted yet, so the PDF simply omits the registration line.
+        // ------------------------------------------------------------------
+        private async Task<string?> LoadRegistrationNumberAsync(CApreviewViewModel model)
+        {
+            var collegeCode = (model.CollegeCode ?? CurrentCollegeCode)?.Trim();
+            var courseLevel = (!string.IsNullOrWhiteSpace(CurrentCourseLevel)
+                    ? CurrentCourseLevel
+                    : model.ApplyingCourseLevel ?? string.Empty)
+                .Trim().ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(collegeCode) || string.IsNullOrWhiteSpace(courseLevel))
+                return null;
+
+            // Candidate values for TypeOfAffiliation, most reliable first
+            var typeCandidates = new[]
+            {
+                model.ApplicationType,
+                HttpContext.Session.GetString("TypeOfAffiliation")
+            }
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Select(v => v!.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+            try
+            {
+                foreach (var type in typeCandidates)
+                {
+                    var regNo = await _context.Database.SqlQuery<string>($@"
+                        SELECT TOP (1) LTRIM(RTRIM(RegistrationNumber)) AS [Value]
+                        FROM dbo.ApplicationSubmission
+                        WHERE LTRIM(RTRIM(CAST(CollegeCode AS varchar(50)))) = {collegeCode}
+                          AND LTRIM(RTRIM(TypeOfAffiliation)) = {type}
+                          AND UPPER(LTRIM(RTRIM(CourseLevel))) = {courseLevel}
+                          AND ISNULL(LTRIM(RTRIM(RegistrationNumber)), '') <> ''
+                        ORDER BY CreatedOn DESC, Id DESC").FirstOrDefaultAsync();
+
+                    if (!string.IsNullOrWhiteSpace(regNo))
+                        return regNo;
+                }
+            }
+            catch (SqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Registration lookup failed: {ex.Message}");
+            }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"Registration number not found. College='{collegeCode}', Level='{courseLevel}', Types=[{string.Join(" | ", typeCandidates)}]");
+            return null;
         }
 
         private async Task<PaymentCalculationViewModel> GetPaymentCalculationAsync()
@@ -1242,8 +1326,9 @@ namespace Medical_Affiliation.Controllers
             // present, the flat tables get a leading "Department" column with the department name.
             var pgSections = await LoadPgSectionsAsync(model);
 
-            // Section 08 (PG Course Affiliation) data for the PDF. Uncomment once
-            // PreviewReportPdf has a WithPgCourseAffiliation(List<PgSectionTable>) method:
+            // Section 08 (PG Course Affiliation) data for the PDF. PreviewReportPdf now has
+            // WithPgCourseAffiliation(List<PgSectionTable>); uncomment the next line and the
+            // matching chained call below to enable it:
             // var pgCourseTables = await LoadPgCourseAffiliationAsync(model);
 
             // Section 12 (Associated Institutions) data for the PDF. Pass it to PreviewReportPdf
@@ -1255,7 +1340,13 @@ namespace Medical_Affiliation.Controllers
             // has a method for it, e.g. .WithPgAcademic(pgAcademicTable):
             var pgAcademicTable = await LoadPgAcademicPerformanceAsync(model);
 
-            var pdf = new PreviewReportPdf(model, logoBytes, clglogoBytes).WithPgSections(pgSections);
+            // Registration number: front-page header + footer on every page.
+            // Matched on college code + course level + type of affiliation.
+            var registrationNumber = await LoadRegistrationNumberAsync(model);
+
+            var pdf = new PreviewReportPdf(model, logoBytes, clglogoBytes)
+                .WithPgSections(pgSections)
+                .WithRegistrationNumber(registrationNumber);
             // .WithPgCourseAffiliation(pgCourseTables)
             // .WithAssociatedInstitutions(associatedInstitutions)
             // .WithPgAcademic(pgAcademicTable);

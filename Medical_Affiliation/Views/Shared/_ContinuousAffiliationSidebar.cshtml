@@ -217,6 +217,35 @@
         doneSteps.RemoveAll(step => string.Equals(step, "IntakeDetails", StringComparison.OrdinalIgnoreCase));
     }
 
+    // ------------------------------------------------------------------
+    // PG / SS: "Land & Building" (Medical_LandBuildingdetails) and
+    // "Classroom & Laboratory" (Medical_SkillsLaboratory) are OPTIONAL.
+    // They are filled by default (green tick), never block completion and
+    // are excluded from the completion percentage (see excludedProgressKeys).
+    // ------------------------------------------------------------------
+    bool isSsLevel = ShowSSTab
+                     || (!string.IsNullOrWhiteSpace(courseLevelForIntake)
+                         && (courseLevelForIntake.StartsWith("SS")
+                             || courseLevelForIntake.Contains("SUPER SPECIALTY")
+                             || courseLevelForIntake.Contains("SUPER SPECIALITY")));
+    bool isPgOrSsLevel = isPgLevel || isSsLevel;
+
+    var optionalForPgSsKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "LandBuilding", "SkillsLab", "DentalSkillsLab"
+    };
+
+    if (isPgOrSsLevel)
+    {
+        foreach (var optionalKey in optionalForPgSsKeys)
+        {
+            if (!doneSteps.Contains(optionalKey, StringComparer.OrdinalIgnoreCase))
+            {
+                doneSteps.Add(optionalKey);
+            }
+        }
+    }
+
     // Faculty details are optional for continuous affiliation and should not
     // block completion when the page has not been submitted.
     if (!doneSteps.Contains("FacultyDetails"))
@@ -488,6 +517,17 @@
         "CourseGeneralDetails", "CourseInfrastructureDetails", "CourseSummaryDetails",
         "CourseAcademicActivities", "CourseServicesWorkload", "CourseStaffDetails"
     };
+
+    // NEW: PG / SS — Land & Building and Classroom & Laboratory are optional,
+    // so they do not count toward the completion percentage.
+    if (isPgOrSsLevel)
+    {
+        foreach (var optionalKey in optionalForPgSsKeys)
+        {
+            excludedProgressKeys.Add(optionalKey);
+        }
+    }
+
     if (isDental)
     {
         // Chair Distribution — right after Classroom & Laboratory
@@ -1080,6 +1120,20 @@
         flex: 1;
     }
 
+    /* NEW: "Optional" tag for PG / SS optional steps */
+    .ca-sb-optional {
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ca-navy);
+        background: var(--ca-accent-bg);
+        border: 1px solid var(--ca-border);
+        border-radius: 999px;
+        padding: 1px 7px;
+        flex-shrink: 0;
+    }
+
     /* Footer */
     .ca-sb-footer {
         padding: 8px 18px;
@@ -1212,6 +1266,7 @@
                             var isActive = string.Equals(currentCtrl, step.Ctrl, StringComparison.OrdinalIgnoreCase)
                                            && string.Equals(currentAct, step.Act, StringComparison.OrdinalIgnoreCase);
                             var isDone = doneSteps.Contains(step.Key);
+                            var isOptionalStep = isPgOrSsLevel && optionalForPgSsKeys.Contains(step.Key);
 
                             string dotCls = isActive ? "ca-dot ca-dot-current" : isDone ? "ca-dot ca-dot-done" : "ca-dot ca-dot-pending";
                             string linkCls = "ca-sb-link" + (isActive ? " is-active" : "");
@@ -1248,6 +1303,10 @@
                                         }
                                     </span>
                                     <span class="ca-sb-label">@step.Label</span>
+                                    @if (isOptionalStep)
+                                    {
+                                        <span class="ca-sb-optional">Optional</span>
+                                    }
                                     @if (isDone && !isActive)
                                     {
                                         <span class="ca-sb-check" aria-hidden="true">&#10003;</span>

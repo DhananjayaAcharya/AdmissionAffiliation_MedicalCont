@@ -18,6 +18,9 @@
     }
     .Select(x => x?.ToString())
     .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x)) ?? "";
+
+    // Set by the save actions when something could not be saved (shown as an error dialog)
+    var flashError = TempData["PgError"]?.ToString() ?? "";
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -265,6 +268,19 @@
             outline: 3px solid rgba(20,86,196,.25);
             border-color: var(--blue);
         }
+
+        /* Read-only values (sanctioned intake comes from the college's 2026-27 intake and cannot be edited) */
+        .pgc-input[readonly] {
+            background: #f2f5fa;
+            color: var(--muted);
+            border-style: dashed;
+            cursor: not-allowed;
+        }
+
+            .pgc-input[readonly]:focus {
+                outline: none;
+                border-color: #b9c5d9;
+            }
 
     .pgc-input--num {
         max-width: 130px;
@@ -728,7 +744,12 @@
                                         <input type="hidden" name="PgCoursesGOK[@gokIndex].CollegeIntake" value="@course.CollegeIntake" />
                                         <input type="hidden" name="PgCoursesGOK[@gokIndex].RguhsIntake" value="@course.RguhsIntake" />
                                     </td>
-                                    <td class="num">@course.RguhsIntake</td>
+                                    <td class="num">
+                                        <input type="number" class="pgc-input pgc-input--num" value="@course.RguhsIntake"
+                                               readonly tabindex="-1"
+                                               title="Taken from the 2026-27 intake. This value cannot be edited."
+                                               aria-label="Sanctioned intake (read only), @course.CourseName" />
+                                    </td>
                                     <td>
                                         <input type="date" class="pgc-input" name="PgCoursesGOK[@gokIndex].DateofGOK"
                                                aria-label="Date of GOK, @course.CourseName"
@@ -768,7 +789,7 @@
                 </div>
 
                 <div class="pgc-sheet-foot">
-                    <p class="pgc-hint">PDF only, up to 1 MB per document.</p>
+                    <p class="pgc-hint">PDF only, up to 1 MB per document. Sanctioned intake is the college's 2026-27 intake and cannot be edited.</p>
                     <button type="submit" class="pgc-btn pgc-btn-primary">
                         <i class="bi bi-check2-circle" aria-hidden="true"></i> Save GOK details
                     </button>
@@ -816,9 +837,11 @@
                                         <input type="hidden" name="PgCoursesRguhs[@rguhsIndex].CoursePrefix" value="@course.CoursePrefix" />
                                     </td>
                                     <td class="num">
-                                        <input type="number" class="pgc-input pgc-input--num" min="0"
+                                        <input type="number" class="pgc-input pgc-input--num"
                                                name="PgCoursesRguhs[@rguhsIndex].RguhsIntake" value="@course.RguhsIntake"
-                                               aria-label="Sanctioned intake, @course.CourseName" />
+                                               readonly tabindex="-1"
+                                               title="Taken from the 2026-27 intake. This value cannot be edited."
+                                               aria-label="Sanctioned intake (read only), @course.CourseName" />
                                     </td>
                                     <td>
                                         <div class="pgc-upload">
@@ -849,7 +872,7 @@
                 </div>
 
                 <div class="pgc-sheet-foot">
-                    <p class="pgc-hint">PDF only, up to 1 MB per document.</p>
+                    <p class="pgc-hint">PDF only, up to 1 MB per document. Sanctioned intake is the college's 2026-27 intake and cannot be edited.</p>
                     <button type="submit" class="pgc-btn pgc-btn-primary">
                         <i class="bi bi-check2-circle" aria-hidden="true"></i> Save RGUHS details
                     </button>
@@ -1143,9 +1166,19 @@
         refreshNmc();
         }
 
-        // Save confirmation from the previous request
+        // Save result from the previous request
+        var flashError = @Html.Raw(Json.Serialize(flashError));
         var flash = @Html.Raw(Json.Serialize(flashMessage));
-        if (flash && window.Swal) {
+        if (flashError) {
+        if (window.Swal) {
+        Swal.fire({
+        icon: 'error', title: 'Not saved',
+        html: '<div id="pgcErr" style="text-align:left;white-space:pre-line"></div>',
+        didOpen: function () { document.getElementById('pgcErr').textContent = flashError; },
+        confirmButtonColor: '#1456c4'
+        });
+        } else { alert(flashError); }
+        } else if (flash && window.Swal) {
         Swal.fire({ icon: 'success', title: 'Saved', text: flash, timer: 3500, timerProgressBar: true, showConfirmButton: false });
         }
         })();

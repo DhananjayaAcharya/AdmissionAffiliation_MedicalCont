@@ -17,985 +17,970 @@
     <title>Institution Details</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --ink: #0f1923;
-            --ink-mid: #2e3d4f;
-            --ink-muted: #6b7a8d;
-            --institution-name: #051f40;
-            --border: #d4dae3;
-            --bg: #f4f6f9;
-            --surface: #ffffff;
-            --accent: #1a4c8b;
-            --accent-lt: #e8edf7;
-            --danger: #c0392b;
-            --gold: #c9a84c;
-            --radius: 10px;
-            --shadow: 0 2px 16px rgba(15,25,35,.07);
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            min-height: 100vh;
-        }
-
-        /* PAGE HEADER */
-        .page-header {
-            background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
-            padding: 1rem 2rem .6rem;
-            display: flex;
-            align-items: center;
-            position: fixed;
-            width: 100%;
-            z-index: 5;
-            gap: 18px;
-            border-bottom: 3px solid var(--gold);
-        }
-
-            .page-header .emblem {
-                width: 54px;
-                height: 54px;
-                border: 2px solid var(--gold);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
             }
 
-                .page-header .emblem svg {
-                    width: 28px;
-                    height: 28px;
-                    fill: var(--gold);
-                }
-
-        .page-header-text h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
-            color: #fff;
-            letter-spacing: .05em;
-        }
-
-        .page-header-text p {
-            font-size: .6rem;
-            color: rgba(255,255,255,.55);
-            margin-top: 1px;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-        }
-
-        .college-name {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 4px;
-        }
-
-        .page-header-text h4 {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        /* MAIN LAYOUT - single column */
-        .form-wrap {
-            max-width: 1240px;
-            margin: 32px auto;
-            padding: 5rem 12px 0;
-        }
-
-        /* SECTION CARDS */
-        .section-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            margin-bottom: 20px;
-            animation: fadeUp .35s ease both;
-        }
-        @@keyframes fadeUp {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(12px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        }
-
-        .section-card:nth-child(1) {
-            animation-delay: .04s;
-        }
-
-        .section-card:nth-child(2) {
-            animation-delay: .08s;
-        }
-
-        .section-card:nth-child(3) {
-            animation-delay: .12s;
-        }
-
-        .section-card:nth-child(4) {
-            animation-delay: .16s;
-        }
-
-        .section-card:nth-child(5) {
-            animation-delay: .20s;
-        }
-
-        .section-card:nth-child(6) {
-            animation-delay: .24s;
-        }
-
-        .section-header {
-            padding: 13px 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
-            .section-header .icon-wrap {
-                width: 30px;
-                height: 30px;
-                border-radius: 7px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+            :root {
+                --ink: #0f1923;
+                --ink-mid: #2e3d4f;
+                --ink-muted: #6b7a8d;
+                --institution-name: #051f40;
+                --border: #d4dae3;
+                --bg: #f4f6f9;
+                --surface: #ffffff;
+                --accent: #1a4c8b;
+                --accent-lt: #e8edf7;
+                --danger: #c0392b;
+                --gold: #c9a84c;
+                --radius: 10px;
+                --shadow: 0 2px 16px rgba(15,25,35,.07);
             }
 
-                .section-header .icon-wrap svg {
-                    width: 15px;
-                    height: 15px;
+            body {
+                font-family: 'DM Sans', sans-serif;
+                background: var(--bg);
+                color: var(--ink);
+                min-height: 100vh;
+            }
+
+            /* PAGE HEADER */
+            .page-header {
+                background: linear-gradient(135deg, #0f1923 0%, #1a4c8b 100%);
+                padding: 1rem 2rem .6rem;
+                display: flex;
+                align-items: center;
+                position: fixed;
+                width: 100%;
+                z-index: 5;
+                gap: 18px;
+                border-bottom: 3px solid var(--gold);
+            }
+
+                .page-header .emblem {
+                    width: 54px;
+                    height: 54px;
+                    border: 2px solid var(--gold);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
                 }
 
-            .section-header h2 {
-                font-size: .82rem;
-                font-weight: 600;
-                letter-spacing: .04em;
+                    .page-header .emblem svg {
+                        width: 28px;
+                        height: 28px;
+                        fill: var(--gold);
+                    }
+
+            .page-header-text h1 {
+                font-family: 'Playfair Display', serif;
+                font-size: 1.3rem;
+                color: #fff;
+                letter-spacing: .05em;
+            }
+
+            .page-header-text p {
+                font-size: .6rem;
+                color: rgba(255,255,255,.55);
+                margin-top: 1px;
+                letter-spacing: .06em;
                 text-transform: uppercase;
             }
 
-        .sh-blue .icon-wrap {
-            background: #e8edf7;
-        }
-
-            .sh-blue .icon-wrap svg {
-                fill: #1a4c8b;
+            .college-name {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #fff;
+                margin-bottom: 4px;
             }
 
-        .sh-blue h2 {
-            color: #1a4c8b;
-        }
-
-        .sh-slate .icon-wrap {
-            background: #eef0f3;
-        }
-
-            .sh-slate .icon-wrap svg {
-                fill: #3d5166;
+            .page-header-text h4 {
+                font-size: 1rem;
+                font-weight: 700;
             }
 
-        .sh-slate h2 {
-            color: #3d5166;
-        }
-
-        .sh-teal .icon-wrap {
-            background: #e3f4f4;
-        }
-
-            .sh-teal .icon-wrap svg {
-                fill: #1a7f7a;
+            /* MAIN LAYOUT - single column */
+            .form-wrap {
+                max-width: 1240px;
+                margin: 32px auto;
+                padding: 5rem 12px 0;
             }
 
-        .sh-teal h2 {
-            color: #1a7f7a;
-        }
+            /* SECTION CARDS */
+            .section-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                overflow: hidden;
+                margin-bottom: 20px;
+                animation: fadeUp .35s ease both;
+            }
 
-        .section-body {
-            padding: 20px;
-        }
+            @@keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
 
-        /* FORM FIELDS */
-        .field-grid {
-            display: grid;
-            gap: 14px;
-            width: 100%;
-            margin-top: 1rem;
-        }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
 
-        .col-1 {
-            grid-template-columns: 1fr;
-        }
+            .section-card:nth-child(1) {
+                animation-delay: .04s;
+            }
 
-        .col-2 {
-            grid-template-columns: 1fr 1fr;
-        }
+            .section-card:nth-child(2) {
+                animation-delay: .08s;
+            }
 
-        .col-3 {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
+            .section-card:nth-child(3) {
+                animation-delay: .12s;
+            }
 
-        .col-4 {
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-        }
+            .section-card:nth-child(4) {
+                animation-delay: .16s;
+            }
 
-        /* ==========================================
-            OTHER HEALTH SCIENCE COLLEGE QUESTION
-            ========================================== */
+            .section-card:nth-child(5) {
+                animation-delay: .20s;
+            }
 
-        .other-health-question {
-            margin-top: 18px;
-        }
+            .section-card:nth-child(6) {
+                animation-delay: .24s;
+            }
 
-        .ohsc-question-card {
-            border: 1px solid #dbe3ef;
-            border-radius: 14px;
-            background: #ffffff;
-            overflow: hidden;
-            box-shadow: 0 4px 14px rgba(30, 50, 80, 0.06);
-        }
+            .section-header {
+                padding: 13px 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                border-bottom: 1px solid var(--border);
+            }
 
+                .section-header .icon-wrap {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 7px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
 
-        /* HEADER */
+                    .section-header .icon-wrap svg {
+                        width: 15px;
+                        height: 15px;
+                    }
 
-        .ohsc-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 18px 22px;
-            background: linear-gradient( 135deg, #f3f7ff, #eef4ff );
-            border-bottom: 1px solid #dce6f5;
-        }
+                .section-header h2 {
+                    font-size: .82rem;
+                    font-weight: 600;
+                    letter-spacing: .04em;
+                    text-transform: uppercase;
+                }
 
-        .ohsc-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #e2ebff;
-            color: #315bb5;
-            font-size: 20px;
-        }
+            .sh-blue .icon-wrap {
+                background: #e8edf7;
+            }
 
-        .ohsc-heading {
-            flex: 1;
-        }
+                .sh-blue .icon-wrap svg {
+                    fill: #1a4c8b;
+                }
 
-        .ohsc-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: #1e293b;
-        }
+            .sh-blue h2 {
+                color: #1a4c8b;
+            }
 
-        .ohsc-title .req {
-            color: #dc2626;
-        }
+            .sh-slate .icon-wrap {
+                background: #eef0f3;
+            }
 
-        .ohsc-subtitle {
-            margin-top: 3px;
-            font-size: 13px;
-            color: #64748b;
-        }
+                .sh-slate .icon-wrap svg {
+                    fill: #3d5166;
+                }
 
+            .sh-slate h2 {
+                color: #3d5166;
+            }
 
-        /* QUESTION */
+            .sh-teal .icon-wrap {
+                background: #e3f4f4;
+            }
 
-        .ohsc-question {
-            display: flex;
-            gap: 14px;
-            padding: 20px 22px 14px;
-        }
+                .sh-teal .icon-wrap svg {
+                    fill: #1a7f7a;
+                }
 
-        .ohsc-question-number {
-            min-width: 38px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 7px;
-            background: #eef2ff;
-            color: #4338ca;
-            font-size: 13px;
-            font-weight: 700;
-        }
+            .sh-teal h2 {
+                color: #1a7f7a;
+            }
 
-        .ohsc-question-text {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1e293b;
-            line-height: 1.5;
-        }
+            .section-body {
+                padding: 20px;
+            }
 
-        .ohsc-help-text {
-            margin-top: 5px;
-            font-size: 12.5px;
-            color: #64748b;
-            line-height: 1.5;
-        }
+            /* FORM FIELDS */
+            .field-grid {
+                display: grid;
+                gap: 14px;
+                width: 100%;
+                margin-top: 1rem;
+            }
 
+            .col-1 {
+                grid-template-columns: 1fr;
+            }
 
-        /* OPTIONS */
+            .col-2 {
+                grid-template-columns: 1fr 1fr;
+            }
 
-        .ohsc-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            padding: 8px 22px 20px;
-        }
+            .col-3 {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
 
-        .ohsc-option {
-            position: relative;
-        }
+            .col-4 {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }
 
-        .ohsc-radio {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
+            /* ==========================================
+                        OTHER HEALTH SCIENCE COLLEGE QUESTION
+                        ========================================== */
 
+            .other-health-question {
+                margin-top: 18px;
+            }
 
-        /* CHOICE */
-
-        .ohsc-choice {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            min-height: 70px;
-            padding: 12px 16px;
-            border: 1.5px solid #dbe3ef;
-            border-radius: 11px;
-            background: #fff;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .ohsc-choice:hover {
-            border-color: #94a3b8;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(30, 50, 80, 0.07);
-        }
+            .ohsc-question-card {
+                border: 1px solid #dbe3ef;
+                border-radius: 14px;
+                background: #ffffff;
+                overflow: hidden;
+                box-shadow: 0 4px 14px rgba(30, 50, 80, 0.06);
+            }
 
 
-        /* ICON */
+            /* HEADER */
 
-        .ohsc-choice-icon {
-            width: 38px;
-            height: 38px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: 15px;
-        }
+            .ohsc-header {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 18px 22px;
+                background: linear-gradient( 135deg, #f3f7ff, #eef4ff );
+                border-bottom: 1px solid #dce6f5;
+            }
+
+            .ohsc-icon {
+                width: 46px;
+                height: 46px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #e2ebff;
+                color: #315bb5;
+                font-size: 20px;
+            }
+
+            .ohsc-heading {
+                flex: 1;
+            }
+
+            .ohsc-title {
+                font-size: 17px;
+                font-weight: 700;
+                color: #1e293b;
+            }
+
+                .ohsc-title .req {
+                    color: #dc2626;
+                }
+
+            .ohsc-subtitle {
+                margin-top: 3px;
+                font-size: 13px;
+                color: #64748b;
+            }
+
+
+            /* QUESTION */
+
+            .ohsc-question {
+                display: flex;
+                gap: 14px;
+                padding: 20px 22px 14px;
+            }
+
+            .ohsc-question-number {
+                min-width: 38px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 7px;
+                background: #eef2ff;
+                color: #4338ca;
+                font-size: 13px;
+                font-weight: 700;
+            }
+
+            .ohsc-question-text {
+                font-size: 15px;
+                font-weight: 600;
+                color: #1e293b;
+                line-height: 1.5;
+            }
+
+            .ohsc-help-text {
+                margin-top: 5px;
+                font-size: 12.5px;
+                color: #64748b;
+                line-height: 1.5;
+            }
+
+
+            /* OPTIONS */
+
+            .ohsc-options {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+                padding: 8px 22px 20px;
+            }
+
+            .ohsc-option {
+                position: relative;
+            }
+
+            .ohsc-radio {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+
+            /* CHOICE */
+
+            .ohsc-choice {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                min-height: 70px;
+                padding: 12px 16px;
+                border: 1.5px solid #dbe3ef;
+                border-radius: 11px;
+                background: #fff;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+                .ohsc-choice:hover {
+                    border-color: #94a3b8;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 10px rgba(30, 50, 80, 0.07);
+                }
+
+
+            /* ICON */
+
+            .ohsc-choice-icon {
+                width: 38px;
+                height: 38px;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                font-size: 15px;
+            }
 
 
             /* CONTENT */
 
-        .ohsc-choice-content {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .ohsc-choice-content strong {
-            font-size: 14px;
-            color: #1e293b;
-        }
-
-        .ohsc-choice-content small {
-            font-size: 11.5px;
-            color: #64748b;
-            line-height: 1.4;
-        }
-
-
-        /* YES */
-
-        .yes-choice .ohsc-choice-icon {
-            background: #dcfce7;
-            color: #15803d;
-        }
-
-
-        /* NO */
-
-        .no-choice .ohsc-choice-icon {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-
-        /* SELECTED YES */
-
-        .ohsc-radio:checked + .yes-choice {
-            border-color: #22c55e;
-            background: #f0fdf4;
-            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.08);
-        }
-
-        .ohsc-radio:checked + .yes-choice .ohsc-choice-icon {
-            background: #22c55e;
-            color: #fff;
-        }
-
-
-        /* SELECTED NO */
-
-        .ohsc-radio:checked + .no-choice {
-            border-color: #ef4444;
-            background: #fef2f2;
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.08);
-        }
-
-        .ohsc-radio:checked + .no-choice .ohsc-choice-icon {
-            background: #ef4444;
-            color: #fff;
-        }
-
-
-        /* VALIDATION */
-
-        .validation-message {
-            display: block;
-            padding: 0 22px 16px;
-        }
-
-
-        /* MOBILE */
-
-        @@media (max-width: 768px) {
-
-            .ohsc-options {
-                grid-template-columns: 1fr;
+            .ohsc-choice-content {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
             }
 
-            .ohsc-question {
-                padding: 16px;
+                .ohsc-choice-content strong {
+                    font-size: 14px;
+                    color: #1e293b;
+                }
+
+                .ohsc-choice-content small {
+                    font-size: 11.5px;
+                    color: #64748b;
+                    line-height: 1.4;
+                }
+
+
+            /* YES */
+
+            .yes-choice .ohsc-choice-icon {
+                background: #dcfce7;
+                color: #15803d;
             }
 
-            .ohsc-options {
-                padding-left: 16px;
-                padding-right: 16px;
+
+            /* NO */
+
+            .no-choice .ohsc-choice-icon {
+                background: #fee2e2;
+                color: #dc2626;
             }
 
-            .ohsc-header {
-                padding: 16px;
-            }
-        }
 
-        @@media (max-width:1024px) {
-            .col-4
+            /* SELECTED YES */
 
-        {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        }
-        @@media (max-width:900px) {
-            .col-3
-
-        {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        }
-        @@media (max-width:600px) {
-            .col-2,.col-3,.col-4
-
-        {
-            grid-template-columns: 1fr;
-        }
-
-        }
-
-        label {
-            display: block;
-            font-size: .72rem;
-            font-weight: 600;
-            color: var(--ink-mid);
-            margin-bottom: 5px;
-            letter-spacing: .03em;
-            text-transform: uppercase;
-        }
-
-            label .req {
-                color: var(--danger);
-                margin-left: 2px;
+            .ohsc-radio:checked + .yes-choice {
+                border-color: #22c55e;
+                background: #f0fdf4;
+                box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.08);
             }
 
-        input[type="text"], input[type="number"], input[type="email"],
-        input[type="url"], input[type="date"], input[type="file"],
-        select, textarea {
-            width: 100%;
-            font-family: 'DM Sans',sans-serif;
-            font-size: .85rem;
-            color: var(--ink);
-            background: #fafbfc;
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 8px 12px;
-            transition: border-color .18s,box-shadow .18s,background .18s;
-            outline: none;
-        }
+                .ohsc-radio:checked + .yes-choice .ohsc-choice-icon {
+                    background: #22c55e;
+                    color: #fff;
+                }
 
-            input:focus, select:focus, textarea:focus {
-                border-color: var(--accent);
-                background: #fff;
-                box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+
+            /* SELECTED NO */
+
+            .ohsc-radio:checked + .no-choice {
+                border-color: #ef4444;
+                background: #fef2f2;
+                box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.08);
             }
 
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a8d' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 32px;
-        }
+                .ohsc-radio:checked + .no-choice .ohsc-choice-icon {
+                    background: #ef4444;
+                    color: #fff;
+                }
 
-        textarea {
-            resize: vertical;
-        }
 
-        input[readonly] {
-            color: var(--ink-muted);
-            cursor: not-allowed;
-            background: #f0f2f5;
-        }
+            /* VALIDATION */
 
-        #NameOfInstitution {
-            color: var(--institution-name);
-        }
-
-        .text-danger {
-            color: var(--danger);
-            font-size: .7rem;
-            margin-top: 3px;
-            display: block;
-        }
-
-        .check-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: .82rem;
-            font-weight: 500;
-            color: var(--ink-mid);
-            cursor: pointer;
-            text-transform: none;
-            letter-spacing: 0;
-        }
-
-            .check-label input[type="checkbox"] {
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
-                accent-color: var(--accent);
-                border-radius: 4px;
-                padding: 0;
+            .validation-message {
+                display: block;
+                padding: 0 22px 16px;
             }
 
-        /* FLAGS */
-        .flags-row {
-            margin-top: 16px;
-            background: #f8f9fc;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 14px;
-        }
 
-            .flags-row p {
+            /* MOBILE */
+
+            @@media (max-width: 768px) {
+
+                .ohsc-options {
+                    grid-template-columns: 1fr;
+                }
+
+                .ohsc-question {
+                    padding: 16px;
+                }
+
+                .ohsc-options {
+                    padding-left: 16px;
+                    padding-right: 16px;
+                }
+
+                .ohsc-header {
+                    padding: 16px;
+                }
+            }
+
+            @@media (max-width:1024px) {
+                .col-4 {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @@media (max-width:900px) {
+                .col-3 {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            @@media (max-width:600px) {
+                .col-2, .col-3, .col-4 {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            label {
+                display: block;
                 font-size: .72rem;
                 font-weight: 600;
-                color: var(--ink-muted);
+                color: var(--ink-mid);
+                margin-bottom: 5px;
+                letter-spacing: .03em;
                 text-transform: uppercase;
-                letter-spacing: .04em;
-                margin-bottom: 10px;
             }
 
-        .flags-inner {
-            display: flex;
-            gap: 28px;
-            flex-wrap: wrap;
-        }
+                label .req {
+                    color: var(--danger);
+                    margin-left: 2px;
+                }
 
-        /* FILE DROP */
-        .file-drop {
-            border: 2px dashed var(--border);
-            border-radius: 9px;
-            padding: 22px 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color .2s,background .2s;
-            background: #fafbfd;
-        }
-
-            .file-drop:hover {
-                border-color: var(--accent);
-                background: var(--accent-lt);
-            }
-
-            .file-drop input[type="file"] {
-                position: absolute;
-                inset: 0;
-                opacity: 0;
-                cursor: pointer;
-                border: none;
-                padding: 0;
-                border-radius: 0;
-            }
-
-        .file-drop-inner {
-            position: relative;
-        }
-
-        .file-drop-icon svg {
-            width: 28px;
-            height: 28px;
-            fill: var(--ink-muted);
-            margin-bottom: 8px;
-        }
-
-        .file-drop p {
-            font-size: .8rem;
-            color: var(--ink-muted);
-            margin: 0;
-        }
-
-        .file-drop strong {
-            color: var(--accent);
-        }
-
-        .file-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-            .file-row input[type="file"] {
-                flex: 1;
-            }
-
-        .btn-view {
-            flex-shrink: 0;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: .75rem;
-            font-weight: 600;
-            padding: 7px 12px;
-            border-radius: 7px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--ink-mid);
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-            .btn-view:hover {
-                border-color: var(--accent);
-                color: var(--accent);
-                background: var(--accent-lt);
-            }
-
-        .file-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: .7rem;
-            font-weight: 600;
-            color: #1e7e4e;
-            background: #eafaf1;
-            border: 1px solid #a9dfbf;
-            border-radius: 20px;
-            padding: 3px 10px;
-            margin-top: 6px;
-        }
-
-        .optional-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: .68rem;
-            font-weight: 600;
-            letter-spacing: .05em;
-            text-transform: uppercase;
-            color: #a0660a;
-            background: #fdf3e0;
-            border: 1px solid #f5d89a;
-            border-radius: 20px;
-            padding: 2px 10px;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        /* MOBILE PREFIX */
-        .mobile-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .mobile-prefix {
-            padding: 8px 10px;
-            background: #eee;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-
-        /* FOOTER */
-        .form-footer {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 12px;
-            padding: 20px 0 0;
-            border-top: 1px solid var(--border);
-            margin-top: 8px;
-        }
-
-        .btn {
-            font-family: 'DM Sans',sans-serif;
-            font-size: .83rem;
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 9px 24px;
-            cursor: pointer;
-            letter-spacing: .03em;
-            border: none;
-            transition: all .18s;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--ink-muted);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-        }
-
-            .btn-ghost:hover {
-                border-color: var(--ink-muted);
+            input[type="text"], input[type="number"], input[type="email"],
+            input[type="url"], input[type="date"], input[type="file"],
+            select, textarea {
+                width: 100%;
+                font-family: 'DM Sans',sans-serif;
+                font-size: .85rem;
                 color: var(--ink);
+                background: #fafbfc;
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 8px 12px;
+                transition: border-color .18s,box-shadow .18s,background .18s;
+                outline: none;
             }
 
-        .btn-primary {
-            background: linear-gradient(135deg,#1a4c8b,#1564c0);
-            color: #fff;
-            box-shadow: 0 3px 14px rgba(26,76,139,.3);
-        }
+                input:focus, select:focus, textarea:focus {
+                    border-color: var(--accent);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(26,76,139,.1);
+                }
 
-            .btn-primary:hover {
-                box-shadow: 0 5px 20px rgba(26,76,139,.4);
-                transform: translateY(-1px);
+            select {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a8d' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                padding-right: 32px;
             }
 
-            .btn-primary:active {
-                transform: translateY(0);
+            textarea {
+                resize: vertical;
             }
 
-        /* TRUST TOGGLE */
-        #trustManagementSection {
-            transition: opacity .3s ease,transform .3s ease;
-        }
-
-            #trustManagementSection.trust-hidden {
-                display: none !important;
+            input[readonly] {
+                color: var(--ink-muted);
+                cursor: not-allowed;
+                background: #f0f2f5;
             }
 
-        /* VALIDATION */
-        .field-invalid input:not([type="checkbox"]),
-        .field-invalid select,
-        .field-invalid textarea {
-            border-color: #e53e3e !important;
-            background: #fff5f5 !important;
-            box-shadow: 0 0 0 3px rgba(229,62,62,.18) !important;
-            animation: shakeField .38s ease;
-        }
-
-        .field-focus-target input:not([type="checkbox"]),
-        .field-focus-target select,
-        .field-focus-target textarea {
-            border-color: #e53e3e !important;
-            box-shadow: 0 0 0 4px rgba(229,62,62,.3) !important;
-            background: #fff5f5 !important;
-            animation: pulseRing 1.4s ease infinite;
-        }
-        @@keyframes pulseRing {
-            0%,100%
-
-        {
-            box-shadow: 0 0 0 3px rgba(229,62,62,.25);
-        }
-
-        50% {
-            box-shadow: 0 0 0 6px rgba(229,62,62,.12);
-        }
-
-        }
-        @@keyframes shakeField {
-            0%,100%
-
-        {
-            transform: translateX(0);
-        }
-
-        20% {
-            transform: translateX(-6px);
-        }
-
-        40% {
-            transform: translateX(6px);
-        }
-
-        60% {
-            transform: translateX(-4px);
-        }
-
-        80% {
-            transform: translateX(4px);
-        }
-
-        }
-
-        .field-err-msg {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: .7rem;
-            font-weight: 600;
-            color: #e53e3e;
-            margin-top: 5px;
-            animation: fadeUp .2s ease;
-        }
-
-            .field-err-msg::before {
-                content: "⚠";
-                font-size: .75rem;
+            #NameOfInstitution {
+                color: var(--institution-name);
             }
 
-        .section-card.has-error {
-            border-left: 3px solid #e53e3e;
-        }
-
-        /* TOAST */
-        #validationToast {
-            position: fixed;
-            top: 80px;
-            right: 24px;
-            background: #e53e3e;
-            color: #fff;
-            padding: 14px 20px 14px 16px;
-            border-radius: 10px;
-            font-size: .83rem;
-            font-weight: 600;
-            box-shadow: 0 6px 28px rgba(0,0,0,.22);
-            z-index: 9999;
-            display: none;
-            align-items: flex-start;
-            gap: 10px;
-            max-width: 340px;
-            border-left: 4px solid #9b1c1c;
-        }
-
-            #validationToast.show {
-                display: flex;
-                animation: toastSlideIn .3s ease;
-            }
-        @@keyframes toastSlideIn {
-            from
-
-        {
-            opacity: 0;
-            transform: translateX(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        }
-
-        .toast-icon {
-            font-size: 1.1rem;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        .toast-body {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .toast-title {
-            font-size: .8rem;
-            opacity: .85;
-            font-weight: 400;
-        }
-
-        .toast-close {
-            margin-left: auto;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 1rem;
-            cursor: pointer;
-            opacity: .7;
-            flex-shrink: 0;
-            line-height: 1;
-            padding: 0 0 0 6px;
-        }
-
-            .toast-close:hover {
-                opacity: 1;
-            }
-
-        /* BADGE */
-        #missingBadge {
-            display: none;
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            background: #e53e3e;
-            color: #fff;
-            font-size: .78rem;
-            font-weight: 700;
-            padding: 8px 16px;
-            border-radius: 30px;
-            box-shadow: 0 4px 18px rgba(0,0,0,.2);
-            z-index: 9998;
-            cursor: pointer;
-            transition: transform .15s;
-        }
-
-            #missingBadge:hover {
-                transform: scale(1.05);
-            }
-
-            #missingBadge.show {
+            .text-danger {
+                color: var(--danger);
+                font-size: .7rem;
+                margin-top: 3px;
                 display: block;
-                animation: fadeUp .3s ease;
             }
+
+            .check-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: .82rem;
+                font-weight: 500;
+                color: var(--ink-mid);
+                cursor: pointer;
+                text-transform: none;
+                letter-spacing: 0;
+            }
+
+                .check-label input[type="checkbox"] {
+                    width: 16px;
+                    height: 16px;
+                    cursor: pointer;
+                    accent-color: var(--accent);
+                    border-radius: 4px;
+                    padding: 0;
+                }
+
+            /* FLAGS */
+            .flags-row {
+                margin-top: 16px;
+                background: #f8f9fc;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 14px;
+            }
+
+                .flags-row p {
+                    font-size: .72rem;
+                    font-weight: 600;
+                    color: var(--ink-muted);
+                    text-transform: uppercase;
+                    letter-spacing: .04em;
+                    margin-bottom: 10px;
+                }
+
+            .flags-inner {
+                display: flex;
+                gap: 28px;
+                flex-wrap: wrap;
+            }
+
+            /* FILE DROP */
+            .file-drop {
+                border: 2px dashed var(--border);
+                border-radius: 9px;
+                padding: 22px 16px;
+                text-align: center;
+                cursor: pointer;
+                transition: border-color .2s,background .2s;
+                background: #fafbfd;
+            }
+
+                .file-drop:hover {
+                    border-color: var(--accent);
+                    background: var(--accent-lt);
+                }
+
+                .file-drop input[type="file"] {
+                    position: absolute;
+                    inset: 0;
+                    opacity: 0;
+                    cursor: pointer;
+                    border: none;
+                    padding: 0;
+                    border-radius: 0;
+                }
+
+            .file-drop-inner {
+                position: relative;
+            }
+
+            .file-drop-icon svg {
+                width: 28px;
+                height: 28px;
+                fill: var(--ink-muted);
+                margin-bottom: 8px;
+            }
+
+            .file-drop p {
+                font-size: .8rem;
+                color: var(--ink-muted);
+                margin: 0;
+            }
+
+            .file-drop strong {
+                color: var(--accent);
+            }
+
+            .file-row {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+
+                .file-row input[type="file"] {
+                    flex: 1;
+                }
+
+            .btn-view {
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: .75rem;
+                font-weight: 600;
+                padding: 7px 12px;
+                border-radius: 7px;
+                border: 1px solid var(--border);
+                background: var(--surface);
+                color: var(--ink-mid);
+                text-decoration: none;
+                white-space: nowrap;
+            }
+
+                .btn-view:hover {
+                    border-color: var(--accent);
+                    color: var(--accent);
+                    background: var(--accent-lt);
+                }
+
+            .file-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: .7rem;
+                font-weight: 600;
+                color: #1e7e4e;
+                background: #eafaf1;
+                border: 1px solid #a9dfbf;
+                border-radius: 20px;
+                padding: 3px 10px;
+                margin-top: 6px;
+            }
+
+            .optional-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: .68rem;
+                font-weight: 600;
+                letter-spacing: .05em;
+                text-transform: uppercase;
+                color: #a0660a;
+                background: #fdf3e0;
+                border: 1px solid #f5d89a;
+                border-radius: 20px;
+                padding: 2px 10px;
+                margin-left: 8px;
+                vertical-align: middle;
+            }
+
+            /* MOBILE PREFIX */
+            .mobile-group {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .mobile-prefix {
+                padding: 8px 10px;
+                background: #eee;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                font-size: 0.85rem;
+                white-space: nowrap;
+            }
+
+            /* FOOTER */
+            .form-footer {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 12px;
+                padding: 20px 0 0;
+                border-top: 1px solid var(--border);
+                margin-top: 8px;
+            }
+
+            .btn {
+                font-family: 'DM Sans',sans-serif;
+                font-size: .83rem;
+                font-weight: 600;
+                border-radius: 8px;
+                padding: 9px 24px;
+                cursor: pointer;
+                letter-spacing: .03em;
+                border: none;
+                transition: all .18s;
+            }
+
+            .btn-ghost {
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--ink-muted);
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+            }
+
+                .btn-ghost:hover {
+                    border-color: var(--ink-muted);
+                    color: var(--ink);
+                }
+
+            .btn-primary {
+                background: linear-gradient(135deg,#1a4c8b,#1564c0);
+                color: #fff;
+                box-shadow: 0 3px 14px rgba(26,76,139,.3);
+            }
+
+                .btn-primary:hover {
+                    box-shadow: 0 5px 20px rgba(26,76,139,.4);
+                    transform: translateY(-1px);
+                }
+
+                .btn-primary:active {
+                    transform: translateY(0);
+                }
+
+            /* TRUST TOGGLE */
+            #trustManagementSection {
+                transition: opacity .3s ease,transform .3s ease;
+            }
+
+                #trustManagementSection.trust-hidden {
+                    display: none !important;
+                }
+
+            /* VALIDATION */
+            .field-invalid input:not([type="checkbox"]),
+            .field-invalid select,
+            .field-invalid textarea {
+                border-color: #e53e3e !important;
+                background: #fff5f5 !important;
+                box-shadow: 0 0 0 3px rgba(229,62,62,.18) !important;
+                animation: shakeField .38s ease;
+            }
+
+            .field-focus-target input:not([type="checkbox"]),
+            .field-focus-target select,
+            .field-focus-target textarea {
+                border-color: #e53e3e !important;
+                box-shadow: 0 0 0 4px rgba(229,62,62,.3) !important;
+                background: #fff5f5 !important;
+                animation: pulseRing 1.4s ease infinite;
+            }
+
+            @@keyframes pulseRing {
+                0%, 100% {
+                    box-shadow: 0 0 0 3px rgba(229,62,62,.25);
+                }
+
+                50% {
+                    box-shadow: 0 0 0 6px rgba(229,62,62,.12);
+                }
+            }
+
+            @@keyframes shakeField {
+                0%, 100% {
+                    transform: translateX(0);
+                }
+
+                20% {
+                    transform: translateX(-6px);
+                }
+
+                40% {
+                    transform: translateX(6px);
+                }
+
+                60% {
+                    transform: translateX(-4px);
+                }
+
+                80% {
+                    transform: translateX(4px);
+                }
+            }
+
+            .field-err-msg {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: .7rem;
+                font-weight: 600;
+                color: #e53e3e;
+                margin-top: 5px;
+                animation: fadeUp .2s ease;
+            }
+
+                .field-err-msg::before {
+                    content: "⚠";
+                    font-size: .75rem;
+                }
+
+            .section-card.has-error {
+                border-left: 3px solid #e53e3e;
+            }
+
+            /* TOAST */
+            #validationToast {
+                position: fixed;
+                top: 80px;
+                right: 24px;
+                background: #e53e3e;
+                color: #fff;
+                padding: 14px 20px 14px 16px;
+                border-radius: 10px;
+                font-size: .83rem;
+                font-weight: 600;
+                box-shadow: 0 6px 28px rgba(0,0,0,.22);
+                z-index: 9999;
+                display: none;
+                align-items: flex-start;
+                gap: 10px;
+                max-width: 340px;
+                border-left: 4px solid #9b1c1c;
+            }
+
+                #validationToast.show {
+                    display: flex;
+                    animation: toastSlideIn .3s ease;
+                }
+
+            @@keyframes toastSlideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(30px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            .toast-icon {
+                font-size: 1.1rem;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+
+            .toast-body {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .toast-title {
+                font-size: .8rem;
+                opacity: .85;
+                font-weight: 400;
+            }
+
+            .toast-close {
+                margin-left: auto;
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 1rem;
+                cursor: pointer;
+                opacity: .7;
+                flex-shrink: 0;
+                line-height: 1;
+                padding: 0 0 0 6px;
+            }
+
+                .toast-close:hover {
+                    opacity: 1;
+                }
+
+            /* BADGE */
+            #missingBadge {
+                display: none;
+                position: fixed;
+                bottom: 28px;
+                right: 28px;
+                background: #e53e3e;
+                color: #fff;
+                font-size: .78rem;
+                font-weight: 700;
+                padding: 8px 16px;
+                border-radius: 30px;
+                box-shadow: 0 4px 18px rgba(0,0,0,.2);
+                z-index: 9998;
+                cursor: pointer;
+                transition: transform .15s;
+            }
+
+                #missingBadge:hover {
+                    transform: scale(1.05);
+                }
+
+                #missingBadge.show {
+                    display: block;
+                    animation: fadeUp .3s ease;
+                }
     </style>
     <link rel="stylesheet" href="~/css/common-form.css" />
 </head>
@@ -1120,18 +1105,18 @@
 
                                 <div class="file-row">
                                     <input id="AadhaarFile"
-                                            name="AadhaarFile"
-                                            type="file"
-                                            accept=".pdf" />
+                                           name="AadhaarFile"
+                                           type="file"
+                                           accept=".pdf" />
                                 </div>
 
                                 @if (Model.hasAadhaarFile)
                                 {
                                     <div style="margin-top:8px;">
                                         <a asp-action="DownloadDentalTrustAdhar"
-                                            asp-controller="ContinuesAffiliation_Facultybased"
-                                            class="btn-view"
-                                            target="_blank">
+                                           asp-controller="ContinuesAffiliation_Facultybased"
+                                           class="btn-view"
+                                           target="_blank">
                                             <i class="fas fa-eye"></i> View Aadhaar
                                         </a>
 
@@ -1152,21 +1137,21 @@
                             <input type="hidden" name="MinorityInstitute" value="false" />
                             <label class="check-label">
                                 <input type="checkbox" name="MinorityInstitute" value="true"
-                                       @(Model.MinorityInstitute == true ? "checked" : "") />
+                                @(Model.MinorityInstitute == true ? "checked" : "") />
                                 Minority Institution
                             </label>
 
                             <input type="hidden" name="AttachedToMedicalClg" value="false" />
                             <label class="check-label">
                                 <input type="checkbox" name="AttachedToMedicalClg" value="true"
-                                       @(Model.AttachedToMedicalClg == true ? "checked" : "") />
+                                @(Model.AttachedToMedicalClg == true ? "checked" : "") />
                                 Attached to Medical College
                             </label>
 
                             <input type="hidden" name="RuralInstitute" value="false" />
                             <label class="check-label">
                                 <input type="checkbox" name="RuralInstitute" value="true"
-                                       @(Model.RuralInstitute == true ? "checked" : "") />
+                                @(Model.RuralInstitute == true ? "checked" : "") />
                                 Rural Institution
                             </label>
 
@@ -1439,7 +1424,8 @@
                 </div>
             </div>
 
-            @if(facultyCode == "2"){
+            @if (facultyCode == "2")
+            {
 
                 <!-- 7. ADMINISTRATIVE AUTHORITY -->
                 <div class="section-card" id="card-administrative-authority">
@@ -1540,9 +1526,9 @@
                                 <div style="margin-top:10px;">
 
                                     <a href="@Url.Action(
-                                        "ViewGoverningBodyDocument",
-                                        "ContinuesAffiliation_Facultybased",
-                                        new { id = Model.CollegeCode })"
+                                                                               "ViewGoverningBodyDocument",
+                                                                               "ContinuesAffiliation_Facultybased",
+                                                                               new { id = Model.CollegeCode })"
                                        target="_blank"
                                        class="btn btn-ghost">
 
@@ -1573,7 +1559,6 @@
 
                     <div class="section-body">
 
-                        <!-- YES / NO -->
                         <!-- OTHER HEALTH SCIENCE COLLEGES -->
                         <div class="field-wrap other-health-question"
                              data-required
@@ -1709,9 +1694,9 @@
                                                 <div class="other-college-row border rounded p-3 mb-3"
                                                      data-id="@Model.OtherHealthScienceColleges[i].Id">
 
-                                                     <input type="hidden" 
-                                                            name="OtherHealthScienceColleges[@i].Id" 
-                                                            value="@Model.OtherHealthScienceColleges[i].Id"/>
+                                                    <input type="hidden"
+                                                           name="OtherHealthScienceColleges[@i].Id"
+                                                           value="@Model.OtherHealthScienceColleges[i].Id" />
 
                                                     <div class="row g-3">
 
@@ -1807,9 +1792,8 @@
 
                                                             <button type="button"
                                                                     class="btn btn-outline-danger remove-other-college"
-                                                                    data-id ="@Model.OtherHealthScienceColleges[i].Id"
-                                                                    title="Remove"
-                                                            >
+                                                                    data-id="@Model.OtherHealthScienceColleges[i].Id"
+                                                                    title="Remove">
 
                                                                 <i class="fas fa-trash"></i>
 
@@ -1866,773 +1850,792 @@
         <script>
             $(document).ready(function () {
 
-                /* FILE UPLOAD */
-                const fileInput = document.getElementById("documentFile");
-                const fileNameDisplay = document.getElementById("fileName");
-                if (fileInput) {
-                    fileInput.addEventListener("change", function () {
-                        if (this.files.length > 0) {
-                            const file = this.files[0];
-                            if (file.size > 2 * 1024 * 1024) {
-                                Swal.fire({ icon: 'warning', title: 'File too large', text: 'File size should not exceed 2 MB.' });
-                                this.value = ""; fileNameDisplay.textContent = ""; return;
-                            }
-                            fileNameDisplay.textContent = "Selected: " + file.name;
-                        } else {
-                            fileNameDisplay.textContent = "";
-                        }
-                    });
-                }
+            /* FILE UPLOAD */
+            const fileInput = document.getElementById("documentFile");
+            const fileNameDisplay = document.getElementById("fileName");
+            if (fileInput) {
+            fileInput.addEventListener("change", function () {
+            if (this.files.length > 0) {
+            const file = this.files[0];
+            if (file.size > 2 * 1024 * 1024) {
+            Swal.fire({ icon: 'warning', title: 'File too large', text: 'File size should not exceed 2 MB.' });
+            this.value = ""; fileNameDisplay.textContent = ""; return;
+            }
+            fileNameDisplay.textContent = "Selected: " + file.name;
+            } else {
+            fileNameDisplay.textContent = "";
+            }
+            });
+            }
 
-                /* DISTRICT → TALUK */
-                $("#districtDropdown").change(function () {
-                    var district = $(this).val();
-                    $("#talukDropdown").html('<option>Loading...</option>');
-                    if (district) {
-                        $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")', { district: district }, function (data) {
-                            let html = '<option value="">— Select Taluk —</option>';
-                            $.each(data, function (i, item) { html += `<option value="${item.value}">${item.text}</option>`; });
-                            $("#talukDropdown").html(html);
-                        });
-                    } else {
-                        $("#talukDropdown").html('<option value="">— Select Taluk —</option>');
-                    }
-                });
+            /* DISTRICT → TALUK */
+            $("#districtDropdown").change(function () {
+            var district = $(this).val();
+            $("#talukDropdown").html('<option>Loading...</option>');
+            if (district) {
+            $.get('@Url.Action("GetTaluksByDistrict", "ContinuesAffiliation_Facultybased")', { district: district }, function (data) {
+            let html = '<option value="">— Select Taluk —</option>';
+            $.each(data, function (i, item) { html += `<option value="${item.value}">${item.text}</option>`; });
+            $("#talukDropdown").html(html);
+            });
+            } else {
+            $("#talukDropdown").html('<option value="">— Select Taluk —</option>');
+            }
+            });
 
-                /* TRUST SECTION TOGGLE */
-                const trustSection = document.getElementById('trustManagementSection');
+            /* TRUST SECTION TOGGLE */
+            const trustSection = document.getElementById('trustManagementSection');
 
-                function applyTrustVisibility(orgCategory) {
-                    if (!trustSection) return;
-                    const isPrivate = (orgCategory || '').trim().toUpperCase() === 'P';
-                    if (isPrivate) {
-                        trustSection.classList.remove('trust-hidden');
-                        trustSection.querySelectorAll('.trust-field input,.trust-field select,.trust-field textarea').forEach(el => el.removeAttribute('disabled'));
-                    } else {
-                        trustSection.classList.add('trust-hidden');
-                        trustSection.querySelectorAll('.trust-field input,.trust-field select,.trust-field textarea').forEach(el => el.setAttribute('disabled', 'disabled'));
-                    }
-                }
+            function applyTrustVisibility(orgCategory) {
+            if (!trustSection) return;
+            const isPrivate = (orgCategory || '').trim().toUpperCase() === 'P';
+            if (isPrivate) {
+            trustSection.classList.remove('trust-hidden');
+            trustSection.querySelectorAll('.trust-field input,.trust-field select,.trust-field textarea').forEach(el => el.removeAttribute('disabled'));
+            } else {
+            trustSection.classList.add('trust-hidden');
+            trustSection.querySelectorAll('.trust-field input,.trust-field select,.trust-field textarea').forEach(el => el.setAttribute('disabled', 'disabled'));
+            }
+            }
 
-                $('#typeOfInstitutionDropdown').on('change', function () {
-                    const selectedId = $(this).val();
-                    if (!selectedId) { applyTrustVisibility(''); return; }
-                    $.ajax({
-                        url: '@Url.Action("GetInstitutionOrgCategory", "ContinuesAffiliation_Facultybased")',
-                        type: 'GET', data: { institutionTypeId: selectedId },
-                        success: function (res) { applyTrustVisibility(res && res.success ? res.orgCategory : ''); },
-                        error: function () { applyTrustVisibility(''); }
-                    });
-                });
+            $('#typeOfInstitutionDropdown').on('change', function () {
+            const selectedId = $(this).val();
+            if (!selectedId) { applyTrustVisibility(''); return; }
+            $.ajax({
+            url: '@Url.Action("GetInstitutionOrgCategory", "ContinuesAffiliation_Facultybased")',
+            type: 'GET', data: { institutionTypeId: selectedId },
+            success: function (res) { applyTrustVisibility(res && res.success ? res.orgCategory : ''); },
+            error: function () { applyTrustVisibility(''); }
+            });
+            });
 
-                const initialTypeVal = $('#typeOfInstitutionDropdown').val();
-                if (initialTypeVal) { $('#typeOfInstitutionDropdown').trigger('change'); } else { applyTrustVisibility(''); }
+            const initialTypeVal = $('#typeOfInstitutionDropdown').val();
+            if (initialTypeVal) { $('#typeOfInstitutionDropdown').trigger('change'); } else { applyTrustVisibility(''); }
 
-                /* FORM VALIDATION */
-                $('#institutionForm').on('submit', function (e) {
-                    document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
-                    document.querySelectorAll('.field-focus-target').forEach(el => el.classList.remove('field-focus-target'));
-                    document.querySelectorAll('.field-err-msg').forEach(el => el.remove());
-                    document.querySelectorAll('.section-card.has-error').forEach(el => el.classList.remove('has-error'));
+            /* FORM VALIDATION */
+            $('#institutionForm').on('submit', function (e) {
+            document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
+            document.querySelectorAll('.field-focus-target').forEach(el => el.classList.remove('field-focus-target'));
+            document.querySelectorAll('.field-err-msg').forEach(el => el.remove());
+            document.querySelectorAll('.section-card.has-error').forEach(el => el.classList.remove('has-error'));
 
-                    const trustVisible = !trustSection.classList.contains('trust-hidden');
-                    let errors = [], firstErrorEl = null;
+            const trustVisible = !trustSection.classList.contains('trust-hidden');
+            let errors = [], firstErrorEl = null;
 
-                    document.querySelectorAll('.field-wrap[data-required]').forEach(wrap => {
-                        if (!trustVisible && wrap.closest('#trustManagementSection')) return;
-                        const input    = wrap.querySelector('input:not([type="checkbox"]):not([readonly]):not([disabled])');
-                        const select   = wrap.querySelector('select:not([disabled])');
-                        const textarea = wrap.querySelector('textarea:not([disabled])');
-                        const el       = input || select || textarea;
-                        const label    = wrap.dataset.label || 'Field';
-                        if (el && (el.value || '').trim() === '') {
-                            wrap.classList.add('field-invalid');
-                            const msg = document.createElement('span');
-                            msg.className = 'field-err-msg';
-                            msg.textContent = `${label} is required.`;
-                            wrap.appendChild(msg);
-                            const card = wrap.closest('.section-card');
-                            if (card) card.classList.add('has-error');
-                            errors.push(label);
-                            if (!firstErrorEl) firstErrorEl = el;
-                        }
-                    });
+            document.querySelectorAll('.field-wrap[data-required]').forEach(wrap => {
+            if (!trustVisible && wrap.closest('#trustManagementSection')) return;
+            const input    = wrap.querySelector('input:not([type="checkbox"]):not([readonly]):not([disabled])');
+            const select   = wrap.querySelector('select:not([disabled])');
+            const textarea = wrap.querySelector('textarea:not([disabled])');
+            const el       = input || select || textarea;
+            const label    = wrap.dataset.label || 'Field';
+            if (el && (el.value || '').trim() === '') {
+            wrap.classList.add('field-invalid');
+            const msg = document.createElement('span');
+            msg.className = 'field-err-msg';
+            msg.textContent = `${label} is required.`;
+            wrap.appendChild(msg);
+            const card = wrap.closest('.section-card');
+            if (card) card.classList.add('has-error');
+            errors.push(label);
+            if (!firstErrorEl) firstErrorEl = el;
+            }
+            });
 
-                    if (errors.length > 0) {
-                        e.preventDefault();
-                        if (firstErrorEl) {
-                            const wrap = firstErrorEl.closest('.field-wrap');
-                            if (wrap) wrap.classList.add('field-focus-target');
-                            window.scrollTo({ top: window.scrollY + firstErrorEl.getBoundingClientRect().top - 100, behavior: 'smooth' });
-                            setTimeout(() => firstErrorEl.focus(), 380);
-                        }
-                        const count = errors.length;
-                        document.getElementById('toastMsg').textContent = `${count} required field${count > 1 ? 's' : ''} need attention.`;
-                        document.getElementById('toastSub').textContent = `First missing: ${errors[0]}`;
-                        document.getElementById('validationToast').classList.add('show');
-                        setTimeout(() => document.getElementById('validationToast').classList.remove('show'), 5000);
-                        const badge = document.getElementById('missingBadge');
-                        badge.textContent = `⚠ ${count} field${count > 1 ? 's' : ''} missing — click to jump`;
-                        badge.classList.add('show');
-                        setTimeout(() => badge.classList.remove('show'), 8000);
-                        return false;
-                    }
-                });
+            if (errors.length > 0) {
+            e.preventDefault();
+            if (firstErrorEl) {
+            const wrap = firstErrorEl.closest('.field-wrap');
+            if (wrap) wrap.classList.add('field-focus-target');
+            window.scrollTo({ top: window.scrollY + firstErrorEl.getBoundingClientRect().top - 100, behavior: 'smooth' });
+            setTimeout(() => firstErrorEl.focus(), 380);
+            }
+            const count = errors.length;
+            document.getElementById('toastMsg').textContent = `${count} required field${count > 1 ? 's' : ''} need attention.`;
+            document.getElementById('toastSub').textContent = `First missing: ${errors[0]}`;
+            document.getElementById('validationToast').classList.add('show');
+            setTimeout(() => document.getElementById('validationToast').classList.remove('show'), 5000);
+            const badge = document.getElementById('missingBadge');
+            badge.textContent = `⚠ ${count} field${count > 1 ? 's' : ''} missing — click to jump`;
+            badge.classList.add('show');
+            setTimeout(() => badge.classList.remove('show'), 8000);
+            return false;
+            }
+            });
 
-                document.querySelectorAll('.field-wrap[data-required] input,.field-wrap[data-required] select,.field-wrap[data-required] textarea').forEach(el => {
-                    el.addEventListener('input', clearFieldError);
-                    el.addEventListener('change', clearFieldError);
-                });
+            document.querySelectorAll('.field-wrap[data-required] input,.field-wrap[data-required] select,.field-wrap[data-required] textarea').forEach(el => {
+            el.addEventListener('input', clearFieldError);
+            el.addEventListener('change', clearFieldError);
+            });
 
-                function clearFieldError() {
-                    const wrap = this.closest('.field-wrap');
-                    if (!wrap) return;
-                    wrap.classList.remove('field-invalid', 'field-focus-target');
-                    const msg = wrap.querySelector('.field-err-msg');
-                    if (msg) msg.remove();
-                    const card = wrap.closest('.section-card');
-                    if (card && !card.querySelector('.field-invalid')) card.classList.remove('has-error');
-                }
+            function clearFieldError() {
+            const wrap = this.closest('.field-wrap');
+            if (!wrap) return;
+            wrap.classList.remove('field-invalid', 'field-focus-target');
+            const msg = wrap.querySelector('.field-err-msg');
+            if (msg) msg.remove();
+            const card = wrap.closest('.section-card');
+            if (card && !card.querySelector('.field-invalid')) card.classList.remove('has-error');
+            }
             });
 
             function validateMobile(input) { input.value = input.value.replace(/\D/g, '').slice(0, 10); }
             function scrollToFirstError() {
-                const first = document.querySelector('.field-invalid input,.field-invalid select,.field-invalid textarea');
-                if (first) {
-                    window.scrollTo({ top: window.scrollY + first.getBoundingClientRect().top - 100, behavior: 'smooth' });
-                    setTimeout(() => first.focus(), 380);
-                }
+            const first = document.querySelector('.field-invalid input,.field-invalid select,.field-invalid textarea');
+            if (first) {
+            window.scrollTo({ top: window.scrollY + first.getBoundingClientRect().top - 100, behavior: 'smooth' });
+            setTimeout(() => first.focus(), 380);
+            }
             }
         </script>
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
 
-                // =========================================================
-                // ELEMENTS
-                // =========================================================
+            // =========================================================
+            // ELEMENTS
+            // =========================================================
 
-                const yesRadio = document.getElementById("otherHealthCollegeYes");
-                const noRadio = document.getElementById("otherHealthCollegeNo");
+            const yesRadio = document.getElementById("otherHealthCollegeYes");
+            const noRadio = document.getElementById("otherHealthCollegeNo");
 
-                const details =
-                    document.getElementById("otherHealthScienceCollegeDetails");
+            const details =
+            document.getElementById("otherHealthScienceCollegeDetails");
 
-                const rowsContainer =
-                    document.getElementById("otherHealthScienceCollegeContainer");
+            const rowsContainer =
+            document.getElementById("otherHealthScienceCollegeContainer");
 
-                // IMPORTANT:
-                // This matches your current UI button ID
-                const addButton =
-                    document.getElementById("addOtherHealthScienceCollege");
+            const addButton =
+            document.getElementById("addOtherHealthScienceCollege");
 
 
-                // =========================================================
-                // YES / NO TOGGLE
-                // =========================================================
+            // =========================================================
+            // YES / NO TOGGLE
+            // =========================================================
 
-                function toggleOtherHealthCollege() {
+            function toggleOtherHealthCollege() {
 
-                    if (!details) return;
+            if (!details) return;
 
-                    if (yesRadio && yesRadio.checked) {
+            if (yesRadio && yesRadio.checked) {
 
-                        details.style.display = "block";
+            details.style.display = "block";
 
-                    } else {
+            } else {
 
-                        details.style.display = "none";
-                    }
-                }
+            details.style.display = "none";
+            }
+            }
 
-                yesRadio?.addEventListener(
-                    "change",
-                    toggleOtherHealthCollege
-                );
+            yesRadio?.addEventListener(
+            "change",
+            toggleOtherHealthCollege
+            );
 
-                noRadio?.addEventListener(
-                    "change",
-                    toggleOtherHealthCollege
-                );
+            noRadio?.addEventListener(
+            "change",
+            toggleOtherHealthCollege
+            );
 
-                toggleOtherHealthCollege();
-
-
-                // =========================================================
-                // FACULTY OPTIONS
-                // =========================================================
-
-                function getFacultyOptions() {
-
-                    let options = "";
-
-                    @foreach (var faculty in Model.Faculties)
-                    {
-                        <text>
-                            options += `
-                                <option value="@faculty.FacultyId">
-                                    @Html.Raw(faculty.FacultyName)
-                                </option>
-                            `;
-                        </text>
-                    }
-
-                    return options;
-                }
+            toggleOtherHealthCollege();
 
 
-                // =========================================================
-                // GET NEXT INDEX
-                // =========================================================
+            // =========================================================
+            // FACULTY OPTIONS
+            // =========================================================
 
-                function getNextIndex() {
+            function getFacultyOptions() {
 
-                    if (!rowsContainer) {
-                        return 0;
-                    }
+            let options = "";
 
-                    return rowsContainer.querySelectorAll(
-                        ".other-college-row"
-                    ).length;
-                }
-
-
-                // =========================================================
-                // ADD COLLEGE
-                // =========================================================
-
-                addButton?.addEventListener("click", async function() {
-
-                    if (!rowsContainer) return;
-
-                    const index = getNextIndex();
-
-                    try {
-
-                        // =====================================================
-                        // LOAD FACULTY FROM API
-                        // =====================================================
-
-                        const response = await fetch(
-                            '@Url.Action("GetFacultiesForOtherHealthScienceColleges", "ContinuesAffiliation_Facultybased")'
-                        );
-
-                        if (!response.ok) {
-                            throw new Error("Unable to load faculties.");
-                        }
-
-                        const faculties = await response.json();
-
-
-                        // =====================================================
-                        // CREATE FACULTY OPTIONS
-                        // =====================================================
-
-                        let facultyOptions = `
-                        <option value="">
-                            -- Select Faculty --
-                        </option>
+            @foreach (var faculty in Model.Faculties)
+            {
+                <text>
+                    options += `
+                    <option value="@faculty.FacultyId">
+                        @Html.Raw(faculty.FacultyName)
+                    </option>
                     `;
+                </text>
+            }
 
-                        faculties.forEach(function(item) {
+            return options;
+            }
 
-                            facultyOptions += `
-                            <option value="${item.value}">
-                                ${item.text}
-                            </option>
-                        `;
 
-                        });
+            // =========================================================
+            // GET NEXT INDEX
+            // =========================================================
 
+            function getNextIndex() {
 
-                        // =====================================================
-                        // CREATE ROW
-                        // =====================================================
+            if (!rowsContainer) {
+            return 0;
+            }
 
-                        const row = document.createElement("div");
+            return rowsContainer.querySelectorAll(
+            ".other-college-row"
+            ).length;
+            }
 
-                        row.className =
-                            "other-college-row border rounded p-3 mb-3";
 
+            // =========================================================
+            // ADD COLLEGE
+            // =========================================================
 
-                        row.innerHTML = `
+            addButton?.addEventListener("click", async function() {
 
-                        <div class="row g-3">
+            if (!rowsContainer) return;
 
-                            <!-- FACULTY -->
-                            <div class="col-md-4">
+            const index = getNextIndex();
 
-                                <label class="form-label">
-                                    Faculty
-                                    <span class="req">*</span>
-                                </label>
+            try {
 
-                                <select
-                                    class="form-select faculty-dropdown"
-                                    name="OtherHealthScienceColleges[${index}].OtherFacultyId"
-                                    data-index="${index}">
+            // =====================================================
+            // LOAD FACULTY FROM API
+            // =====================================================
 
-                                    ${facultyOptions}
+            const response = await fetch(
+            '@Url.Action("GetFacultiesForOtherHealthScienceColleges", "ContinuesAffiliation_Facultybased")'
+            );
 
-                                </select>
+            if (!response.ok) {
+            throw new Error("Unable to load faculties.");
+            }
 
-                            </div>
+            const faculties = await response.json();
 
 
-                            <!-- COLLEGE -->
-                            <div class="col-md-4">
+            // =====================================================
+            // CREATE FACULTY OPTIONS
+            // =====================================================
 
-                                <label class="form-label">
-                                    College
-                                    <span class="req">*</span>
-                                </label>
+            let facultyOptions = `
+            <option value="">
+            -- Select Faculty --
+            </option>
+            `;
 
-                                <select
-                                    class="form-select college-dropdown"
-                                    name="OtherHealthScienceColleges[${index}].OtherCollegeCode"
-                                    data-index="${index}">
+            faculties.forEach(function(item) {
 
-                                    <option value="">
-                                        -- Select College --
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            <!-- COURSE -->
-                            <div class="col-md-3">
-
-                                <label class="form-label">
-                                    Course
-                                    <span class="req">*</span>
-                                </label>
-
-                                <select
-                                    class="form-select course-dropdown"
-                                    name="OtherHealthScienceColleges[${index}].OtherCourseCode"
-                                    data-index="${index}">
-
-                                    <option value="">
-                                        -- Select Course --
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            <!-- REMOVE -->
-                            <div class="col-md-1 d-flex align-items-end">
-
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-danger remove-other-college"
-                                    data-id=""
-                                    title="Remove">
-
-                                    <i class="fas fa-trash"></i>
-
-                                </button>
-
-                            </div>
-
-                        </div>
-                    `;
-
-
-                        rowsContainer.appendChild(row);
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Faculty loading error:",
-                            error
-                        );
-
-                        alert("Unable to load faculty list.");
-
-                    }
-
-                });
-
-
-                // =========================================================
-                // FACULTY CHANGE
-                // LOAD COLLEGES + COURSES
-                // =========================================================
-
-                document.addEventListener("change", async function (e) {
-
-                    if (!e.target.classList.contains("faculty-dropdown")) {
-                        return;
-                    }
-
-                    const facultyDropdown = e.target;
-
-                    const facultyId =
-                        facultyDropdown.value;
-
-                    const row =
-                        facultyDropdown.closest(".other-college-row");
-
-                    if (!row) return;
-
-                    const collegeDropdown =
-                        row.querySelector(".college-dropdown");
-
-                    const courseDropdown =
-                        row.querySelector(".course-dropdown");
-
-                    if (!collegeDropdown || !courseDropdown) {
-                        return;
-                    }
-
-
-                    // -----------------------------------------------------
-                    // CLEAR COLLEGE + COURSE
-                    // -----------------------------------------------------
-
-                    collegeDropdown.innerHTML =
-                        '<option value="">-- Select College --</option>';
-
-                    courseDropdown.innerHTML =
-                        '<option value="">-- Select Course --</option>';
-
-
-                    if (!facultyId) {
-                        return;
-                    }
-
-
-                    // =====================================================
-                    // LOAD COLLEGES
-                    // =====================================================
-
-                    try {
-
-                        const collegeUrl =
-                            '@Url.Action(
-                                "GetOtherHealthScienceColleges",
-                                "ContinuesAffiliation_Facultybased"
-                            )'
-                            + '?facultyId='
-                            + encodeURIComponent(facultyId);
-
-
-                        const response =
-                            await fetch(collegeUrl);
-
-
-                        if (!response.ok) {
-
-                            throw new Error(
-                                "Unable to load colleges."
-                            );
-
-                        }
-
-
-                        const colleges =
-                            await response.json();
-
-
-                        colleges.forEach(function (item) {
-
-                            const option =
-                                document.createElement("option");
-
-                            option.value =
-                                item.value;
-
-                            option.textContent =
-                                item.text;
-
-                            collegeDropdown.appendChild(
-                                option
-                            );
-
-                        });
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "College loading error:",
-                            error
-                        );
-
-                        alert(
-                            "Unable to load colleges."
-                        );
-
-                    }
-
-
-                    // =====================================================
-                    // LOAD COURSES
-                    // =====================================================
-
-                    try {
-
-                        const courseUrl =
-                            '@Url.Action(
-                                "GetOtherHealthScienceCourses",
-                                "ContinuesAffiliation_Facultybased"
-                            )'
-                            + '?facultyId='
-                            + encodeURIComponent(facultyId);
-
-
-                        const response =
-                            await fetch(courseUrl);
-
-
-                        if (!response.ok) {
-
-                            throw new Error(
-                                "Unable to load courses."
-                            );
-
-                        }
-
-
-                        const courses =
-                            await response.json();
-
-
-                        courses.forEach(function (item) {
-
-                            const option =
-                                document.createElement("option");
-
-                            option.value =
-                                item.value;
-
-                            option.textContent =
-                                item.text;
-
-                            courseDropdown.appendChild(
-                                option
-                            );
-
-                        });
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Course loading error:",
-                            error
-                        );
-
-                        alert(
-                            "Unable to load courses."
-                        );
-
-                    }
-
-                });
-
-
-                // =========================================================
-                // REMOVE COLLEGE
-                // =========================================================
-
-                const deleteOtherCollegeUrl = '@Url.Action("DeleteOtherHealthScienceCollege", "ContinuesAffiliation_Facultybased" )';
-
-                document.addEventListener("click", async function (e) {
-
-                    const removeButton = e.target.closest(".remove-other-college");
-
-                    if (!removeButton) {
-                        return;
-                    }
-
-                    const row = removeButton.closest(".other-college-row");
-
-                    if (!row) {
-                        return;
-                    }
-
-                    const id = removeButton.dataset.id;
-
-                    if (!id || id === "0") {
-                        row.remove();
-                        reindexRows();
-                        return;
-                    }
-
-                    const confirmation = await Swal.fire({
-                        title: "Are you sure?",
-                        text: "This college will be permanently deleted.",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Yes, delete it",
-                        cancelButtonText: "Cancel",
-                        reverseButtons: true
-                    });
-
-
-                    if (!confirmation.isConfirmed) {
-                        return;
-                    }
-
-
-                    try {
-
-                        removeButton.disabled = true;
-
-                        const response = await fetch(
-                            `${deleteOtherCollegeUrl}?id=${encodeURIComponent(id)}`,
-                            {
-                                method: "DELETE"
-                            }
-                        );
-
-
-                        const result = await response.json();
-
-                        if (!response.ok || !result.success) {
-                            throw new Error(result.message || "Unable to delete other health science college.");
-                        }
-
-
-                        row.remove();
-                        reindexRows();
-
-                        await Swal.fire({
-                            title: "Deleted!",
-                            text: result.message || "Other health science college deleted successfully.",
-                            icon: "success",
-                            confirmButtonText: "OK"
-                        });
-
-
-                    } catch (error) {
-
-                        console.error(error);
-                        removeButton.disabled = false;
-                        Swal.fire({
-                            title: "Error",
-                            text: error.message || "Unable to delete other health science college.",
-                            icon: "error",
-                            confirmButtonText: "OK"
-                        });
-                    }
-
-                });
-
-
-                // =========================================================
-                // REINDEX ROWS
-                // =========================================================
-
-                function reindexRows() {
-
-                    if (!rowsContainer) {
-                        return;
-                    }
-
-                    const rows =
-                        rowsContainer.querySelectorAll(
-                            ".other-college-row"
-                        );
-
-
-                    rows.forEach(function (row, index) {
-
-                        const faculty =
-                            row.querySelector(
-                                ".faculty-dropdown"
-                            );
-
-                        const college =
-                            row.querySelector(
-                                ".college-dropdown"
-                            );
-
-                        const course =
-                            row.querySelector(
-                                ".course-dropdown"
-                            );
-
-
-                        // FACULTY
-                        if (faculty) {
-
-                            faculty.name =
-                                `OtherHealthScienceColleges[${index}].OtherFacultyId`;
-
-                            faculty.dataset.index =
-                                index;
-                        }
-
-
-                        // COLLEGE
-                        if (college) {
-
-                            college.name =
-                                `OtherHealthScienceColleges[${index}].OtherCollegeCode`;
-
-                            college.dataset.index =
-                                index;
-                        }
-
-
-                        // COURSE
-                        if (course) {
-
-                            course.name =
-                                `OtherHealthScienceColleges[${index}].OtherCourseCode`;
-
-                            course.dataset.index =
-                                index;
-                        }
-
-                    });
-
-                }
-
-
-                // =========================================================
-                // INITIAL REINDEX
-                // =========================================================
-
-                reindexRows();
+            facultyOptions += `
+            <option value="${item.value}">
+            ${item.text}
+            </option>
+            `;
 
             });
-            </script>
+
+
+            // =====================================================
+            // CREATE ROW
+            // =====================================================
+
+            const row = document.createElement("div");
+
+            row.className =
+            "other-college-row border rounded p-3 mb-3";
+
+            // ✅ New rows start with Id = 0 so the server INSERTS them
+            row.dataset.id = "0";
+
+            row.innerHTML = `
+
+            <input type="hidden"
+            name="OtherHealthScienceColleges[${index}].Id"
+            value="0" />
+
+            <div class="row g-3">
+
+            <!-- FACULTY -->
+            <div class="col-md-4">
+
+            <label class="form-label">
+            Faculty
+            <span class="req">*</span>
+            </label>
+
+            <select
+            class="form-select faculty-dropdown"
+            name="OtherHealthScienceColleges[${index}].OtherFacultyId"
+            data-index="${index}">
+
+            ${facultyOptions}
+
+            </select>
+
+            </div>
+
+
+            <!-- COLLEGE -->
+            <div class="col-md-4">
+
+            <label class="form-label">
+            College
+            <span class="req">*</span>
+            </label>
+
+            <select
+            class="form-select college-dropdown"
+            name="OtherHealthScienceColleges[${index}].OtherCollegeCode"
+            data-index="${index}">
+
+            <option value="">
+            -- Select College --
+            </option>
+
+            </select>
+
+            </div>
+
+
+            <!-- COURSE -->
+            <div class="col-md-3">
+
+            <label class="form-label">
+            Course
+            <span class="req">*</span>
+            </label>
+
+            <select
+            class="form-select course-dropdown"
+            name="OtherHealthScienceColleges[${index}].OtherCourseCode"
+            data-index="${index}">
+
+            <option value="">
+            -- Select Course --
+            </option>
+
+            </select>
+
+            </div>
+
+
+            <!-- REMOVE -->
+            <div class="col-md-1 d-flex align-items-end">
+
+            <button
+            type="button"
+            class="btn btn-outline-danger remove-other-college"
+            data-id=""
+            title="Remove">
+
+            <i class="fas fa-trash"></i>
+
+            </button>
+
+            </div>
+
+            </div>
+            `;
+
+
+            rowsContainer.appendChild(row);
+
+            }
+            catch (error) {
+
+            console.error(
+            "Faculty loading error:",
+            error
+            );
+
+            alert("Unable to load faculty list.");
+
+            }
+
+            });
+
+
+            // =========================================================
+            // FACULTY CHANGE
+            // LOAD COLLEGES + COURSES
+            // =========================================================
+
+            document.addEventListener("change", async function (e) {
+
+            if (!e.target.classList.contains("faculty-dropdown")) {
+            return;
+            }
+
+            const facultyDropdown = e.target;
+
+            const facultyId =
+            facultyDropdown.value;
+
+            const row =
+            facultyDropdown.closest(".other-college-row");
+
+            if (!row) return;
+
+            const collegeDropdown =
+            row.querySelector(".college-dropdown");
+
+            const courseDropdown =
+            row.querySelector(".course-dropdown");
+
+            if (!collegeDropdown || !courseDropdown) {
+            return;
+            }
+
+
+            // -----------------------------------------------------
+            // CLEAR COLLEGE + COURSE
+            // -----------------------------------------------------
+
+            collegeDropdown.innerHTML =
+            '<option value="">-- Select College --</option>';
+
+            courseDropdown.innerHTML =
+            '<option value="">-- Select Course --</option>';
+
+
+            if (!facultyId) {
+            return;
+            }
+
+
+            // =====================================================
+            // LOAD COLLEGES
+            // =====================================================
+
+            try {
+
+            const collegeUrl =
+            '@Url.Action(
+                                            "GetOtherHealthScienceColleges",
+                                            "ContinuesAffiliation_Facultybased"
+                                    )'
+            + '?facultyId='
+            + encodeURIComponent(facultyId);
+
+
+            const response =
+            await fetch(collegeUrl);
+
+
+            if (!response.ok) {
+
+            throw new Error(
+            "Unable to load colleges."
+            );
+
+            }
+
+
+            const colleges =
+            await response.json();
+
+
+            colleges.forEach(function (item) {
+
+            const option =
+            document.createElement("option");
+
+            option.value =
+            item.value;
+
+            option.textContent =
+            item.text;
+
+            collegeDropdown.appendChild(
+            option
+            );
+
+            });
+
+            }
+            catch (error) {
+
+            console.error(
+            "College loading error:",
+            error
+            );
+
+            alert(
+            "Unable to load colleges."
+            );
+
+            }
+
+
+            // =====================================================
+            // LOAD COURSES
+            // =====================================================
+
+            try {
+
+            const courseUrl =
+            '@Url.Action(
+                                            "GetOtherHealthScienceCourses",
+                                            "ContinuesAffiliation_Facultybased"
+                                    )'
+            + '?facultyId='
+            + encodeURIComponent(facultyId);
+
+
+            const response =
+            await fetch(courseUrl);
+
+
+            if (!response.ok) {
+
+            throw new Error(
+            "Unable to load courses."
+            );
+
+            }
+
+
+            const courses =
+            await response.json();
+
+
+            courses.forEach(function (item) {
+
+            const option =
+            document.createElement("option");
+
+            option.value =
+            item.value;
+
+            option.textContent =
+            item.text;
+
+            courseDropdown.appendChild(
+            option
+            );
+
+            });
+
+            }
+            catch (error) {
+
+            console.error(
+            "Course loading error:",
+            error
+            );
+
+            alert(
+            "Unable to load courses."
+            );
+
+            }
+
+            });
+
+
+            // =========================================================
+            // REMOVE COLLEGE
+            // =========================================================
+
+            const deleteOtherCollegeUrl = '@Url.Action("DeleteOtherHealthScienceCollege", "ContinuesAffiliation_Facultybased")';
+
+            document.addEventListener("click", async function (e) {
+
+            const removeButton = e.target.closest(".remove-other-college");
+
+            if (!removeButton) {
+            return;
+            }
+
+            const row = removeButton.closest(".other-college-row");
+
+            if (!row) {
+            return;
+            }
+
+            const id = removeButton.dataset.id;
+
+            if (!id || id === "0") {
+            row.remove();
+            reindexRows();
+            return;
+            }
+
+            const confirmation = await Swal.fire({
+            title: "Are you sure?",
+            text: "This college will be permanently deleted.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            reverseButtons: true
+            });
+
+
+            if (!confirmation.isConfirmed) {
+            return;
+            }
+
+
+            try {
+
+            removeButton.disabled = true;
+
+            const response = await fetch(
+            `${deleteOtherCollegeUrl}?id=${encodeURIComponent(id)}`,
+            {
+            method: "DELETE"
+            }
+            );
+
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+            throw new Error(result.message || "Unable to delete other health science college.");
+            }
+
+
+            row.remove();
+            reindexRows();
+
+            await Swal.fire({
+            title: "Deleted!",
+            text: result.message || "Other health science college deleted successfully.",
+            icon: "success",
+            confirmButtonText: "OK"
+            });
+
+
+            } catch (error) {
+
+            console.error(error);
+            removeButton.disabled = false;
+            Swal.fire({
+            title: "Error",
+            text: error.message || "Unable to delete other health science college.",
+            icon: "error",
+            confirmButtonText: "OK"
+            });
+            }
+
+            });
+
+
+            // =========================================================
+            // REINDEX ROWS
+            // (keeps indexes contiguous 0..n-1 so MVC model binding works,
+            //  and keeps each hidden Id attached to its own row)
+            // =========================================================
+
+            function reindexRows() {
+
+            if (!rowsContainer) {
+            return;
+            }
+
+            const rows =
+            rowsContainer.querySelectorAll(
+            ".other-college-row"
+            );
+
+
+            rows.forEach(function (row, index) {
+
+            // ✅ HIDDEN ID (was missing: caused Id/row mismatch after a removal)
+            const idInput =
+            row.querySelector(
+            'input[type="hidden"][name$=".Id"]'
+            );
+
+            const faculty =
+            row.querySelector(
+            ".faculty-dropdown"
+            );
+
+            const college =
+            row.querySelector(
+            ".college-dropdown"
+            );
+
+            const course =
+            row.querySelector(
+            ".course-dropdown"
+            );
+
+
+            if (idInput) {
+
+            idInput.name =
+            `OtherHealthScienceColleges[${index}].Id`;
+            }
+
+
+            // FACULTY
+            if (faculty) {
+
+            faculty.name =
+            `OtherHealthScienceColleges[${index}].OtherFacultyId`;
+
+            faculty.dataset.index =
+            index;
+            }
+
+
+            // COLLEGE
+            if (college) {
+
+            college.name =
+            `OtherHealthScienceColleges[${index}].OtherCollegeCode`;
+
+            college.dataset.index =
+            index;
+            }
+
+
+            // COURSE
+            if (course) {
+
+            course.name =
+            `OtherHealthScienceColleges[${index}].OtherCourseCode`;
+
+            course.dataset.index =
+            index;
+            }
+
+            });
+
+            }
+
+
+            // =========================================================
+            // INITIAL REINDEX
+            // =========================================================
+
+            reindexRows();
+
+            });
+        </script>
 
         <script>
             var facultyCode = '@facultyCode';
 
             function toggleGovAutoSection() {
-                var id = $("#typeOfInstitutionDropdown").val();
+            var id = $("#typeOfInstitutionDropdown").val();
 
-                // Aadhaar section: only for Faculty Code 2
-                if (facultyCode === "2" && id !== "1" && id !== "11") {
-                    $("#aadhaarSection").show();
-                } else {
-                    $("#aadhaarSection").hide();
-                }
+            // Aadhaar section: only for Faculty Code 2
+            if (facultyCode === "2" && id !== "1" && id !== "11") {
+            $("#aadhaarSection").show();
+            } else {
+            $("#aadhaarSection").hide();
+            }
 
-                // Government Autonomous section
-                if (id === "1" || id === "11") {
-                    $("#govAutoSection").show();
-                } else {
-                    $("#govAutoSection").hide();
-                }
+            // Government Autonomous section
+            if (id === "1" || id === "11") {
+            $("#govAutoSection").show();
+            } else {
+            $("#govAutoSection").hide();
+            }
             }
 
             $(document).ready(function () {
-                toggleGovAutoSection();
+            toggleGovAutoSection();
 
-                $("#typeOfInstitutionDropdown").on("change", function () {
-                    toggleGovAutoSection();
-                });
+            $("#typeOfInstitutionDropdown").on("change", function () {
+            toggleGovAutoSection();
+            });
             });
         </script>
     }

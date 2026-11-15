@@ -256,8 +256,8 @@ namespace Medical_Affiliation.Controllers
                         CourseName = gok != null ? gok.CourseName : ci.CourseName,
                         CourseLevel = gok != null ? gok.CourseLevel : ci.CourseLevel,
                         CoursePrefix = gok != null ? gok.CoursePrefix : ci.CoursePrefix,
-                        CollegeIntake = gok != null ? gok.PresentIntake : ci.CollegeIntake,
-                        RguhsIntake = gok != null ? gok.PresentIntake : ci.RguhsIntake,
+                        CollegeIntake = ci.CollegeIntake,                 // Intake_26_27
+                        RguhsIntake = ci.CollegeIntake,                  // sanctioned intake shown = Intake_26_27 (read-only)
                         HasGOKDocument = gok != null && gok.DocumentofGokpath != null && gok.DocumentofGokpath.Length > 0,
                         AcademicYear = gok != null ? gok.AcademicYear : null,
                         DateofGOK = gok != null ? gok.Gokdate : null
@@ -297,7 +297,7 @@ namespace Medical_Affiliation.Controllers
                         CourseName = ci.CourseName,
                         CourseLevel = ci.CourseLevel,
                         CoursePrefix = ci.CoursePrefix,
-                        RguhsIntake = rguhsCourses != null ? rguhsCourses.RguhsIntake : ci.RguhsIntake,
+                        RguhsIntake = ci.CollegeIntake,                  // sanctioned intake shown = Intake_26_27 (read-only)
                         HasRguhsDocument = rguhsCourses != null && rguhsCourses.RguhssupportingDocumentPath != null && rguhsCourses.RguhssupportingDocumentPath.Length > 0,
                     };
                 })
@@ -462,59 +462,132 @@ namespace Medical_Affiliation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SavePgCoursesForGOK(AffiliationPgCourseViewModel model)
         {
+            // Everything that identifies the college / course comes from the server, never from the posted form
             var collegeCode = _userContext.CollegeCode;
+            var facultyCode = _userContext.FacultyId.ToString();
+            var affType = _userContext.TypeOfAffiliation.ToString();
 
-            foreach (var course in model.PgCoursesGOK)
+            var posted = model?.PgCoursesGOK?.ToList() ?? new List<PgCoursesGokVM>();
+
+            // Sanctioned intake = Mst_MedicalCollegeCourseIntake.Intake_26_27 (CollegeIntake of the intake row)
+            var master = (await GetCollegeCoursesAsync()).ToDictionary(c => c.CourseCode);
+
+            var existingRows = (await _context.AffiliationPgSsCourseDetailsForGoks
+                    .Where(e => e.CollegeCode == collegeCode)
+                    .ToListAsync())
+                .Where(e => e.CourseCode != null)
+                .GroupBy(e => e.CourseCode)
+                .ToDictionary(g => g.Key!, g => g.First());
+
+            var errors = new List<string>();
+            var newFiles = new List<string>();   // removed again if the database save fails
+            var oldFiles = new List<string>();   // removed only after the database save succeeds
+            var saved = 0;
+
+            foreach (var course in posted)
             {
-                if (string.IsNullOrWhiteSpace(course.CourseCode) || string.IsNullOrWhiteSpace(course.AcademicYear))
+                if (string.IsNullOrWhiteSpace(course.CourseCode) ||
+                    !master.TryGetValue(course.CourseCode, out var intakeRow))
                     continue;
 
-                var existingCourse = await _context.AffiliationPgSsCourseDetailsForGoks
-                    .FirstOrDefaultAsync(e => e.CollegeCode == course.CollegeCode && e.CourseCode == course.CourseCode);
+                var hasFile = course.GOKDocumentFile != null && course.GOKDocumentFile.Length > 0;
+                var hasDate = course.DateofGOK.HasValue;
+                var hasYear = !string.IsNullOrWhiteSpace(course.AcademicYear);
 
-                var path = await SavePgFileAsync(course.GOKDocumentFile, "GOK");
+                // Row left untouched
+                if (!hasFile && !hasDate && !hasYear)
+                    continue;
 
-                if (existingCourse == null)
+                if (!hasYear)
                 {
-                    var entity = new AffiliationPgSsCourseDetailsForGok
-                    {
-                        CourseCode = course.CourseCode,
-                        CourseName = course.CourseName,
-                        CourseLevel = course.CourseLevel,
-                        CoursePrefix = course.CoursePrefix,
-                        CollegeCode = course.CollegeCode ?? collegeCode,
-                        PresentIntake = course.CollegeIntake,
-                        SanctionedIntake = course.RguhsIntake,
-                        TypeOfAffiliation = _userContext.TypeOfAffiliation.ToString(),
-                        Gokdate = course.DateofGOK,
-                        FacultyCode = _userContext.FacultyId.ToString(),
-                        AcademicYear = course.AcademicYear,
-                        DocumentofGokpath = path
-                    };
-
-                    _context.AffiliationPgSsCourseDetailsForGoks.Add(entity);
+                    errors.Add($"{intakeRow.CourseName}: enter the academic year.");
+                    continue;
                 }
-                else
+
+                string? path = null;
+                if (hasFile)
                 {
-                    existingCourse.SanctionedIntake = course.RguhsIntake;
-                    existingCourse.AcademicYear = course.AcademicYear;
-                    existingCourse.Gokdate = course.DateofGOK;
-
-                    if (path != null)
+                    try
                     {
-                        if (!string.IsNullOrEmpty(existingCourse.DocumentofGokpath) &&
-                            System.IO.File.Exists(existingCourse.DocumentofGokpath))
-                        {
-                            System.IO.File.Delete(existingCourse.DocumentofGokpath);
-                        }
-
-                        existingCourse.DocumentofGokpath = path;
+                        path = await SavePgFileAsync(course.GOKDocumentFile!, "GOK");
+                        if (path != null) newFiles.Add(path);
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"{intakeRow.CourseName}: {ex.Message}");
+                        continue;
                     }
                 }
+
+                existingRows.TryGetValue(course.CourseCode, out var row);
+
+                if (row == null)
+                {
+                    row = new AffiliationPgSsCourseDetailsForGok
+                    {
+                        CollegeCode = collegeCode,
+                        FacultyCode = facultyCode,
+                        TypeOfAffiliation = affType,
+                        CourseCode = intakeRow.CourseCode,
+                        CourseName = intakeRow.CourseName,
+                        CourseLevel = intakeRow.CourseLevel,
+                        CoursePrefix = intakeRow.CoursePrefix
+                    };
+                    _context.AffiliationPgSsCourseDetailsForGoks.Add(row);
+                    existingRows[course.CourseCode] = row;
+                }
+
+                row.PresentIntake = intakeRow.CollegeIntake;
+                row.SanctionedIntake = intakeRow.CollegeIntake;   // Intake_26_27, not editable on the form
+                row.AcademicYear = course.AcademicYear!.Trim();
+                row.Gokdate = course.DateofGOK;
+
+                if (path != null)
+                {
+                    if (!string.IsNullOrEmpty(row.DocumentofGokpath))
+                        oldFiles.Add(row.DocumentofGokpath);
+
+                    row.DocumentofGokpath = path;
+                }
+
+                saved++;
             }
 
-            await _context.SaveChangesAsync();
-            TempData["GokSavemsg"] = "GOK Details saved successfully";
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                foreach (var f in newFiles)
+                {
+                    try { if (System.IO.File.Exists(f)) System.IO.File.Delete(f); } catch { /* best effort */ }
+                }
+
+                var reason = ex.InnerException?.Message ?? ex.Message;
+                TempData["PgError"] = "GOK details could not be saved: " + reason;
+                return RedirectToAction(nameof(PgCourses));
+            }
+
+            foreach (var f in oldFiles)
+            {
+                try { if (System.IO.File.Exists(f)) System.IO.File.Delete(f); } catch { /* best effort */ }
+            }
+
+            if (errors.Count > 0)
+            {
+                TempData["PgError"] = (saved > 0 ? $"Saved {saved} course(s). " : "")
+                                      + "These could not be saved:\n" + string.Join("\n", errors);
+            }
+            else if (saved == 0)
+            {
+                TempData["PgError"] = "Nothing was saved. Enter the academic year (and date or document) for at least one course.";
+            }
+            else
+            {
+                TempData["GokSavemsg"] = $"GOK details saved for {saved} course(s).";
+            }
+
             return RedirectToAction(nameof(PgCourses));
         }
         public async Task<IActionResult> ViewGokDocument(string courseCode, string collegecode)
@@ -537,61 +610,121 @@ namespace Medical_Affiliation.Controllers
         public async Task<IActionResult> SavePgCoursesRguhs(AffiliationPgCourseViewModel model)
         {
             var collegecode = _userContext.CollegeCode;
-            var facultyCode = _userContext.FacultyId;
-            var afftype = _userContext.TypeOfAffiliation;
+            var facultyCode = _userContext.FacultyId.ToString();
+            var afftype = _userContext.TypeOfAffiliation.ToString();
 
-            foreach (var course in model.PgCoursesRguhs)
+            var posted = model?.PgCoursesRguhs?.ToList() ?? new List<PgCoursesWithRGUHSPermission>();
+
+            // Sanctioned intake = Mst_MedicalCollegeCourseIntake.Intake_26_27 (CollegeIntake of the intake row);
+            // the posted value is ignored so it cannot be edited
+            var master = (await GetCollegeCoursesAsync()).ToDictionary(c => c.CourseCode);
+
+            var existingRows = (await _context.AffiliationPgSsCourseDetailsRguhs
+                    .Where(e => e.CollegeCode == collegecode)
+                    .ToListAsync())
+                .Where(e => e.CourseCode != null)
+                .GroupBy(e => e.CourseCode)
+                .ToDictionary(g => g.Key!, g => g.First());
+
+            var errors = new List<string>();
+            var newFiles = new List<string>();
+            var oldFiles = new List<string>();
+            var saved = 0;
+
+            foreach (var course in posted)
             {
-                if (string.IsNullOrWhiteSpace(course.CourseCode))
+                if (string.IsNullOrWhiteSpace(course.CourseCode) ||
+                    !master.TryGetValue(course.CourseCode, out var intakeRow))
                     continue;
 
-                if (course.RGUHSDocumentFile == null || course.RGUHSDocumentFile.Length == 0)
-                    continue;
+                existingRows.TryGetValue(course.CourseCode, out var row);
 
-                var existing = await _context.AffiliationPgSsCourseDetailsRguhs
-                    .FirstOrDefaultAsync(e => e.CourseCode == course.CourseCode && e.CollegeCode == collegecode);
+                var hasFile = course.RGUHSDocumentFile != null && course.RGUHSDocumentFile.Length > 0;
 
-                var path = await SavePgFileAsync(course.RGUHSDocumentFile, "RGUHS");
-
-                if (existing == null)
+                if (!hasFile)
                 {
-                    // ✅ INSERT
-                    var entity = new AffiliationPgSsCourseDetailsRguh
+                    // No new document: keep the saved row's intake in step with the master table
+                    if (row != null)
+                        row.RguhsIntake = intakeRow.CollegeIntake;
+
+                    continue;
+                }
+
+                string? path;
+                try
+                {
+                    path = await SavePgFileAsync(course.RGUHSDocumentFile!, "RGUHS");
+                    if (path != null) newFiles.Add(path);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"{intakeRow.CourseName}: {ex.Message}");
+                    continue;
+                }
+
+                if (row == null)
+                {
+                    row = new AffiliationPgSsCourseDetailsRguh
                     {
                         CollegeCode = collegecode,
-                        FacultyCode = facultyCode.ToString(),
-                        TypeOfAffiliation = afftype.ToString(),
-                        CourseCode = course.CourseCode,
-                        CourseLevel = course.CourseLevel,
-                        CourseName = course.CourseName,
-                        RguhsIntake = course.RguhsIntake,
-                        RguhssupportingDocumentPath = path // ✅ save first time
+                        FacultyCode = facultyCode,
+                        TypeOfAffiliation = afftype,
+                        CourseCode = intakeRow.CourseCode,
+                        CourseLevel = intakeRow.CourseLevel,
+                        CourseName = intakeRow.CourseName
                     };
-
-                    _context.AffiliationPgSsCourseDetailsRguhs.Add(entity);
+                    _context.AffiliationPgSsCourseDetailsRguhs.Add(row);
+                    existingRows[course.CourseCode] = row;
                 }
-                else
+
+                row.RguhsIntake = intakeRow.CollegeIntake;   // Intake_26_27
+
+                if (path != null)
                 {
-                    // ✅ UPDATE
-                    existing.RguhsIntake = course.RguhsIntake;
+                    if (!string.IsNullOrEmpty(row.RguhssupportingDocumentPath))
+                        oldFiles.Add(row.RguhssupportingDocumentPath);
 
-                    if (path != null)
-                    {
-                        // 🔥 DELETE OLD FILE
-                        if (!string.IsNullOrEmpty(existing.RguhssupportingDocumentPath) &&
-                            System.IO.File.Exists(existing.RguhssupportingDocumentPath))
-                        {
-                            System.IO.File.Delete(existing.RguhssupportingDocumentPath);
-                        }
-
-                        // ✅ UPDATE NEW FILE
-                        existing.RguhssupportingDocumentPath = path;
-                    }
+                    row.RguhssupportingDocumentPath = path;
                 }
+
+                saved++;
             }
 
-            await _context.SaveChangesAsync();
-            TempData["Rguhs"] = "RGUHS Intake details saved successfully";
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                foreach (var f in newFiles)
+                {
+                    try { if (System.IO.File.Exists(f)) System.IO.File.Delete(f); } catch { /* best effort */ }
+                }
+
+                var reason = ex.InnerException?.Message ?? ex.Message;
+                TempData["PgError"] = "RGUHS details could not be saved: " + reason;
+                return RedirectToAction(nameof(PgCourses));
+            }
+
+            foreach (var f in oldFiles)
+            {
+                try { if (System.IO.File.Exists(f)) System.IO.File.Delete(f); } catch { /* best effort */ }
+            }
+
+            if (errors.Count > 0)
+            {
+                TempData["PgError"] = (saved > 0 ? $"Saved {saved} course(s). " : "")
+                                      + "These could not be saved:\n" + string.Join("\n", errors);
+            }
+            else if (saved == 0)
+            {
+                TempData["PgError"] = "Nothing was saved. Attach the RGUHS permission document (PDF) for at least one course.";
+            }
+            else
+            {
+                TempData["Rguhs"] = $"RGUHS details saved for {saved} course(s).";
+            }
+
             return RedirectToAction(nameof(PgCourses));
         }
 
