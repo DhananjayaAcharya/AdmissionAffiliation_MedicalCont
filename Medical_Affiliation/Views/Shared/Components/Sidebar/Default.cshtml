@@ -950,7 +950,8 @@
     // the actual redirect is done by SetCourseLevel on the server).
     const affiliationBaseUrlMap = {
     "2": @Html.Raw(Json.Serialize(Url.Action("Institution_Details", "ContinuesAffiliation_Facultybased"))),
-    "3": @Html.Raw(Json.Serialize(Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake")))
+    "3": @Html.Raw(Json.Serialize(Url.Action("IncreaseIntake", "ContinuousAffiliationIncreaseintake"))),
+    "4": @Html.Raw(Json.Serialize(Url.Action("Index", "CourseAffiliation")))
     };
 
     // Course levels that can be opened from the sidebar
