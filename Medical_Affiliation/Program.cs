@@ -129,7 +129,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Allow both HTTP and HTTPS
-    options.Cookie.SameSite = SameSiteMode.Lax;                     // Lax: the gateway's redirect back to Success/FailureUrl is a top-level GET, so the cookie is still sent
+    options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
 
@@ -215,33 +215,6 @@ builder.Services.AddHttpClient<IWhatsAppService, WhatsAppService>();
 builder.Services.AddScoped<IPrincipalContactLookupService, PrincipalContactLookupService>();
 builder.Services.AddScoped<IPaymentReceiptPdfService, PaymentReceiptPdfService>();
 builder.Services.AddScoped<Medical_Affiliation.Services.PgCourseCompletionService>();
-
-
-// =============================================
-// 🔹 Easebuzz online payment (Affiliation_Fees client)
-// Settings come from the "Easebuzz" section of appsettings.json; keep
-// BearerToken in user-secrets / environment variables, not in source control.
-// =============================================
-builder.Services.Configure<EasebuzzSettings>(builder.Configuration.GetSection(EasebuzzSettings.SectionName));
-
-builder.Services.AddHttpClient<IEasebuzzPaymentService, EasebuzzPaymentService>()
-    .ConfigurePrimaryHttpMessageHandler(sp =>
-    {
-        var settings = sp.GetRequiredService<IOptions<EasebuzzSettings>>().Value;
-        var handler = new HttpClientHandler();
-
-        // The gateway is reached by IP (https://14.139.159.12:447) and may use a
-        // self-signed certificate. Only bypass validation when explicitly enabled
-        // (development). In production install the proper certificate chain.
-        if (settings.AllowUntrustedCertificate)
-        {
-            handler.ServerCertificateCustomValidationCallback =
-                HttpClientHandler.DangerousAcceptAnyServerCertificateValidationCallback;
-        }
-
-        return handler;
-    })
-    .ConfigureHttpClient(client => client.Timeout = TimeSpan.FromSeconds(30));
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 // =============================================
@@ -504,12 +477,7 @@ app.Use(async (context, next) =>
     var isLogout = action.Contains("Logout", StringComparison.OrdinalIgnoreCase)
         || context.Request.Path.Value?.Contains("/Logout", StringComparison.OrdinalIgnoreCase) == true;
 
-    // The online payment start (POST /PaymentCalculation/StartOnlinePayment) must stay
-    // allowed after the declaration lock, otherwise paying would be redirected away.
-    var isOnlinePaymentStart = controller.Equals("PaymentCalculation", StringComparison.OrdinalIgnoreCase)
-        && action.Equals("StartOnlinePayment", StringComparison.OrdinalIgnoreCase);
-
-    if (isReadOnly && !isPreview && !isLogout && !isOnlinePaymentStart
+    if (isReadOnly && !isPreview && !isLogout
         && !HttpMethods.IsGet(context.Request.Method)
         && !HttpMethods.IsHead(context.Request.Method))
     {
@@ -592,8 +560,7 @@ static bool IsAjaxRequest(HttpRequest request)
 {
     return request.Headers["X-Requested-With"] == "XMLHttpRequest"
         || request.Headers.Accept.Any(h => h != null && h.Contains("application/json"))
-        || request.Path.StartsWithSegments("/PaymentDocument")
-        || request.Path.StartsWithSegments("/PaymentCalculation/StartOnlinePayment", StringComparison.OrdinalIgnoreCase);
+        || request.Path.StartsWithSegments("/PaymentDocument");
 }
 
 // Anonymous endpoints that must bypass the login / session middlewares.
