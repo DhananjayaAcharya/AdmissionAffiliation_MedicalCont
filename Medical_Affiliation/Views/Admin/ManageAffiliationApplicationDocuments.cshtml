@@ -1,0 +1,144 @@
+@using Medical_Affiliation.Models
+@{
+    Layout = null;
+    ViewData["Title"] = "Affiliation Application Documents";
+    var affiliationTypes = ViewBag.AffiliationTypes as List<TypeOfAffiliation> ?? new();
+    var documents = ViewBag.Documents as List<AffiliationApplicationDocument> ?? new();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — RGUHS Admin Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+</head>
+<body class="bg-light">
+    <main class="container py-4">
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h1 class="h3 mb-1">Affiliation Application Documents</h1>
+                <p class="text-muted mb-0">Upload DOC, DOCX, or PDF files for colleges to download.</p>
+            </div>
+            <a asp-controller="Admin" asp-action="AdminDashboard" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Admin Dashboard
+            </a>
+        </div>
+
+        @if (TempData["Success"] is string success)
+        {
+            <div class="alert alert-success" role="status">@success</div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="alert alert-danger" role="alert">@error</div>
+        }
+
+        <section class="card shadow-sm mb-4">
+            <div class="card-header fw-semibold">Upload application document</div>
+            <div class="card-body">
+                <form asp-controller="Admin"
+                      asp-action="UploadAffiliationApplicationDocument"
+                      method="post"
+                      enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label for="typeId" class="form-label">Affiliation type</label>
+                            <select id="typeId" name="typeId" class="form-select" required>
+                                <option value="">Select affiliation type</option>
+                                @foreach (var type in affiliationTypes)
+                                {
+                                    <option value="@type.TypeId">@type.TypeDescription</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <label for="documentTitle" class="form-label">Document title</label>
+                            <input id="documentTitle"
+                                   name="documentTitle"
+                                   class="form-control"
+                                   maxlength="200"
+                                   required />
+                        </div>
+                        <div class="col-md-8">
+                            <label for="file" class="form-label">File</label>
+                            <input id="file"
+                                   name="file"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".pdf,.doc,.docx"
+                                   required />
+                            <div class="form-text">Maximum file size: 20 MB. Files are stored privately on D: or E:.</div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-cloud-arrow-up"></i> Upload document
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="card shadow-sm">
+            <div class="card-header fw-semibold">Uploaded documents</div>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Affiliation type</th>
+                            <th>Document</th>
+                            <th>File</th>
+                            <th>Uploaded</th>
+                            <th>Storage</th>
+                            <th>Status</th>
+                            <th><span class="visually-hidden">Actions</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (documents.Count == 0)
+                        {
+                            <tr><td colspan="7" class="text-center text-muted py-4">No documents have been uploaded.</td></tr>
+                        }
+                        @foreach (var document in documents)
+                        {
+                            <tr>
+                                <td>@document.Type.TypeDescription</td>
+                                <td>@document.DocumentTitle</td>
+                                <td>@document.OriginalFileName</td>
+                                <td>@document.UploadedOn.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</td>
+                                <td>Drive @document.StorageDrive</td>
+                                <td>
+                                    @if (document.IsActive)
+                                    {
+                                        <span class="badge text-bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @if (document.IsActive)
+                                    {
+                                        <form asp-controller="Admin"
+                                              asp-action="DeactivateAffiliationApplicationDocument"
+                                              method="post"
+                                              onsubmit="return confirm('Stop showing this document to colleges?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="documentId" value="@document.DocumentId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

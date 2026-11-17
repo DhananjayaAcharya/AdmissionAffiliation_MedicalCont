@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -60,21 +62,28 @@ namespace Medical_Affiliation.Controllers
         private static readonly DateTimeOffset UgPaymentClosed =
             new DateTimeOffset(2026, 11, 1, 0, 0, 0, Ist);
 
+        private static readonly Regex MobileRegex = new(@"^[6-9]\d{9}$", RegexOptions.Compiled);
+
         private readonly ApplicationDbContext _context;
         private readonly string _connectionString;
         private readonly IPaymentReceiptPdfService _paymentReceiptPdfService;
+        private readonly IEasebuzzPaymentService _easebuzz;
 
         public PaymentCalculationController(
             ApplicationDbContext context,
-            IPaymentReceiptPdfService paymentReceiptPdfService)
+            IPaymentReceiptPdfService paymentReceiptPdfService,
+            IEasebuzzPaymentService easebuzz)
         {
             _context = context;
             _paymentReceiptPdfService = paymentReceiptPdfService;
+            _easebuzz = easebuzz;
             _connectionString = context.Database.GetConnectionString()
                 ?? throw new InvalidOperationException("The application's database connection string is not configured.");
         }
 
         // GET: /PaymentCalculation
+        // Also the landing page of the gateway's SuccessUrl / FailureUrl:
+        //   /PaymentCalculation?status=success   |   /PaymentCalculation?status=failed
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -134,6 +143,95 @@ namespace Medical_Affiliation.Controllers
             await CalculateForCurrentSessionAsync(vm);
 
             return View("Index", vm);
+        }
+
+        // ---------------------------------------------------------------------
+        // POST: /PaymentCalculation/StartOnlinePayment
+        // Starts an Easebuzz online payment through the finance payment API.
+        //  - The amount is ALWAYS recomputed here on the server (fees + late fine
+        //    + closed-window check); nothing amount-related is trusted from the
+        //    browser.
+        //  - Returns JSON { success, redirectUrl } and the page redirects the
+        //    browser to redirectUrl. The gateway then sends the payer back to the
+        //    SuccessUrl / FailureUrl registered for client "Affiliation_Fees".
+        // ---------------------------------------------------------------------
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StartOnlinePayment(string? firstName, string? email, string? mobile)
+        {
+            firstName = (firstName ?? string.Empty).Trim();
+            email = (email ?? string.Empty).Trim();
+            mobile = (mobile ?? string.Empty).Trim();
+
+            if (firstName.Length == 0 || firstName.Length > 100)
+            {
+                return BadRequest(new { success = false, message = "Please enter the payer name." });
+            }
+
+            if (!MailAddress.TryCreate(email, out _))
+            {
+                return BadRequest(new { success = false, message = "Please enter a valid email address." });
+            }
+
+            if (!MobileRegex.IsMatch(mobile))
+            {
+                return BadRequest(new { success = false, message = "Please enter a valid 10-digit mobile number." });
+            }
+
+            var vm = await GetCurrentCalculationAsync();
+            if (!vm.HasResult)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = vm.ErrorMessage ?? "Payment calculation is not available."
+                });
+            }
+
+            var amount = vm.Summary?.GrandTotal ?? vm.FeeLines.Sum(f => f.LineAmount);
+            if (amount <= 0)
+            {
+                return BadRequest(new { success = false, message = "Payable amount is not available." });
+            }
+
+            var courseCode = HttpContext.Session.GetString("CourseCode");
+            if (string.IsNullOrWhiteSpace(courseCode))
+            {
+                courseCode = string.Join(",", vm.MatchedCourses
+                    .Select(c => c.CourseCode)
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Distinct(StringComparer.OrdinalIgnoreCase));
+            }
+
+            var request = new EasebuzzPaymentRequest
+            {
+                ClientCode = _easebuzz.ClientCode, // "Affiliation_Fees"
+                CourseCode = courseCode ?? string.Empty,
+                FacultyCode = vm.FacultyCode.ToString(),
+                CollegeCode = vm.CollegeCode ?? string.Empty,
+                AccountCode = _easebuzz.AccountCode,
+                TypeOfService = _easebuzz.TypeOfService,
+                FirstName = firstName,
+                Email = email,
+                Mobile = mobile,
+                Amount = amount,
+                AdditionalInfo = JsonSerializer.Serialize(new
+                {
+                    affiliationTypeId = vm.AffiliationTypeId,
+                    typeOfAffiliation = vm.TypeOfAffiliation,
+                    courseLevel = vm.CourseLevelGroup,
+                    academicYear = vm.AcademicYear
+                })
+            };
+
+            var result = await _easebuzz.InitiateAsync(request, HttpContext.RequestAborted);
+
+            if (!result.Success)
+            {
+                return StatusCode(StatusCodes.Status502BadGateway, new { success = false, message = result.Message });
+            }
+
+            return Ok(new { success = true, redirectUrl = result.RedirectUrl });
         }
 
         [HttpGet]
@@ -203,6 +301,9 @@ namespace Medical_Affiliation.Controllers
                 // Fine dates, fine amount and payment close date come from
                 // Mst_CourseLevelSchedule (falls back to the constants above).
                 var schedule = await GetFineScheduleAsync(vm);
+
+                // Hand the schedule to the view (caution banner, auto-reload at cut-off).
+                CopyScheduleToViewModel(vm, schedule);
 
                 if (schedule.IsClosed)
                 {
@@ -332,6 +433,7 @@ namespace Medical_Affiliation.Controllers
                 vm.Summary.GrandTotal = vm.FeeLines.Sum(f => f.LineAmount);
             }
         }
+
         private static void CopyScheduleToViewModel(PaymentCalculationViewModel vm, FineSchedule s)
         {
             vm.HasFineSchedule = true;
@@ -341,6 +443,7 @@ namespace Medical_Affiliation.Controllers
             vm.LateFineStartMs = s.FineStart.ToUnixTimeMilliseconds();
             vm.PaymentClosedMs = s.ClosedFrom?.ToUnixTimeMilliseconds();
         }
+
         // ---------------------------------------------------------------------
         // Government / Private detection
         // Reads PVT_GOVT from [dbo].[Mst_MedicalCollegeCourseIntake].

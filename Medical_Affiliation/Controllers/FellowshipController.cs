@@ -21,6 +21,15 @@ namespace Medical_Affiliation.Controllers
         // Only the GUID + relative path are persisted in the FellowShip_Medical table.
         private const string DegreeCertUploadFolder = "uploads/fellowship/degree-certificates";
 
+        // Storage roots for fellowship documents, tried in order. The first drive that is
+        // present, ready and writable wins (D: preferred, E: fallback). Add more roots here
+        // if the server ever gets another drive.
+        private static readonly string[] DocumentRootCandidates =
+        {
+            @"D:\MedicalAffiliation",
+            @"E:\MedicalAffiliation"
+        };
+
         public FellowshipController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
@@ -237,7 +246,7 @@ namespace Medical_Affiliation.Controllers
 
             // Track every file actually written to disk so we can clean them up if
             // the DB save fails partway through - otherwise a failed save still
-            // leaves orphaned documents behind on the D: drive.
+            // leaves orphaned documents behind on the server drive.
 
             var writtenPaths = new List<string>();
 
@@ -346,10 +355,65 @@ namespace Medical_Affiliation.Controllers
         }
 
         /// <summary>
+        /// Picks the first usable storage drive from <see cref="DocumentRootCandidates"/>
+        /// (D: first, then E:) and returns the college's document folder on it, creating it
+        /// if needed. A drive is skipped when it does not exist, is not ready (e.g. an empty
+        /// DVD drive - "The device is not ready"), is an optical drive, or the folder cannot
+        /// be created there. Throws an IOException only if NO candidate drive is usable.
+        /// </summary>
+        private static string ResolveCollegeDocumentFolder(string safeCollegeCode)
+        {
+            var failures = new List<string>();
+
+            foreach (var root in DocumentRootCandidates)
+            {
+                try
+                {
+                    var driveRoot = Path.GetPathRoot(root);
+                    if (string.IsNullOrWhiteSpace(driveRoot))
+                    {
+                        failures.Add($"{root}: invalid path");
+                        continue;
+                    }
+
+                    var drive = new DriveInfo(driveRoot);
+
+                    if (drive.DriveType == DriveType.CDRom || drive.DriveType == DriveType.NoRootDirectory)
+                    {
+                        failures.Add($"{driveRoot}: not a storage drive ({drive.DriveType})");
+                        continue;
+                    }
+
+                    if (!drive.IsReady)
+                    {
+                        failures.Add($"{driveRoot}: drive not ready");
+                        continue;
+                    }
+
+                    var folder = Path.Combine(root, "FellowshipDocuments", safeCollegeCode);
+                    Directory.CreateDirectory(folder);
+                    return folder;
+                }
+                catch (Exception ex) when (ex is IOException
+                                           || ex is UnauthorizedAccessException
+                                           || ex is ArgumentException
+                                           || ex is NotSupportedException)
+                {
+                    failures.Add($"{root}: {ex.Message}");
+                }
+            }
+
+            throw new IOException(
+                "No usable storage drive found for fellowship documents. Tried: " + string.Join(" | ", failures));
+        }
+
+        /// <summary>
         /// Saves any of the six fellowship documents under
-        /// D:\MedicalAffiliation\FellowshipDocuments\{CollegeCode}\ using a GUID-based
-        /// filename, and returns (path, guid) - the only two values persisted on the
-        /// entity for that document. Returns (null, null) if nothing was posted.
+        /// {D: or E:}\MedicalAffiliation\FellowshipDocuments\{CollegeCode}\ using a GUID-based
+        /// filename (D: is used when available, otherwise E:), and returns (path, guid) - the
+        /// only two values persisted on the entity for that document. The FULL path is stored,
+        /// so documents saved earlier on D: keep working after files start landing on E:.
+        /// Returns (null, null) if nothing was posted.
         /// </summary>
         private (string? path, Guid? guid) SaveDocumentToCollegeFolder(
             IFormFile? file,
@@ -366,8 +430,7 @@ namespace Medical_Affiliation.Controllers
                 ? "UNKNOWN"
                 : collegeCode.Trim().Replace(" ", string.Empty).ToUpperInvariant();
 
-            var rootFolder = Path.Combine("D:\\MedicalAffiliation", "FellowshipDocuments", safeCollegeCode);
-            Directory.CreateDirectory(rootFolder);
+            var rootFolder = ResolveCollegeDocumentFolder(safeCollegeCode);
 
             var guid = Guid.NewGuid();
             var extension = Path.GetExtension(file.FileName);

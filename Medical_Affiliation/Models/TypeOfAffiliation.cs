@@ -13,6 +13,8 @@ public partial class TypeOfAffiliation
 
     public virtual ICollection<AdditionalInformationInAcademicActivity> AdditionalInformationInAcademicActivities { get; set; } = new List<AdditionalInformationInAcademicActivity>();
 
+    public virtual ICollection<AffiliationApplicationDocument> AffiliationApplicationDocuments { get; set; } = new List<AffiliationApplicationDocument>();
+
     public virtual ICollection<AffiliationFinalDeclaration> AffiliationFinalDeclarations { get; set; } = new List<AffiliationFinalDeclaration>();
 
     public virtual ICollection<AffiliationPayment> AffiliationPayments { get; set; } = new List<AffiliationPayment>();

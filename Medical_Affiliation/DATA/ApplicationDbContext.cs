@@ -70,6 +70,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<AffiliatedYearwiseMaterialsDatum> AffiliatedYearwiseMaterialsData { get; set; }
 
+    public virtual DbSet<AffiliationApplicationDocument> AffiliationApplicationDocuments { get; set; }
+
     public virtual DbSet<AffiliationCollege> AffiliationColleges { get; set; }
 
     public virtual DbSet<AffiliationCollegeMaster> AffiliationCollegeMasters { get; set; }
@@ -330,6 +332,10 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<FellowShipMedical> FellowShipMedicals { get; set; }
 
+    public virtual DbSet<FellowshipCourseIntake> FellowshipCourseIntakes { get; set; }
+
+    public virtual DbSet<FellowshipCourseIntakeBackup20261112> FellowshipCourseIntakeBackup20261112s { get; set; }
+
     public virtual DbSet<FinalDentalSubmission> FinalDentalSubmissions { get; set; }
 
     public virtual DbSet<FreshOrIncreaseMaster> FreshOrIncreaseMasters { get; set; }
@@ -385,6 +391,10 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<LicInspectionCollegeDetail> LicInspectionCollegeDetails { get; set; }
 
     public virtual DbSet<LicInspectionOtherDetail> LicInspectionOtherDetails { get; set; }
+
+    public virtual DbSet<LicInspectionTeam> LicInspectionTeams { get; set; }
+
+    public virtual DbSet<LicInspectionTeamCredential> LicInspectionTeamCredentials { get; set; }
 
     public virtual DbSet<LicModeofTravel> LicModeofTravels { get; set; }
 
@@ -1518,6 +1528,37 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Year1).HasMaxLength(50);
             entity.Property(e => e.Year2).HasMaxLength(50);
             entity.Property(e => e.Year3).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<AffiliationApplicationDocument>(entity =>
+        {
+            entity.HasKey(e => e.DocumentId);
+
+            entity.HasIndex(e => new { e.TypeId, e.IsActive, e.UploadedOn }, "IX_AffiliationApplicationDocuments_TypeId_IsActive").IsDescending(false, false, true);
+
+            entity.HasIndex(e => e.DocumentGuid, "UQ_AffiliationApplicationDocuments_DocumentGuid").IsUnique();
+
+            entity.Property(e => e.DocumentGuid).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.DocumentTitle).HasMaxLength(200);
+            entity.Property(e => e.FileExtension)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.FilePath).HasMaxLength(1024);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.OriginalFileName).HasMaxLength(255);
+            entity.Property(e => e.StorageDrive)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.UploadedBy).HasMaxLength(100);
+            entity.Property(e => e.UploadedOn)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(sysutcdatetime())");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.AffiliationApplicationDocuments)
+                .HasForeignKey(d => d.TypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AffiliationApplicationDocuments_TypeOfAffiliation");
         });
 
         modelBuilder.Entity<AffiliationCollege>(entity =>
@@ -4362,15 +4403,11 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Equipment).HasMaxLength(1000);
             entity.Property(e => e.FacultyCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
-            entity.Property(e => e.ResearchProjectsCompletedPast3Yrs).HasMaxLength(1000);
-            entity.Property(e => e.ResearchProjectsInProgress).HasMaxLength(1000);
-            entity.Property(e => e.Space).HasMaxLength(200);
             entity.Property(e => e.TypeOfAffiliation)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -4809,6 +4846,54 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(250)
                 .HasColumnName("UG_UniversityCollegeName");
             entity.Property(e => e.UgYearOfPassing).HasColumnName("UG_YearOfPassing");
+        });
+
+        modelBuilder.Entity<FellowshipCourseIntake>(entity =>
+        {
+            entity.HasKey(e => e.Slno);
+
+            entity.ToTable("fellowship_courseIntake");
+
+            entity.Property(e => e.Slno)
+                .ValueGeneratedNever()
+                .HasColumnName("SLNo");
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.Collegename)
+                .HasMaxLength(500)
+                .HasColumnName("collegename");
+            entity.Property(e => e.Course)
+                .HasMaxLength(200)
+                .HasColumnName("course");
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .HasColumnName("course_code");
+            entity.Property(e => e.Intake2627).HasColumnName("Intake_26_27");
+            entity.Property(e => e.UgPg)
+                .HasMaxLength(100)
+                .HasColumnName("ug_pg");
+        });
+
+        modelBuilder.Entity<FellowshipCourseIntakeBackup20261112>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("fellowship_courseIntake_backup_20261112");
+
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.Collegename)
+                .HasMaxLength(500)
+                .HasColumnName("collegename");
+            entity.Property(e => e.Course)
+                .HasMaxLength(200)
+                .HasColumnName("course");
+            entity.Property(e => e.CourseCode)
+                .HasMaxLength(50)
+                .HasColumnName("course_code");
+            entity.Property(e => e.Intake2627).HasColumnName("Intake_26_27");
+            entity.Property(e => e.Slno).HasColumnName("SLNo");
+            entity.Property(e => e.UgPg)
+                .HasMaxLength(100)
+                .HasColumnName("ug_pg");
         });
 
         modelBuilder.Entity<FinalDentalSubmission>(entity =>
@@ -5699,6 +5784,50 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.MemberName).HasMaxLength(150);
             entity.Property(e => e.Phonenumber).HasMaxLength(20);
             entity.Property(e => e.SenateCode).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<LicInspectionTeam>(entity =>
+        {
+            entity.ToTable("LIC_InspectionTeam");
+
+            entity.HasIndex(e => e.AcademicCouncilPhone, "IX_LIC_InspectionTeam_AcademicPhone");
+
+            entity.HasIndex(e => e.CollegeCode, "IX_LIC_InspectionTeam_CollegeCode");
+
+            entity.HasIndex(e => e.SubjectExpertPhone, "IX_LIC_InspectionTeam_ExpertPhone");
+
+            entity.HasIndex(e => e.InspectionDate, "IX_LIC_InspectionTeam_InspectionDate");
+
+            entity.HasIndex(e => e.SenateMemberPhone, "IX_LIC_InspectionTeam_SenatePhone");
+
+            entity.Property(e => e.AcademicCouncilName).HasMaxLength(200);
+            entity.Property(e => e.AcademicCouncilPhone).HasMaxLength(20);
+            entity.Property(e => e.CollegeCode).HasMaxLength(50);
+            entity.Property(e => e.CollegeName).HasMaxLength(300);
+            entity.Property(e => e.CreatedOn)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.ProtectedTeamPassword).HasMaxLength(2000);
+            entity.Property(e => e.SenateMemberName).HasMaxLength(200);
+            entity.Property(e => e.SenateMemberPhone).HasMaxLength(20);
+            entity.Property(e => e.SubjectExpertName).HasMaxLength(200);
+            entity.Property(e => e.SubjectExpertPhone).HasMaxLength(20);
+            entity.Property(e => e.TeamUsername).HasMaxLength(150);
+            entity.Property(e => e.UpdatedOn).HasPrecision(0);
+        });
+
+        modelBuilder.Entity<LicInspectionTeamCredential>(entity =>
+        {
+            entity.HasKey(e => e.TeamId);
+
+            entity.ToTable("LIC_InspectionTeamCredentials");
+
+            entity.HasIndex(e => e.Username, "UQ_LIC_InspectionTeamCredentials_Username").IsUnique();
+
+            entity.Property(e => e.TeamId).ValueGeneratedNever();
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.ProtectedPassword).HasMaxLength(2000);
+            entity.Property(e => e.Username).HasMaxLength(150);
         });
 
         modelBuilder.Entity<LicModeofTravel>(entity =>

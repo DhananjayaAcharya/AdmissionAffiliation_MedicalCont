@@ -1260,6 +1260,9 @@ namespace Medical_Affiliation.Controllers
         }
 
         // POST: InfrastructureDetails
+        // This page is OPTIONAL: validation / binding problems are ignored, an empty page is
+        // accepted, and the user always continues to the next page. Save failures (for example
+        // text too long for a column) are shown as a friendly message instead of an exception page.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InfrastructureDetails(InfrastructureDetailsViewModel model)
@@ -1272,18 +1275,18 @@ namespace Medical_Affiliation.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            if (!ModelState.IsValid)
+            // Optional page: ignore validation / binding problems and always continue
+            ModelState.Clear();
+            model ??= new InfrastructureDetailsViewModel();
+
+            var courseCode = !string.IsNullOrWhiteSpace(model.CourseCode) ? model.CourseCode : GetSessionCourseCode();
+            if (string.IsNullOrWhiteSpace(courseCode))
             {
-                model.FacultyCode = facultyCode;
-                model.CollegeCode = collegeCode;
-
-                // the info bar must also show when the page is re-displayed after a validation error
-                await SetSelectedDepartmentAsync(collegeCode, model.CourseCode);
-
-                return View("InfrastructureDetails", model);
+                return RedirectToAction("SubjectSelection", "pgcourses");
             }
+            SetSessionCourseCode(courseCode);
+            model.CourseCode = courseCode;
 
-            var courseCode = model.CourseCode;
             var typeOfAffiliation = ResolveTypeOfAffiliation(model.TypeOfAffiliation);   // fetched at save time, stored on every row
             var createdBy = User.Identity?.Name ?? collegeCode;
 
@@ -1626,7 +1629,7 @@ namespace Medical_Affiliation.Controllers
                     CourseCode = courseCode,
                     TypeOfAffiliation = typeOfAffiliation,
                     NameOfEquipment = row.NameOfEquipment,
-                    NumbersAvailable = (int)row.NumbersAvailable,
+                    NumbersAvailable = Convert.ToInt32(row.NumbersAvailable),   // empty / null -> 0 (no crash)
                     FunctionalStatus = row.FunctionalStatus,
                     IsAdequate = NormalizeYesNo(row.IsAdequate),
                     CreatedBy = createdBy,
@@ -1634,7 +1637,25 @@ namespace Medical_Affiliation.Controllers
                 });
             }
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // e.g. text longer than the column allows: nothing is saved (one transaction),
+                // show a friendly message instead of the unhandled-exception page
+                System.Diagnostics.Debug.WriteLine(ex.GetBaseException().Message);
+
+                ModelState.AddModelError(string.Empty,
+                    "Some entries are too long to be saved. Please shorten the long text and click Save & Continue again.");
+
+                model.FacultyCode = facultyCode;
+                model.CollegeCode = collegeCode;
+                await SetSelectedDepartmentAsync(collegeCode, courseCode);
+
+                return View("InfrastructureDetails", model);
+            }
 
             TempData["SuccessMessage"] = "Details saved successfully.";
             return RedirectToAction(nameof(ServicesWorkload), new { courseCode, typeOfAffiliation });

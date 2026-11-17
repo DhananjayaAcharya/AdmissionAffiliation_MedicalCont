@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Xml.Linq;
 using Medical_Affiliation.DATA;
+using Medical_Affiliation.Services;
 using System.Security.Claims;
 using Medical_Affiliation.Controllers;
 using Microsoft.AspNetCore.Hosting;
@@ -27,11 +28,22 @@ namespace Admission_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly AffiliationApplicationDocumentStorage _documentStorage;
+        private readonly CollegeLogoStorage _collegeLogoStorage;
+        private readonly ILogger<CollegeloginController> _logger;
 
-        public CollegeloginController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment) : base(context)
+        public CollegeloginController(
+            ApplicationDbContext context,
+            IWebHostEnvironment webHostEnvironment,
+            AffiliationApplicationDocumentStorage documentStorage,
+            CollegeLogoStorage collegeLogoStorage,
+            ILogger<CollegeloginController> logger) : base(context)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _documentStorage = documentStorage;
+            _collegeLogoStorage = collegeLogoStorage;
+            _logger = logger;
         }
 
         // ✅ GET: Login Page
@@ -153,33 +165,6 @@ namespace Admission_Affiliation.Controllers
                 .AsNoTracking()
                 .FirstOrDefault(p => p.CgpCollegeCode.Trim().ToUpper() == collegeCode.ToUpper());
 
-            Console.WriteLine($"[Dashboard] Looking up Med_CollegeProfile for CollegeCode='{collegeCode}'");
-            Console.WriteLine($"[Dashboard] Profile found: {profile != null}");
-            if (profile != null)
-            {
-                Console.WriteLine($"[Dashboard] CGP_CollegeCode in DB: '{profile.CgpCollegeCode}'");
-                Console.WriteLine($"[Dashboard] CGP_LogoPath in DB: '{profile.CgpLogoPath}'");
-
-                // Check whether the physical file actually exists on disk
-                if (!string.IsNullOrWhiteSpace(profile.CgpLogoPath))
-                {
-                    var physicalPath = Path.Combine(_webHostEnvironment.WebRootPath,
-                        profile.CgpLogoPath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
-                    var fileExists = System.IO.File.Exists(physicalPath);
-                    Console.WriteLine($"[Dashboard] Expected physical file: {physicalPath}");
-                    Console.WriteLine($"[Dashboard] File exists on disk: {fileExists}");
-                }
-            }
-            else
-            {
-                // Log all CollegeCodes in Med_CollegeProfile so you can spot-check the mismatch
-                var allCodes = _context.MedCollegeProfiles
-                    .AsNoTracking()
-                    .Select(p => p.CgpCollegeCode)
-                    .ToList();
-                Console.WriteLine("[Dashboard] All CGP_CollegeCode values in DB: " + string.Join(", ", allCodes));
-            }
-            
             // Ensure faculty name in session (best-effort)
             var facultyName = HttpContext.Session.GetString("FacultyName");
             if (string.IsNullOrWhiteSpace(facultyName) && !string.IsNullOrWhiteSpace(college.FacultyCode))
@@ -195,16 +180,20 @@ namespace Admission_Affiliation.Controllers
                     HttpContext.Session.SetString("FacultyName", facultyName);
             }
 
+            var logoUrl = HasCollegeLogo(profile?.CgpLogoPath)
+                ? Url.Action(nameof(GetCollegeLogo), "Collegelogin")
+                : string.Empty;
+
             // Persist CollegeName and CollegeLogoPath into session for immediate header use
             HttpContext.Session.SetString("CollegeName", college.CollegeName ?? collegeName ?? string.Empty);
-            HttpContext.Session.SetString("CollegeLogoPath", profile?.CgpLogoPath ?? string.Empty);
+            HttpContext.Session.SetString("CollegeLogoPath", logoUrl ?? string.Empty);
 
             var model = new DashboardViewModel
             {
                 CollegeCode = college.CollegeCode,
                 CollegeName = college.CollegeName,
                 FacultyName = facultyName,
-                CollegeLogoPath = profile?.CgpLogoPath,
+                CollegeLogoPath = logoUrl,
                 PrincipalName = profile?.CgpPrincipalName,
                 Address = profile?.CgpAddress,
                 Email = profile?.CgpEmail,
@@ -251,11 +240,22 @@ namespace Admission_Affiliation.Controllers
             // Application Overview: what was applied for, how far each is, and what was paid
             model.ApplicationOverview = BuildApplicationOverview(collegeCode, facultyCode);
 
+            if (facultyCode == "1")
+            {
+                ViewBag.AffiliationApplicationDocuments = _context.AffiliationApplicationDocuments
+                    .AsNoTracking()
+                    .Include(x => x.Type)
+                    .Where(x => x.IsActive)
+                    .OrderBy(x => x.Type.TypeDescription)
+                    .ThenBy(x => x.DocumentTitle)
+                    .ToList();
+            }
+
             // Surface profile values to the viewbag for backwards compatibility in the view
             ViewBag.CollegeCode = college.CollegeCode;
             ViewBag.CollegeName = college.CollegeName;
             ViewBag.FacultyName = facultyName;
-            ViewBag.CollegeLogoPath = profile?.CgpLogoPath ?? HttpContext.Session.GetString("CollegeLogoPath");
+            ViewBag.CollegeLogoPath = logoUrl;
             ViewBag.PrincipalName = profile?.CgpPrincipalName;
             ViewBag.CollegeAddress = profile?.CgpAddress;
             ViewBag.CollegeEmail = profile?.CgpEmail;
@@ -269,6 +269,41 @@ namespace Admission_Affiliation.Controllers
             ViewBag.ShowAffiliationNotification = true;
 
             return View(model);
+        }
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth")]
+        [HttpGet]
+        public async Task<IActionResult> DownloadAffiliationApplicationDocument(Guid id)
+        {
+            if (!string.Equals(User.FindFirst("FacultyCode")?.Value, "1", StringComparison.Ordinal))
+            {
+                return Forbid();
+            }
+
+            var document = await _context.AffiliationApplicationDocuments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.DocumentGuid == id && x.IsActive);
+            if (document is null)
+            {
+                return NotFound();
+            }
+
+            var filePath = _documentStorage.GetExistingFilePath(document);
+            if (filePath is null)
+            {
+                return NotFound("The document file is not available.");
+            }
+
+            var contentType = document.FileExtension.ToLowerInvariant() switch
+            {
+                ".pdf" => "application/pdf",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                _ => "application/octet-stream"
+            };
+
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
+            return PhysicalFile(filePath, contentType, document.OriginalFileName);
         }
 
         /// <summary>
@@ -1221,11 +1256,11 @@ namespace Admission_Affiliation.Controllers
         }
 
         // ── GET: fetch current profile as JSON (used by the modal on open) ──
+        [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [HttpGet]
         public async Task<IActionResult> GetCollegeProfile(string collegeCode)
         {
-            if (string.IsNullOrEmpty(collegeCode))
-                collegeCode = HttpContext.Session.GetString("CollegeCode");
+            collegeCode = User.FindFirst("CollegeCode")?.Value;
 
             if (string.IsNullOrEmpty(collegeCode))
                 return Json(new { success = false, message = "College code not found in session." });
@@ -1242,9 +1277,8 @@ namespace Admission_Affiliation.Controllers
                                ?? institution?.NameOfInstitution
                                ?? "";
 
-            // Resolve the "~/" tilde path into a real browser-usable URL
-            var resolvedLogoPath = !string.IsNullOrWhiteSpace(profile?.CgpLogoPath)
-                ? Url.Content(profile.CgpLogoPath)
+            var resolvedLogoPath = HasCollegeLogo(profile?.CgpLogoPath)
+                ? Url.Action(nameof(GetCollegeLogo), "Collegelogin")
                 : "";
 
             return Json(new
@@ -1263,16 +1297,23 @@ namespace Admission_Affiliation.Controllers
         }
 
         // ── POST: create or update the profile, optionally replacing the logo ──
+        [Authorize(AuthenticationSchemes = "CollegeAuth")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [RequestSizeLimit(5_000_000)] // 5 MB cap for logo uploads
+        [RequestSizeLimit(6_000_000)]
         public async Task<IActionResult> UpdateCollegeProfile(CollegeProfileViewModel model)
         {
-            var collegeCode = model.CollegeCode ?? HttpContext.Session.GetString("CollegeCode");
+            var collegeCode = User.FindFirst("CollegeCode")?.Value;
             if (string.IsNullOrEmpty(collegeCode))
             {
                 TempData["Error"] = "Could not identify the college for this session.";
                 return RedirectToAction("Dashboard");
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.CollegeCode)
+                && !string.Equals(model.CollegeCode.Trim(), collegeCode, StringComparison.OrdinalIgnoreCase))
+            {
+                return Forbid();
             }
 
             // Only proceed if a logo was actually posted — nothing else is editable here anymore
@@ -1291,8 +1332,15 @@ namespace Admission_Affiliation.Controllers
                 return RedirectToAction("Dashboard");
             }
 
+            if (model.Logo.Length > 5 * 1024 * 1024 ||
+                !await HasValidLogoSignatureAsync(model.Logo, ext, HttpContext.RequestAborted))
+            {
+                TempData["Error"] = "Choose a valid JPG, PNG, or WEBP image no larger than 5 MB.";
+                return RedirectToAction("Dashboard");
+            }
+
             var profile = await _context.MedCollegeProfiles
-                .FirstOrDefaultAsync(p => p.CgpCollegeCode == collegeCode);
+                .FirstOrDefaultAsync(p => p.CgpCollegeCode.Trim().ToUpper() == collegeCode.ToUpper());
 
             var isNew = profile == null;
             if (isNew)
@@ -1304,42 +1352,178 @@ namespace Admission_Affiliation.Controllers
                 };
             }
 
-            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "CollegeLogos");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{collegeCode}_{DateTime.Now:yyyyMMddHHmmss}{ext}";
-            var fullPath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(fullPath, FileMode.Create))
+            var oldLogoPath = profile.CgpLogoPath;
+            string newLogoPath;
+            try
             {
-                await model.Logo.CopyToAsync(stream);
+                newLogoPath = await _collegeLogoStorage.SaveAsync(
+                    Guid.NewGuid(), ext, model.Logo, HttpContext.RequestAborted);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError(ex, "Unable to save a college logo for college {CollegeCode}.", collegeCode);
+                TempData["Error"] = "The logo could not be saved to the configured D: or E: drive.";
+                return RedirectToAction("Dashboard");
             }
 
-            // Delete old logo file if one existed, to avoid orphaned files
-            if (!string.IsNullOrEmpty(profile.CgpLogoPath))
-            {
-                var oldFullPath = Path.Combine(_webHostEnvironment.WebRootPath,
-                    profile.CgpLogoPath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
-                if (System.IO.File.Exists(oldFullPath))
-                {
-                    try { System.IO.File.Delete(oldFullPath); } catch { /* non-fatal */ }
-                }
-            }
-
-            profile.CgpLogoPath = $"/uploads/CollegeLogos/{fileName}";
+            profile.CgpLogoPath = newLogoPath;
             profile.CgpModifiedDate = DateTime.Now;
             profile.CgpModifiedBy = collegeCode;
 
             if (isNew)
                 _context.MedCollegeProfiles.Add(profile);
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Unable to save college logo path for college {CollegeCode}.", collegeCode);
+                _collegeLogoStorage.DeleteManagedLogo(newLogoPath);
+                TempData["Error"] = "The logo was uploaded but its profile update failed. Please try again.";
+                return RedirectToAction("Dashboard");
+            }
+
+            DeleteOldCollegeLogo(oldLogoPath);
 
             // Keep session in sync so the topbar logo updates immediately without re-login
-            HttpContext.Session.SetString("CollegeLogoPath", profile.CgpLogoPath ?? "");
+            var logoUrl = Url.Action(nameof(GetCollegeLogo), "Collegelogin") ?? string.Empty;
+            HttpContext.Session.SetString("CollegeLogoPath", logoUrl);
 
             TempData["SuccessMessage"] = "College logo updated successfully.";
             return RedirectToAction("Dashboard");
+        }
+
+        [Authorize(AuthenticationSchemes = "CollegeAuth")]
+        [HttpGet]
+        public async Task<IActionResult> GetCollegeLogo()
+        {
+            var collegeCode = User.FindFirst("CollegeCode")?.Value;
+            if (string.IsNullOrWhiteSpace(collegeCode))
+            {
+                return Unauthorized();
+            }
+
+            var logoPath = await _context.MedCollegeProfiles
+                .AsNoTracking()
+                .Where(p => p.CgpCollegeCode.Trim().ToUpper() == collegeCode.ToUpper())
+                .Select(p => p.CgpLogoPath)
+                .FirstOrDefaultAsync();
+            var filePath = _collegeLogoStorage.GetExistingLogoPath(logoPath)
+                ?? GetLegacyCollegeLogoPath(logoPath);
+            if (filePath is null)
+            {
+                return NotFound();
+            }
+
+            var contentType = Path.GetExtension(filePath).ToLowerInvariant() switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+            Response.Headers["Cache-Control"] = "private, no-store";
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
+            return PhysicalFile(filePath, contentType);
+        }
+
+        private bool HasCollegeLogo(string? storedPath)
+        {
+            return _collegeLogoStorage.GetExistingLogoPath(storedPath) is not null
+                || GetLegacyCollegeLogoPath(storedPath) is not null;
+        }
+
+        private string? GetLegacyCollegeLogoPath(string? storedPath)
+        {
+            if (string.IsNullOrWhiteSpace(storedPath) || string.IsNullOrWhiteSpace(_webHostEnvironment.WebRootPath))
+            {
+                return null;
+            }
+
+            var path = storedPath.Replace('\\', '/');
+            const string legacyPrefix = "/uploads/CollegeLogos/";
+            if (path.StartsWith("~/", StringComparison.Ordinal))
+            {
+                path = path[1..];
+            }
+
+            if (!path.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var fileName = Path.GetFileName(path[legacyPrefix.Length..]);
+            if (string.IsNullOrWhiteSpace(fileName)
+                || !new[] { ".jpg", ".jpeg", ".png", ".webp" }
+                    .Contains(Path.GetExtension(fileName), StringComparer.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var fullPath = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "CollegeLogos", fileName));
+            var legacyRoot = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "CollegeLogos"));
+            var rootWithSeparator = Path.EndsInDirectorySeparator(legacyRoot)
+                ? legacyRoot
+                : legacyRoot + Path.DirectorySeparatorChar;
+            return fullPath.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase)
+                && System.IO.File.Exists(fullPath)
+                    ? fullPath
+                    : null;
+        }
+
+        private void DeleteOldCollegeLogo(string? oldLogoPath)
+        {
+            if (string.IsNullOrWhiteSpace(oldLogoPath))
+            {
+                return;
+            }
+
+            if (_collegeLogoStorage.GetExistingLogoPath(oldLogoPath) is not null)
+            {
+                _collegeLogoStorage.DeleteManagedLogo(oldLogoPath);
+                return;
+            }
+
+            var legacyPath = GetLegacyCollegeLogoPath(oldLogoPath);
+            if (legacyPath is null)
+            {
+                return;
+            }
+
+            try
+            {
+                System.IO.File.Delete(legacyPath);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogWarning(ex, "Could not delete the previous public logo.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Access denied while deleting the previous public logo.");
+            }
+        }
+
+        private static async Task<bool> HasValidLogoSignatureAsync(
+            IFormFile file,
+            string extension,
+            CancellationToken cancellationToken)
+        {
+            var header = new byte[12];
+            await using var stream = file.OpenReadStream();
+            var bytesRead = await stream.ReadAsync(header.AsMemory(), cancellationToken);
+
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => bytesRead >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF,
+                ".png" => bytesRead >= 8 && header.AsSpan(0, 8).SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }),
+                ".webp" => bytesRead >= 12
+                    && header.AsSpan(0, 4).SequenceEqual("RIFF"u8)
+                    && header.AsSpan(8, 4).SequenceEqual("WEBP"u8),
+                _ => false
+            };
         }
     }
 }

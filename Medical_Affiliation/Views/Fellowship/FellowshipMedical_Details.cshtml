@@ -696,6 +696,30 @@
         color: var(--azure);
         }
 
+        /* ═══ PROBABLE EXAM MONTH HINT ═══ */
+        .exam-hint {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: .4rem;
+        margin-top: .5rem;
+        padding: .45rem .75rem;
+        background: var(--amber-pale);
+        border: 1px solid #f0d890;
+        border-radius: var(--r-md);
+        font-size: .78rem;
+        color: var(--muted);
+        }
+
+        .exam-hint[hidden] {
+        display: none;
+        }
+
+        .exam-hint strong {
+        color: var(--ink-mid);
+        font-weight: 700;
+        }
+
         /* ═══ EDUCATION LEVELS ═══ */
         .level {
         border: 1.5px solid var(--line);
@@ -1919,6 +1943,10 @@
                                     </div>
                                     <span class="field-error" data-date-error="DOJ_display"></span>
                                     <span asp-validation-for="Form.Dateofjoining" class="field-error"></span>
+                                    <div class="exam-hint" id="examHint" hidden aria-live="polite">
+                                        <span class="exam-hint-label">Probable month of exam:</span>
+                                        <strong id="examHintValue"></strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2585,6 +2613,31 @@
         else { nativeEl.focus(); }
         });
         });
+
+        /* ───────── Probable month of exam (Date of Joining + 12 months) ───────── */
+        var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+        var dojHidden = $('Form_Dateofjoining');
+        var dojText = $('DOJ_display');
+        var dojNative = $('DOJ_native');
+        var examHint = $('examHint');
+        var examHintValue = $('examHintValue');
+
+        function updateExamHint() {
+        var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dojHidden.value || '');
+        if (!m) { examHint.hidden = true; examHintValue.textContent = ''; return; }
+        var monthIdx = parseInt(m[2], 10) - 1;
+        var examYear = parseInt(m[1], 10) + 1;   // +12 months = same month, next year
+        examHintValue.textContent = MONTH_NAMES[monthIdx] + ' ' + examYear;
+        examHint.hidden = false;
+        }
+
+        // These listeners are added after the date-field listeners above,
+        // so the hidden ISO value is already updated when they run.
+        dojText.addEventListener('input', updateExamHint);
+        dojText.addEventListener('blur', updateExamHint);
+        dojNative.addEventListener('change', updateExamHint);
+        updateExamHint();
 
         /* ───────── Completion progress ───────── */
         var form = $('fmForm');

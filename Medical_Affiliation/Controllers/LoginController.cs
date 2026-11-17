@@ -18,11 +18,13 @@ namespace Medical_Affiliation.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly DATA.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<LoginController> _logger;
 
-        public LoginController(DATA.ApplicationDbContext context)
+        public LoginController(DATA.ApplicationDbContext context, ILogger<LoginController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -946,18 +948,32 @@ namespace Medical_Affiliation.Controllers
             // Optional: Prevent same password reuse
             var passwordHasher = new PasswordHasher<AffiliationCollegeMaster>();
 
-            var passwordCheck = passwordHasher.VerifyHashedPassword(
-                college,
-                college.HashedPassword ?? "",
-                model.UpdatedPassword
-            );
-
-            if (passwordCheck == PasswordVerificationResult.Success)
+            if (!string.IsNullOrWhiteSpace(college.HashedPassword))
             {
-                TempData["Error"] =
-                    "New password cannot be same as old password.";
+                try
+                {
+                    var passwordCheck = passwordHasher.VerifyHashedPassword(
+                        college,
+                        college.HashedPassword,
+                        model.UpdatedPassword
+                    );
 
-                return RedirectToAction("Dashboard", "CollegeLogin");
+                    if (passwordCheck is PasswordVerificationResult.Success
+                        or PasswordVerificationResult.SuccessRehashNeeded)
+                    {
+                        TempData["Error"] =
+                            "New password cannot be same as old password.";
+
+                        return RedirectToAction("Dashboard", "CollegeLogin");
+                    }
+                }
+                catch (FormatException ex)
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Stored password hash for college {CollegeCode} is malformed. Replacing it during password update.",
+                        collegeCode);
+                }
             }
 
             // Save Password

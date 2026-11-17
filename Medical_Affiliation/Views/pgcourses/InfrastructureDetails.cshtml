@@ -60,7 +60,9 @@
     }
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <form asp-action="InfrastructureDetails" asp-controller="pgcourses" method="post" id="infraForm">
+    @* This page is optional: "novalidate" lets the form be submitted empty, and the server
+       always continues to the next page. *@
+    <form asp-action="InfrastructureDetails" asp-controller="pgcourses" method="post" id="infraForm" novalidate>
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="FacultyCode" />
         <input type="hidden" asp-for="CollegeCode" />

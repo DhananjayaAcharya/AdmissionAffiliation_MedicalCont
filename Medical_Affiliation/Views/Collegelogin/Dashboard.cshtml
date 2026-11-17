@@ -1,9 +1,16 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using Medical_Affiliation.Models
 @model DashboardViewModel
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Dashboard";
     var repositoryRows = ViewBag.RepositoryRows as List<UgandPgrepository> ?? new List<UgandPgrepository>();
+    var affiliationDocuments = ViewBag.AffiliationApplicationDocuments as List<AffiliationApplicationDocument>
+        ?? new List<AffiliationApplicationDocument>();
+    var affiliationDocumentGroups = affiliationDocuments
+        .GroupBy(document => new { document.TypeId, TypeDescription = document.Type.TypeDescription })
+        .OrderBy(group => group.Key.TypeDescription)
+        .ToList();
     var facultyCode = HttpContextAccessor.HttpContext?.Session.GetString("FacultyCode") ?? "";
     var facultyName = !string.IsNullOrWhiteSpace(Model?.FacultyName)
         ? Model.FacultyName
@@ -1936,6 +1943,99 @@
                 cursor: pointer;
             }
 
+            /* ── Maintenance popup (PG / SS course levels) ─────────── */
+            #maintenanceModal.modal {
+                z-index: 1080 !important;
+            }
+
+            .maint-backdrop {
+                z-index: 1075 !important;
+                background-color: #111520;
+            }
+
+            .maint-modal .modal-content {
+                border-top: 5px solid var(--warn);
+            }
+
+            .maint-modal .modal-header {
+                background: linear-gradient(180deg, var(--warn-bg), #fff);
+                border-bottom: 1px solid var(--warn-line);
+            }
+
+            .maint-modal .modal-ico {
+                background: var(--warn);
+                box-shadow: 0 8px 18px rgba(180,83,9,.32);
+                animation: maintWiggle 2.4s ease-in-out infinite;
+            }
+
+            .maint-level-tag {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .8px;
+                text-transform: uppercase;
+                color: var(--warn);
+                background: var(--warn-bg);
+                border: 1px solid var(--warn-line);
+                border-radius: 999px;
+                padding: 3px 10px;
+                margin-top: 5px;
+            }
+
+            .maint-notice {
+                display: flex;
+                gap: 14px;
+                background: var(--warn-bg);
+                border: 1px solid var(--warn-line);
+                border-left: 5px solid var(--warn);
+                border-radius: var(--r-sm);
+                padding: 18px 18px;
+                color: var(--g-800);
+                font-size: 14px;
+                line-height: 1.7;
+            }
+
+                .maint-notice > i {
+                    font-size: 24px;
+                    color: var(--warn);
+                    flex-shrink: 0;
+                    margin-top: 2px;
+                }
+
+                .maint-notice strong {
+                    color: var(--ink);
+                    font-size: 15px;
+                }
+
+                .maint-notice .maint-sub {
+                    display: block;
+                    margin-top: 6px;
+                    color: var(--g-600);
+                    font-size: 13.5px;
+                }
+
+            @@keyframes maintWiggle {
+                0%, 100% {
+                    transform: rotate(0deg);
+                }
+
+                25% {
+                    transform: rotate(-9deg);
+                }
+
+                75% {
+                    transform: rotate(9deg);
+                }
+            }
+
+            @@media (prefers-reduced-motion: reduce) {
+                .maint-modal .modal-ico {
+                    animation: none;
+                }
+            }
+
             /* ── Entrance animation ──────────────────────── */
             .fade-up {
                 animation: fadeUp .55s var(--ease) both;
@@ -2081,6 +2181,10 @@
                 .quick-links {
                     flex-direction: column;
                 }
+
+                .maint-notice {
+                    padding: 14px;
+                }
             }
     </style>
     <script>
@@ -2174,6 +2278,15 @@
                     <div class="chip live"><div class="status-dot"></div> Portal Active</div>
                 </div>
             </div>
+
+            @if (TempData["SuccessMessage"] is string successMessage)
+            {
+                <div class="alert alert-success fade-up" role="status">@successMessage</div>
+            }
+            @if (TempData["Error"] is string errorMessage)
+            {
+                <div class="alert alert-danger fade-up" role="alert">@errorMessage</div>
+            }
 
             <!-- Hero -->
             <section class="hero fade-up fade-up-1">
@@ -2283,6 +2396,49 @@
                     </div>
                 }
             </div>
+
+            @if (facultyCode == "1")
+            {
+            <section class="panel fade-up fade-up-3 mb-4" aria-labelledby="affiliationDocumentsHeading">
+                <div class="panel-head">
+                    <div class="panel-head-left">
+                        <div class="panel-head-ico"><i class="bi bi-file-earmark-arrow-down"></i></div>
+                            <div class="panel-title" id="affiliationDocumentsHeading">Download the prescribed document, duly fill in all the required details, and submit the completed hard copy to RGUHS</div>
+                    </div>
+                    <span class="panel-count">@affiliationDocuments.Count documents</span>
+                </div>
+                <div class="p-3">
+                    @if (affiliationDocumentGroups.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No application documents are currently available.</p>
+                    }
+                    else
+                    {
+                        @foreach (var group in affiliationDocumentGroups)
+                        {
+                            <div class="mb-3">
+                                <h2 class="h6 fw-semibold mb-2">@group.Key.TypeDescription</h2>
+                                <div class="list-group">
+                                    @foreach (var document in group)
+                                    {
+                                        <div class="list-group-item d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                                            <div>
+                                                <div class="fw-semibold">@document.DocumentTitle</div>
+                                                <small class="text-muted">@document.OriginalFileName</small>
+                                            </div>
+                                            <a class="btn btn-sm btn-outline-primary"
+                                               href="@Url.Action("DownloadAffiliationApplicationDocument", "Collegelogin", new { id = document.DocumentGuid })">
+                                                <i class="bi bi-download"></i> Download
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </section>
+            }
 
             <!-- Content Grid -->
             <div class="content-grid fade-up fade-up-3">
@@ -2415,6 +2571,7 @@
 
     @if (facultyCode == "2")
     {
+        <!-- ── DENTAL APPLICATION REPORT MODAL ───────────────── -->
         <div class="modal fade"
              id="dentalApplicationReportModal"
              tabindex="-1"
@@ -2502,6 +2659,58 @@
                         </button>
                     </div>
 
+                </div>
+            </div>
+        </div>
+
+    }
+
+    @* Maintenance popup: faculty code 1 only *@
+    @if (facultyCode == "1")
+    {
+        <!-- ── MAINTENANCE POPUP (shown when PG or SS is clicked) ── -->
+        <div class="modal fade maint-modal"
+             id="maintenanceModal"
+             tabindex="-1"
+             aria-labelledby="maintenanceModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-header-inner">
+                            <div class="modal-ico"><i class="bi bi-tools"></i></div>
+                            <div>
+                                <div class="modal-title" id="maintenanceModalLabel">Application Details Being Updated</div>
+                                <span class="maint-level-tag">
+                                    <i class="bi bi-hourglass-split"></i>
+                                    <span id="maintenanceLevelLabel">Course Level</span> · Temporarily unavailable
+                                </span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="maint-notice" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>
+                                <strong>
+                                    We are currently updating the application details for
+                                    <span id="maintenanceLevelText">this course level</span>.
+                                </strong>
+                                <span class="maint-sub">
+                                    This section will be back soon. We apologise for the inconvenience
+                                    and appreciate your patience.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn-primary-modal" data-bs-dismiss="modal">
+                            <i class="bi bi-check2-circle"></i> Okay, Got It
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2778,6 +2987,60 @@
             </text>
         }
     </script>
+
+    @if (facultyCode == "1")
+    {
+        <script>
+            // Faculty 1: PG and SS course levels are being updated → show a "back soon" popup
+            (function () {
+            var modalEl = document.getElementById('maintenanceModal');
+            if (!modalEl) return;
+
+            var blockedLevels = {
+            PG: 'PG (Postgraduate) courses',
+            SS: 'SS (Super Specialty) courses'
+            };
+
+            // Keep the popup on <body> so it can stack above the dental report modal
+            if (modalEl.parentElement !== document.body) document.body.appendChild(modalEl);
+
+            // Tint the backdrop that belongs to the maintenance popup and lift it above the report modal
+            modalEl.addEventListener('shown.bs.modal', function () {
+            var backdrops = document.querySelectorAll('.modal-backdrop');
+            if (backdrops.length) backdrops[backdrops.length - 1].classList.add('maint-backdrop');
+            });
+
+            // Closing the popup must not leave the report modal un-scrollable
+            modalEl.addEventListener('hidden.bs.modal', function () {
+            if (document.querySelector('.modal.show')) document.body.classList.add('modal-open');
+            });
+
+            // A course-level item counts if it carries data-course-level="PG|SS" or its text is exactly PG / SS
+            function levelOf(el) {
+            var text = (el.getAttribute('data-course-level') || el.textContent || '').trim().toUpperCase();
+            return blockedLevels[text] ? text : '';
+            }
+
+            // Delegated + capture phase: sidebar items load dynamically, and this stops their normal navigation
+            document.addEventListener('click', function (e) {
+            var item = e.target.closest('.affiliation-subitem, [data-course-level]');
+            if (!item) return;
+
+            var level = levelOf(item);
+            if (!level) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            document.getElementById('maintenanceLevelLabel').textContent = level;
+            document.getElementById('maintenanceLevelText').textContent = blockedLevels[level];
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }, true);
+            })();
+        </script>
+    }
+
     <script src="~/js/ca-dental-application-status.js"></script>
 </body>
 </html>

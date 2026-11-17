@@ -2,6 +2,7 @@
 using BCrypt.Net;
 using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Medical_Affiliation.Services;
 using Medical_Affiliation.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -21,11 +22,18 @@ namespace Admission_Affiliation.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly PasswordHasher<TblRguhsFacultyUser> _passwordHasher;
+        private readonly AffiliationApplicationDocumentStorage _documentStorage;
+        private readonly ILogger<AdminController> _logger;
 
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(
+            ApplicationDbContext context,
+            AffiliationApplicationDocumentStorage documentStorage,
+            ILogger<AdminController> logger)
         {
             _context = context;
+            _documentStorage = documentStorage;
+            _logger = logger;
             _passwordHasher = new PasswordHasher<TblRguhsFacultyUser>();
         }
 
@@ -1395,6 +1403,186 @@ namespace Admission_Affiliation.Controllers
             return View();
         }
 
+        [Authorize(AuthenticationSchemes = "AdminAuth", Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> ManageAffiliationApplicationDocuments()
+        {
+            if (!IsDocumentAdministrator())
+            {
+                return Forbid();
+            }
+
+            ViewBag.AffiliationTypes = await _context.TypeOfAffiliations
+                .AsNoTracking()
+                .OrderBy(x => x.TypeDescription)
+                .ToListAsync();
+            ViewBag.Documents = await _context.AffiliationApplicationDocuments
+                .AsNoTracking()
+                .Include(x => x.Type)
+                .OrderBy(x => x.Type.TypeDescription)
+                .ThenByDescending(x => x.UploadedOn)
+                .ToListAsync();
+
+            return View();
+        }
+
+        [Authorize(AuthenticationSchemes = "AdminAuth", Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(21_000_000)]
+        public async Task<IActionResult> UploadAffiliationApplicationDocument(
+            int typeId,
+            string documentTitle,
+            IFormFile? file,
+            CancellationToken cancellationToken)
+        {
+            if (!IsDocumentAdministrator())
+            {
+                return Forbid();
+            }
+
+            var title = documentTitle?.Trim();
+            if (string.IsNullOrWhiteSpace(title) || title.Length > 200)
+            {
+                TempData["Error"] = "Enter a document title of 1 to 200 characters.";
+                return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+            }
+
+            if (file is null || file.Length == 0 || file.Length > 20 * 1024 * 1024)
+            {
+                TempData["Error"] = "Choose a non-empty PDF, DOC, or DOCX file no larger than 20 MB.";
+                return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+            }
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!await HasSupportedDocumentSignatureAsync(file, extension, cancellationToken))
+            {
+                TempData["Error"] = "The selected file is not a valid PDF, DOC, or DOCX document.";
+                return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+            }
+
+            var typeExists = await _context.TypeOfAffiliations
+                .AnyAsync(x => x.TypeId == typeId, cancellationToken);
+            if (!typeExists)
+            {
+                TempData["Error"] = "Select a valid affiliation type.";
+                return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+            }
+
+            var originalFileName = Path.GetFileName(file.FileName.Replace('\\', '/'));
+            if (string.IsNullOrWhiteSpace(originalFileName) || originalFileName.Length > 255)
+            {
+                TempData["Error"] = "The uploaded file name must not exceed 255 characters.";
+                return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+            }
+
+            var documentGuid = Guid.NewGuid();
+            StoredAffiliationApplicationDocument storedFile;
+            try
+            {
+                storedFile = await _documentStorage.SaveAsync(
+                    documentGuid, extension, file, cancellationToken);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError(ex, "Unable to store affiliation document for type {TypeId}.", typeId);
+                TempData["Error"] = "The file could not be saved to the configured D: or E: drive.";
+                return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+            }
+
+            _context.AffiliationApplicationDocuments.Add(new AffiliationApplicationDocument
+            {
+                DocumentGuid = documentGuid,
+                TypeId = typeId,
+                DocumentTitle = title,
+                OriginalFileName = originalFileName,
+                FileExtension = extension,
+                StorageDrive = storedFile.StorageDrive,
+                FilePath = storedFile.FilePath,
+                UploadedBy = User.Identity?.Name,
+                UploadedOn = DateTime.UtcNow,
+                IsActive = true
+            });
+
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Unable to save affiliation document metadata for {DocumentGuid}.", documentGuid);
+                try
+                {
+                    System.IO.File.Delete(storedFile.FilePath);
+                }
+                catch (IOException cleanupException)
+                {
+                    _logger.LogError(cleanupException, "Could not remove affiliation document {DocumentGuid} after metadata save failed.", documentGuid);
+                }
+                catch (UnauthorizedAccessException cleanupException)
+                {
+                    _logger.LogError(cleanupException, "Access denied while cleaning up affiliation document {DocumentGuid}.", documentGuid);
+                }
+
+                TempData["Error"] = "The document metadata could not be saved. Please try again.";
+                return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+            }
+
+            TempData["Success"] = "Affiliation application document uploaded successfully.";
+            return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+        }
+
+        [Authorize(AuthenticationSchemes = "AdminAuth", Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeactivateAffiliationApplicationDocument(long documentId)
+        {
+            if (!IsDocumentAdministrator())
+            {
+                return Forbid();
+            }
+
+            var document = await _context.AffiliationApplicationDocuments
+                .FirstOrDefaultAsync(x => x.DocumentId == documentId);
+            if (document is null)
+            {
+                return NotFound();
+            }
+
+            document.IsActive = false;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "The document is no longer available to colleges.";
+            return RedirectToAction(nameof(ManageAffiliationApplicationDocuments));
+        }
+
+        private bool IsDocumentAdministrator()
+        {
+            return int.TryParse(HttpContext.Session.GetString("FacultyId"), out var facultyId)
+                && facultyId > 98;
+        }
+
+        private static async Task<bool> HasSupportedDocumentSignatureAsync(
+            IFormFile file,
+            string extension,
+            CancellationToken cancellationToken)
+        {
+            if (extension is not (".pdf" or ".doc" or ".docx"))
+            {
+                return false;
+            }
+
+            var header = new byte[8];
+            await using var stream = file.OpenReadStream();
+            var bytesRead = await stream.ReadAsync(header.AsMemory(), cancellationToken);
+
+            return extension switch
+            {
+                ".pdf" => bytesRead >= 5 && header.AsSpan(0, 5).SequenceEqual("%PDF-"u8),
+                ".doc" => bytesRead >= 8 && header.AsSpan().SequenceEqual(new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 }),
+                ".docx" => bytesRead >= 4 && header[0] == 0x50 && header[1] == 0x4B && header[2] == 0x03 && header[3] == 0x04,
+                _ => false
+            };
+        }
 
         [HttpPost]
         [Authorize(AuthenticationSchemes = "AdminAuth")]

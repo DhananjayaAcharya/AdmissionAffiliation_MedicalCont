@@ -107,25 +107,25 @@
 </style>
 
 @* <div class="sidebar">
-    <h4>🎓 Admission Affiliation</h4>
-    <input type="hidden" name="facultyCode" id="facultyCode" value="@facultyCode" />
+        <h4>🎓 Admission Affiliation</h4>
+        <input type="hidden" name="facultyCode" id="facultyCode" value="@facultyCode" />
 
-    <select class="form-select affiliation-dropdown" id="typeOfAffiliationDropdown">
-        <option value="">-- Select Affiliation Type --</option>
-        @foreach (var item in ViewBag.TypeOfAffiliationList as List<SelectListItem>)
-        {
-            <option value="@item.Value">@item.Text</option>
-        }
-    </select>
+        <select class="form-select affiliation-dropdown" id="typeOfAffiliationDropdown">
+            <option value="">-- Select Affiliation Type --</option>
+            @foreach (var item in ViewBag.TypeOfAffiliationList as List<SelectListItem>)
+            {
+                <option value="@item.Value">@item.Text</option>
+            }
+        </select>
 
-    <a asp-controller="Login" asp-action="NodalOfficerDetails" class="sidebar-btn">
-        👲 Nodal Officer Details
-    </a>
-    <a asp-controller="Collegelogin" asp-action="GetExpectedDetails" class="sidebar-btn">
-         Medical Intake Detail
-    </a>
-</div>
- *@
+        <a asp-controller="Login" asp-action="NodalOfficerDetails" class="sidebar-btn">
+            👲 Nodal Officer Details
+        </a>
+        <a asp-controller="Collegelogin" asp-action="GetExpectedDetails" class="sidebar-btn">
+             Medical Intake Detail
+        </a>
+    </div>
+     *@
 
 @if (!string.IsNullOrEmpty(facultyCode))
 {
@@ -152,51 +152,68 @@
 
     <script>
         $(function () {
-            function toggleAHSButton() {
-                const selectedValue = $('#typeOfAffiliationDropdown').val();
-                // Assuming 'AHS' is the value indicating AHS based colleges
-                if (selectedValue === "AHS") {
-                    $('#ahsButton').show();
-                } else {
-                    $('#ahsButton').hide();
-                }
-            }
+        // Faculty code comes from session (server-side), so it can't be tampered with in the DOM
+        const sessionFacultyCode = '@(facultyCode ?? string.Empty)';
 
-            function loadInstitutionDetailsIfNeeded() {
-                const selectedValue = $('#typeOfAffiliationDropdown').val();
-                const facultyCode = $("#facultyCode").val();
+        // Faculty codes that must NOT get the dynamic popup/details content
+        const SUPPRESSED_FACULTY_CODES = ['12'];
+        const isPopupSuppressed = SUPPRESSED_FACULTY_CODES.includes(sessionFacultyCode);
 
-                toggleAHSButton();  // Ensure AHS button toggles accordingly
+        function toggleAHSButton() {
+        const selectedValue = $('#typeOfAffiliationDropdown').val();
+        // Assuming 'AHS' is the value indicating AHS based colleges
+        if (selectedValue === "AHS") {
+        $('#ahsButton').show();
+        } else {
+        $('#ahsButton').hide();
+        }
+        }
 
-                if (selectedValue === "2") {
-                    $.ajax({
-                        url: '@Url.Action("_BasicDetails", "Aff_Page")',
-                        type: 'GET',
-                        data: { facultyCode: facultyCode },
-                        success: function (response) {
-                            $(".dashboard-card").fadeOut(150, function () {
-                                $('#dynamicContent').html(response).hide().fadeIn(200);
-                            });
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error loading partial view:", error);
-                        }
-                    });
-                } else {
-                    $('#dynamicContent').fadeOut(100, function () {
-                        $(this).html('').fadeIn(100);
-                    });
-                    $(".dashboard-card").fadeIn(150);
-                }
-            }
+        function resetDynamicContent() {
+        $('#dynamicContent').fadeOut(100, function () {
+        $(this).html('').fadeIn(100);
+        });
+        $(".dashboard-card").fadeIn(150);
+        }
 
-            $('#typeOfAffiliationDropdown').on('change', loadInstitutionDetailsIfNeeded);
+        function loadInstitutionDetailsIfNeeded() {
+        const selectedValue = $('#typeOfAffiliationDropdown').val();
+        const facultyCode = sessionFacultyCode || $("#facultyCode").val();
 
-            // Trigger on page load in case value is already selected
-            toggleAHSButton();
-            if ($('#typeOfAffiliationDropdown').val() === "2") {
-                loadInstitutionDetailsIfNeeded();
-            }
+        toggleAHSButton();  // Ensure AHS button toggles accordingly
+
+        // Faculty 12: never populate the popup/details content
+        if (isPopupSuppressed) {
+        resetDynamicContent();
+        return;
+        }
+
+        if (selectedValue === "2") {
+        $.ajax({
+        url: '@Url.Action("_BasicDetails", "Aff_Page")',
+        type: 'GET',
+        data: { facultyCode: facultyCode },
+        success: function (response) {
+        $(".dashboard-card").fadeOut(150, function () {
+        $('#dynamicContent').html(response).hide().fadeIn(200);
+        });
+        },
+        error: function (xhr, status, error) {
+        console.error("Error loading partial view:", error);
+        }
+        });
+        } else {
+        resetDynamicContent();
+        }
+        }
+
+        $('#typeOfAffiliationDropdown').on('change', loadInstitutionDetailsIfNeeded);
+
+        // Trigger on page load in case value is already selected
+        toggleAHSButton();
+        if (!isPopupSuppressed && $('#typeOfAffiliationDropdown').val() === "2") {
+        loadInstitutionDetailsIfNeeded();
+        }
         });
     </script>
 
