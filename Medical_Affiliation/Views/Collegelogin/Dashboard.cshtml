@@ -33,6 +33,8 @@
     var actionCount = 3;   // Applications · Security Settings · College Profile
     var showDeadline = !string.IsNullOrEmpty(facultyCode);   // card is filled (or hidden) by course-schedule.js
     Layout = null;
+    var dentalHeroClass = facultyCode  == "2" ? "dentl-hero" : string.Empty;
+    bool isDental = facultyCode == "2";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -2187,6 +2189,7 @@
                 }
             }
     </style>
+    <link rel="stylesheet" href="~/css/dental-dashboard.css"/>
     <script>
             // Saved logo path exists but the file can't be loaded → treat as "no logo": show upload slot + hanging tag
             function logoMissing() {
@@ -2195,14 +2198,14 @@
             }
     </script>
 </head>
-<body>
+<body class="@(isDental ? "dental-theme" : "")">
 
     <!-- Logo watermark -->
     <div class="wm" aria-hidden="true">
         <img src="~/images/newLogo.jpeg" alt="" />
     </div>
 
-    <div class="gov-strip"></div>
+    <div class="gov-strip @(isDental ? "dental-gov-strip" : "")"></div>
 
     <!-- ── TOPBAR ──────────────────────────────────────────── -->
     <header class="topbar">
@@ -2224,11 +2227,11 @@
             {
                 <img src="@Url.Content(collegeLogoPath)" alt="" width="28" height="28" class="tb-centre-logo"
                      onerror="this.style.display='none'; document.getElementById('tbCentreIco').style.display='grid';" />
-                <div class="tb-centre-ico" id="tbCentreIco" style="display:none"><i class="bi bi-buildings-fill"></i></div>
+                <div class="tb-centre-ico @(isDental ? "dental-tb-centre-ico" : "")" id="tbCentreIco" style="display:none"><i class="bi bi-buildings-fill"></i></div>
             }
             else
             {
-                <div class="tb-centre-ico" id="tbCentreIco"><i class="bi bi-buildings-fill"></i></div>
+                <div class="tb-centre-ico @(isDental ? "dental-tb-centre-ico" : "")" id="tbCentreIco"><i class="bi bi-buildings-fill"></i></div>
             }
             <div class="tb-centre-inner">
                 <div class="tb-centre-label">Institution</div>
@@ -2239,7 +2242,7 @@
         <div class="tb-right">
             @if (!string.IsNullOrEmpty(collegeCode))
             {
-                <span class="tb-code">@collegeCode</span>
+                <span class="tb-code @(isDental ? "dental-tb-code" : "")">@collegeCode</span>
             }
             <form asp-action="Logout" asp-controller="Login" method="post" style="display:inline;">
                 @Html.AntiForgeryToken()
@@ -2289,17 +2292,17 @@
             }
 
             <!-- Hero -->
-            <section class="hero fade-up fade-up-1">
+            <section class="hero fade-up fade-up-1 @(isDental ? "dental-hero" : "")">
                 <div>
-                    <div class="hero-badge"><i class="bi bi-stars"></i> Affiliation Workspace</div>
+                    <div class="hero-badge @(isDental ? "dental-hero-badge" : "")"><i class="bi bi-stars"></i> Affiliation Workspace</div>
                     @{
                         var hasLogo = !string.IsNullOrWhiteSpace(collegeLogoPath);
                     }
                     @* has-tag = no usable logo: either none saved, or the saved file fails to load (onerror below flips it) *@
-                    <div class="hero-id @(hasLogo ? "" : "has-tag")" id="heroId">
-                        <div class="logo-slot">
+                    <div class="hero-id @(hasLogo ? "" : "has-tag") @(isDental ? "dental-hero-id" : "")" id="heroId">
+                        <div class="logo-slot @(isDental ? "dental-logo-slot" : "")">
                             <button type="button"
-                                    class="logo-upload-trigger"
+                                    class="logo-upload-trigger @(isDental ? "dental-logo-upload-trigger" : "")"
                                     onclick="goToCollegeProfile(event)"
                                     title="Upload college logo"
                                     aria-label="Upload college logo">
@@ -2308,40 +2311,40 @@
                                     <img src="@Url.Content(collegeLogoPath)" alt="" width="64" height="64" class="hero-logo"
                                          onerror="logoMissing()" />
                                 }
-                                <div class="hero-logo-ph"><i class="bi bi-building"></i></div>
-                                <span class="logo-edit-badge"><i class="bi bi-camera-fill"></i></span>
+                                <div class="hero-logo-ph @(isDental ? "dental-hero-logo-ph" : "")"><i class="bi bi-building"></i></div>
+                                <span class="logo-edit-badge @(isDental ? "dental-logo-edit-badge" : "")"><i class="bi bi-camera-fill"></i></span>
                             </button>
 
                             <!-- Hanging tag: visible only while there is no working college logo -->
-                            <button type="button" class="logo-tag" onclick="goToCollegeProfile(event)" aria-label="Upload college logo">
-                                <span class="logo-tag-string"></span>
-                                <span class="logo-tag-body">
+                            <button type="button" class="logo-tag @(isDental ? "dental-logo-tag" : "")" onclick="goToCollegeProfile(event)" aria-label="Upload college logo">
+                                <span class="logo-tag-string @(isDental ? "dental-logo-tag-string" : "")"></span>
+                                <span class="logo-tag-body @(isDental ? "dental-logo-tag-body" : "")">
                                     <i class="bi bi-cloud-arrow-up-fill"></i>
-                                    <span class="logo-tag-text"><small>Upload</small>College Logo</span>
+                                    <span class="logo-tag-text @(isDental ? "dental-logo-tag-text" : "")"><small>Upload</small>College Logo</span>
                                 </span>
                             </button>
                         </div>
                         <div>
-                            <div class="hero-title">@collegeName</div>
-                            <div class="hero-meta">
+                            <div class="hero-title @(isDental ? "dental-hero-title" : "")">@collegeName</div>
+                            <div class="hero-meta @(isDental ? "dental-hero-meta" : "")">
                                 @if (!string.IsNullOrEmpty(collegeCode))
                                 {
-                                    <span class="hero-pill"><i class="bi bi-upc-scan"></i> @collegeCode</span>
+                                    <span class="hero-pill @(isDental ? "dental-hero-pill" : "")"><i class="bi bi-upc-scan"></i> @collegeCode</span>
                                 }
                                 @if (!string.IsNullOrEmpty(facultyName))
                                 {
-                                    <span class="hero-pill"><i class="bi bi-mortarboard"></i> @facultyName</span>
+                                    <span class="hero-pill @(isDental ? "dental-hero-pill" : "")"><i class="bi bi-mortarboard"></i> @facultyName</span>
                                 }
-                                <span class="hero-pill"><i class="bi bi-shield-check"></i> Verified account</span>
+                                <span class="hero-pill @(isDental ? "dental-hero-pill" : "")"><i class="bi bi-shield-check"></i> Verified account</span>
                             </div>
                         </div>
                     </div>
-                    <p class="hero-desc">
+                    <p class="hero-desc @(isDental ? "dental-hero-desc" : "")">
                         Track your affiliation applications, keep your institution profile current and stay ahead of submission deadlines — all from one place.
                     </p>
                 </div>
-                <div class="hero-actions">
-                    <button type="button" class="btn-solid" onclick="goToCollegeProfile(event)">
+                <div class="hero-actions @(isDental ? "dental-hero-actions" : "")">
+                    <button type="button" class="btn-solid  @(isDental ? "dental-btn-solid" : "")" onclick="goToCollegeProfile(event)">
                         <span><i class="bi bi-person-vcard me-2"></i>College Profile</span>
                         <i class="bi bi-arrow-up-right"></i>
                     </button>
@@ -2799,27 +2802,27 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="cpPrincipalName" class="form-label">Principal / Dean Name</label>
-                                    <input type="text" id="cpPrincipalName" class="form-control" tabindex="-1" />
+                                    <input type="text" id="cpPrincipalName" class="form-control" tabindex="-1" @(isDental ? "readonly" : "")/>
                                 </div>
                                 <div class="col-12">
                                     <label for="cpAddress" class="form-label">Address</label>
-                                    <input type="text" id="cpAddress" class="form-control" tabindex="-1" />
+                                    <input type="text" id="cpAddress" class="form-control" tabindex="-1" @(isDental ? "readonly" : "")/>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="cpEmail" class="form-label">Email</label>
-                                    <input type="email" id="cpEmail" class="form-control" tabindex="-1" />
+                                    <input type="email" id="cpEmail" class="form-control" tabindex="-1" @(isDental ? "readonly" : "")/>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="cpPhoneNumber" class="form-label">Phone Number</label>
-                                    <input type="text" id="cpPhoneNumber" class="form-control" tabindex="-1" />
+                                    <input type="text" id="cpPhoneNumber" class="form-control" tabindex="-1" @(isDental ? "readonly" : "")/>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="cpEstablishedYear" class="form-label">Established Year</label>
-                                    <input type="text" id="cpEstablishedYear" class="form-control" tabindex="-1" />
+                                    <input type="text" id="cpEstablishedYear" class="form-control" tabindex="-1" @(isDental ? "readonly" : "")/>
                                 </div>
                                 <div class="col-12">
                                     <label for="cpWebsite" class="form-label">Website</label>
-                                    <input type="url" id="cpWebsite" class="form-control" tabindex="-1" />
+                                    <input type="url" id="cpWebsite" class="form-control" tabindex="-1" @(isDental ? "readonly" : "")/>
                                 </div>
                             </div>
                         </fieldset>

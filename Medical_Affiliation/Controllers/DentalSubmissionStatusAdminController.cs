@@ -1,12 +1,14 @@
 ﻿
 using Medical_Affiliation.DATA;
 using Medical_Affiliation.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Affiliation.Controllers
 {
+    [Authorize(AuthenticationSchemes = "AdminAuth")]
     public class DentalSubmissionStatusAdminController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -21,6 +21,8 @@
         "CourseAffiliation"
     };
     bool affiliationActive = affiliationControllers.Contains(currentController);
+
+    bool isDental = facultyCode == "2";
 }
 
 <style>
@@ -765,10 +767,10 @@
         }
     }
 </style>
-
+<link rel="stylesheet" href="~/css/dental-dashboard.css"/>
 @if (!string.IsNullOrEmpty(facultyCode))
 {
-    <aside class="sidebar" aria-label="Sidebar navigation">
+    <aside class="sidebar @(isDental ? "dental-sidebar" : "")" aria-label="Sidebar navigation">
 
         <button type="button"
                 class="sidebar-handle"
@@ -779,15 +781,15 @@
             <i class="bi bi-chevron-left" aria-hidden="true"></i>
         </button>
 
-        <div class="sidebar-header">
-            <div class="sidebar-header-top">
-                <div class="sidebar-header-ico"><i class="bi bi-mortarboard-fill"></i></div>
-                <div class="sidebar-header-text">
-                    <h4>College Workspace</h4>
-                    <div class="sidebar-header-sub">Affiliation Management</div>
+        <div class="sidebar-header @(isDental ? "dental-sidebar-header" : "")">
+            <div class="sidebar-header-top @(isDental ? "dental-sidebar-header-top" : "")">
+                <div class="sidebar-header-ico @(isDental ? "dental-sidebar-header-ico" : "")"><i class="bi bi-mortarboard-fill"></i></div>
+                <div class="sidebar-header-text @(isDental ? "dental-sidebar-header-text" : "")">
+                    <h4 class="@(isDental ? "dental-sidebar-title" : "")">College Workspace</h4>
+                    <div class="sidebar-header-sub @(isDental ? "dental-sidebar-header-sub" : "")">Affiliation Management</div>
                 </div>
             </div>
-            <span class="sidebar-official-badge"><i class="bi bi-patch-check-fill"></i> Official Portal</span>
+            <span class="sidebar-official-badge @(isDental ? "dental-sidebar-official-badge" : "")"><i class="bi bi-patch-check-fill"></i> Official Portal</span>
         </div>
 
         <div class="sidebar-section-label">Navigation</div>
@@ -889,7 +891,7 @@
     </form>
 
     <!-- Update Password Modal -->
-    <div class="modal fade password-modal" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+    <div class="modal fade password-modal @(isDental ? "dental-password-modal" : "")" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form asp-action="UpdatePassword" asp-controller="Login" method="post" id="updatePasswordForm">
@@ -959,7 +961,9 @@
 
     // Fallback levels for faculties 2 and 4 when the college has no rows in Mst_MedicalCollegeCourseIntake
     // (faculty 1 always uses the levels stored for the college in the [ug_pg] column)
-    const DEFAULT_LEVELS = ["ug", "pg", "ss"];
+    let DEFAULT_LEVELS = ["ug", "pg", "ss"];
+
+    if(currentFacultyCode === "2") DEFAULT_LEVELS = ["ug", "pg"];
 
     const SIDEBAR_KEY = "rguhsSidebarCollapsed";
 
@@ -1078,7 +1082,9 @@
     items.forEach(function (item) {
     const typeId = String(item.typeId);
     const hasRoute = !!affiliationBaseUrlMap[typeId];
-    const isDisabled = !hasRoute || (currentFacultyCode === "2" && typeId === "3");
+    const isDisabled = currentFacultyCode !== "1"
+    ? typeId !== "2"
+    : (!hasRoute || (currentFacultyCode === "2" && typeId === "3"));
 
     // Parent row (built with DOM APIs, so text can never inject HTML)
     const parentDiv = document.createElement("div");

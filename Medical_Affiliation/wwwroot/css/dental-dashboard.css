@@ -1,0 +1,421 @@
+/* =========================================================
+   Dental theme: replace dark/black neutrals with blue
+   Scoped to pages that contain the dental hero, so other
+   faculties keep the default white & gray theme.
+   ========================================================= */
+
+body:has(.dental-hero) {
+    /* dark neutrals → blues */
+    --g-900: #002855;   /* was near-black  */
+    --g-800: #003b73;
+    --g-700: #0a5a9c;   /* hover fills, strong text */
+    --g-600: #3f6b94;   /* secondary text */
+
+    /* light neutrals get a faint blue tint */
+    --g-50:  #f4f9fd;
+    --g-100: #eaf3fa;
+    --g-150: #e1edf6;
+    --g-200: #d6e6f2;
+    --g-300: #bcd4e6;
+    --g-400: #8fb0cc;
+    --g-500: #5f84a6;
+
+    /* these are declared on :root in the base CSS, so they must be
+       re-declared here or they keep the old near-black value */
+    --ink:   var(--g-900);
+    --ink-2: var(--g-600);
+    --ink-3: var(--g-500);
+    --line:  var(--g-200);
+
+    /* shadows: black → navy */
+    --sh-xs: 0 1px 2px rgba(0, 40, 85, .06);
+    --sh-sm: 0 2px 8px rgba(0, 40, 85, .08);
+    --sh-md: 0 10px 30px rgba(0, 40, 85, .12);
+    --sh-lg: 0 24px 60px rgba(0, 40, 85, .18);
+}
+
+/* Top accent strip */
+body:has(.dental-hero) .gov-strip {
+    background: linear-gradient(90deg, #002855, #0077b6 50%, #00b4d8);
+}
+
+/* Page background dots / glows */
+body:has(.dental-hero)::before {
+    background:
+        radial-gradient(700px 380px at 92% -4%, rgba(0, 119, 182, .08), transparent 70%),
+        radial-gradient(600px 360px at -4% 100%, rgba(0, 119, 182, .07), transparent 70%),
+        radial-gradient(rgba(0, 40, 85, .07) 1px, transparent 1px);
+    background-size: auto, auto, 26px 26px;
+}
+
+/* Sidebar: hard-coded black shadows (the !important rules need !important) */
+body:has(.dental-hero) .sidebar {
+    box-shadow: 10px 0 36px rgba(0, 40, 85, .06) !important;
+}
+body:has(.dental-hero) .sidebar .sidebar-link.active {
+    background: linear-gradient(135deg, #002855, #0077b6) !important;
+    border-color: #003b73 !important;
+    box-shadow: 0 12px 26px rgba(0, 59, 115, .30) !important;
+}
+body:has(.dental-hero) .sidebar .sidebar-header-ico {
+    background: linear-gradient(135deg, #002855, #0077b6) !important;
+    box-shadow: 0 8px 18px rgba(0, 59, 115, .30) !important;
+}
+body:has(.dental-hero) .sidebar .affiliation-subitem.active,
+body:has(.dental-hero) .sidebar .sidebar-action-btn.primary {
+    background: #003b73 !important;
+    border-color: #003b73 !important;
+}
+body:has(.dental-hero) .sidebar .sidebar-action-btn.primary:hover {
+    background: #0077b6 !important;
+    border-color: #0077b6 !important;
+}
+body:has(.dental-hero) .sidebar .notification-badge {
+    background: #0077b6 !important;
+}
+
+/* Buttons, icons and bars that used flat near-black */
+body:has(.dental-hero) .tb-centre-ico,
+body:has(.dental-hero) .modal-ico {
+    background: linear-gradient(135deg, #002855, #0077b6);
+    box-shadow: 0 8px 18px rgba(0, 59, 115, .30);
+}
+body:has(.dental-hero) .progress-report-btn,
+body:has(.dental-hero) .btn-primary-modal,
+body:has(.dental-hero) .modal-footer .btn-primary {
+    background: linear-gradient(135deg, #002855, #0077b6);
+    box-shadow: 0 10px 22px rgba(0, 59, 115, .28);
+}
+body:has(.dental-hero) .progress-report-btn:hover,
+body:has(.dental-hero) .btn-primary-modal:hover,
+body:has(.dental-hero) .modal-footer .btn-primary:hover {
+    background: linear-gradient(135deg, #003b73, #00a3d9);
+    box-shadow: 0 16px 30px rgba(0, 59, 115, .36);
+}
+body:has(.dental-hero) .progress-bar {
+    background: linear-gradient(90deg, #0077b6, #00b4d8);
+}
+body:has(.dental-hero) .btn-logout:hover {
+    background: #003b73;
+    border-color: #003b73;
+}
+
+/* Hover states on cards / actions (these used --g-900, now blue; add a glow) */
+body:has(.dental-hero) .stat-card:hover .stat-icon-wrap,
+body:has(.dental-hero) .action-item:hover .action-ico {
+    background: linear-gradient(135deg, #003b73, #0077b6);
+    border-color: #0077b6;
+    color: #fff;
+}
+body:has(.dental-hero) .stat-card::after,
+body:has(.dental-hero) .action-item::before,
+body:has(.dental-hero) .info-head-dot {
+    background: #0077b6;
+}
+
+/* Focus rings and inputs */
+body:has(.dental-hero) .action-item:focus-visible,
+body:has(.dental-hero) .quick-link:focus-visible,
+body:has(.dental-hero) .btn-solid:focus-visible,
+body:has(.dental-hero) .btn-ghost:focus-visible,
+body:has(.dental-hero) .btn-logout:focus-visible {
+    outline-color: #0077b6;
+}
+body:has(.dental-hero) .form-control:focus,
+body:has(.dental-hero) .form-select:focus {
+    border-color: #0077b6;
+    box-shadow: 0 0 0 4px rgba(0, 119, 182, .15);
+}
+
+/* Modal chrome */
+body:has(.dental-hero) .modal-content {
+    box-shadow: 0 30px 80px rgba(0, 40, 85, .28);
+}
+
+/* =========================================================
+   DENTAL BLUE THEME
+   Needs these classes in the HTML (only when isDental):
+   body.dental-theme · .gov-strip.dental-gov-strip
+   .sidebar.dental-sidebar · .password-modal.dental-password-modal
+   ========================================================= */
+
+/* ---------- 1. Variables: dark neutrals -> blues ---------- */
+body.dental-theme {
+    --g-900: #002855;
+    --g-800: #003b73;
+    --g-700: #0a5a9c;
+    --g-600: #3f6b94;
+
+    --g-50:  #f4f9fd;
+    --g-100: #eaf3fa;
+    --g-150: #e1edf6;
+    --g-200: #d6e6f2;
+    --g-300: #bcd4e6;
+    --g-400: #8fb0cc;
+    --g-500: #5f84a6;
+
+    /* declared on :root in the base CSS, so re-declare here */
+    --ink:   var(--g-900);
+    --ink-2: var(--g-600);
+    --ink-3: var(--g-500);
+    --line:  var(--g-200);
+
+    --sh-xs: 0 1px 2px rgba(0, 40, 85, .06);
+    --sh-sm: 0 2px 8px rgba(0, 40, 85, .08);
+    --sh-md: 0 10px 30px rgba(0, 40, 85, .12);
+    --sh-lg: 0 24px 60px rgba(0, 40, 85, .18);
+}
+
+/* ---------- 2. Page chrome ---------- */
+.gov-strip.dental-gov-strip {
+    background: linear-gradient(90deg, #002855, #0077b6 50%, #00b4d8);
+}
+
+body.dental-theme::before {
+    background:
+        radial-gradient(700px 380px at 92% -4%, rgba(0, 119, 182, .08), transparent 70%),
+        radial-gradient(600px 360px at -4% 100%, rgba(0, 119, 182, .07), transparent 70%),
+        radial-gradient(rgba(0, 40, 85, .07) 1px, transparent 1px);
+    background-size: auto, auto, 26px 26px;
+}
+
+body.dental-theme .tb-centre-ico,
+body.dental-theme .modal-ico {
+    background: linear-gradient(135deg, #002855, #0077b6);
+    box-shadow: 0 8px 18px rgba(0, 59, 115, .30);
+}
+
+body.dental-theme .btn-logout:hover {
+    background: #003b73;
+    border-color: #003b73;
+}
+
+/* ---------- 3. Buttons, bars, hover states ---------- */
+body.dental-theme .progress-report-btn,
+body.dental-theme .btn-primary-modal,
+body.dental-theme .modal-footer .btn-primary {
+    background: linear-gradient(135deg, #002855, #0077b6);
+    box-shadow: 0 10px 22px rgba(0, 59, 115, .28);
+}
+body.dental-theme .progress-report-btn:hover,
+body.dental-theme .btn-primary-modal:hover,
+body.dental-theme .modal-footer .btn-primary:hover {
+    background: linear-gradient(135deg, #003b73, #00a3d9);
+    box-shadow: 0 16px 30px rgba(0, 59, 115, .36);
+}
+body.dental-theme .progress-bar {
+    background: linear-gradient(90deg, #0077b6, #00b4d8);
+}
+
+body.dental-theme .stat-card:hover .stat-icon-wrap,
+body.dental-theme .action-item:hover .action-ico {
+    background: linear-gradient(135deg, #003b73, #0077b6);
+    border-color: #0077b6;
+    color: #fff;
+}
+body.dental-theme .stat-card::after,
+body.dental-theme .action-item::before,
+body.dental-theme .info-head-dot {
+    background: #0077b6;
+}
+
+/* ---------- 4. Focus rings, inputs, modals ---------- */
+body.dental-theme .action-item:focus-visible,
+body.dental-theme .quick-link:focus-visible,
+body.dental-theme .btn-solid:focus-visible,
+body.dental-theme .btn-ghost:focus-visible,
+body.dental-theme .btn-logout:focus-visible {
+    outline-color: #0077b6;
+}
+body.dental-theme .form-control:focus,
+body.dental-theme .form-select:focus {
+    border-color: #0077b6;
+    box-shadow: 0 0 0 4px rgba(0, 119, 182, .15);
+}
+body.dental-theme .modal-content {
+    box-shadow: 0 30px 80px rgba(0, 40, 85, .28);
+}
+
+/* ---------- 5. Sidebar ---------- */
+/* .sidebar.dental-sidebar (3 classes) beats the base "body .sidebar ..." (2 classes + 1 element) */
+
+.sidebar.dental-sidebar {
+    box-shadow: 10px 0 36px rgba(0, 40, 85, .06) !important;
+}
+.sidebar.dental-sidebar::-webkit-scrollbar-thumb {
+    background: #bcd4e6 !important;
+}
+
+/* Header */
+.sidebar.dental-sidebar .sidebar-header {
+    background:
+        radial-gradient(240px 120px at 100% 0%, rgba(144, 224, 239, .45), transparent 70%),
+        linear-gradient(180deg, #eaf6fc, #ffffff) !important;
+    border-bottom: 1px solid #d6e6f2 !important;
+}
+.sidebar.dental-sidebar .sidebar-header::after {
+    background: linear-gradient(90deg, #002855, #0077b6 55%, #00b4d8) !important;
+    height: 2px !important;
+}
+.dental-sidebar-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.sidebar.dental-sidebar .sidebar-header-ico {
+    background: linear-gradient(135deg, #002855, #0077b6) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 8px 18px rgba(0, 59, 115, .30) !important;
+}
+.sidebar.dental-sidebar .sidebar-header h4 {
+    color: #164d6a !important;
+    font-weight: 600;
+/*    letter-spacing: 0.3px;
+    padding-top: 5px;*/
+}
+.sidebar.dental-sidebar .sidebar-header-sub {
+    color: #0077b6 !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding-top: 5px;
+}
+.sidebar.dental-sidebar .sidebar-official-badge {
+    background: #eaf6fc !important;
+    border-color: #90e0ef !important;
+    color: #003b73 !important;
+}
+.sidebar.dental-sidebar .sidebar-official-badge i {
+    color: #0077b6 !important;
+}
+
+/* Labels */
+.sidebar.dental-sidebar .sidebar-section-label,
+.sidebar.dental-sidebar .sidebar-footer-label {
+    color: #5f84a6 !important;
+}
+
+/* Menu links */
+.sidebar.dental-sidebar .sidebar-link {
+    color: #003b73 !important;
+}
+.sidebar.dental-sidebar .sidebar-link i:first-child {
+    background: #eaf3fa;
+    color: #0a5a9c !important;
+}
+.sidebar.dental-sidebar .sidebar-link:hover {
+    background: #eaf6fc !important;
+    border-color: #bcd4e6 !important;
+    color: #002855 !important;
+}
+.sidebar.dental-sidebar .sidebar-link:hover i:first-child {
+    background: #fff;
+    color: #0077b6 !important;
+}
+.sidebar.dental-sidebar .sidebar-link.expanded {
+    background: #eaf6fc !important;
+}
+.sidebar.dental-sidebar .sidebar-link.active {
+    background: linear-gradient(135deg, #002855, #0077b6) !important;
+    border-color: #003b73 !important;
+    color: #fff !important;
+    box-shadow: 0 12px 26px rgba(0, 59, 115, .30) !important;
+}
+.sidebar.dental-sidebar .sidebar-link.active i:first-child {
+    background: rgba(255, 255, 255, .18);
+    color: #fff !important;
+}
+.sidebar.dental-sidebar .sidebar-link.active .notification-nav-icon i,
+.sidebar.dental-sidebar .sidebar-link.active .chevron {
+    color: #fff !important;
+}
+.sidebar.dental-sidebar .notification-badge {
+    background: #0077b6 !important;
+    color: #fff !important;
+}
+
+/* Affiliation dropdown */
+.sidebar.dental-sidebar .affiliation-dropdown {
+    background: #f4f9fd !important;
+    border-color: #d6e6f2 !important;
+}
+.sidebar.dental-sidebar .affiliation-submenu {
+    border-left-color: #0077b6;
+}
+.sidebar.dental-sidebar .affiliation-option:hover,
+.sidebar.dental-sidebar .affiliation-subitem:hover {
+    background: #eaf3fa !important;
+    color: #002855 !important;
+}
+.sidebar.dental-sidebar .affiliation-option i {
+    color: #5f84a6 !important;
+}
+.sidebar.dental-sidebar .affiliation-subitem.active {
+    background: #003b73 !important;
+    color: #fff !important;
+}
+
+/* Footer + account buttons */
+.sidebar.dental-sidebar .sidebar-footer {
+    background: #f4f9fd !important;
+    border-top-color: #d6e6f2 !important;
+}
+.sidebar.dental-sidebar .sidebar-action-btn {
+    border-color: #d6e6f2 !important;
+    color: #003b73 !important;
+}
+.sidebar.dental-sidebar .sidebar-action-btn i {
+    color: #0077b6 !important;
+}
+.sidebar.dental-sidebar .sidebar-action-btn:hover {
+    background: #eaf6fc !important;
+    border-color: #90e0ef !important;
+}
+.sidebar.dental-sidebar .sidebar-action-btn.primary {
+    background: linear-gradient(135deg, #002855, #0077b6) !important;
+    border-color: #003b73 !important;
+    color: #fff !important;
+    box-shadow: 0 10px 22px rgba(0, 59, 115, .28) !important;
+}
+.sidebar.dental-sidebar .sidebar-action-btn.primary i {
+    color: #fff !important;
+}
+.sidebar.dental-sidebar .sidebar-action-btn.primary:hover {
+    background: linear-gradient(135deg, #003b73, #00a3d9) !important;
+    border-color: #0077b6 !important;
+}
+
+/* Collapse handle */
+.sidebar.dental-sidebar .sidebar-handle {
+    color: #003b73 !important;
+    border-color: #bcd4e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 40, 85, .12) !important;
+}
+.sidebar.dental-sidebar .sidebar-handle:hover {
+    background: #eaf6fc !important;
+}
+
+/* ---------- 6. Update Password modal ---------- */
+.dental-password-modal .modal-header {
+    background: linear-gradient(180deg, #eaf6fc, #fff) !important;
+    border-bottom-color: #d6e6f2 !important;
+}
+.dental-password-modal .modal-title {
+    color: #002855 !important;
+}
+.dental-password-modal .modal-content {
+    border-top: 4px solid #0077b6;
+}
+.dental-password-modal .form-control:focus {
+    border-color: #0077b6;
+    box-shadow: 0 0 0 4px rgba(0, 119, 182, .15);
+}
+.dental-password-modal .password-visibility {
+    color: #0077b6;
+}
+.dental-password-modal .password-rule i {
+    color: #8fb0cc;
+}
+.dental-password-modal .modal-footer .btn-primary {
+    background: linear-gradient(135deg, #002855, #0077b6);
+}
